@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Оператор — Сессияи хизматрасонӣ</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/blueprint.css">
+<link rel="stylesheet" href="css/operator.css">
+</head>
+<body>
+<script src="js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-op-rail data-active="verify"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <a class="back" href="op-queue.html" style="margin:0"><svg><use href="#i-chev-l"/></svg><span>Навбат</span></a>
+      <span class="at-title" style="margin-left:var(--s-3)">A-122 · Сессияи хизматрасонӣ</span>
+      <div class="at-right">
+        <span class="win-chip"><span class="led-dot"></span>Тиреза 4</span>
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h"><h1>Хизматрасонӣ дар тиреза</h1><p>Маълумотнома — ҳайати оила · шаҳрванд назди тиреза</p></div>
+
+      <div class="wz" data-flow id="opwz">
+        <!-- step rail -->
+        <nav class="wz-steps" aria-label="Қадамҳо">
+          <div class="wz-step active"><span class="n">1</span><div><b>Тасдиқи шахсият</b><span>ҳуҷҷат, акс, SMS</span></div></div>
+          <div class="wz-step"><span class="n">2</span><div><b>Баррасӣ ва пур кардан</b><span>бо иҷозати шаҳрванд</span></div></div>
+          <div class="wz-step"><span class="n">3</span><div><b>Тасдиқ ва имзо</b><span>имзои электронӣ</span></div></div>
+          <div class="wz-step"><span class="n">4</span><div><b>Додани ҳуҷҷат</b><span>чоп ва ҳамён</span></div></div>
+        </nav>
+
+        <div class="wz-body">
+
+          <!-- ===== STEP 1 — IDENTITY ===== -->
+          <section data-step="1">
+            <h2>Тасдиқи шахсияти шаҳрванд</h2>
+            <p class="lead">Шаҳрванд назди тиреза. Ҳуҷҷатро сканеред ва се санҷишро гузаронед — то тасдиқ ягон маълумот тағйир дода намешавад.</p>
+
+            <!-- scan affordance -->
+            <div class="scanwrap" id="scanWrap" style="margin-bottom:var(--s-5)">
+              <button class="scanbox" id="scanBtn" type="button">
+                <span class="si"><svg><use href="#i-cat-passport"/></svg></span>
+                <div><b>Сканкунии шиноснома / ҳуҷҷат</b><span>ё рақамро дастӣ ворид кунед — феҳристи аҳолӣ кушода мешавад</span></div>
+              </button>
+            </div>
+
+            <!-- registry record (revealed after scan) -->
+            <div class="idc" id="idRecord" hidden style="margin-bottom:var(--s-5)">
+              <div class="photo"><span style="font-size:var(--fs-24);font-weight:700;color:var(--ink-3)">ФР</span><svg class="gw" aria-hidden="true"><use href="#girih-tile"/></svg><span class="cap">аксси феҳрист</span></div>
+              <div class="idc-body">
+                <div class="idc-name">Раҳимова Фируза Далеровна</div>
+                <span class="src-tag"><svg><use href="#i-check"/></svg>аз феҳристи аҳолӣ · ВКД</span>
+                <div class="idc-grid">
+                  <div><span class="k">Санаи таваллуд</span><span class="v">14.03.1990</span></div>
+                  <div><span class="k">Рақами шиноснома</span><span class="v">A0•••456</span></div>
+                  <div><span class="k">ҶШШР</span><span class="v">2•••••••••••3</span></div>
+                  <div><span class="k">Суроға</span><span class="v">Душанбе, Рӯдакӣ 84</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- three checks -->
+            <div class="blk" style="margin-top:0"><h2>Се санҷиши шахсият</h2>
+              <div class="led vchecks" id="vchecks">
+                <div class="vrow" id="vk-doc">
+                  <span class="v-ic"><svg><use href="#i-doc"/></svg></span>
+                  <div class="v-tt"><b>Ҳуҷҷат ва феҳрист мувофиқ</b><p>ному насаб, сана ва рақами шиноснома муқоиса мешаванд</p></div>
+                  <span class="v-act"><span class="muted small">худкор пас аз скан</span></span>
+                  <span class="v-done"><svg><use href="#i-check"/></svg>мувофиқ</span>
+                </div>
+                <div class="vrow" id="vk-face">
+                  <span class="v-ic"><svg><use href="#i-eye"/></svg></span>
+                  <div class="v-tt"><b>Аксси феҳрист ба шахс мувофиқ</b><p>аксро бо шахси назди тиреза муқоиса кунед</p></div>
+                  <span class="v-act"><button class="btn btn-sec btn-sm" id="faceBtn" disabled>Тасдиқ кардан</button></span>
+                  <span class="v-done"><svg><use href="#i-check"/></svg>мувофиқ</span>
+                </div>
+                <div class="vrow" id="vk-sms">
+                  <span class="v-ic"><svg><use href="#i-call"/></svg></span>
+                  <div class="v-tt"><b>Рамзи SMS ба телефони қайдшуда</b><p>+992 93 •••• 47 — рақами дар профил қайдшуда</p></div>
+                  <span class="v-act"><button class="btn btn-sec btn-sm" id="smsBtn" data-open="otpModal" disabled>Фиристодан</button></span>
+                  <span class="v-done"><svg><use href="#i-check"/></svg>тасдиқшуда</span>
+                </div>
+              </div>
+
+              <div class="note-info idok" style="background:var(--green-tint);margin-top:var(--s-4)">
+                <svg style="color:var(--green)"><use href="#i-check"/></svg>
+                <p><b>Шахсияти шаҳрванд тасдиқ шуд.</b> Ҳар се санҷиш гузашт — акнун метавонед аризаро баррасӣ кунед. Тасдиқ дар лог сабт шуд.</p>
+              </div>
+            </div>
+
+            <div class="j-acts">
+              <button class="btn btn-ghost" style="color:var(--red-ink)" data-open="mismatchModal"><svg style="color:var(--red-ink)"><use href="#i-x"/></svg>Номувофиқатӣ — қатъ</button>
+              <button class="btn btn-pri btn-lg" id="cont1" data-next disabled>Идома ба баррасӣ</button>
+            </div>
+          </section>
+
+          <!-- ===== STEP 2 — REVIEW & ASSISTED FILL ===== -->
+          <section data-step="2" hidden>
+            <h2>Баррасии ариза ва пур кардани маълумот</h2>
+            <p class="lead">Маълумотнома дар бораи ҳайати оила · САҲШ-и н. Сино. Чизи давлат медонистаро аз нав напурсед — танҳо майдонҳои навро <b>бо иҷозати шаҳрванд</b> пур кунед.</p>
+
+            <!-- once-only, registry-sourced (read-only) -->
+            <div class="blk" style="margin-top:0"><h2>Маълумоти аллакай мавҷуд <span class="muted small" style="font-weight:500">· як бор</span></h2>
+              <div class="plist">
+                <div class="pr"><div class="tt"><span class="k">Ному насаб</span><span class="v">Раҳимова Фируза Далеровна</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз профили шаҳрвандӣ · ВКД</span></div></div>
+                <div class="pr"><div class="tt"><span class="k">Суроғаи қайд</span><span class="v">Душанбе, кӯчаи Рӯдакӣ 84, х.12</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз феҳристи суроғаҳо</span></div></div>
+                <div class="pr"><div class="tt"><span class="k">Ҳайати оила</span><span class="v">4 нафар</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз САҲШ ва феҳристи аҳолӣ</span></div></div>
+              </div>
+            </div>
+
+            <!-- consent gate -->
+            <div class="consent">
+              <span class="cs-ic"><svg><use href="#i-shield"/></svg></span>
+              <div class="cs-tt"><b>Иҷозати шаҳрванд</b><p>Шаҳрванд иҷозат дод, ки оператор маълумоти навро аз номи ӯ ворид кунад. Ҳар майдони пуркарда нишона мегирад ва дар профили шаҳрванд намоён мешавад.</p></div>
+              <label class="sw"><input type="checkbox" id="consentSw"><span class="knob"></span></label>
+            </div>
+
+            <!-- assisted fill (locked until consent) -->
+            <div class="blk assist" id="assistBlock" aria-disabled="true" style="margin-top:0"><h2>Майдонҳои нав — пуркунии оператор</h2>
+              <div class="field">
+                <label for="f-purpose">Мақсади маълумотнома</label>
+                <div class="select"><select id="f-purpose"><option>Барои бонк (қарз/суратҳисоб)</option><option>Барои ҷойи кор</option><option>Барои суд</option><option>Барои мактаб/боғча</option></select></div>
+                <span class="op-tag"><svg><use href="#i-edit"/></svg>пуркардаи оператор</span>
+              </div>
+              <div class="fld-grid">
+                <div class="field">
+                  <label for="f-lang">Забони ҳуҷҷат</label>
+                  <div class="select"><select id="f-lang"><option>Тоҷикӣ</option><option>Русӣ</option></select></div>
+                  <span class="op-tag"><svg><use href="#i-edit"/></svg>пуркардаи оператор</span>
+                </div>
+                <div class="field">
+                  <label for="f-copies">Шумораи нусхаҳои чопӣ</label>
+                  <div class="select"><select id="f-copies"><option>1</option><option>2</option><option>3</option></select></div>
+                  <span class="op-tag"><svg><use href="#i-edit"/></svg>пуркардаи оператор</span>
+                </div>
+              </div>
+              <div class="field">
+                <label>Тарзи гирифтан</label>
+                <div class="seg" role="group" aria-label="Тарзи гирифтан">
+                  <label><input type="radio" name="getway" checked><span>Рақамӣ + чопӣ</span></label>
+                  <label><input type="radio" name="getway"><span>Танҳо рақамӣ</span></label>
+                  <label><input type="radio" name="getway"><span>Танҳо чопӣ</span></label>
+                </div>
+                <span class="op-tag"><svg><use href="#i-edit"/></svg>пуркардаи оператор</span>
+              </div>
+            </div>
+
+            <!-- originals seen -->
+            <div class="blk"><h2>Ҳуҷҷатҳои аслӣ</h2>
+              <div class="led">
+                <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Шиноснома — асл дида шуд</span><span class="k">A0•••456</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+                <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Китоби ҳавлигӣ — асл дида шуд</span><span class="k">тасдиқи суроға ва ҳайати оила</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+              </div>
+            </div>
+
+            <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next>Идома ба тасдиқ</button></div>
+          </section>
+
+          <!-- ===== STEP 3 — APPROVE & E-SIGN ===== -->
+          <section data-step="3" hidden>
+            <h2>Тасдиқ ва имзои электронӣ</h2>
+            <p class="lead">Ҳамаашро як бор санҷед. Ҳуҷҷат бо имзои электронии шумо сохта ва ба шаҳрванд супорида мешавад.</p>
+
+            <div class="review">
+              <div class="rv"><span class="k">Шаҳрванд</span><span class="v">Фируза Раҳимова</span></div>
+              <div class="rv"><span class="k">Шахсият</span><span class="v">тасдиқшуда · 3 санҷиш ✓</span></div>
+              <div class="rv"><span class="k">Хизмат</span><span class="v">Маълумотнома — ҳайати оила</span></div>
+              <div class="rv"><span class="k">Мақсад <span class="op-mini">✎</span></span><span class="v">Барои бонк (қарз/суратҳисоб)</span></div>
+              <div class="rv"><span class="k">Тарзи гирифтан <span class="op-mini">✎</span></span><span class="v">Рақамӣ + чопӣ (1 нусха)</span></div>
+              <div class="rv"><span class="k">Арзиш</span><span class="v">Ройгон</span></div>
+            </div>
+
+            <div class="note-info" style="margin-top:var(--s-4)">
+              <svg><use href="#i-info"/></svg>
+              <p>Майдонҳои бо <b>✎</b> аз ҷониби оператор бо иҷозати шаҳрванд пур шудаанд. Дар профили шаҳрванд онҳо ҳамчун «пуркардаи оператор» нишон дода мешаванд ва дар лог сабт мегарданд.</p>
+            </div>
+
+            <div class="j-acts">
+              <button class="btn btn-sec" data-back>Бозгашт</button>
+              <button class="btn btn-ghost" data-open="infoModal"><svg><use href="#i-chat"/></svg>Маълумоти иловагӣ</button>
+              <button class="btn btn-ghost" style="color:var(--red-ink)" data-open="rejectModal"><svg style="color:var(--red-ink)"><use href="#i-x"/></svg>Рад</button>
+              <button class="btn btn-pri btn-lg" data-open="approveModal"><svg><use href="#i-sign"/></svg>Тасдиқ ва имзо</button>
+            </div>
+          </section>
+
+          <!-- ===== STEP 4 — ISSUE / HANDOVER (success) ===== -->
+          <section data-step="4" hidden>
+            <div class="success" style="padding-top:var(--s-4)">
+              <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><circle cx="50" cy="50" r="46"/><path d="M30 52l13 13 27-29"/></svg>
+              <h2>Ҳуҷҷат омода ва супорида шуд</h2>
+              <p class="when">имрӯз, 11:42 · имзои электронии оператор А. Каримов</p>
+              <div class="s-list">
+                <div class="s-row"><svg><use href="#i-doc"/></svg><span>Маълумотнома бо QR ва имзои электронӣ сохта шуд</span><span class="st-l">ҳозир</span></div>
+                <div class="s-row"><svg><use href="#i-wallet"/></svg><span>Ба ҳамёни рақамии Ф. Раҳимова фиристода шуд</span><span class="st-l">push</span></div>
+                <div class="s-row"><svg><use href="#i-download"/></svg><span>Нусхаи чопӣ ва расид супорида шуд</span><span class="st-l">чоп шуд</span></div>
+                <div class="s-row op-prov"><svg><use href="#i-edit"/></svg><span>Майдонҳои пуркардаи оператор дар профил қайд шуданд</span><span class="st-l">сабт</span></div>
+              </div>
+              <div class="j-acts j-acts-center">
+                <button class="btn btn-sec" data-toast="Намунавӣ: чопи такрорӣ фиристода шуд"><svg><use href="#i-download"/></svg>Чопи такрорӣ</button>
+                <a class="btn btn-pri btn-lg" href="op-queue.html"><svg><use href="#i-arrow-ur"/></svg>Анҷом ва навбати оянда</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OTP modal (SMS code) -->
+<div class="overlay" id="otpModal" role="dialog" aria-modal="true" aria-labelledby="otpH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--blue-tint);color:var(--blue-ink)"><svg><use href="#i-call"/></svg></span><div><h3 id="otpH">Рамзи SMS</h3><p>ба телефони қайдшуда +992 93 •••• 47 фиристода шуд</p></div></div>
+    <div class="otp">
+      <input inputmode="numeric" maxlength="1" value="4" aria-label="Рақами 1">
+      <input inputmode="numeric" maxlength="1" value="1" aria-label="Рақами 2">
+      <input inputmode="numeric" maxlength="1" value="9" aria-label="Рақами 3">
+      <input inputmode="numeric" maxlength="1" value="2" aria-label="Рақами 4">
+    </div>
+    <p class="fine" style="text-align:center;margin-bottom:var(--s-4)">Шаҳрванд рамзро мехонад — шумо онро тасдиқ мекунед.</p>
+    <button class="btn btn-pri btn-block" data-close data-toast="Рамзи SMS тасдиқ шуд" onclick="opSmsConfirm()">Тасдиқи рамз</button>
+    <button class="btn btn-ghost btn-block" data-close data-toast="Намунавӣ: рамз дубора фиристода шуд">Дубора фиристодан</button>
+  </div>
+</div>
+
+<!-- approve & e-sign -->
+<div class="overlay" id="approveModal" role="dialog" aria-modal="true" aria-labelledby="apH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--green-tint);color:var(--green)"><svg><use href="#i-sign"/></svg></span><div><h3 id="apH">Тасдиқ ва имзои электронӣ</h3><p>ҳуҷҷат сохта, чоп ва ба ҳамёни шаҳрванд фиристода мешавад</p></div></div>
+    <div class="led" style="margin-bottom:var(--s-4)">
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-doc"/></svg></span><div><b>Маълумотнома сохта мешавад</b><p>бо имзои электронии оператор ва QR</p></div></div>
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-wallet"/></svg></span><div><b>Ба ҳамёни Ф. Раҳимова меравад</b><p>push-огоҳӣ фиристода мешавад</p></div></div>
+      <div class="led-row"><span class="lr-ic muted"><svg><use href="#i-edit"/></svg></span><div><b>Манбаи ҳар майдон сабт мешавад</b><p>пуркардаи оператор · бо иҷозати шаҳрванд</p></div></div>
+    </div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Ҳуҷҷат имзо ва супорида шуд" onclick="bpFlowGoto('#opwz',4)">Тасдиқ ва имзои электронӣ</button>
+    <button class="btn btn-ghost btn-block" data-close>Бекор</button>
+  </div>
+</div>
+
+<!-- request more info -->
+<div class="overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="inH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="#i-chat"/></svg></span><div><h3 id="inH">Маълумоти иловагӣ</h3><p>агар ҳуҷҷат нокифоя бошад — навбат нигоҳ дошта мешавад</p></div></div>
+    <div class="field"><label for="inWhat">Чӣ лозим аст?</label><div class="select"><select id="inWhat"><option>Нусхаи китоби ҳавлигӣ</option><option>Ҳуҷҷати тасдиқи суроға</option><option>Тавзеҳи иловагӣ</option></select></div></div>
+    <div class="field"><label for="inMsg">Эзоҳ барои шаҳрванд</label><input class="input" id="inMsg" value="Барои тасдиқи суроға нусхаи китоби ҳавлигиро биёред."></div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Дархост ба шаҳрванд дода шуд — навбат нигоҳ дошта шуд">Сабт ва огоҳ кардан</button>
+  </div>
+</div>
+
+<!-- reject -->
+<div class="overlay" id="rejectModal" role="dialog" aria-modal="true" aria-labelledby="rjH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--red-tint);color:var(--red-ink)"><svg><use href="#i-x"/></svg></span><div><h3 id="rjH">Рад кардани ариза</h3><p>сабабро равшан нависед — шаҳрванд бояд тавонад ислоҳ кунад</p></div></div>
+    <div class="field"><label for="rjWhy">Сабаби рад</label><div class="select"><select id="rjWhy"><option>Ҳуҷҷати асоснок нокифоя</option><option>Маълумот зиддиятнок</option><option>Хизмат ба ин шахс тааллуқ надорад</option></select></div></div>
+    <div class="note-info" style="margin-bottom:var(--s-4)"><svg><use href="#i-info"/></svg><p>Шаҳрванд сабабро мебинад, метавонад ислоҳ кунад ва аз нав ояд — <b>ҷарима нест.</b></p></div>
+    <button class="btn btn-danger btn-block" data-close data-toast="Ариза рад шуд — шаҳрванд огоҳ карда шуд">Рад кардан</button>
+    <button class="btn btn-ghost btn-block" data-close>Бекор</button>
+  </div>
+</div>
+
+<!-- identity mismatch -->
+<div class="overlay" id="mismatchModal" role="dialog" aria-modal="true" aria-labelledby="msH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--red-tint);color:var(--red-ink)"><svg><use href="#i-shield"/></svg></span><div><h3 id="msH">Шахсият тасдиқ нашуд</h3><p>бе тасдиқи шахсият хизматрасонӣ имконнопазир аст</p></div></div>
+    <div class="note-info" style="margin-bottom:var(--s-4)"><svg><use href="#i-info"/></svg><p>Сессия қатъ мешавад ва ҳолат қайд карда мешавад. Ба шаҳрванд оромона фаҳмонед, ки кадом ҳуҷҷат лозим аст. Ҳеҷ маълумот тағйир дода нашуд.</p></div>
+    <a class="btn btn-danger btn-block" href="op-queue.html" data-toast="Сессия қатъ ва қайд карда шуд">Қатъ ва бозгашт ба навбат</a>
+    <button class="btn btn-ghost btn-block" data-close>Идомаи санҷиш</button>
+  </div>
+</div>
+
+<script>
+/* operator-session interactions: verification checks, consent gate, e-sign advance.
+   Declarative operator.js handles flow/modals; this wires the session-specific bits. */
+(function(){
+  var vchecks = document.getElementById('vchecks');
+  var cont1   = document.getElementById('cont1');
+  function maybeOk(){
+    var total = vchecks.querySelectorAll('.vrow').length;
+    var done  = vchecks.querySelectorAll('.vrow.done').length;
+    if(done === total){ vchecks.classList.add('allok'); cont1.disabled = false; }
+  }
+  function rowDone(id){ var r = document.getElementById(id); if(r){ r.classList.add('done'); } maybeOk(); }
+
+  var scanBtn = document.getElementById('scanBtn');
+  scanBtn && scanBtn.addEventListener('click', function(){
+    document.getElementById('idRecord').hidden = false;
+    document.getElementById('scanWrap').hidden = true;
+    document.getElementById('faceBtn').disabled = false;
+    document.getElementById('smsBtn').disabled  = false;
+    rowDone('vk-doc');
+    if(window.bpToast) window.bpToast('Ҳуҷҷат хонда шуд — феҳрист мувофиқ');
+  });
+
+  var faceBtn = document.getElementById('faceBtn');
+  faceBtn && faceBtn.addEventListener('click', function(){ rowDone('vk-face'); });
+
+  /* called from the OTP modal's confirm button */
+  window.opSmsConfirm = function(){ rowDone('vk-sms'); };
+
+  /* consent gate unlocks the assisted-fill block + its operator-attribution tags */
+  var consent = document.getElementById('consentSw');
+  var assist  = document.getElementById('assistBlock');
+  consent && consent.addEventListener('change', function(){
+    assist.setAttribute('aria-disabled', String(!consent.checked));
+    if(consent.checked && window.bpToast) window.bpToast('Иҷозат қайд шуд — майдонҳо кушода шуданд');
+  });
+})();
+</script>
+
+<script src="js/operator-i18n.js"></script>
+<script src="js/operator.js"></script>
+</body>
+</html>

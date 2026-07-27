@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Харитаи панели админ</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" style="margin-left:6px">Харитаи админ</span>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="sheet-wide">
+    <a class="back" href="index.html"><svg><use href="#i-chev-l"/></svg><span>Ҳама экранҳо</span></a>
+
+    <div class="gx-hero" style="padding-top:var(--s-4)">
+      <span class="eyebrow">Харитаи панели администратор · консепсия</span>
+      <h1>Панели идора: вуруд, баррасӣ ва идоракунӣ</h1>
+      <p>Панели админ ҳамон шаффофиятеро месозад, ки шаҳрванд дар сафари худ мебинад. Ҷараёни асосӣ — баррасии ариза; гирду атрофаш — идоракунии корбарон, хизматҳо, нақшҳо ва танзимот.</p>
+      <div class="map-legend">
+        <span class="lane-tag"><i style="background:var(--blue)"></i>Ҷараёни ҳаррӯзаи баррасӣ</span>
+        <span class="lane-tag"><i style="background:var(--h-violet-fg)"></i>Идоракунӣ ва танзим</span>
+      </div>
+    </div>
+
+    <!-- entry + overview -->
+    <div class="jmap" style="margin-bottom:var(--s-6)">
+      <div class="jstage" style="--accent:var(--h-slate-fg)">
+        <span class="jn" style="background:var(--h-slate-bg);color:var(--h-slate-fg)"><svg style="width:18px;height:18px"><use href="#i-lock"/></svg></span>
+        <div>
+          <div class="jhead"><span class="stg">Вуруд</span><h3>Воридшавии корӣ — алоҳида аз шаҳрвандон</h3></div>
+          <p class="desc">Логин хидматӣ + парол + 2FA. Нақш ҳангоми вуруд муайян мешавад. Ҳамаи воридшавиҳо сабт мегарданд.</p>
+          <div class="jfoot"><a href="admin-login.html"><svg><use href="#i-arrow-ur"/></svg>admin-login.html</a></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+      <div class="jstage" style="--accent:var(--h-indigo-fg)">
+        <span class="jn" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)"><svg style="width:18px;height:18px"><use href="#i-dash"/></svg></span>
+        <div>
+          <div class="jhead"><span class="stg">Лавҳаи идора</span><h3>Навбатҳо, SLA, омори оммавӣ</h3></div>
+          <p class="desc">Нуқтаи саршавӣ: чӣ амали шумо лозим аст, кадом бахш дар хатари SLA, ҳамон рақамҳое, ки шаҳрвандон мебинанд.</p>
+          <div class="jfoot"><a href="admin-dashboard.html"><svg><use href="#i-arrow-ur"/></svg>admin-dashboard.html</a><span class="back-stage"><svg><use href="#i-eye"/></svg>омор = саҳифаи асосии шаҳрвандон</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- review loop -->
+    <div class="sect-h" style="margin-bottom:var(--s-3)"><h2 style="font-size:var(--fs-20)">Ҷараёни ҳаррӯза · баррасии ариза</h2></div>
+    <div class="jmap" style="margin-bottom:var(--s-6)">
+      <div class="jstage" style="--accent:var(--h-blue-fg)">
+        <span class="jn">1</span>
+        <div>
+          <div class="jhead"><span class="stg">Аризаҳо</span><h3>Навбат: филтр, SLA, таъин</h3></div>
+          <p class="desc">Ҷадвали аризаҳо бо ҳолат, вақти SLA ва масъул. Таъини худкор ё дастӣ.</p>
+          <div class="chips"><code>.tbl ҷадвал</code><code>филтрҳои ҳолат</code><code>SLA chip</code><code>таъини гурӯҳӣ</code></div>
+          <div class="jfoot"><a href="admin-inbox.html"><svg><use href="#i-arrow-ur"/></svg>admin-inbox.html</a></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+      <div class="jstage" style="--accent:var(--h-blue-fg)">
+        <span class="jn">2</span>
+        <div>
+          <div class="jhead"><span class="stg">Баррасии ариза</span><h3>Маълумот, замимаҳо, таърих</h3></div>
+          <p class="desc">Маълумоти аризадиҳанда (танҳо хониш, бо тамғаи манбаъ), натиҷаи санҷиши худкор, замимаҳо ва логи пурра.</p>
+          <div class="chips"><code>.src-tag</code><code>.filerow замимаҳо</code><code>.timeline аудит</code><code>.svd-aside қарор</code></div>
+          <div class="jfoot"><a href="admin-review.html"><svg><use href="#i-arrow-ur"/></svg>admin-review.html</a></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+      <div class="jstage" style="--accent:var(--h-green-fg)">
+        <span class="jn">3</span>
+        <div>
+          <div class="jhead"><span class="stg">Қарор</span><h3>Тасдиқ · маълумоти иловагӣ · рад</h3><span class="pr-pill">→ сафари корбар</span></div>
+          <p class="desc">Се натиҷа — ҳар кадом бо имзои электронӣ ва паём. Маҳз ҳамин ҳолатҳои тарафи шаҳрвандро месозад (пайгирӣ).</p>
+          <div class="chips"><code>модали тасдиқ</code><code>модали маълумот</code><code>модали рад</code></div>
+          <div class="jfoot"><a href="admin-review.html"><svg><use href="#i-arrow-ur"/></svg>admin-review.html · модалҳо</a><span class="back-stage"><svg><use href="#i-arrow-ur"/></svg>натиҷа дар track.html (баррасӣ / иловагӣ / рад / тайёр)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- management cluster -->
+    <div class="sect-h" style="margin-bottom:var(--s-3)"><h2 style="font-size:var(--fs-20)">Идоракунӣ ва танзим</h2><span class="sub">на ҷараёни хатӣ — бахшҳои алоҳида</span></div>
+    <div class="gx-grid">
+      <a class="gx-card" href="admin-users.html">
+        <div class="gx-top"><span class="tile t-steel"><svg><use href="#i-users"/></svg></span><h3>Корбарон</h3></div>
+        <p>Ҷадвали кормандон → <b>Илова кардани корбар</b> (устои 5-қадама: шахсият → нақш → раёсат → ҳуқуқ → даъват).</p>
+        <span class="gx-go">admin-users · admin-user-new<svg><use href="#i-chev-r"/></svg></span>
+      </a>
+      <a class="gx-card" href="admin-services.html">
+        <div class="gx-top"><span class="tile t-violet"><svg><use href="#i-cat-cert"/></svg></span><h3>Хизматрасониҳо</h3></div>
+        <p>Феҳристи 612 хизмат ва <b>конструктори шакл</b> — ҳамин майдонҳо <code>apply.html</code>-ро месозанд.</p>
+        <span class="gx-go">admin-services<svg><use href="#i-chev-r"/></svg></span>
+      </a>
+      <a class="gx-card" href="admin-roles.html">
+        <div class="gx-top"><span class="tile t-rose sh-c"><svg><use href="#i-role"/></svg></span><h3>Нақшҳо ва ҳуқуқ</h3></div>
+        <p>Матритсаи нақш × ваколат. Ҳамин ҳуқуқ ҳангоми илова кардани корбар гирифта мешавад.</p>
+        <span class="gx-go">admin-roles<svg><use href="#i-chev-r"/></svg></span>
+      </a>
+      <a class="gx-card" href="admin-settings.html">
+        <div class="gx-top"><span class="tile t-gray sh-c"><svg><use href="#i-gear"/></svg></span><h3>Танзимот</h3></div>
+        <p>Раёсатҳо, соатҳои корӣ, қоидаҳои тақсими навбат ва нуқтаҳои гирифтани ҳуҷҷат.</p>
+        <span class="gx-go">admin-settings<svg><use href="#i-chev-r"/></svg></span>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><div class="ft-bottom"><span>© 2026 eKhizmat</span><div class="ft-legal"><a href="index.html">Ҳама экранҳо</a><a href="map-citizen.html">Харитаи корбар</a></div></div></div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

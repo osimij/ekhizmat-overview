@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Шакли ариза</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <label for="bpex" style="margin-left:8px">Намуна</label>
+  <select class="bp-select" id="bpex" aria-label="Хизмати намунавӣ">
+    <option value="family">Ҳайати оила · ройгон</option>
+    <option value="taxdebt">Қарзи андоз · музднок</option>
+    <option value="archive">Нусхаи бойгонӣ · боргузорӣ</option>
+    <option value="zags">Қайди никоҳ · сана/вақт</option>
+    <option value="biz">Шахси ҳуқуқӣ</option>
+  </select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" id="hdrAcct" style="margin-left:6px">Шахси воқеӣ</span>
+    <div class="hdr-acts">
+      <button class="dd-btn" type="button">ТҶ<svg><use href="#i-chev-d"/></svg></button>
+      <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+      <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+      <span class="avatar" aria-hidden="true">Ф</span>
+    </div>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="col" data-flow id="flow">
+    <a class="back" href="service.html"><svg><use href="#i-chev-l"/></svg><span>Бозгашт</span></a>
+
+    <div class="j-head">
+      <div class="j-prog" aria-hidden="true">
+        <svg class="st on"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg>
+        <span class="lbl" data-step-label data-step-tpl="Қадами {n} аз 4"></span>
+      </div>
+      <div class="metachip" style="margin-top:8px"><svg><use href="#i-cat-cert"/></svg><span id="svcTitle">Маълумотнома дар бораи ҳайати оила</span> · <span id="svcOrg">САҲШ</span></div>
+    </div>
+
+    <!-- STEP 1 — confirm known data -->
+    <section class="j-step" data-step="1">
+      <h2>Маълумотро тасдиқ кунед</h2>
+      <p class="lead">Ҳамаашро аз феҳристҳо гирифтем. Танҳо нигаред — агар чизе нодуруст бошад, ислоҳ кунед.</p>
+
+      <div class="field">
+        <label>Аризадиҳанда</label>
+        <span class="chip"><b>Фируза Раҳимова</b></span>
+        <span class="src-tag"><svg><use href="#i-check"/></svg>аз профили шаҳрвандии шумо</span>
+      </div>
+      <div class="field" data-field="entity" hidden>
+        <label>Шахси ҳуқуқӣ</label>
+        <div class="chips-row"><span class="chip"><b>ҶДММ «Сино-Текс»</b></span><span class="chip">ИНН 030 555 128</span></div>
+        <span class="src-tag"><svg><use href="#i-check"/></svg>аз феҳристи ягонаи давлатӣ</span>
+      </div>
+      <div class="field">
+        <label>Суроғаи қайд</label>
+        <span class="chip"><b>Душанбе, кӯчаи Рӯдакӣ 84, хонаи 12</b></span>
+        <span class="src-tag"><svg><use href="#i-check"/></svg>аз феҳристи суроғаҳо</span>
+      </div>
+      <div class="field" data-field="family">
+        <label>Ҳайати оила — 4 нафар</label>
+        <div class="led">
+          <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Фируза Раҳимова</b><p>аризадиҳанда · 14.03.1994</p></div><span class="lr-tail">сардори оила</span></div>
+          <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Далер Раҳимов</b><p>ҳамсар · 02.07.1991</p></div><span class="lr-tail">аъзо</span></div>
+          <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Зарина Раҳимова</b><p>фарзанд · 08.06.2026</p></div><span class="lr-tail">аъзо</span></div>
+          <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Олима Раҳимова</b><p>модар · 19.11.1965</p></div><span class="lr-tail">аъзо</span></div>
+        </div>
+        <span class="src-tag"><svg><use href="#i-check"/></svg>аз САҲШ ва феҳристи аҳолӣ</span>
+      </div>
+
+      <div class="fixrow">
+        <p>Касе намерасад ё маълумот нодуруст аст?</p>
+        <button class="btn btn-ghost btn-sm" data-open="fixModal">Ислоҳро дархост кардан</button>
+      </div>
+
+      <div class="j-acts"><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+      <p class="autosave"><svg><use href="#i-check"/></svg><span>Худкор сабт шуд — аз ҳар дастгоҳ идома дода метавонед</span></p>
+    </section>
+
+    <!-- STEP 2 — new inputs only -->
+    <section class="j-step" data-step="2" hidden>
+      <h2>Чанд маълумоти нав</h2>
+      <p class="lead">Танҳо чизҳое, ки давлат ҳоло намедонад. Ҳамин — на бештар.</p>
+
+      <div class="field" data-field="purpose">
+        <label for="purpose">Мақсади маълумотнома <span class="opt-note">— то ҳуҷҷат дуруст таҳия шавад</span></label>
+        <div class="select"><select id="purpose">
+          <option>Барои бонк (қарз/суратҳисоб)</option>
+          <option>Барои мактаб ё боғча</option>
+          <option>Барои субсидия ё кӯмакпулӣ</option>
+          <option>Барои суд</option>
+          <option>Дигар</option>
+        </select></div>
+      </div>
+
+      <div class="field" data-field="period" hidden>
+        <label for="period">Давраи ҳисоботӣ</label>
+        <div class="select"><select id="period">
+          <option>То имрӯз — 18.06.2026</option>
+          <option>Соли 2025</option>
+          <option>Семоҳаи 2 · 2026</option>
+        </select></div>
+        <p class="help">Маълумотнома мавҷуд набудани қарзро ба ин сана тасдиқ мекунад.</p>
+      </div>
+
+      <div class="field" data-field="recipient" hidden>
+        <label for="recip">Ба кадом ташкилот пешниҳод мешавад <span class="opt-note">— ихтиёрӣ</span></label>
+        <input class="input" id="recip" placeholder="Масалан: «Алиф Бонк»">
+      </div>
+
+      <div class="field" data-field="upload" hidden>
+        <label>Ҳуҷҷати асоснок <span class="req">*</span></label>
+        <p class="help" style="margin-top:0;margin-bottom:8px">Нусхаи ҳуҷҷати кӯҳна ё ариза — то 10 МБ (PDF, JPG, PNG).</p>
+        <button class="dropzone" type="button" data-upload="#fileList">
+          <svg><use href="#i-upload"/></svg>
+          <b>Файлро интихоб кунед ё ин ҷо кашед</b>
+          <span>PDF, JPG, PNG · то 10 МБ</span>
+        </button>
+        <div class="filelist" id="fileList"></div>
+      </div>
+
+      <div class="field" data-field="schedule" hidden>
+        <label>Санаи маросим</label>
+        <div class="opt" style="cursor:default">
+          <span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-calendar"/></svg></span>
+          <div class="tt"><b id="schedChip">Сана интихоб нашудааст</b><p>САҲШ-и ноҳияи Сино · толори маросим</p></div>
+          <button class="btn btn-sec btn-sm" type="button" data-open="dateModal" style="margin-left:auto">Интихоби сана ва вақт</button>
+        </div>
+      </div>
+
+      <div class="note-info">
+        <svg><use href="#i-info"/></svg>
+        <p>Маълумоти аллакай мавҷуд дубора пурсида намешавад — ин принсипи «як бор» аст.</p>
+      </div>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-back>Бозгашт</button>
+        <button class="btn btn-pri btn-lg" data-next>Идома</button>
+      </div>
+      <p class="autosave"><svg><use href="#i-check"/></svg><span>Худкор сабт шуд</span></p>
+    </section>
+
+    <!-- STEP 3 — delivery & payment -->
+    <section class="j-step" data-step="3" hidden>
+      <h2>Чӣ гуна расонем</h2>
+      <p class="lead">Рақамӣ дарҳол тайёр аст. Коғазӣ — агар ягон ҷо ҳатман талаб кунанд.</p>
+
+      <label class="opt"><input type="radio" name="deliv" checked>
+        <span class="tt"><b>Рақамӣ — дар ҳамёни ҳуҷҷатҳо</b><p>Бо QR ва имзои электронӣ. Тавсия мешавад.</p></span>
+        <span class="meta"><b>дарҳол</b>ройгон</span>
+      </label>
+      <label class="opt"><input type="radio" name="deliv">
+        <span class="tt"><b>Коғазӣ — гирифтан аз марказ</b><p id="delivChip">Маркази интихобнашуда</p></span>
+        <span class="meta"><button class="btn btn-sec btn-sm" type="button" data-open="locModal">Интихоби марказ</button></span>
+      </label>
+
+      <div class="field" style="margin-top:var(--s-5)">
+        <label for="lang">Забони маълумотнома</label>
+        <div class="select"><select id="lang"><option>Тоҷикӣ</option><option>Русӣ</option><option>Тоҷикӣ ва русӣ</option></select></div>
+      </div>
+
+      <!-- payment summary (paid services) -->
+      <div class="field" data-when="paid" hidden>
+        <label>Пардохт</label>
+        <div class="eta">
+          <div><div class="k">Боҷи давлатӣ</div><div class="big" id="paySum">12,00 смн.</div></div>
+          <div class="sep"></div>
+          <div class="tt"><span class="pill-st muted" id="payState"><svg><use href="#i-clock"/></svg>пардохт нашуда</span><p class="help" style="margin-top:6px">Пардохт дар охир, як маротиба. Тахфиф ҳангоми пардохти онлайн.</p></div>
+          <button class="btn btn-pri" type="button" data-open="payModal" style="margin-left:auto">Пардохтан</button>
+        </div>
+      </div>
+      <div class="note-info" data-when="free">
+        <svg><use href="#i-check"/></svg>
+        <p>Ин хизмат <b>ройгон</b> аст — боҷи давлатӣ гирифта намешавад.</p>
+      </div>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-back>Бозгашт</button>
+        <button class="btn btn-pri btn-lg" data-next>Идома</button>
+      </div>
+    </section>
+
+    <!-- STEP 4 — review & e-sign -->
+    <section class="j-step" data-step="4" hidden>
+      <h2>Санҷед ва имзо кунед</h2>
+      <p class="lead">Имзо лозим нест: вуруди шумо ҳамчун имзои электронӣ ҳисоб мешавад.</p>
+
+      <div class="review">
+        <div class="rv"><span class="k">Хизмат</span><span class="v" id="rvSvc">Маълумотнома дар бораи ҳайати оила</span></div>
+        <div class="rv"><span class="k">Аризадиҳанда</span><span class="v">Фируза Раҳимова</span></div>
+        <div class="rv"><span class="k">Мақсад</span><span class="v" id="rvPurpose">Барои бонк</span></div>
+        <div class="rv"><span class="k">Расондан</span><span class="v">Рақамӣ — дар ҳамён</span></div>
+        <div class="rv"><span class="k">Пардохт</span><span class="v ok" id="rvCost">ройгон</span></div>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span>Тасдиқ мекунам, ки маълумот дуруст аст. Агар хато бошад, дар ҳар лаҳза ислоҳ карда мешавад — ҷарима нест.</span>
+      </label>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-back>Бозгашт</button>
+        <button class="btn btn-pri btn-lg" id="submitBtn" data-next disabled>Фиристодани ариза</button>
+      </div>
+    </section>
+
+    <!-- STEP 5 — success -->
+    <section class="j-step" data-step="5" hidden>
+      <div class="success">
+        <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+          <circle cx="50" cy="50" r="46"/><path d="M30 52l13 13 27-29"/>
+        </svg>
+        <h2>Қабул шуд</h2>
+        <p class="when">имрӯз, 14:02 · ариза №ТҶ-2026-204815</p>
+        <div class="s-list">
+          <div class="s-row"><svg><use href="#i-check"/></svg><span>Санҷиши худкор гузашт</span><span class="st-l">маълумот мувофиқ аст</span></div>
+          <div class="s-row"><svg><use href="#i-clock"/></svg><span>Баррасӣ дар САҲШ</span><span class="st-l">то имрӯз, 16:30</span></div>
+          <div class="s-row"><svg><use href="#i-wallet"/></svg><span>Ба ҳамёни шумо илова мешавад</span><span class="st-l">push-огоҳӣ мефиристем</span></div>
+        </div>
+        <div class="j-acts j-acts-center">
+          <a class="btn btn-sec" href="document.html">Ба ҳамён</a>
+          <a class="btn btn-pri btn-lg" href="track.html">Дидани ҳолат</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ MODALS ============ -->
+
+<!-- payment -->
+<div class="overlay" id="payModal" role="dialog" aria-modal="true" aria-labelledby="payH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="#i-money"/></svg></span><div><h3 id="payH">Пардохти боҷи давлатӣ</h3><p>Бехатар · тавассути корти бонкӣ</p></div></div>
+    <div class="pay-amt" id="payModalSum">12,00 смн.<small>тахфифи 20% ҳангоми пардохти онлайн ҳисоб шуд</small></div>
+    <div class="mlabel">Тарзи пардохт</div>
+    <label class="pm"><input type="radio" name="pm" checked><span class="fi"><svg><use href="#i-card"/></svg></span><div><b>Корти бонкӣ ···· 4821</b><span>Алиф Бонк · асосӣ</span></div></label>
+    <label class="pm"><input type="radio" name="pm"><span class="fi"><svg><use href="#i-wallet"/></svg></span><div><b>Ҳамёни электронӣ</b><span>Алиф мобайл</span></div></label>
+    <button class="btn btn-pri btn-block" id="payDo" style="margin-top:var(--s-4)">Пардохтан — 12,00 смн.</button>
+    <p class="fine" style="margin-top:var(--s-3);font-size:var(--fs-12);color:var(--ink-3);text-align:center">Маблағ танҳо пас аз қабули ариза гирифта мешавад.</p>
+  </div>
+</div>
+
+<!-- date & slot picker -->
+<div class="overlay" id="dateModal" role="dialog" aria-modal="true" aria-labelledby="dateH">
+  <div class="modal wide left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="#i-calendar"/></svg></span><div><h3 id="dateH">Сана ва вақт</h3><p>САҲШ-и ноҳияи Сино · толори маросим</p></div></div>
+    <div class="mlabel">Июли 2026</div>
+    <div class="cal" id="calGrid" data-select data-select-enable="#dateConfirm"></div>
+    <div class="mlabel">Вақтҳои холӣ</div>
+    <div class="slots" data-select data-select-enable="#dateConfirm">
+      <button type="button" data-val="10:00">10:00</button>
+      <button type="button" data-val="11:30">11:30</button>
+      <button type="button" data-val="13:00" disabled>13:00</button>
+      <button type="button" data-val="15:00">15:00</button>
+      <button type="button" data-val="16:30">16:30</button>
+    </div>
+    <button class="btn btn-pri btn-block" id="dateConfirm" style="margin-top:var(--s-5)" disabled>Тасдиқ</button>
+  </div>
+</div>
+
+<!-- pickup location -->
+<div class="overlay" id="locModal" role="dialog" aria-modal="true" aria-labelledby="locH">
+  <div class="modal wide left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="#i-pin"/></svg></span><div><h3 id="locH">Маркази гирифтан</h3><p>наздиктаринро интихоб кунед</p></div></div>
+    <div class="mapbox"><svg><use href="#i-pin"/></svg></div>
+    <div data-select data-select-enable="#locConfirm">
+      <button class="loc" type="button" data-val="МФЦ Сино"><input type="radio" name="loc" tabindex="-1"><div><b>Маркази хизматрасонии «Сино»</b><span>кӯчаи Айнӣ 14 · ҳар рӯз 8:00–18:00</span></div><span class="dist">1,2 км</span></button>
+      <button class="loc" type="button" data-val="МФЦ Фирдавсӣ"><input type="radio" name="loc" tabindex="-1"><div><b>Маркази хизматрасонии «Фирдавсӣ»</b><span>хиёбони Рӯдакӣ 137 · 8:00–17:00</span></div><span class="dist">3,0 км</span></button>
+      <button class="loc" type="button" data-val="САҲШ Сино"><input type="radio" name="loc" tabindex="-1"><div><b>САҲШ-и ноҳияи Сино</b><span>кӯчаи Турсунзода 2 · 9:00–16:00</span></div><span class="dist">3,8 км</span></button>
+    </div>
+    <button class="btn btn-pri btn-block" id="locConfirm" style="margin-top:var(--s-5)" disabled>Интихоб кардан</button>
+  </div>
+</div>
+
+<!-- fix my data -->
+<div class="overlay" id="fixModal" role="dialog" aria-modal="true" aria-labelledby="fixH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="#i-info"/></svg></span><div><h3 id="fixH">Ислоҳи маълумот</h3><p>хато ёфтед — мо ислоҳ мекунем, ҷарима нест</p></div></div>
+    <div class="field"><label for="fixWhat">Чӣ нодуруст аст?</label>
+      <div class="select"><select id="fixWhat"><option>Касе аз оила намерасад</option><option>Касе зиёдатӣ нишон дода шуд</option><option>Суроға нодуруст аст</option><option>Дигар</option></select></div>
+    </div>
+    <div class="field"><label for="fixNote">Тавзеҳ</label><input class="input" id="fixNote" placeholder="Масалан: писарам Сомон илова нашуд"></div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Дархости ислоҳ фиристода шуд — то 1 рӯзи корӣ">Фиристодан</button>
+  </div>
+</div>
+
+<!-- OTP verify (reachable from delivery contact) -->
+<div class="overlay" id="otpModal" role="dialog" aria-modal="true" aria-labelledby="otpH">
+  <div class="modal">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <h3 id="otpH">Тасдиқи рақам</h3>
+    <p class="sub">Рамз ба +992 93 ··· 84 фиристода шуд</p>
+    <div class="otp"><input maxlength="1" inputmode="numeric" aria-label="1"><input maxlength="1" inputmode="numeric" aria-label="2"><input maxlength="1" inputmode="numeric" aria-label="3"><input maxlength="1" inputmode="numeric" aria-label="4"></div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Рақам тасдиқ шуд">Тасдиқ</button>
+    <button class="btn btn-ghost btn-block" data-close>Бекор</button>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+<script>
+/* ---- per-service config: same template, different fields/modals/cost ---- */
+var SERVICES = {
+  family:  { title:"Маълумотнома дар бораи ҳайати оила", org:"САҲШ", acct:"Шахси воқеӣ",
+             fields:["family","purpose"], paid:false, sum:"" },
+  taxdebt: { title:"Маълумотнома дар бораи мавҷуд набудани қарзи андоз", org:"Кумитаи андоз", acct:"Шахси воқеӣ",
+             fields:["purpose","period","recipient"], paid:true, sum:"12,00 смн." },
+  archive: { title:"Нусхаи дубораи шаҳодатнома (бойгонӣ)", org:"САҲШ · бойгонӣ", acct:"Шахси воқеӣ",
+             fields:["purpose","upload"], paid:true, sum:"25,00 смн." },
+  zags:    { title:"Ариза ба САҲШ — қайди никоҳ", org:"САҲШ", acct:"Шахси воқеӣ",
+             fields:["purpose","schedule"], paid:true, sum:"40,00 смн." },
+  biz:     { title:"Маълумотнома: мавҷуд набудани қарзи андоз (ш. ҳуқуқӣ)", org:"Кумитаи андоз", acct:"Шахси ҳуқуқӣ",
+             fields:["entity","purpose","period","recipient"], paid:true, sum:"30,00 смн." }
+};
+var $ = function(s,r){return (r||document).querySelector(s);};
+var $$ = function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+
+function applyExample(key){
+  var s = SERVICES[key] || SERVICES.family;
+  $("#svcTitle").textContent = s.title;
+  $("#svcOrg").textContent = s.org;
+  $("#hdrAcct").textContent = s.acct;
+  $("#rvSvc").textContent = s.title;
+  /* toggle step-2 field blocks */
+  $$("[data-field]").forEach(function(el){ el.hidden = s.fields.indexOf(el.getAttribute("data-field")) === -1; });
+  /* payment vs free */
+  $$('[data-when="paid"]').forEach(function(el){ el.hidden = !s.paid; });
+  $$('[data-when="free"]').forEach(function(el){ el.hidden = s.paid; });
+  if (s.paid){
+    $("#paySum").textContent = s.sum;
+    $("#payModalSum").firstChild.textContent = s.sum;
+    $("#payDo").textContent = "Пардохтан — " + s.sum;
+    $("#rvCost").textContent = s.sum; $("#rvCost").classList.remove("ok");
+    /* reset paid state */
+    $("#payState").innerHTML = '<svg><use href="#i-clock"/></svg>пардохт нашуда'; $("#payState").className = "pill-st muted";
+  } else {
+    $("#rvCost").textContent = "ройгон"; $("#rvCost").classList.add("ok");
+  }
+}
+$("#bpex").addEventListener("change", function(){ applyExample(this.value); window.bpFlowGoto("#flow",1); });
+applyExample("family");
+
+/* consent gates submit */
+$("#consent").addEventListener("change", function(){ $("#submitBtn").disabled = !this.checked; });
+
+/* reflect purpose into review */
+$("#purpose").addEventListener("change", function(){ $("#rvPurpose").textContent = this.value; });
+
+/* payment modal → mark paid */
+$("#payDo").addEventListener("click", function(){
+  var st = $("#payState"); if (st){ st.innerHTML = '<svg><use href="#i-check"/></svg>пардохт шуд'; st.className = "pill-st done"; }
+  var box = $("#payModal"); box.classList.remove("open");
+  window.bpToast("Пардохт қабул шуд — квитансия дар ҳамён");
+});
+
+/* build calendar */
+(function(){
+  var grid = $("#calGrid"); if(!grid) return;
+  ["Дш","Сш","Чш","Пш","Ҷм","Шб","Яш"].forEach(function(d){ var s=document.createElement("span"); s.className="dow"; s.textContent=d; grid.appendChild(s); });
+  for(var p=0;p<2;p++){ var pad=document.createElement("span"); pad.className="pad"; grid.appendChild(pad); } /* July 1 2026 = Wed */
+  for(var d=1; d<=31; d++){
+    var b=document.createElement("button"); b.type="button"; b.setAttribute("data-val", d+" июли 2026"); b.textContent=d;
+    var dow=(p+d-1)%7; if(dow>=5 || d<18) b.disabled=true; /* weekends + past */
+    grid.appendChild(b);
+  }
+})();
+/* date confirm → set chip */
+$("#dateConfirm").addEventListener("click", function(){
+  var day=$('#calGrid [aria-pressed="true"]'), slot=$('#dateModal .slots [aria-pressed="true"]');
+  if(day&&slot) $("#schedChip").textContent = day.getAttribute("data-val") + ", " + slot.getAttribute("data-val");
+  $("#dateModal").classList.remove("open");
+  window.bpToast("Сана банд шуд");
+});
+/* location confirm → set chip */
+$("#locConfirm").addEventListener("click", function(){
+  var loc=$('#locModal [aria-pressed="true"]');
+  if(loc){ $("#delivChip").textContent = "Гирифтан аз: " + loc.getAttribute("data-val"); $$('input[name="deliv"]')[1].checked=true; }
+  $("#locModal").classList.remove("open");
+});
+</script>
+</body>
+</html>

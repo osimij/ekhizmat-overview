@@ -1,0 +1,153 @@
+/* ============================================================
+   base.css — reset, типографика (§4.1), утилиты.
+   Размеры типографики — РЕАЛЬНЫЕ UI-размеры (специмен Figma ÷ 1.5).
+   ============================================================ */
+
+/* ---------- reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 15px;            /* §4.1 — базовый размер документа */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "ALS Hauss Next VF", "ALS Hauss", Inter, -apple-system,
+               "Segoe UI", sans-serif;
+  font-size: 15px;            /* Body/Base — базовый текст всего АРМ */
+  line-height: 1.55;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+img, svg, video, canvas { display: block; max-width: 100%; }
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+
+table { border-collapse: collapse; border-spacing: 0; }
+
+[hidden] { display: none !important; }
+
+/* ---------- фокус (§9) ----------
+   Обводка не подавляется нигде. :focus-visible, чтобы мышь не ловила кольцо. */
+:focus-visible {
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: var(--focus-offset);
+  border-radius: inherit;
+}
+
+/* ---------- типографика (§4.1) ---------- */
+.h1 {
+  font-size: 44px; line-height: 1.15;
+  font-weight: 720; letter-spacing: -0.02em;
+}
+.h2 {
+  font-size: 24px; line-height: 1.15;
+  font-weight: 720; letter-spacing: -0.02em;
+}
+.h3 {
+  font-size: 17px; line-height: 1.3;
+  font-weight: 550; letter-spacing: -0.01em;
+}
+.body-l  { font-size: 16px; line-height: 1.5;  font-weight: 400; }
+.body    { font-size: 15px; line-height: 1.55; font-weight: 400; }
+.label {
+  font-size: 13px; line-height: 1.4;
+  font-weight: 550; letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.small   { font-size: 13px; line-height: 1.4; font-weight: 400; color: var(--ink-2); }
+.caption { font-size: 12px; line-height: 1.3; font-weight: 550; }
+
+/* §4.1 — все таймеры, ИНН, номера заявлений */
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ---------- цветовые утилиты ---------- */
+.ink       { color: var(--ink); }
+.ink-2     { color: var(--ink-2); }
+.ink-3     { color: var(--ink-3); }
+.ink-faint { color: var(--ink-faint); }
+/* §9 — текст и ссылки всегда --blue-ink (4.8:1), НЕ сырой --blue (3.2:1) */
+.blue-ink  { color: var(--blue-ink); }
+.red-ink   { color: var(--red-ink); }
+.green-ink { color: var(--green); }
+.amber-ink { color: var(--amber); }
+
+/* ---------- утилиты раскладки ---------- */
+.stack     { display: flex; flex-direction: column; }
+.row       { display: flex; flex-direction: row; align-items: center; }
+.row-start { display: flex; flex-direction: row; align-items: flex-start; }
+.between   { justify-content: space-between; }
+.center    { justify-content: center; align-items: center; }
+.wrap      { flex-wrap: wrap; }
+.grow      { flex: 1 1 auto; min-width: 0; }
+.spacer    { flex: 1 1 auto; }
+.center-text { text-align: center; }
+
+/* шаг сетки 4px — §3.3 */
+.g-1  { gap: var(--s-1); }  .g-2  { gap: var(--s-2); }
+.g-3  { gap: var(--s-3); }  .g-4  { gap: var(--s-4); }
+.g-5  { gap: var(--s-5); }  .g-6  { gap: var(--s-6); }
+.g-8  { gap: var(--s-8); }  .g-10 { gap: var(--s-10); }
+.g-12 { gap: var(--s-12); } .g-16 { gap: var(--s-16); }
+
+/* ---------- иконки (§4.3) ---------- */
+.icon {
+  width: 24px; height: 24px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon--20 { width: 20px; height: 20px; }  /* в кнопках M/S */
+.icon--16 { width: 16px; height: 16px; }  /* в чипах       */
+.icon--48 { width: 48px; height: 48px; }  /* пустые состояния */
+
+/* ---------- a11y ---------- */
+/* Видно скринридеру, не видно глазу. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Ссылка «к содержимому» — видна только при фокусе с клавиатуры. */
+.skip-link {
+  position: absolute;
+  top: var(--s-2); left: var(--s-2);
+  z-index: 100;
+  padding: var(--s-2) var(--s-4);
+  background: var(--panel);
+  color: var(--blue-ink);
+  border-radius: var(--r-pill);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* ---------- canvas (§3.2) ---------- */
+.canvas {
+  padding: var(--s-6);
+  max-width: var(--w-canvas);
+  margin-inline: auto;
+}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Аризаҳо</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="inbox"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Аризаҳо</span>
+      <div class="at-search"><svg><use href="#i-search"/></svg><input placeholder="Ҷустуҷӯ аз рӯи рақам ё ном..."></div>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h"><div class="row">
+        <div><h1>Аризаҳо</h1><p>41 фаъол · 12 амали шумо лозим</p></div>
+        <button class="btn btn-sec" data-toast="Намунавӣ: содирот"><svg><use href="#i-download"/></svg>Содирот</button>
+      </div></div>
+
+      <!-- status filters -->
+      <div class="filters" role="group" aria-label="Ҳолат" style="margin-bottom:var(--s-3)">
+        <button class="chip" aria-pressed="true">Ҳама · 41</button>
+        <button class="chip" aria-pressed="false">Нав · 12</button>
+        <button class="chip" aria-pressed="false">Дар баррасӣ · 18</button>
+        <button class="chip" aria-pressed="false">Маълумоти иловагӣ · 6</button>
+        <button class="chip" aria-pressed="false">Тайёр · 5</button>
+      </div>
+
+      <div class="tbl-toolbar">
+        <div class="tbl-search"><svg><use href="#i-search"/></svg><input placeholder="Филтр дар ҷадвал..."></div>
+        <span class="grow"></span>
+        <button class="btn btn-sec btn-sm"><svg><use href="#i-filter"/></svg>Филтр</button>
+        <button class="btn btn-sec btn-sm"><svg><use href="#i-sort"/></svg>Тартиб: нав</button>
+        <button class="btn btn-pri btn-sm"><svg><use href="#i-users"/></svg>Таъин кардан</button>
+      </div>
+
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr>
+            <th style="width:34px"><input class="chk" type="checkbox" aria-label="Ҳама"></th>
+            <th class="sortable"><span class="th">Ариза<svg><use href="#i-sort"/></svg></span></th>
+            <th>Хизмат / идора</th>
+            <th>Ҳолат</th>
+            <th class="sortable"><span class="th">SLA<svg><use href="#i-sort"/></svg></span></th>
+            <th>Масъул</th>
+            <th style="width:44px"></th>
+          </tr></thead>
+          <tbody>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av">ФР</span><div><b>Маълумотнома — ҳайати оила</b><span>№ТҶ-2026-204815 · Фируза Раҳимова</span></div></div></td>
+              <td data-l="Хизмат" class="muted">САҲШ · маълумотнома</td>
+              <td data-l="Ҳолат"><span class="pill-st review">Нав</span></td>
+              <td data-l="SLA" class="tnum">4 соат 12 дақ</td>
+              <td data-l="Масъул" class="muted">— таъиннашуда</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av" style="background:var(--h-amber-bg);color:var(--h-amber-fg)">ДР</span><div><b>Нусхаи дубораи шаҳодатнома</b><span>№ТҶ-2026-204790 · Далер Раҳимов</span></div></div></td>
+              <td data-l="Хизмат" class="muted">САҲШ · бойгонӣ</td>
+              <td data-l="Ҳолат"><span class="pill-st warn">SLA наздик</span></td>
+              <td data-l="SLA" class="tnum">52 дақиқа</td>
+              <td data-l="Масъул" class="muted">Аброр К.</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av" style="background:var(--h-violet-bg);color:var(--h-violet-fg)">СҶ</span><div><b>Ариза ба қайди никоҳ</b><span>№ТҶ-2026-204772 · Сабрина Ҷӯраева</span></div></div></td>
+              <td data-l="Хизмат" class="muted">САҲШ · қайд</td>
+              <td data-l="Ҳолат"><span class="pill-st danger">SLA вайрон</span></td>
+              <td data-l="SLA" class="tnum" style="color:var(--red-ink)">−1 соат 8 дақ</td>
+              <td data-l="Масъул" class="muted">Аброр К.</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av" style="background:var(--h-teal-bg);color:var(--h-teal-fg)">НМ</span><div><b>Маълумотнома — қарзи андоз</b><span>№ТҶ-2026-204766 · Нодира Маҳмудова</span></div></div></td>
+              <td data-l="Хизмат" class="muted">Кумитаи андоз</td>
+              <td data-l="Ҳолат"><span class="pill-st muted">Маълумоти иловагӣ</span></td>
+              <td data-l="SLA" class="tnum">таваққуф</td>
+              <td data-l="Масъул" class="muted">Зулфия Н.</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av" style="background:var(--h-steel-bg);color:var(--h-steel-fg)">СТ</span><div><b>Сабти соҳибкори инфиродӣ</b><span>№ТҶ-2026-204701 · Сино-Текс ҶДММ</span></div></div></td>
+              <td data-l="Хизмат" class="muted">Кумитаи андоз</td>
+              <td data-l="Ҳолат"><span class="pill-st review">Дар баррасӣ</span></td>
+              <td data-l="SLA" class="tnum">1 рӯз 3 соат</td>
+              <td data-l="Масъул" class="muted">Аброр К.</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+            <tr onclick="location.href='admin-review.html'" style="cursor:pointer">
+              <td data-l=""><input class="chk" type="checkbox" onclick="event.stopPropagation()" aria-label="Интихоб"></td>
+              <td data-l="Ариза"><div class="cell-u"><span class="av" style="background:var(--h-green-bg);color:var(--h-green-fg)">ОР</span><div><b>Шаҳодатномаи таваллуд — Зарина</b><span>№ТҶ-2026-204698 · Олима Раҳимова</span></div></div></td>
+              <td data-l="Хизмат" class="muted">САҲШ · қайд</td>
+              <td data-l="Ҳолат"><span class="pill-st done">Тайёр</span></td>
+              <td data-l="SLA" class="tnum">иҷрошуда</td>
+              <td data-l="Масъул" class="muted">Зулфия Н.</td>
+              <td data-l=""><span class="rowact"><svg><use href="#i-dots"/></svg></span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pager">
+          <span>1–6 аз 41 ариза</span>
+          <div class="pg"><button>‹</button><button aria-current="true">1</button><button>2</button><button>3</button><button>›</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

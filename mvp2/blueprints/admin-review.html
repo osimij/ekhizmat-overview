@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Баррасии ариза</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="inbox"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <a class="back" href="admin-inbox.html" style="margin:0"><svg><use href="#i-chev-l"/></svg><span>Аризаҳо</span></a>
+      <span class="at-title" style="margin-left:var(--s-3)">№ТҶ-2026-204815</span>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="trk-top">
+        <div class="tt">
+          <span class="eyebrow">Маълумотнома · САҲШ-и ноҳияи Сино</span>
+          <h1 style="margin-top:6px">Маълумотнома дар бораи ҳайати оила</h1>
+          <p class="id">аризадиҳанда: Фируза Раҳимова · фиристода имрӯз, 14:02</p>
+        </div>
+        <span class="pill-st review">Дар баррасӣ · SLA то 16:30</span>
+      </div>
+
+      <div class="svd-grid" style="margin-top:var(--s-5)">
+        <div class="svd-main">
+          <!-- auto-check -->
+          <div class="note-info" style="background:var(--green-tint);margin-bottom:var(--s-5)">
+            <svg style="color:var(--green)"><use href="#i-check"/></svg>
+            <p><b>Санҷиши худкор гузашт.</b> Маълумоти аризадиҳанда бо феҳристи аҳолӣ, САҲШ ва ВКД мувофиқ аст. Зиддияте ёфт нашуд.</p>
+          </div>
+
+          <!-- applicant data (read-only, source-tagged) -->
+          <div class="blk" style="margin-top:0">
+            <h2>Маълумоти аризадиҳанда</h2>
+            <div class="plist">
+              <div class="pr"><div class="tt"><span class="k">Ному насаб</span><span class="v">Раҳимова Фируза Далеровна</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз профили шаҳрвандӣ · ВКД</span></div></div>
+              <div class="pr"><div class="tt"><span class="k">Суроғаи қайд</span><span class="v">Душанбе, кӯчаи Рӯдакӣ 84, х.12</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз феҳристи суроғаҳо</span></div></div>
+              <div class="pr"><div class="tt"><span class="k">Ҳайати оила</span><span class="v">4 нафар</span><span class="src-tag"><svg><use href="#i-check"/></svg>аз САҲШ ва феҳристи аҳолӣ</span></div></div>
+            </div>
+          </div>
+
+          <!-- request data -->
+          <div class="blk">
+            <h2>Маълумоти ариза</h2>
+            <div class="plist">
+              <div class="pr"><div class="tt"><span class="k">Мақсад</span><span class="v">Барои бонк (қарз/суратҳисоб)</span></div></div>
+              <div class="pr"><div class="tt"><span class="k">Забони ҳуҷҷат</span><span class="v">Тоҷикӣ</span></div></div>
+              <div class="pr"><div class="tt"><span class="k">Тарзи расондан</span><span class="v">Рақамӣ — дар ҳамён</span></div></div>
+            </div>
+          </div>
+
+          <!-- attachments -->
+          <div class="blk">
+            <h2>Замимаҳо</h2>
+            <div class="filelist">
+              <div class="filerow done"><span class="fi"><svg><use href="#i-check"/></svg></span><div class="fn"><b>nusxa_kitobi_havligi.pdf</b><span>1.4 МБ · аз аризадиҳанда</span></div><button class="fx" aria-label="Кушодан"><svg><use href="#i-eye"/></svg></button></div>
+            </div>
+          </div>
+
+          <!-- audit / history -->
+          <div class="blk">
+            <h2>Таърих</h2>
+            <div class="trk-card">
+              <ol class="timeline">
+                <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Ариза қабул шуд</b><span class="when">имрӯз, 14:02 · аз портали шаҳрвандон</span></li>
+                <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Санҷиши худкор</b><span class="when">имрӯз, 14:02 · мувофиқ</span></li>
+                <li class="tl now"><span class="dot"><svg><use href="#i-clock"/></svg></span><b>Ба шумо таъин шуд</b><span class="when">имрӯз, 14:05 · Аброр Каримов</span></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- decision panel -->
+        <aside class="svd-aside">
+          <div class="eyebrow">Қарор</div>
+          <div class="pr" style="padding:0;gap:10px"><span class="av" style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span><div class="tt"><span class="v" style="font-size:var(--fs-14)">Аброр Каримов</span><span class="k" style="font-size:var(--fs-12)">масъули баррасӣ</span></div></div>
+          <button class="btn btn-pri btn-lg" data-open="approveModal"><svg><use href="#i-check"/></svg>Тасдиқ ва имзо</button>
+          <button class="btn btn-sec" data-open="infoModal"><svg><use href="#i-chat"/></svg>Маълумоти иловагӣ пурсидан</button>
+          <button class="btn btn-sec" data-open="rejectModal" style="color:var(--red-ink)"><svg style="color:var(--red-ink)"><use href="#i-x"/></svg>Рад кардан</button>
+          <p class="fine">Қарор бо имзои электронии шумо тасдиқ ва дар лог сабт мешавад.</p>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- approve -->
+<div class="overlay" id="approveModal" role="dialog" aria-modal="true" aria-labelledby="apH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--green-tint);color:var(--green)"><svg><use href="#i-check"/></svg></span><div><h3 id="apH">Тасдиқ ва имзо</h3><p>ҳуҷҷат сохта ва ба ҳамёни шаҳрванд фиристода мешавад</p></div></div>
+    <div class="led" style="margin-bottom:var(--s-4)">
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-doc"/></svg></span><div><b>Маълумотнома сохта мешавад</b><p>бо имзои электронии САҲШ ва QR</p></div></div>
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-wallet"/></svg></span><div><b>Ба ҳамёни Ф. Раҳимова меравад</b><p>push-огоҳӣ фиристода мешавад</p></div></div>
+    </div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Ариза тасдиқ ва имзо шуд">Тасдиқ ва имзои электронӣ</button>
+    <button class="btn btn-ghost btn-block" data-close>Бекор</button>
+  </div>
+</div>
+
+<!-- request more info -->
+<div class="overlay" id="infoModal" role="dialog" aria-modal="true" aria-labelledby="inH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="#i-chat"/></svg></span><div><h3 id="inH">Маълумоти иловагӣ пурсидан</h3><p>баррасӣ таваққуф мекунад, навбати шаҳрванд нигоҳ дошта мешавад</p></div></div>
+    <div class="field"><label for="inWhat">Чӣ лозим аст?</label><div class="select"><select id="inWhat"><option>Нусхаи китоби ҳавлигӣ</option><option>Ҳуҷҷати тасдиқи суроға</option><option>Тавзеҳи иловагӣ</option></select></div></div>
+    <div class="field"><label for="inMsg">Паём ба шаҳрванд</label><input class="input" id="inMsg" value="Барои тасдиқи суроға нусхаи китоби ҳавлигиро илова кунед."></div>
+    <button class="btn btn-pri btn-block" data-close data-toast="Дархост ба шаҳрванд фиристода шуд">Фиристодан ба шаҳрванд</button>
+  </div>
+</div>
+
+<!-- reject -->
+<div class="overlay" id="rejectModal" role="dialog" aria-modal="true" aria-labelledby="rjH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--red-tint);color:var(--red-ink)"><svg><use href="#i-x"/></svg></span><div><h3 id="rjH">Рад кардани ариза</h3><p>сабабро равшан нависед — шаҳрванд бояд тавонад ислоҳ кунад</p></div></div>
+    <div class="field"><label for="rjWhy">Сабаби рад</label><div class="select"><select id="rjWhy"><option>Суроға бо феҳрист мувофиқ нест</option><option>Ҳуҷҷати асоснок нокифоя</option><option>Маълумот зиддиятнок</option></select></div></div>
+    <div class="field"><label for="rjNote">Тавзеҳ барои шаҳрванд</label><input class="input" id="rjNote" value="Суроғаи қайд нав шудааст ва дар феҳрист ҳанӯз навсозӣ нашуда."></div>
+    <div class="note-info" style="margin-bottom:var(--s-4)"><svg><use href="#i-info"/></svg><p>Шаҳрванд паёмро мебинад, метавонад ислоҳ кунад ва аз нав фиристад — <b>навбати аввал нигоҳ дошта мешавад, ҷарима нест.</b></p></div>
+    <button class="btn btn-danger btn-block" data-close data-toast="Ариза рад шуд — шаҳрванд огоҳ карда шуд">Рад кардан</button>
+    <button class="btn btn-ghost btn-block" data-close>Бекор</button>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

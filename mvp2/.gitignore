@@ -1,0 +1,7 @@
+.DS_Store
+услуги/.venv/
+__pycache__/
+node_modules/
+.qa/
+package.json
+package-lock.json

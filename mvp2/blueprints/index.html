@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Макетҳо</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<!-- blueprint toolbar (dev chrome; hidden in screenshot exports) -->
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="hdr-in">
+      <a class="brand" href="index.html" aria-label="eKhizmat">
+        <svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b>
+      </a>
+      <span class="metachip" style="margin-left:8px">Макет · v1</span>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="gx-hero">
+      <span class="eyebrow">Блок макетҳо барои Figma</span>
+      <h1>Шаблони ариза, сафари корбар ва панели администратор</h1>
+      <p>Ҳамаи экранҳо дар забони асосӣ (тоҷикӣ) ва дар услуби ягонаи eKhizmat. Иконкаҳои нав ҳоло ҷойнишин (placeholder) ҳастанд — баъдтар бо Hugeicons иваз мешаванд. Тафсилот дар <code>docs/HANDOFF.md</code>.</p>
+    </div>
+
+    <!-- DESIGN SYSTEM -->
+    <section class="gx-sect" aria-labelledby="s-sys">
+      <div class="sect-h"><h2 id="s-sys">Системаи дизайн</h2><span class="sub">токенҳо ва компонентҳо — манбаи ягона</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="components.html">
+          <div class="gx-top"><span class="tile t-blue sh-r"><svg><use href="#i-dash"/></svg></span><h3>Системаи компонентҳо</h3><span class="num">UI kit</span></div>
+          <p>Ҳамаи унсурҳо дар як ҷо: ранг, типографика, тугмаҳо, майдонҳо, калид, қуттӣ/радио, нишонаҳо, плиткаҳо ва менюҳо — дар ҳама ҳолат.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- MAPS -->
+    <section class="gx-sect" aria-labelledby="s-maps">
+      <div class="sect-h"><h2 id="s-maps">Харитаҳо</h2><span class="sub">сафари том ва ҷойгиршавии компонентҳо</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="map-citizen.html">
+          <div class="gx-top"><span class="tile t-blue"><svg><use href="#i-move"/></svg></span><h3>Сафари корбар</h3><span class="num">харита</span></div>
+          <p>Давра аз ёфтани хизмат то гирифтани ҳуҷҷат: кашф → ариза → имзо → пардохт → пайгирӣ → гирифтан. Ҳар марҳила бо компонентҳояш.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="map-admin.html">
+          <div class="gx-top"><span class="tile t-slate sh-c"><svg><use href="#i-dash"/></svg></span><h3>Панели админ</h3><span class="num">харита</span></div>
+          <p>Сохтори навигатсия ва ҷараёни кор дар тарафи идора: вуруд → лавҳа → аризаҳо → баррасӣ → қарор; корбарон, хизматҳо, нақшҳо.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- CITIZEN -->
+    <section class="gx-sect" aria-labelledby="s-cit">
+      <div class="sect-h"><h2 id="s-cit">Сафари корбар</h2><span class="sub">шаблони ариза ва давраи пурраи хизмат</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="service.html">
+          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="#i-cat-cert"/></svg></span><h3>Сафҳаи хизмат</h3><span class="num">01</span></div>
+          <p>Даромадгоҳ ба ҳар хизмат: чӣ будан, нарх, вақти воқеӣ, маълумоти аллакай мавҷуд (як бор) ва шартҳо.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="apply.html">
+          <div class="gx-top"><span class="tile t-blue"><svg><use href="#i-edit"/></svg></span><h3>Шакли ариза</h3><span class="num">02</span></div>
+          <p>Шаблони асосӣ: тасдиқ → маълумоти нав → расондан/пардохт → имзо → қабул. 5 хизмати намунавӣ, ҳамаи модалҳо.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="track.html">
+          <div class="gx-top"><span class="tile t-amber sh-r"><svg><use href="#i-clock"/></svg></span><h3>Пайгирии ариза</h3><span class="num">03</span></div>
+          <p>Шаффофияти пурра: навбат, идора, вақти воқеӣ ва ҳамаи ҳолатҳо — қабул, баррасӣ, маълумоти иловагӣ, рад, тайёр.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="document.html">
+          <div class="gx-top"><span class="tile t-green sh-c"><svg><use href="#i-doc"/></svg></span><h3>Ҳуҷҷати тайёр</h3><span class="num">04</span></div>
+          <p>Маълумотномаи омода: намуди расмӣ, QR-тасдиқ, боргирӣ, мубодила бо муҳлат ва бозхонд.</p>
+          <span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- OPERATOR -->
+    <section class="gx-sect" aria-labelledby="s-op">
+      <div class="sect-h"><h2 id="s-op">Оператор (тиреза)</h2><span class="sub">хизматрасонии рӯ ба рӯ — тасдиқи шахсият ва супоридани ҳуҷҷат</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="../OPERATOR/index.html">
+          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="#i-inbox"/></svg></span><h3>Консоли оператор (тиреза)</h3><span class="num">↗</span></div>
+          <p>Се экран — оғози баст, навбати зинда ва сессияи пурраи хизматрасонӣ — ҳоло дар <b>бастаи ҷудогонаи мустақил</b> (<code>OPERATOR/</code>). Кушоед, то ҳамаи экранҳои оператор.</p><span class="gx-go">Кушодани баста<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="gx-sect" aria-labelledby="s-adm">
+      <div class="sect-h"><h2 id="s-adm">Панели администратор</h2><span class="sub">консепсия — ҳама экранҳо тарҳрезӣ шуда</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="admin-login.html">
+          <div class="gx-top"><span class="tile t-slate sh-c"><svg><use href="#i-lock"/></svg></span><h3>Вуруд</h3><span class="num">05</span></div>
+          <p>Вуруди кормандон — алоҳида аз корбарон, бо нақш.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-dashboard.html">
+          <div class="gx-top"><span class="tile t-indigo"><svg><use href="#i-dash"/></svg></span><h3>Лавҳаи идора</h3><span class="num">06</span></div>
+          <p>Навбатҳо, SLA, ҳаҷми рӯз ва омори оммавии шаффоф.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-inbox.html">
+          <div class="gx-top"><span class="tile t-blue"><svg><use href="#i-inbox"/></svg></span><h3>Аризаҳо</h3><span class="num">07</span></div>
+          <p>Навбати аризаҳо: филтр, масъул, вақти SLA, амалҳои гурӯҳӣ.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-review.html">
+          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="#i-check"/></svg></span><h3>Баррасии ариза</h3><span class="num">08</span></div>
+          <p>Маълумоти корбар, замимаҳо, таърих ва қарор: тасдиқ / маълумоти иловагӣ / рад.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-users.html">
+          <div class="gx-top"><span class="tile t-steel"><svg><use href="#i-users"/></svg></span><h3>Корбарон</h3><span class="num">09</span></div>
+          <p>Ҷадвали кормандон: ҷустуҷӯ, нақш, ҳолат, амалҳо.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-user-new.html">
+          <div class="gx-top"><span class="tile t-green sh-c"><svg><use href="#i-user-add"/></svg></span><h3>Илова кардани корбар</h3><span class="num">10</span></div>
+          <p>Устои қадамбақадам: шахсият → нақш → раёсат → ҳуқуқ → даъват.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-services.html">
+          <div class="gx-top"><span class="tile t-violet"><svg><use href="#i-cat-cert"/></svg></span><h3>Хизматрасониҳо</h3><span class="num">11</span></div>
+          <p>Феҳристи хизматҳо ва конструктори шаблони ариза.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-roles.html">
+          <div class="gx-top"><span class="tile t-rose sh-c"><svg><use href="#i-role"/></svg></span><h3>Нақшҳо ва ҳуқуқ</h3><span class="num">12</span></div>
+          <p>Матритсаи нақш × ваколат, эҷоди нақши нав.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="admin-settings.html">
+          <div class="gx-top"><span class="tile t-gray sh-c"><svg><use href="#i-gear"/></svg></span><h3>Танзимот</h3><span class="num">13</span></div>
+          <p>Раёсатҳо, соатҳои корӣ, қоидаҳои тақсим ва нуқтаҳои гирифтан.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="ft-bottom" style="border-top:0">
+      <span>© 2026 eKhizmat · макети дохилӣ</span>
+      <div class="ft-legal"><span>Тоҷикӣ-аввал</span><span>Иконкаҳо: placeholder</span><span>Услуб: tokens.css</span></div>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

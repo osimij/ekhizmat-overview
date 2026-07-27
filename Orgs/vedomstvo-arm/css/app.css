@@ -1,0 +1,588 @@
+/* ============================================================
+   app.css — прикладной слой прототипа «АРМ специалиста ведомства».
+   Опирается на дизайн-систему eKhizmat: tokens.css → base.css →
+   components.css. Здесь только КОМПОЗИЦИЯ экранов ведомства (§7Б ТЗ),
+   ни одного сырого hex — только токены.
+   ============================================================ */
+
+/* ---- производные размеры шелла ведомства ---- */
+:root {
+  --w-sidebar: 264px;
+  --w-ctx: var(--w-context); /* правая контекст-колонка (токен дизайн-системы) */
+  --w-view: 1360px;          /* макс. ширина области вида ведомства         */
+}
+
+/* ============================================================
+   Каркас приложения: топбар / сайдбар / контент
+   ============================================================ */
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: var(--w-sidebar) 1fr;
+  grid-template-rows: var(--h-topbar) 1fr;
+  grid-template-areas:
+    "top  top"
+    "side main";
+  overflow: hidden;
+}
+.app__top  { grid-area: top; }
+.app__side { grid-area: side; }
+.app__main {
+  grid-area: main;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  outline: 0;
+}
+
+/* ---- топбар ---- */
+.topbar__brand { text-decoration: none; color: inherit; }
+.topbar__brand .icon { color: var(--blue-ink); }
+.topbar__bind {
+  display: flex; flex-direction: column; line-height: 1.2;
+  padding-left: var(--s-3); margin-left: var(--s-1);
+  border-left: 1px solid var(--line);
+}
+.topbar__bind b { font-weight: 550; font-size: 14px; }
+.topbar__search {
+  flex: 1 1 auto; max-width: 460px;
+}
+.topbar__search .field__input { height: var(--h-btn-s); }
+.topbar__actions { display: flex; align-items: center; gap: var(--s-1); margin-left: auto; }
+
+/* значок-счётчик на кнопке (колокольчик) */
+.iconbtn { position: relative; color: var(--ink-2); }
+.iconbtn:hover { color: var(--ink); }
+.badge-dot {
+  position: absolute; top: 6px; right: 6px;
+  min-width: 16px; height: 16px; padding: 0 4px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--red-fill); color: var(--on-blue);
+  font-size: 10px; font-weight: 700; line-height: 1;
+  border: 2px solid var(--panel);
+}
+
+/* аватар специалиста */
+.avatar {
+  width: 32px; height: 32px; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--h-indigo-bg); color: var(--h-indigo-fg);
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
+}
+.avatar--l { width: 44px; height: 44px; font-size: 15px; }
+
+/* ---- сайдбар навигации ---- */
+.side {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  padding: var(--s-4) var(--s-3);
+  gap: var(--s-1);
+}
+.side__group-label {
+  padding: var(--s-4) var(--s-3) var(--s-2);
+  font-size: 11px; font-weight: 550; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-faint);
+}
+.nav-item {
+  display: flex; align-items: center; gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3);
+  border-radius: var(--r-m);
+  font-size: 15px; color: var(--ink-2);
+  text-align: left; cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.nav-item .icon { width: 20px; height: 20px; color: var(--ink-3); flex: none; }
+.nav-item__label { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-item:hover { background: var(--hover); color: var(--ink); }
+.nav-item.is-active { background: var(--blue-tint); color: var(--blue-ink); font-weight: 550; }
+.nav-item.is-active .icon { color: var(--blue-ink); }
+.nav-count {
+  flex: none;
+  min-width: 22px; height: 20px; padding: 0 6px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--field); color: var(--ink-2);
+  font-size: 12px; font-weight: 550; font-variant-numeric: tabular-nums;
+}
+.nav-item.is-active .nav-count { background: var(--panel); color: var(--blue-ink); }
+.nav-count--alert { background: var(--red-tint); color: var(--red-ink); }
+.side__spacer { flex: 1 1 auto; }
+.side__foot {
+  padding: var(--s-3);
+  border-top: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+/* кнопка-гамбургер (только на узких) */
+.nav-toggle { display: none; }
+.side__backdrop { display: none; }
+
+/* ============================================================
+   Область вида: заголовок + панель фильтров
+   ============================================================ */
+.view { padding: var(--s-6); max-width: var(--w-view); margin-inline: auto; }
+.view__head {
+  display: flex; align-items: flex-start; gap: var(--s-4);
+  margin-bottom: var(--s-5); flex-wrap: wrap;
+}
+.view__titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.view__sub { color: var(--ink-2); font-size: 14px; }
+.view__actions { display: flex; gap: var(--s-2); margin-left: auto; align-items: center; flex-wrap: wrap; }
+
+.toolbar {
+  display: flex; align-items: center; gap: var(--s-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+}
+.toolbar .field__wrap--search { flex: 1 1 240px; max-width: 360px; }
+.toolbar .field__input { height: var(--h-btn-s); }
+.toolbar select.field__input {
+  height: var(--h-btn-s); width: auto; min-width: 150px;
+  padding-inline: var(--s-3) var(--s-8);
+  border-radius: var(--r-pill);
+}
+.toolbar__spacer { flex: 1 1 auto; }
+
+/* ---- сводные плитки (метрики очереди / отчётность) ---- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+.stat {
+  display: flex; flex-direction: column; gap: var(--s-1);
+  padding: var(--s-4);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+}
+.stat__k { font-size: 12px; font-weight: 550; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink-3); }
+.stat__v { font-size: 28px; font-weight: 720; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat__v .icon { width: 22px; height: 22px; }
+.stat--alert .stat__v { color: var(--red-ink); }
+.stat--warn  .stat__v { color: var(--amber); }
+.stat--ok    .stat__v { color: var(--green); }
+.stat__foot  { font-size: 13px; color: var(--ink-faint); }
+button.stat { text-align: left; cursor: pointer; transition: box-shadow var(--t-fast) var(--ease); }
+button.stat:hover { box-shadow: inset 0 0 0 2px var(--line); }
+button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
+
+/* ============================================================
+   Очередь заданий — список заявлений (§7Б.2)
+   ============================================================ */
+.queue { display: flex; flex-direction: column; }
+
+.q-head, .q-row {
+  display: grid;
+  grid-template-columns: 28px 132px minmax(0, 1.4fr) minmax(0, 1fr) 112px 128px 116px;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+}
+.q-head {
+  font-size: 12px; font-weight: 550; letter-spacing: 0.02em;
+  text-transform: uppercase; color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 5;
+  background: var(--bg);
+}
+.q-head button {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit;
+  cursor: pointer;
+}
+.q-head button .icon { width: 14px; height: 14px; opacity: 0.5; }
+.q-head button.is-sorted .icon { opacity: 1; color: var(--blue-ink); }
+
+.q-list {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-l);
+  overflow: hidden;
+}
+.q-row {
+  border-bottom: 1px solid var(--line-in);
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+  width: 100%; text-align: left;
+}
+.q-row:last-child { border-bottom: 0; }
+.q-row:hover { background: var(--hover); }
+.q-row.is-selected { background: var(--blue-tint); }
+.q-row:focus-visible { outline: var(--focus-ring) solid var(--focus); outline-offset: calc(-1 * var(--focus-ring)); }
+
+.q-num { font-size: 13px; font-weight: 550; font-variant-numeric: tabular-nums; color: var(--ink); }
+.q-service { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.q-glyph {
+  width: 36px; height: 36px; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--r-m);
+  background: var(--hue-bg); color: var(--hue-fg);
+}
+.q-glyph .icon { width: 20px; height: 20px; }
+.q-service__name { font-size: 14px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-service__cat  { font-size: 12px; color: var(--ink-faint); }
+.q-applicant { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.q-applicant__name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-applicant__meta { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.q-date { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* индикатор SLA (§7Б.3, таблица 7Б.1). Точка — компонент .dot дизайн-системы. */
+.sla { display: inline-flex; align-items: center; gap: var(--s-2); font-size: 13px; font-weight: 550; }
+.sla--ok      { color: var(--ink-2); }
+.sla--ok .dot { background: var(--green); }
+.sla--warn    { color: var(--amber); }
+.sla--breach  { color: var(--red-ink); }
+/* некольцевой (не только цвет) признак срочности — глиф часов для warn/breach */
+.sla__ico { display: none; }
+.sla--warn .sla__ico, .sla--breach .sla__ico { display: block; }
+.sla__time { font-variant-numeric: tabular-nums; }
+
+.q-checkbox { display: grid; place-items: center; }  /* стиль чекбокса — из .check__input дизайн-системы */
+
+.q-flag { display: inline-flex; align-items: center; gap: var(--s-1); font-size: 12px; color: var(--amber); font-weight: 550; }
+
+/* полоса массовых операций (§7Б.2) */
+.batchbar {
+  position: sticky; bottom: var(--s-4); z-index: 25;
+  display: flex; align-items: center; gap: var(--s-3);
+  margin-top: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--ink); color: var(--bg);
+  border-radius: var(--r-pill);
+  box-shadow: 0 8px 24px -8px var(--line-in);
+}
+[data-theme="dark"] .batchbar { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
+.batchbar__count { font-weight: 550; flex: none; }
+.batchbar__count b { font-variant-numeric: tabular-nums; }
+.batchbar__hint { color: inherit; opacity: 0.85; }
+.batchbar .btn--secondary { background: color-mix(in srgb, var(--bg) 18%, transparent); color: inherit; }
+[data-theme="dark"] .batchbar .btn--secondary { background: var(--field); }
+.batchbar__spacer { flex: 1 1 auto; }
+
+/* ============================================================
+   Карточка заявления (§7Б.2) — двухколоночная раскладка
+   ============================================================ */
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--w-ctx);
+  gap: var(--s-6);
+  align-items: start;
+}
+.card__main { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+.card__side { position: sticky; top: 0; display: flex; flex-direction: column; gap: var(--s-4); }
+
+.card-head {
+  display: flex; align-items: flex-start; gap: var(--s-4);
+}
+.card-head__glyph {
+  width: 52px; height: 52px; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--r-l);
+  background: var(--hue-bg); color: var(--hue-fg);
+}
+.card-head__glyph .icon { width: 28px; height: 28px; }
+.card-head__titles { min-width: 0; }
+.card-head__num { font-size: 13px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.card-head__meta { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; margin-top: var(--s-2); }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  color: var(--ink-2); font-size: 14px; margin-bottom: var(--s-3);
+}
+.back-link:hover { color: var(--ink); }
+
+/* панель вкладок карточки. На узких экранах вкладки не переносят подпись
+   (напр. «Межвед. сведения»), а полоса прокручивается по горизонтали. */
+.card .tabs {
+  margin-bottom: var(--s-2);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;              /* Firefox: скрыть полосу прокрутки */
+  -webkit-overflow-scrolling: touch;
+}
+.card .tabs::-webkit-scrollbar { display: none; }
+.card .tab { flex: none; white-space: nowrap; }
+.tab-badge {
+  min-width: 18px; height: 18px; padding: 0 5px;
+  display: inline-grid; place-items: center;
+  border-radius: var(--r-pill);
+  background: var(--field); color: var(--ink-2);
+  font-size: 11px; font-weight: 700;
+}
+
+/* правая колонка: SLA-кольцо + реквизиты + действия */
+.sla-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); text-align: center; }
+.sla-ring-wrap .label { color: var(--ink-3); }
+.sla-caption { font-size: 13px; color: var(--ink-2); }
+.sla-caption b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.actions-stack { display: flex; flex-direction: column; gap: var(--s-2); }
+.actions-stack .btn { width: 100%; }
+
+/* Сводка в контекст-колонке (340px): метки НАД значениями. В узкой колонке
+   двухколоночный def (метка 200px + значение) сжимал значение до ~74px —
+   ФИО и подразделение переносились по-строчно, пилюля пошлины обрезалась.
+   Стопка отдаёт значению всю ширину; пилюли и длинные строки не режутся. */
+.card__side .def__row { flex-direction: column; align-items: stretch; gap: var(--s-1); }
+.card__side .def__key { width: auto; }
+
+/* строка «источник сведений» в межвед-блоке */
+.interop-item {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line-in);
+}
+.interop-item:last-child { border-bottom: 0; }
+.interop-item__ico {
+  width: 36px; height: 36px; flex: none;
+  display: grid; place-items: center;
+  border-radius: var(--r-m);
+  background: var(--field); color: var(--ink-3);
+}
+.interop-item__ico .icon { width: 20px; height: 20px; }
+.interop-item__body { flex: 1 1 auto; min-width: 0; }
+.interop-item__title { font-size: 14px; font-weight: 550; }
+.interop-item__meta  { font-size: 13px; color: var(--ink-faint); margin-top: 1px; }
+.interop-item.is-pending .interop-item__ico { background: var(--amber-tint); color: var(--amber); }
+.interop-item.is-received .interop-item__ico { background: var(--green-tint); color: var(--green); }
+
+/* документы */
+.doc-list { display: flex; flex-direction: column; }
+.doc-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--line-in);
+}
+.doc-row:last-child { border-bottom: 0; }
+.doc-row__ico { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--r-m); background: var(--field); color: var(--ink-3); }
+.doc-row__ico .icon { width: 20px; height: 20px; }
+.doc-row__body { flex: 1 1 auto; min-width: 0; }
+.doc-row__name { font-size: 14px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-row__meta { font-size: 12px; color: var(--ink-faint); }
+
+/* история / аудит (таймлайн) */
+.trail { display: flex; flex-direction: column; }
+.trail__item {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--s-3);
+  padding-bottom: var(--s-4);
+}
+.trail__rail { display: flex; flex-direction: column; align-items: center; }
+.trail__dot { width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--blue); flex: none; margin-top: 4px; }
+.trail__item--muted .trail__dot { background: var(--track-off); }
+.trail__line { flex: 1 1 auto; width: 2px; background: var(--line); margin-top: 2px; }
+.trail__item:last-child .trail__line { display: none; }
+.trail__body { min-width: 0; padding-bottom: var(--s-1); }
+.trail__action { font-size: 14px; }
+.trail__action b { font-weight: 550; }
+.trail__meta { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; margin-top: 1px; }
+
+/* ============================================================
+   Отчётность (§7Б.3 → §14): SLA по специалистам
+   ============================================================ */
+.report-table { width: 100%; }
+.report-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) 90px 90px 1fr;
+  gap: var(--s-4); align-items: center;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line-in);
+}
+.report-row--head { font-size: 12px; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink-3); font-weight: 550; border-bottom: 1px solid var(--line); }
+.report-row:last-child { border-bottom: 0; }
+.report-row__who { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.report-row__num { font-variant-numeric: tabular-nums; font-weight: 550; }
+.meter { display: block; height: 8px; border-radius: var(--r-pill); background: var(--field); overflow: hidden; }
+.meter__fill { display: block; height: 100%; border-radius: var(--r-pill); background: var(--green); }
+.meter__fill--warn { background: var(--amber); }
+.meter__fill--bad  { background: var(--red-fill); }
+
+/* ============================================================
+   Экран входа (§7Б.4) — усиленная аутентификация (МФА)
+   ============================================================ */
+.login {
+  min-height: 100vh;
+  background: var(--hero);
+  display: flex; flex-direction: column; align-items: center;
+  padding: max(12vh, var(--s-16)) var(--s-6) var(--s-6);
+  gap: var(--s-2);
+}
+.login__brand { display: flex; align-items: center; gap: var(--s-2); }
+.login__brand .icon { color: var(--blue-ink); }
+.login__brand b { font-size: 20px; font-weight: 720; letter-spacing: -0.02em; }
+.login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); text-align: center; }
+.login__card { width: 420px; max-width: 100%; padding: var(--s-8); border-radius: var(--r-xl); }
+.login__card .btn { width: 100%; margin-top: var(--s-2); }
+.login__legend { color: var(--ink-faint); margin-top: var(--s-5); text-align: center; max-width: 42ch; }
+.login__step { color: var(--ink-faint); }
+.login__mfa-target { font-variant-numeric: tabular-nums; font-weight: 550; color: var(--ink); }
+.login__card.is-shake { animation: shake 180ms var(--ease); }
+
+/* ============================================================
+   Модальные раскладки (решение, запрос сведений, возврат)
+   ============================================================ */
+.modal--decision, .modal--request, .modal--return, .modal--batch { --w-modal: 520px; }
+.modal .radio-card {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.modal .radio-card:hover { background: var(--hover); }
+.modal .radio-card.is-checked { border-color: var(--blue); background: var(--blue-tint); }
+.modal .radio-card.is-checked.radio-card--deny { border-color: var(--red); background: var(--red-tint); }
+.modal .radio-card .radio__input { margin-top: 2px; }  /* размер/accent — из .radio__input дизайн-системы */
+.modal .radio-card__body { display: flex; flex-direction: column; gap: 2px; }
+.modal .radio-card__t { font-weight: 550; }
+.modal .radio-card__d { font-size: 13px; color: var(--ink-2); }
+.modal__section { display: flex; flex-direction: column; gap: var(--s-3); }
+.modal__section + .modal__section { margin-top: var(--s-4); }
+
+/* «Четыре глаза» и итог результата собираются из .banner дизайн-системы
+   (banner--warn / banner--ok) прямо в разметке — отдельных компонентов нет. */
+
+/* ============================================================
+   Уведомления / эскалации (поповер колокольчика, §7Б.3)
+   ============================================================ */
+.notif-pop { position: absolute; top: calc(var(--h-topbar) - 6px); right: var(--s-4); width: 380px; max-width: calc(100vw - var(--s-8)); z-index: 45; padding: 0; }
+.notif-pop__head { display: flex; align-items: center; justify-content: space-between; padding: var(--s-4); border-bottom: 1px solid var(--line); }
+.notif-list { max-height: 60vh; overflow: auto; }
+.notif {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  width: 100%; text-align: left;
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line-in);
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.notif:last-child { border-bottom: 0; }
+.notif:hover { background: var(--hover); }
+.notif__ico { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: var(--r-m); }
+.notif__ico .icon { width: 18px; height: 18px; }
+.notif--breach .notif__ico { background: var(--red-tint); color: var(--red-ink); }
+.notif--warn   .notif__ico { background: var(--amber-tint); color: var(--amber); }
+.notif--info   .notif__ico { background: var(--blue-tint); color: var(--blue-ink); }
+.notif__body { flex: 1 1 auto; min-width: 0; }
+.notif__t { font-size: 14px; }
+.notif__t b { font-weight: 550; }
+.notif__time { font-size: 12px; color: var(--ink-faint); margin-top: 1px; }
+
+/* всплывающее меню специалиста */
+.user-pop { position: absolute; top: calc(var(--h-topbar) - 6px); right: var(--s-4); z-index: 45; }
+
+/* попапы позиционируются относительно .app */
+.app { position: relative; }
+
+/* мелкие утилиты прототипа */
+.muted { color: var(--ink-2); }
+.nowrap { white-space: nowrap; }
+.mt-2 { margin-top: var(--s-2); } .mt-4 { margin-top: var(--s-4); } .mt-6 { margin-top: var(--s-6); }
+.chips-row { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+
+/* «печать»-лист результата (переиспользуем doc-page из системы, задаём размер) */
+.result-doc { --tw: 150; }
+
+/* ============================================================
+   Адаптив (§6Б.2 mobile-first, §6Г.1 responsive)
+   ============================================================ */
+
+/* карточка: контекст-колонка уходит вниз */
+@media (max-width: 1080px) {
+  .card { grid-template-columns: 1fr; }
+  /* контекст-колонка уходит ПОД тело карточки (сначала данные — потом действия),
+     панели располагаются в ряд; порядок чтения сохранён (§6Б.2). */
+  .card__side { position: static; flex-direction: row; flex-wrap: wrap; }
+  .card__side > .panel { flex: 1 1 240px; }
+}
+
+/* планшет: сайдбар прячется в офф-канвас */
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; grid-template-areas: "top" "main"; }
+  .app__side {
+    position: fixed; top: var(--h-topbar); bottom: 0; left: 0;
+    width: var(--w-sidebar); z-index: 45;
+    transform: translateX(-100%);
+    transition: transform var(--t-layer) var(--ease);
+  }
+  .app.nav-open .app__side { transform: translateX(0); box-shadow: 0 0 40px -8px var(--line-in); }
+  .app.nav-open .side__backdrop {
+    display: block;
+    position: fixed; inset: var(--h-topbar) 0 0 0; z-index: 40;
+    background: color-mix(in srgb, var(--ink) 32%, transparent);
+  }
+  .nav-toggle { display: inline-flex; }
+}
+
+/* очередь → карточки строк, как только сайдбар сворачивается (§6Г.1) */
+@media (max-width: 960px) {
+  .q-head { display: none; }
+  .q-list { border: 0; background: none; border-radius: 0; display: flex; flex-direction: column; gap: var(--s-3); overflow: visible; }
+  .q-row {
+    grid-template-columns: 24px 1fr auto;
+    grid-template-areas:
+      "chk service service"
+      "chk applicant status"
+      "chk meta sla";
+    row-gap: var(--s-2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-l);
+    background: var(--panel);
+  }
+  .q-row .q-checkbox { grid-area: chk; align-self: start; }
+  .q-row .q-service { grid-area: service; }
+  .q-row .q-num { grid-area: meta; }
+  .q-row .q-applicant { grid-area: applicant; }
+  .q-row .q-status { grid-area: status; justify-self: end; }
+  .q-row .q-date { display: none; }
+  .q-row .q-sla { grid-area: sla; justify-self: end; }
+}
+
+@media (max-width: 620px) {
+  .view { padding: var(--s-4); }
+  .topbar__search { display: none; }
+  .topbar__bind { display: none; }
+  .view__head { gap: var(--s-2); }
+  .card__side { flex-direction: column; }
+  .modal__foot { flex-direction: column-reverse; }
+  .modal__foot .btn { width: 100%; }
+
+  /* полоса массовых операций: переносим содержимое, подсказка — отдельной строкой */
+  .batchbar { flex-wrap: wrap; row-gap: var(--s-2); border-radius: var(--r-l); }
+  .batchbar__hint { flex: 1 1 100%; order: 4; }
+  .batchbar__spacer { display: none; }
+
+  /* отчётность: имя на своей строке, показатели ниже */
+  .report-row--head { display: none; }
+  .report-row {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas: "who who who" "total breach meter";
+    row-gap: var(--s-2);
+  }
+  .report-row__who { grid-area: who; }
+  .report-row > *:nth-child(2) { grid-area: total; }
+  .report-row > *:nth-child(3) { grid-area: breach; }
+  .report-row > *:nth-child(4) { grid-area: meter; }
+  .q-row {
+    grid-template-columns: 24px 1fr auto;
+    grid-template-areas:
+      "chk service service"
+      "chk applicant applicant"
+      "chk status  sla"
+      "chk meta    meta";
+    row-gap: var(--s-2);
+  }
+  .q-row .q-status { justify-self: start; }
+}
+
+/* заглушка узкого окна не нужна: интерфейс полностью адаптивен */

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Пайгирии ариза</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" style="margin-left:6px">Шахси воқеӣ</span>
+    <div class="hdr-acts">
+      <button class="dd-btn" type="button">ТҶ<svg><use href="#i-chev-d"/></svg></button>
+      <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+      <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+      <span class="avatar" aria-hidden="true">Ф</span>
+    </div>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="col">
+    <a class="back" href="apply.html"><svg><use href="#i-chev-l"/></svg><span>Аризаҳои ман</span></a>
+
+    <div class="trk-top">
+      <div class="tt">
+        <h1>Маълумотнома дар бораи ҳайати оила</h1>
+        <p class="id">ариза №ТҶ-2026-204815 · фиристода имрӯз, 14:02 · бе қуттии сиёҳ — ҳар қадам намоён</p>
+      </div>
+    </div>
+
+    <!-- state switcher (blueprint: shows every status state) -->
+    <div class="ftabs" data-tabs role="tablist" style="margin-bottom:var(--s-5);flex-wrap:wrap">
+      <button class="ftab" data-tab="review" role="tab" aria-selected="true">Дар баррасӣ</button>
+      <button class="ftab" data-tab="info" role="tab" aria-selected="false" tabindex="-1">Маълумоти иловагӣ</button>
+      <button class="ftab" data-tab="rej" role="tab" aria-selected="false" tabindex="-1">Рад шуд</button>
+      <button class="ftab" data-tab="ready" role="tab" aria-selected="false" tabindex="-1">Тайёр</button>
+    </div>
+
+    <!-- STATE: in review -->
+    <div data-panel="review">
+      <div class="eta">
+        <div><div class="k">Тахмини анҷом</div><div class="big">имрӯз, то 16:30</div></div>
+        <div class="sep"></div>
+        <div><div class="k">Дар навбат пеш аз шумо</div><div class="big">3 ариза</div></div>
+        <div class="sep"></div>
+        <div class="tt"><span class="pill-st review"><span class="pulse" style="width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block"></span>Дар баррасӣ</span></div>
+      </div>
+      <div class="trk-card">
+        <ol class="timeline">
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Қабул шуд</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Санҷиши худкор гузашт</b><span class="when">имрӯз, 14:02 · маълумот бо феҳристҳо мувофиқ аст</span></li>
+          <li class="tl now"><span class="dot"><svg><use href="#i-clock"/></svg></span><b>Дар баррасӣ</b><span class="when">САҲШ-и ноҳияи Сино · мутахассиси навбатдор</span>
+            <div class="detail">Дар навбат пеш аз шумо: <b>3</b> ариза. Тахмини анҷом: имрӯз, то 16:30.
+              <button class="btn btn-sec btn-sm" data-toast="Намунавӣ: чат бо мутахассис"><svg><use href="#i-chat"/></svg>Савол доред? Бо мутахассис нависед</button>
+            </div>
+          </li>
+          <li class="tl next"><span class="dot"><svg><use href="#i-star8"/></svg></span><b>Имзои электронӣ ва ба ҳамёни шумо</b><span class="when">push-огоҳӣ мефиристем — худатон тафтиш кардан лозим нест</span></li>
+        </ol>
+      </div>
+      <div class="trk-foot">
+        <button class="btn btn-sec" data-toast="Огоҳ мекунем"><svg><use href="#i-bell"/></svg>Тайёр шавад — огоҳ кунед</button>
+        <button class="btn btn-ghost" data-toast="Намунавӣ">Нусхаи коғазӣ дар куҷо гирифта мешавад</button>
+      </div>
+    </div>
+
+    <!-- STATE: needs more info (action required) -->
+    <div data-panel="info" hidden>
+      <div class="note-warn">
+        <svg><use href="#i-info"/></svg>
+        <p><b>Аз шумо як ҳуҷҷат лозим аст.</b> Мутахассис барои тасдиқи суроға нусхаи китоби ҳавлигӣ пурсид. Илова кунед — баррасӣ дарҳол идома меёбад.</p>
+        <button class="btn btn-sec btn-sm" data-toast="Намунавӣ: иловаи ҳуҷҷат"><svg><use href="#i-upload"/></svg>Ҳуҷҷат илова кардан</button>
+      </div>
+      <div class="trk-card">
+        <ol class="timeline">
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Қабул шуд</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Санҷиши худкор гузашт</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl warn"><span class="dot"><svg><use href="#i-info"/></svg></span><b>Маълумоти иловагӣ лозим</b><span class="when">САҲШ-и ноҳияи Сино · имрӯз, 14:40</span>
+            <div class="detail">«Барои тасдиқи суроға нусхаи китоби ҳавлигиро илова кунед.» — баррасӣ муваққатан таваққуф кардааст, навбататон нигоҳ дошта мешавад.</div>
+          </li>
+          <li class="tl next"><span class="dot"><svg><use href="#i-star8"/></svg></span><b>Идомаи баррасӣ ва имзо</b><span class="when">пас аз иловаи ҳуҷҷат</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- STATE: rejected (fixable, no fine) -->
+    <div data-panel="rej" hidden>
+      <div class="note-warn" style="background:var(--red-tint)">
+        <svg style="color:var(--red-ink)"><use href="#i-info"/></svg>
+        <p><b>Ариза рад шуд — вале ин ислоҳшаванда аст.</b> Сабаб: суроғаи қайд бо феҳристи нав мувофиқ нашуд. Ҷарима нест — ислоҳ кунед ва аз нав фиристед, навбати аввал нигоҳ дошта мешавад.</p>
+        <button class="btn btn-pri btn-sm" data-toast="Намунавӣ: аз нав фиристодан"><svg><use href="#i-refresh"/></svg>Ислоҳ ва аз нав фиристодан</button>
+      </div>
+      <div class="trk-card">
+        <ol class="timeline">
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Қабул шуд</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Санҷиши худкор гузашт</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Баррасӣ шуд</b><span class="when">САҲШ-и ноҳияи Сино · имрӯз, 15:10</span></li>
+          <li class="tl rej"><span class="dot"><svg><use href="#i-x"/></svg></span><b>Рад шуд — ислоҳшаванда</b><span class="when">имрӯз, 15:12</span>
+            <div class="detail">Сабаб: суроғаи қайди шумо нав шудааст ва ҳанӯз дар феҳристи марказӣ навсозӣ нашуда. Қадами оянда: суроғаро тасдиқ кунед ё дархости ислоҳ диҳед — мо худамон ҳамоҳанг мекунем.</div>
+          </li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- STATE: ready -->
+    <div data-panel="ready" hidden>
+      <div class="note-info" style="background:var(--green-tint)">
+        <svg style="color:var(--green)"><use href="#i-check"/></svg>
+        <p><b>Ҳуҷҷат тайёр аст</b> ва ба ҳамёни шумо илова шуд. Дорои имзои электронӣ ва QR барои тасдиқ.</p>
+      </div>
+      <div class="trk-card">
+        <ol class="timeline">
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Қабул шуд</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Санҷиши худкор гузашт</b><span class="when">имрӯз, 14:02</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Баррасӣ ва тасдиқ</b><span class="when">САҲШ-и ноҳияи Сино · имрӯз, 15:48</span></li>
+          <li class="tl"><span class="dot"><svg><use href="#i-check"/></svg></span><b>Имзои электронӣ ва ба ҳамён</b><span class="when">имрӯз, 15:49</span></li>
+        </ol>
+      </div>
+      <div class="trk-foot">
+        <a class="btn btn-pri" href="document.html"><svg><use href="#i-wallet"/></svg>Кушодан дар ҳамён</a>
+        <button class="btn btn-sec" data-toast="Намунавӣ: боргирӣ"><svg><use href="#i-download"/></svg>PDF боргирӣ</button>
+      </div>
+    </div>
+
+    <!-- transparency footnote -->
+    <div class="note-info" style="margin-top:var(--s-6)">
+      <svg><use href="#i-eye"/></svg>
+      <p>Ҳар муроҷиат ба маълумоти шумо дар бахши «Дастрасӣ ба маълумот»-и профил сабт мешавад. Қуттии сиёҳ нест.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><div class="ft-bottom"><span>© 2026 eKhizmat</span><div class="ft-legal"><a href="index.html">Ҳама экранҳо</a><a href="document.html">Ҳуҷҷати тайёр</a></div></div></div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

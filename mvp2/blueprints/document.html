@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Ҳуҷҷати тайёр</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" style="margin-left:6px">Шахси воқеӣ</span>
+    <div class="hdr-acts">
+      <button class="dd-btn" type="button">ТҶ<svg><use href="#i-chev-d"/></svg></button>
+      <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+      <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+      <span class="avatar" aria-hidden="true">Ф</span>
+    </div>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="sheet">
+    <a class="back" href="track.html"><svg><use href="#i-chev-l"/></svg><span>Ба пайгирӣ</span></a>
+
+    <div class="trk-top" style="margin-bottom:var(--s-4)">
+      <div class="tt">
+        <span class="eyebrow">Ҳамёни ҳуҷҷатҳо · аслӣ</span>
+        <h1 style="margin-top:6px">Маълумотнома дар бораи ҳайати оила</h1>
+        <p class="id">№ ҲО-2026-204815 · додашуда имрӯз, 15:49</p>
+      </div>
+      <span class="pill-st done"><svg><use href="#i-check"/></svg>Эътибор дорад · то 18.07.2026</span>
+    </div>
+
+    <div class="cert-actions">
+      <button class="btn btn-pri" data-toast="Намунавӣ: PDF боргирӣ шуд"><svg><use href="#i-download"/></svg>PDF боргирӣ</button>
+      <button class="btn btn-sec" data-open="shareModal"><svg><use href="#i-qr"/></svg>Мубодила</button>
+      <button class="btn btn-sec" data-open="verifyModal"><svg><use href="#i-shield"/></svg>Тасдиқи аслият</button>
+      <button class="btn btn-ghost" data-toast="Намунавӣ: дар як дақиқа нав мешавад"><svg><use href="#i-refresh"/></svg>Нав кардан</button>
+    </div>
+
+    <!-- the certificate itself -->
+    <article class="cert-sheet" aria-label="Маълумотнома">
+      <span class="wm" aria-hidden="true"><svg><use href="#girih-tile"/></svg></span>
+      <div class="cert-hd">
+        <svg class="emblem" aria-hidden="true"><use href="#i-logo"/></svg>
+        <div class="org">Ҷумҳурии Тоҷикистон · Хадамоти сабти асноди ҳолати шаҳрвандӣ</div>
+        <h2>Маълумотнома дар бораи ҳайати оила</h2>
+        <div class="no">№ ҲО-2026-204815</div>
+      </div>
+      <div class="cert-rule"></div>
+      <div class="cert-body">
+        <p>Бо ин тасдиқ карда мешавад, ки шаҳрванд <b>Раҳимова Фируза Далеровна</b>, таваллуди 14.03.1994, дар суроғаи <b>ш. Душанбе, кӯчаи Рӯдакӣ 84, хонаи 12</b> ба қайд гирифта шудааст ва ҳайати оилаи ӯ аз <b>4 нафар</b> иборат аст:</p>
+        <div class="cert-kv">
+          <span class="k">1. Раҳимова Фируза</span><span class="v">сардори оила · 14.03.1994</span>
+          <span class="k">2. Раҳимов Далер</span><span class="v">ҳамсар · 02.07.1991</span>
+          <span class="k">3. Раҳимова Зарина</span><span class="v">фарзанд · 08.06.2026</span>
+          <span class="k">4. Раҳимова Олима</span><span class="v">модар · 19.11.1965</span>
+        </div>
+        <p>Маълумотнома барои пешниҳод ба ташкилотҳои бонкӣ ва иҷтимоӣ дода шудааст. Асос: феҳристи ягонаи аҳолӣ ва САҲШ.</p>
+      </div>
+      <div class="cert-foot">
+        <div class="cert-seal">
+          <span class="sg">ИМЗОИ<br>РАҚАМӢ<br>САҲШ</span>
+          <div class="sig"><b>Имзои электронӣ</b><span>САҲШ-и ноҳияи Сино</span><span>имрӯз, 15:49</span></div>
+        </div>
+        <div class="cert-qr" aria-hidden="true"><svg data-qr="famcert-204815"></svg></div>
+      </div>
+    </article>
+
+    <p class="verify"><svg><use href="#i-shield"/></svg>Аслияти ин ҳуҷҷатро ҳар кас бо сканкунии QR ё дар verify.ekhizmat.tj тасдиқ карда метавонад</p>
+
+    <div class="note-info" style="margin-top:var(--s-5)">
+      <svg><use href="#i-info"/></svg>
+      <p><b>Нусхаи рақамӣ аслӣ аст.</b> Коғаз шарт нест. Агар ягон идора нусхаи коғазӣ талаб кунад, аз маркази наздиктарин ройгон чоп карда мешавад.</p>
+    </div>
+  </div>
+</main>
+
+<!-- share / QR modal -->
+<div class="overlay" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareH">
+  <div class="modal">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <h3 id="shareH">Мубодилаи ҳуҷҷат</h3>
+    <p class="sub">Ҳаволаи бехатар 10 дақиқа эътибор дорад ва танҳо ин ҳуҷҷатро мекушояд</p>
+    <div class="qr-box"><svg data-qr="share-204815"></svg><span class="qr-demo">намунавӣ</span></div>
+    <button class="btn btn-pri btn-block" data-toast="Ҳавола нусхабардорӣ шуд"><svg><use href="#i-arrow-ur"/></svg>Нусхабардории ҳавола</button>
+    <button class="btn btn-ghost btn-block" data-close>Пӯшидан</button>
+  </div>
+</div>
+
+<!-- verify modal -->
+<div class="overlay" id="verifyModal" role="dialog" aria-modal="true" aria-labelledby="verifyH">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--green-tint);color:var(--green)"><svg><use href="#i-shield"/></svg></span><div><h3 id="verifyH">Ҳуҷҷат аслӣ аст</h3><p>имзои электронӣ тасдиқ шуд</p></div></div>
+    <div class="led">
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Додашуда: САҲШ-и ноҳияи Сино</b><p>имрӯз, 15:49</p></div></div>
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Имзои электронӣ дуруст</b><p>сертификат эътибор дорад</p></div></div>
+      <div class="led-row"><span class="lr-ic"><svg><use href="#i-check"/></svg></span><div><b>Мӯҳлат: то 18.07.2026</b><p>ҳуҷҷат бекор карда нашудааст</p></div></div>
+    </div>
+    <button class="btn btn-pri btn-block" data-close style="margin-top:var(--s-4)">Фаҳмидам</button>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap"><div class="ft-bottom"><span>© 2026 eKhizmat</span><div class="ft-legal"><a href="index.html">Ҳама экранҳо</a><a href="track.html">Пайгирӣ</a></div></div></div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

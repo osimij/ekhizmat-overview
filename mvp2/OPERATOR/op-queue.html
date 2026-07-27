@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Оператор — Навбат</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/blueprint.css">
+<link rel="stylesheet" href="css/operator.css">
+</head>
+<body>
+<script src="js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-op-rail data-active="queue"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Навбат</span>
+      <div class="at-search"><svg><use href="#i-search"/></svg><input placeholder="Ҷустуҷӯ: тикет, шиноснома ё ном..."></div>
+      <div class="at-right">
+        <span class="win-chip"><span class="led-dot"></span>Тиреза 4 · кушода</span>
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h"><div class="row">
+        <div><h1>Хайр, Аброр</h1><p>САҲШ-и ноҳияи Сино · Тиреза 4 · сешанбе, 22 июни 2026</p></div>
+        <button class="btn btn-sec" data-toast="Намунавӣ: танаффус — навбат таваққуф ёфт"><svg><use href="#i-clock"/></svg>Танаффус</button>
+      </div></div>
+
+      <!-- now serving / call next -->
+      <div class="op-now empty">
+        <span class="tkt">A-118</span>
+        <div class="on-body">
+          <span class="eyebrow">Тиреза омода</span>
+          <b>Навбати навбатиро даъват кунед</b>
+          <span>Дар экрани толор рақам ва тиреза нишон дода мешавад</span>
+        </div>
+        <a class="btn btn-pri btn-lg" href="op-verify.html"><svg><use href="#i-arrow-ur"/></svg>Навбати оянда</a>
+      </div>
+
+      <div class="cols-2">
+        <!-- waiting queue -->
+        <section class="panel">
+          <div class="panel-h"><h3>Дар навбат · 12</h3><a href="op-queue.html"><svg style="width:14px;height:14px;vertical-align:-2px"><use href="#i-refresh"/></svg> Нав кардан</a></div>
+
+          <div class="q-list">
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt pri">A-118</span>
+              <div class="qi-main"><b>Маъюбӣ — хизмати афзалиятнок</b><span>бе ном (тикет) · кӯмаки ёрирасон лозим</span></div>
+              <span class="pill-st warn">афзалият</span>            </a>
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt pri">A-120</span>
+              <div class="qi-main"><b>Қайди никоҳ · Сабрина Ҷӯраева</b><span>вохӯрии таъиншуда, 11:30 · САҲШ</span></div>
+              <span class="pill-st review">таъиншуда</span>            </a>
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt">A-121</span>
+              <div class="qi-main"><b>Шиносномаи нав</b><span>бе ном (тикет) · интизорӣ 2 дақ</span></div>
+              <span class="qi-wait">2 дақ</span>            </a>
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt">A-122</span>
+              <div class="qi-main"><b>Маълумотнома — ҳайати оила</b><span>Фируза Раҳимова · интизорӣ 6 дақ</span></div>
+              <span class="qi-wait">6 дақ</span>            </a>
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt">A-123</span>
+              <div class="qi-main"><b>Нусхаи дубораи шаҳодатнома</b><span>Далер Раҳимов · интизорӣ 9 дақ</span></div>
+              <span class="qi-wait">9 дақ</span>            </a>
+            <a class="q-item" href="op-verify.html">
+              <span class="tkt">A-124</span>
+              <div class="qi-main"><b>Қарзи андоз · «Сино-Текс» ҶДММ</b><span>шахси ҳуқуқӣ · интизорӣ 12 дақ</span></div>
+              <span class="qi-wait">12 дақ</span>            </a>
+          </div>
+        </section>
+
+        <!-- direct lookup / walk-in -->
+        <section class="panel">
+          <div class="panel-h"><h3>Бе навбат</h3></div>
+          <div style="padding:0 var(--s-5) var(--s-5)">
+            <p class="lead" style="font-size:var(--fs-14);margin-bottom:var(--s-3)">Бо шиноснома ё телефон ёбед ва сессияро оғоз кунед.</p>
+            <div class="field"><label for="qFind">Рақами шиноснома ё телефон</label><input class="input" id="qFind" placeholder="A0•••••• ё +992 ..."></div>
+            <a class="btn btn-pri btn-block" href="op-verify.html"><svg><use href="#i-user-add"/></svg>Оғози сессия</a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/operator-i18n.js"></script>
+<script src="js/operator.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+.history/
+.DS_Store
+**/.DS_Store
+Admin/qa/**/*.png
+mvp2/.qa/*.png
+mvp2/reference/
+mvp2/references/
+*.log
+.env
+.env.*
+!.env.example

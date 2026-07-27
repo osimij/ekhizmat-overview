@@ -1,0 +1,188 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "name": "eKhizmat Design Tokens",
+    "description": "Token library for eKhizmat, a concept for the unified public services portal of Tajikistan. Values mirror the CSS custom properties in css/tokens.css. Language: warm paper canvas, white panels, hairlines instead of borders, one action blue (#0088FF), per-category hues on icon tiles, pill buttons, rectangular hovers. No decorative shadows; a soft veil is permitted only on floating layers (menus, modal, toast).",
+    "version": "0.2.0",
+    "themes": ["light", "dark"]
+  },
+
+  "color": {
+    "light": {
+      "ink":   { "$type": "color", "$value": "#1B1D20", "$description": "Primary text" },
+      "ink-2": { "$type": "color", "$value": "#5C6065", "$description": "Secondary text" },
+      "ink-3": { "$type": "color", "$value": "#63676D", "$description": "Tertiary text, small-caps labels (AA on all light surfaces)" },
+      "ink-faint": { "$type": "color", "$value": "#90949A", "$description": "Decorative strokes and glyphs only, never text" },
+      "bg":    { "$type": "color", "$value": "#F4F3F0", "$description": "Warm paper canvas" },
+      "panel": { "$type": "color", "$value": "#FFFFFF", "$description": "Cards, row lists, menus" },
+      "field": { "$type": "color", "$value": "#EFEEEA", "$description": "Flat filled inputs and secondary buttons - no borders" },
+      "field-on-panel": { "$type": "color", "$value": "#F4F3F0", "$description": "Filled elements inside white panels" },
+      "line":  { "$type": "color", "$value": "#E7E5E0", "$description": "Hairline on paper" },
+      "line-in": { "$type": "color", "$value": "rgba(27,29,32,.07)", "$description": "Hairline row divider inside panels" },
+      "hover": { "$type": "color", "$value": "rgba(27,29,32,.05)", "$description": "Universal rectangular hover fill for rows, menu items, quiet buttons" },
+      "press": { "$type": "color", "$value": "rgba(27,29,32,.09)" },
+      "blue":       { "$type": "color", "$value": "#0088FF", "$description": "The action color. Primary buttons: this bg + white text, pill shape." },
+      "blue-hover": { "$type": "color", "$value": "#0079E8" },
+      "blue-press": { "$type": "color", "$value": "#006FD6" },
+      "blue-ink":   { "$type": "color", "$value": "#0066C2", "$description": "Blue as text/links on light surfaces (AA on paper, panel and blue-tint)" },
+      "blue-tint":  { "$type": "color", "$value": "#E9F3FE", "$description": "Selected nav item, consent row" },
+      "on-blue":    { "$type": "color", "$value": "#FFFFFF" },
+      "green":      { "$type": "color", "$value": "#15754A" },
+      "green-tint": { "$type": "color", "$value": "#E6F4EC" },
+      "red":        { "$type": "color", "$value": "#E03E33", "$description": "Destructive / emergency only (dots, icons)" },
+      "red-fill":   { "$type": "color", "$value": "#D32F24", "$description": "Filled red surfaces with white text (AA)" },
+      "red-ink":    { "$type": "color", "$value": "#C4372D" },
+      "red-tint":   { "$type": "color", "$value": "#FCEAE8" },
+      "amber":      { "$type": "color", "$value": "#855B00" },
+      "amber-tint": { "$type": "color", "$value": "#F7EED8" },
+      "focus":      { "$type": "color", "$value": "#0088FF", "$description": "2px ring, 2px offset, on every control" }
+    },
+
+    "dark": {
+      "ink":   { "$type": "color", "$value": "#F0F0EE" },
+      "ink-2": { "$type": "color", "$value": "#A8ABAF" },
+      "ink-3": { "$type": "color", "$value": "#94979D" },
+      "ink-faint": { "$type": "color", "$value": "#76797E" },
+      "bg":    { "$type": "color", "$value": "#121315" },
+      "panel": { "$type": "color", "$value": "#1B1C1F" },
+      "field": { "$type": "color", "$value": "#26272B" },
+      "field-on-panel": { "$type": "color", "$value": "#26272B" },
+      "line":  { "$type": "color", "$value": "#2A2B2F" },
+      "line-in": { "$type": "color", "$value": "rgba(240,240,238,.08)" },
+      "hover": { "$type": "color", "$value": "rgba(240,240,238,.06)" },
+      "press": { "$type": "color", "$value": "rgba(240,240,238,.10)" },
+      "blue":       { "$type": "color", "$value": "#0088FF" },
+      "blue-hover": { "$type": "color", "$value": "#2B99FF" },
+      "blue-press": { "$type": "color", "$value": "#0070D6" },
+      "blue-ink":   { "$type": "color", "$value": "#55AAFF" },
+      "blue-tint":  { "$type": "color", "$value": "#15293E" },
+      "on-blue":    { "$type": "color", "$value": "#FFFFFF" },
+      "green":      { "$type": "color", "$value": "#43BD83" },
+      "green-tint": { "$type": "color", "$value": "#15301F" },
+      "red":        { "$type": "color", "$value": "#F0655B" },
+      "red-fill":   { "$type": "color", "$value": "#C93C31" },
+      "red-ink":    { "$type": "color", "$value": "#F0655B" },
+      "red-tint":   { "$type": "color", "$value": "#3A1B17" },
+      "amber":      { "$type": "color", "$value": "#E0AE4C" },
+      "amber-tint": { "$type": "color", "$value": "#332A12" },
+      "focus":      { "$type": "color", "$value": "#55AAFF" }
+    },
+
+    "tileHues": {
+      "$description": "Per-category icon-tile pairs (bg + glyph). Each category, life moment and list row carries its own hue and silhouette (squircle 32% default, circle, rounded square 24%, leaf 50%/18%). Assignments live in CAT_TILES (js/app.js) and in static markup.",
+      "blue":   { "bg": "#E3F0FE", "fg": "#0072D6" },
+      "rose":   { "bg": "#FCE8EC", "fg": "#C9405E" },
+      "amber":  { "bg": "#F8EFD8", "fg": "#8F6400" },
+      "green":  { "bg": "#E2F3E9", "fg": "#1E7E50" },
+      "indigo": { "bg": "#E9EBFB", "fg": "#4A56C4" },
+      "terra":  { "bg": "#F8EAE0", "fg": "#A85A28" },
+      "violet": { "bg": "#F2E9FA", "fg": "#7B42B4" },
+      "slate":  { "bg": "#E9EEF3", "fg": "#46627E" },
+      "teal":   { "bg": "#DFF3F2", "fg": "#0F7A74" },
+      "pink":   { "bg": "#FBE8F5", "fg": "#B13D8C" },
+      "steel":  { "bg": "#EAEFF6", "fg": "#3E6592" },
+      "gray":   { "bg": "#ECEBE8", "fg": "#5C6065" },
+      "cyan":   { "bg": "#E0F2FA", "fg": "#0E7099" },
+      "olive":  { "bg": "#EFF1DC", "fg": "#6A7616" }
+    }
+  },
+
+  "typography": {
+    "family": {
+      "ui": {
+        "$type": "fontFamily",
+        "$value": ["ALS Hauss Next", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        "$description": "Variable font, self-hosted (assets/fonts/ALSHaussNextVF.ttf). Verified Tajik Cyrillic coverage incl. the six extensions (Ғғ Ӣӣ Ққ Ӯӯ Ҳҳ Ҷҷ). Body runs at wdth 500, headings at wdth 550."
+      }
+    },
+    "size": {
+      "12": { "$type": "dimension", "$value": "12px" },
+      "13": { "$type": "dimension", "$value": "13px" },
+      "14": { "$type": "dimension", "$value": "14px" },
+      "15": { "$type": "dimension", "$value": "15px", "$description": "Body default" },
+      "16": { "$type": "dimension", "$value": "16px" },
+      "17": { "$type": "dimension", "$value": "17px" },
+      "20": { "$type": "dimension", "$value": "20px" },
+      "24": { "$type": "dimension", "$value": "24px" },
+      "32": { "$type": "dimension", "$value": "32px" },
+      "display": { "$type": "dimension", "$value": "clamp(32px, 4.6vw, 50px)", "$description": "Fluid hero heading" }
+    },
+    "weight": {
+      "regular": { "$type": "fontWeight", "$value": 500, "$description": "Variable axis; body sits slightly above book weight" },
+      "medium": { "$type": "fontWeight", "$value": 560 },
+      "semibold": { "$type": "fontWeight", "$value": 620 },
+      "bold": { "$type": "fontWeight", "$value": 680 }
+    },
+    "lineHeight": {
+      "tight": { "$type": "number", "$value": 1.15, "$description": "Display and headings" },
+      "body": { "$type": "number", "$value": 1.55, "$description": "Set generously: Tajik and Russian strings run 20-40% longer than English" }
+    },
+    "caps-label": {
+      "$description": "Small-caps structural label: 12px, weight 640, letter-spacing .09em, uppercase, ink-3. Used for group headers (notifications, service sub-groups, footer columns, search hint, pay rail)."
+    }
+  },
+
+  "space": {
+    "$description": "4px base scale",
+    "1": { "$type": "dimension", "$value": "4px" },
+    "2": { "$type": "dimension", "$value": "8px" },
+    "3": { "$type": "dimension", "$value": "12px" },
+    "4": { "$type": "dimension", "$value": "16px" },
+    "5": { "$type": "dimension", "$value": "20px" },
+    "6": { "$type": "dimension", "$value": "24px" },
+    "8": { "$type": "dimension", "$value": "32px" },
+    "10": { "$type": "dimension", "$value": "40px" },
+    "12": { "$type": "dimension", "$value": "48px" },
+    "16": { "$type": "dimension", "$value": "64px" }
+  },
+
+  "radius": {
+    "s": { "$type": "dimension", "$value": "10px", "$description": "Menu items, rectangular hovers, quiet buttons" },
+    "m": { "$type": "dimension", "$value": "14px", "$description": "Inputs, tinted notes" },
+    "l": { "$type": "dimension", "$value": "18px", "$description": "Panels, row lists, menus" },
+    "xl": { "$type": "dimension", "$value": "24px", "$description": "Hero panels, ledger, doc cards, modal" },
+    "pill": { "$type": "dimension", "$value": "999px", "$description": "All buttons, chips, tags, toast" }
+  },
+
+  "elevation": {
+    "$description": "No decorative shadows. The only shadow token is the veil on floating layers.",
+    "veil": { "$type": "shadow", "$value": "0 12px 36px rgba(24,22,16,.10), 0 2px 8px rgba(24,22,16,.05)" },
+    "veil-dark": { "$type": "shadow", "$value": "0 12px 36px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3)" }
+  },
+
+  "motion": {
+    "easing": {
+      "standard": { "$type": "cubicBezier", "$value": [0.2, 0.8, 0.2, 1] }
+    },
+    "duration": {
+      "fast": { "$type": "duration", "$value": "150ms", "$description": "Hovers, toggles" },
+      "medium": { "$type": "duration", "$value": "280ms", "$description": "Screen transitions, modals" }
+    },
+    "policy": {
+      "$description": "All non-essential motion is disabled under prefers-reduced-motion: reduce. Transitions carry spatial meaning; they are never decorative. Trust statistics render statically - no count-up."
+    }
+  },
+
+  "layout": {
+    "max-width": { "$type": "dimension", "$value": "1120px" },
+    "column": { "$type": "dimension", "$value": "640px", "$description": "Single-question form column (one thing per screen)" },
+    "breakpoint": {
+      "tablet": { "$type": "dimension", "$value": "880px" },
+      "mobile": { "$type": "dimension", "$value": "560px" }
+    }
+  },
+
+  "a11y": {
+    "focus-ring": {
+      "$description": "2px solid {color.*.focus} with 2px offset on every interactive element; never removed, only restyled",
+      "width": { "$type": "dimension", "$value": "2px" },
+      "offset": { "$type": "dimension", "$value": "2px" }
+    },
+    "target": {
+      "min": { "$type": "dimension", "$value": "44px", "$description": "Minimum hit target, WCAG 2.2 AA" }
+    },
+    "contrast": {
+      "$description": "Body text >= 4.5:1 in both themes. Exception by explicit design decision: primary action buttons are #0088FF with white text (~3.3:1) - always >=15px semibold, qualifying as large-text 3:1."
+    }
+  }
+}

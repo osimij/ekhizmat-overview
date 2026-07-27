@@ -1,0 +1,624 @@
+/* ============================================================
+   screens.css — шелл (§3.2) и раскладки конкретных экранов.
+   Компоненты живут в components.css; здесь только композиция.
+   ============================================================ */
+
+/* ============================================================
+   Шелл (§3.2)
+   ============================================================ */
+/* Шелл занимает ровно вьюпорт и НЕ скроллится: скроллится только канвас
+   (§3.2, Д-08). Иначе на самом нагруженном экране — форме S6, которая на
+   1366×768 выше вьюпорта, — документ уезжал целиком, и вместе с ним уходили
+   таймер TTL и «Завершить приём». А §3.2 требует «TOPBAR … всегда» и P3
+   «статус виден из любой точки»: статус приёма не может зависеть от того,
+   докуда оператор долистал форму.
+
+   Отсюда height, а не min-height: колонка должна быть ограничена вьюпортом,
+   чтобы #screen получил конечную высоту и свой скроллпорт. */
+.shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Под замком канвас размывается, но остаётся смонтированным:
+   сессия гражданина продолжает тикать (§6/S9c). */
+.shell.is-blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* --- topbar 60 --- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: var(--h-topbar);
+  flex: none;
+  padding-inline: var(--s-6);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.topbar__brand { display: flex; align-items: center; gap: var(--s-2); }
+.topbar__bind { color: var(--ink-2); }
+
+/* --- session bar 48 (§3.2) --- */
+.sessionbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  height: var(--h-sessionbar);
+  flex: none;
+  padding-inline: var(--s-6);
+  background: var(--blue-tint);
+  color: var(--blue-ink);
+  border-bottom: 1px solid var(--line);
+}
+.sessionbar__who { font-weight: 550; }
+.sessionbar__timer { font-size: 15px; font-weight: 550; }
+
+/* Пороги TTL (§3.2): >5:00 обычный; ≤5:00 amber; ≤1:00 red + модал. */
+.sessionbar--warn   { background: var(--amber-tint); color: var(--amber); }
+.sessionbar--danger { background: var(--red-tint);   color: var(--red-ink); }
+
+/* --- stepper 44 --- */
+.stepper-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--h-stepper);
+  flex: none;
+  padding-inline: var(--s-6);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+/* Единственная скролл-область АРМ. min-height:0 обязателен: без него
+   flex-элемент не даёт себя сжать ниже содержимого, и overflow не сработает.
+   Sticky-элементы внутри (футер формы S6, список документов S7, контекст-
+   колонка) липнут теперь к этому скроллпорту, а не к документу — то есть
+   ведут себя так, как и задумывались. */
+.screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  outline: 0;
+}
+
+/* ============================================================
+   S0 · Вход (§6/S0)
+   «Ворота»: одна колонка 440 по центру, сверху свободно ≥15% высоты (§3.3).
+   ============================================================ */
+.s-login {
+  min-height: calc(100vh - var(--h-topbar));
+  background: var(--hero);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: max(15vh, var(--s-16)) var(--s-6) var(--s-6);
+  gap: var(--s-2);
+}
+.s-login__brand { display: flex; align-items: center; gap: var(--s-2); }
+.s-login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); }
+
+.s-login__slider { width: var(--w-gate); max-width: 100%; }
+.s-login__card { padding: var(--s-8); }
+.s-login__step { color: var(--ink-faint); }
+.s-login__submit { width: 100%; margin-top: var(--s-2); }
+.s-login__legend { color: var(--ink-faint); margin-top: var(--s-5); }
+
+/* §8 — переход шагов: fade+slide 8px, 180ms. */
+.s-login__card.is-in   { animation: step-in var(--t-step) var(--ease); }
+.s-login__card.is-back { animation: step-back var(--t-step) var(--ease); }
+@keyframes step-in   { from { opacity: 0; transform: translateX(8px); } }
+@keyframes step-back { from { opacity: 0; transform: translateX(-8px); } }
+
+/* Ошибка кредов — шейк 2×4px (§6/S0). */
+.s-login__card.is-shake { animation: shake 180ms var(--ease); }
+@keyframes shake {
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .s-login__card.is-in,
+  .s-login__card.is-back,
+  .s-login__card.is-shake { animation: none; }
+}
+
+/* ============================================================
+   S1 · Главная смены (§6/S1)
+   ============================================================ */
+.s-idle {
+  display: grid;
+  grid-template-columns: 1fr var(--w-context);
+  gap: var(--s-6);
+  align-items: start;
+}
+.s-idle__main { display: flex; flex-direction: column; gap: var(--s-2); }
+
+/* Пустой центр — осознанный приём: одно решение, ничто не конкурирует (§3.3). */
+.s-idle__hero {
+  position: relative;
+  overflow: hidden;
+  margin-top: var(--s-6);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-4);
+  text-align: center;
+}
+
+/* Водяной знак гирих 10% (§6/S1). aria-hidden, чисто декоративный. */
+.s-idle__watermark {
+  position: absolute;
+  inset: auto -24px -24px auto;
+  width: 220px; height: 220px;
+  opacity: 0.1;
+  color: var(--ink);
+  pointer-events: none;
+}
+
+.s-idle__start { position: relative; z-index: 1; }
+
+/* Подсказка горячей клавиши прямо на кнопке — P4: рука должна запомнить F2. */
+.s-idle__kbd {
+  margin-left: var(--s-2);
+  padding: 2px var(--s-2);
+  border-radius: var(--r-s);
+  background: color-mix(in srgb, var(--on-blue) 22%, transparent);
+  font-size: 12px;
+  font-weight: 550;
+  font-family: inherit;
+}
+
+.s-idle__links { margin-top: var(--s-4); }
+.s-idle__stat { font-size: 17px; font-weight: 550; text-align: right; }
+.s-idle__stats .def__row:last-child { border-bottom: 0; }
+
+/* ============================================================
+   LOCKED (§6/S9c)
+   ============================================================ */
+.s-locked {
+  position: fixed;
+  inset: 0;
+  z-index: 70;                       /* выше слоёв: замок перекрывает всё */
+  display: grid;
+  place-items: center;
+  padding: var(--s-6);
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
+}
+.s-locked__card {
+  width: var(--w-gate);
+  max-width: 100%;
+  padding: var(--s-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  text-align: center;
+  border-radius: var(--r-xl);
+}
+.s-locked__card .field__input,
+.s-locked__card .btn { width: 100%; }
+.s-locked__card .field__input { margin-top: var(--s-3); }
+
+/* ============================================================
+   Демо-панель (§11.5)
+   ============================================================ */
+.demo {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 80;                       /* выше замка: панель отлаживает и его */
+  width: 320px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+}
+.demo__head { display: flex; align-items: center; gap: var(--s-2); }
+.demo__row  { display: flex; align-items: center; gap: var(--s-2); }
+.demo__grid { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.demo__audit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  background: var(--field);
+  border-radius: var(--r-m);
+}
+/* Значение строки аудита — от «нет» до списка всех cookie документа. Короткое
+   стоит справа от метки, длинное переносится под неё целой строкой: панель
+   320px, делить её между меткой и списком ключей не на что. Без этого метку
+   сжимало до min-width:0 (.grow), и значение печаталось поверх неё. */
+.demo__check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--s-2);
+  row-gap: 2px;
+  font-size: 13px;
+}
+.demo__check > .icon { flex: none; }
+.demo__check > .grow { flex: 1 0 auto; }   /* метку не сжимаем — она уезжает на перенос вся целиком */
+.demo__check > .small {
+  margin-left: auto;
+  max-width: 100%;
+  text-align: right;
+  overflow-wrap: anywhere;                 /* имя ключа — одно «слово», по пробелам не рвётся */
+}
+
+/* ============================================================
+   Окно < 1280px (§7)
+   ============================================================ */
+.too-small { display: none; }
+
+body.is-too-small #shell,
+body.is-too-small .demo,
+body.is-too-small #lock-root { display: none; }
+
+body.is-too-small .too-small {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  text-align: center;
+  background: var(--bg);
+}
+body.is-too-small .too-small .icon { color: var(--ink-faint); }
+
+/* ============================================================
+   Общее для «ворот» — S2, S3 (§3.3)
+   «Одна колонка 440–560 по центру, сверху свободно ≥15% высоты.
+    Пустое пространство здесь — осознанный приём: одно решение = ничто
+    не конкурирует».
+
+   На 1366×768 под шеллом остаётся ~708px, поэтому 15vh считаем от вьюпорта,
+   но не даём воротам уехать ниже сгиба: min() держит верхний отступ в узде.
+   ============================================================ */
+.s-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding-top: min(15vh, var(--s-16));
+  text-align: center;
+}
+.s-gate__lead { max-width: 52ch; }
+
+/* ============================================================
+   S2 · Идентификация (§6/S2)
+   ============================================================ */
+.s-identify { --w-s2: 720px; }
+.s-identify__banner:not(:empty) { width: var(--w-s2); max-width: 100%; }
+
+/* «QR слева, инструкция справа» (§6/S2). QR — по содержимому, инструкция
+   забирает остаток: иначе плитка 240px растягивается и код плывёт. */
+.s-identify__body {
+  display: grid;
+  grid-template-columns: auto minmax(280px, 1fr);
+  gap: var(--s-4);
+  align-items: start;
+  width: var(--w-s2);
+  max-width: 100%;
+  margin-top: var(--s-4);
+  text-align: left;
+}
+.s-identify__form { align-self: stretch; }
+.s-identify__steps { counter-reset: step; }
+.s-identify__steps .step__dot { background: var(--field); color: var(--ink-2); }
+.s-identify__status:empty { display: none; }
+.s-identify__foot { margin-top: var(--s-6); }
+
+/* ============================================================
+   S3 · Согласие (§6/S3)
+   ============================================================ */
+.s-consent__card {
+  width: var(--w-gate-wide);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-8);
+  border-radius: var(--r-xl);
+}
+.s-consent__title { margin-top: var(--s-2); }
+.s-consent__scopes { width: 100%; text-align: left; }
+.s-consent__note { max-width: 46ch; }
+.s-consent__foot { margin-top: var(--s-2); }
+
+/* §8 — «Успех согласия: галочка stroke-draw 400ms + green-tint sweep». */
+.s-consent__card.is-granted { animation: sweep var(--t-draw) var(--ease); }
+@keyframes sweep { from { background: var(--green-tint); } }
+@media (prefers-reduced-motion: reduce) {
+  .s-consent__card.is-granted { animation: none; }
+}
+
+/* ============================================================
+   S4 · Каталог (§6/S4)
+   ============================================================ */
+/* 32 между секциями, а не 24 (§3.3): «ЖИЗНЕННЫЕ СИТУАЦИИ» и «КАТЕГОРИИ» —
+   два разных входа в каталог, и на 24 подпись второго липнет к чипам первого. */
+.s-catalog { display: flex; flex-direction: column; gap: var(--s-8); }
+.s-catalog__situation { cursor: pointer; }
+
+/* Категории слева, «часто оформляете» справа — та же контекст-колонка 340,
+   что и везде (§3.3), чтобы глаз не переучивался между экранами. */
+.s-catalog__cols {
+  display: grid;
+  grid-template-columns: 1fr var(--w-context);
+  gap: var(--s-6);
+  align-items: start;
+}
+
+/* auto-fill, а не фиксированные 3 колонки: на 1280 влезает 3, на 1920 — 5,
+   и обе раскладки обязаны выглядеть намеренными (§3.1). */
+.s-catalog__cats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--s-3);
+}
+.s-catalog__cat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  padding: var(--s-4);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.s-catalog__cat:hover { background: var(--hover); }
+.s-catalog__glyph {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border-radius: var(--r-m);
+  background: var(--hue-bg);
+  color: var(--hue-fg);
+}
+/* Название категории переносится, а не обрезается: «Паспорт и гражданство»
+   в одну строку не влезет ни при какой ширине карточки. */
+.s-catalog__catname { overflow-wrap: anywhere; }
+
+.s-catalog__frequent { counter-reset: freq; }
+.s-catalog__freq {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3) var(--s-2);
+  border-radius: var(--r-m);
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.s-catalog__freq:hover { background: var(--hover); }
+
+.s-catalog__results { display: flex; flex-direction: column; gap: var(--s-3); }
+.s-catalog__filter { padding-bottom: var(--s-1); }
+
+/* ============================================================
+   S5 · Данные гражданина (§6/S5)
+   ============================================================ */
+.s-data { display: flex; flex-direction: column; gap: var(--s-4); }
+.s-data__box { display: flex; flex-direction: column; gap: var(--s-4); }
+.s-data__pane { min-height: 200px; }
+
+/* Компактный вариант — правая колонка S6. Вкладки те же, воздуха меньше. */
+.s-data--compact .s-data__box { gap: var(--s-3); }
+.s-data--compact .s-data__pane { min-height: 0; }
+
+/* Шесть вкладок в колонку 340 одной строкой не влезают. Горизонтальная
+   прокрутка тут хуже переноса: обрезанная «Семь…» читается как поломка, а
+   спрятанные за краем скоупы — как их отсутствие, хотя §6/S5 требует
+   показывать ВСЕ, включая закрытые (в этом и смысл замка). Поэтому перенос,
+   а нижняя линия уезжает на активную вкладку — она и так её рисует. */
+.s-data--compact .tabs { flex-wrap: wrap; border-bottom: 0; row-gap: 0; }
+.s-data--compact .tab {
+  padding: var(--s-2) var(--s-3);
+  font-size: 13px;
+  margin-bottom: 0;
+}
+/* Внутри панели своя панель не рисуется второй рамкой. */
+.s-data--compact .panel {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.s-data--compact .def__key { width: 100px; }
+.s-data--compact .def__val { font-size: 13px; }
+
+/* ============================================================
+   S6 · Форма (§6/S6)
+   «Форма слева (680), источник справа (340)».
+   ============================================================ */
+.s-form {
+  display: grid;
+  grid-template-columns: minmax(0, var(--w-form)) var(--w-context);
+  gap: var(--s-6);
+  align-items: start;
+  justify-content: center;
+}
+/* Колонка формы — сам <form>: футер с «Далее» обязан лежать внутри него,
+   иначе type="submit" ни с чем не связан и кнопка мертва. */
+.s-form__col { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+.s-form__saved { min-height: 1.4em; }
+
+/* Две колонки полей на широких, одна на 1280: колонка формы 680 держит
+   §3.3 «640–720px, не шире» — скорость чтения важнее плотности. */
+.s-form__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-4);
+}
+.s-form__summary:focus-visible { outline-offset: 4px; }
+
+/* Липкий футер и шелл перекрывают поле, к которому браузер сам скроллит по
+   focus() — а к нему скроллят и автофокус в первое пустое поле, и переход из
+   сводки ошибок. Без запаса оператор получал бы фокус в поле, спрятанном под
+   кнопкой «Далее». */
+.s-form .field {
+  scroll-margin-bottom: 104px;
+  scroll-margin-top: var(--s-6);
+}
+
+/* Sticky-футер (§6/S6): главное действие всегда под рукой, даже если форма
+   длиннее экрана. Именно поэтому он в потоке колонки, а не в канвасе. */
+.s-form__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+.s-form__context { position: sticky; top: var(--s-6); }
+
+/* ============================================================
+   S7 · Документы (§6/S7)
+   ============================================================ */
+.s-docs { display: flex; flex-direction: column; gap: var(--s-4); }
+.s-docs__cols {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: var(--s-4);
+  align-items: start;
+}
+.s-docs__list { position: sticky; top: var(--s-6); }
+.s-docs__sub { margin-top: var(--s-2); }
+.s-docs__add { align-self: flex-start; }
+
+.s-docs__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-3);
+  border-radius: var(--r-m);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.s-docs__item:hover { background: var(--hover); }
+.s-docs__item.is-active { background: var(--blue-tint); }
+.s-docs__itemname { display: flex; flex-direction: column; gap: 2px; }
+
+.s-docs__stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-height: 420px;
+  position: relative;
+}
+.s-docs__preview {
+  display: grid;
+  place-items: center;
+  padding: var(--s-4);
+  background: var(--field);
+  border-radius: var(--r-m);
+  min-height: 240px;
+}
+.s-docs__preview img {
+  max-height: 320px;
+  width: auto;
+  border-radius: var(--r-s);
+  transition: transform var(--t-layer) var(--ease);
+}
+.s-docs__attach { max-width: 280px; }
+
+/* «Шторка» сканера — 600ms захвата (§6/S7). Не спиннер: сканер физически
+   ведёт лампой по листу, и полоса читается оператором мгновенно. */
+.s-docs__stage.is-scanning::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-l);
+  background: linear-gradient(to bottom,
+    transparent 0%, color-mix(in srgb, var(--blue) 22%, transparent) 50%, transparent 100%);
+  animation: curtain 600ms var(--ease) infinite;
+  pointer-events: none;
+}
+@keyframes curtain { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .s-docs__stage.is-scanning::after { animation: none; opacity: 0.4; }
+}
+
+.s-docs__stage.is-drop { box-shadow: inset 0 0 0 2px var(--blue); }
+
+.s-docs__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4) 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+/* ============================================================
+   S8 · Результат (§6/S8) — «центр, максимум воздуха»
+   ============================================================ */
+/* «Центр, максимум воздуха» (§6/S8) — но воздух не должен выталкивать
+   «Завершить приём» за сгиб: на базовом 1366×768 под шеллом остаётся ~616px
+   (§3.2), и главное действие экрана обязано быть видно без прокрутки.
+   Отсюда двухколоночная панель результата и ряд вместо стопки внизу. */
+.s-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding-top: var(--s-6);
+  text-align: center;
+}
+.s-result__title { margin-top: var(--s-1); }
+.s-result__no { font-size: 16px; }
+.s-result__body { width: 100%; max-width: 640px; margin-top: var(--s-2); }
+.s-result__body .panel { text-align: left; }
+
+.s-result__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s-4);
+  align-items: start;
+}
+.s-result__actions { min-width: 220px; }
+.s-result__actions .btn { width: 100%; }
+
+.s-result__foot { margin-top: var(--s-3); }
+.s-result__foot .btn--l { min-width: 240px; }
+
+/* Единственный брейкпоинт по высоте во всём АРМ, и он не про «мобильные»:
+   §3.2 прямо говорит, что на базовом 1366×768 под шеллом остаётся ~616px и
+   «формы и списки проектируем под это». S8 — самый высокий экран (герой 96 +
+   H1 44 + панель + футер), и без этого «Завершить приём» уезжает под сгиб.
+   Уступает превью, а не главное действие: миниатюру можно открыть кликом,
+   а кнопку, которой не видно, — нельзя. */
+@media (max-height: 840px) {
+  .s-result { padding-top: var(--s-4); }
+  .doc-thumb { --tw: 140; }
+}
+
+/* ============================================================
+   Слои: запрос скоупа, продление, завершение
+   ============================================================ */
+.s-scope__foot { margin-top: var(--s-2); }
+.end__list { color: var(--ink-2); font-size: 15px; }

@@ -1,0 +1,143 @@
+/* ============================================================
+   eKhizmat — АРМ оператора ЦОН
+   tokens.css — единственный источник цвета, отступов и радиусов.
+   Значения сняты с Figma: light = node 8-2, dark = node 10-81.
+   Правило: в компонентах не должно быть ни одного сырого hex.
+   ============================================================ */
+
+/* ============ eKhizmat tokens — light (default) ============ */
+:root {
+  /* ink */
+  --ink: #1b1d20;        --ink-2: #5c6065;
+  --ink-3: #63676d;      --ink-faint: #90949a;
+  /* surface */
+  --bg: #fafafa;         --panel: #ffffff;
+  --hero: #e7eef5;       --field: #efefef;      --field-on-panel: #f4f4f5;
+  /* line & state */
+  --line: #e8e8e8;       --line-in: #1b1d2012;
+  --hover: #1b1d200d;    --press: #1b1d2017;
+  --track-off: #d2d3d6;  --control-line: #c9cace;
+  /* action */
+  --blue: #0088ff;       --blue-hover: #0079e8;  --blue-press: #006fd6;
+  --blue-ink: #0066c2;   --blue-tint: #e9f3fe;   --on-blue: #ffffff;
+  /* semantic */
+  --green: #15754a;      --green-tint: #e6f4ec;
+  --red: #e03e33;        --red-fill: #d32f24;
+  --red-ink: #c4372d;    --red-tint: #fceae8;
+  --amber: #855b00;      --amber-tint: #f7eed8;
+  --focus: #0088ff;
+
+  /* category hues (fg = глиф/текст, bg = подложка) */
+  --h-blue-fg: #006bcf;   --h-blue-bg: #e3f0fe;
+  --h-rose-fg: #c13858;   --h-rose-bg: #fce8ec;
+  --h-amber-fg: #8f6400;  --h-amber-bg: #f8efd8;
+  --h-green-fg: #1c7c4f;  --h-green-bg: #e2f3e9;
+  --h-indigo-fg: #4a56c4; --h-indigo-bg: #e9ebfb;
+  --h-terra-fg: #a45624;  --h-terra-bg: #f8eae0;
+  --h-violet-fg: #7b42b4; --h-violet-bg: #f2e9fa;
+  --h-slate-fg: #46627e;  --h-slate-bg: #e9eef3;
+  --h-teal-fg: #0e7974;   --h-teal-bg: #dff3f2;
+  --h-pink-fg: #b13d8c;   --h-pink-bg: #fbe8f5;
+  --h-steel-fg: #3e6592;  --h-steel-bg: #eaeff6;
+  --h-gray-fg: #5c6065;   --h-gray-bg: #ececec;
+  --h-cyan-fg: #0e7099;   --h-cyan-bg: #e0f2fa;
+  --h-olive-fg: #687312;  --h-olive-bg: #eff1dc;
+
+  /* spacing (4px base) */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px; --s-5: 20px;
+  --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px; --s-16: 64px;
+
+  /* radius */
+  --r-s: 10px; --r-m: 14px; --r-l: 18px; --r-xl: 24px; --r-pill: 999px;
+}
+
+/* ============ dark ============ */
+[data-theme="dark"] {
+  --ink: #f0f0ee;        --ink-2: #a8abaf;
+  --ink-3: #94979d;      --ink-faint: #76797e;
+  --bg: #121315;         --panel: #1b1c1f;
+  --hero: #090d15;       --field: #26272b;      --field-on-panel: #26272b;
+  --line: #2a2b2f;       --line-in: #f0f0ee14;
+  --hover: #f0f0ee0f;    --press: #f0f0ee1a;
+  --track-off: #3c3d42;  --control-line: #3f4046;
+  --blue: #0088ff;       --blue-hover: #2b99ff;  --blue-press: #0070d6;
+  --blue-ink: #55aaff;   --blue-tint: #15293e;   --on-blue: #ffffff;
+  --green: #43bd83;      --green-tint: #15301f;
+  --red: #f0655b;        --red-fill: #c93c31;
+  --red-ink: #f0655b;    --red-tint: #3a1b17;
+  --amber: #e0ae4c;      --amber-tint: #332a12;
+  --focus: #55aaff;
+  --h-blue-fg: #5faeff;   --h-blue-bg: #16293d;
+  --h-rose-fg: #f08ca3;   --h-rose-bg: #371d24;
+  --h-amber-fg: #ddb45c;  --h-amber-bg: #322817;
+  --h-green-fg: #5bc68c;  --h-green-bg: #16301f;
+  --h-indigo-fg: #9aa4f0; --h-indigo-bg: #20243c;
+  --h-terra-fg: #e0945f;  --h-terra-bg: #352318;
+  --h-violet-fg: #c49aec; --h-violet-bg: #2c2138;
+  --h-slate-fg: #92afc9;  --h-slate-bg: #1f262e;
+  --h-teal-fg: #54bfb8;   --h-teal-bg: #12302e;
+  --h-pink-fg: #e58cc8;   --h-pink-bg: #341e2d;
+  --h-steel-fg: #8fb1d6;  --h-steel-bg: #1d2630;
+  --h-gray-fg: #a8abaf;   --h-gray-bg: #26272b;
+  --h-cyan-fg: #5fc0e8;   --h-cyan-bg: #132b36;
+  --h-olive-fg: #b5c45c;  --h-olive-bg: #272b14;
+}
+
+/* ============ производные токены (не из Figma, выведены из §3, §8) ============
+   Живут здесь, чтобы в компонентах не появлялось магических чисел.       */
+:root {
+  /* высоты шелла — §3.2 */
+  --h-topbar: 60px;
+  --h-sessionbar: 48px;
+  --h-stepper: 44px;
+
+  /* ширины колонок — §3.3 */
+  --w-canvas: 1200px;   /* max-width контент-зоны   */
+  --w-gate: 440px;      /* «ворота»: S0             */
+  --w-gate-wide: 560px; /* «ворота»: S3             */
+  --w-form: 680px;      /* колонка формы S6         */
+  --w-context: 340px;   /* правая контекст-панель   */
+  --w-drawer: 480px;    /* drawer услуги S4         */
+  --w-min: 1280px;      /* ниже — заглушка §7       */
+
+  /* слои — §5.3 */
+  --w-modal: 480px;       /* confirm      */
+  --w-modal-wide: 640px;  /* запрос скоупа */
+
+  /* ---- «бумага»: то, что не является интерфейсом ----
+     Эти четыре токена намеренно НЕ переопределяются в тёмной теме, и это не
+     недосмотр. Тема — свойство рабочего места; QR-код и лист документа —
+     свойства внешнего мира. QR сканирует камера гражданина, ей нужен
+     физический контраст. Лист справки уйдёт в принтер на белой бумаге, и
+     показывать оператору тёмную версию того, что напечатается светлым, —
+     значит врать про результат. Проверять их контраст по §9 тоже не нужно:
+     они не участвуют в интерфейсе. */
+  --qr-paper: #ffffff;
+  --doc-paper: #ffffff;
+  --doc-ink: #1b1d20;
+  --doc-ink-2: #5c6065;
+  --doc-line: #e8e8e8;
+
+  /* размеры контролов — §5.1, §5.2 */
+  --h-btn-l: 51px; --h-btn-m: 40px; --h-btn-s: 32px;
+  --h-field: 40px;
+
+  /* движение — §8 */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --t-fast: 120ms;   /* hover/press кнопок        */
+  --t-step: 180ms;   /* переходы шагов/экранов    */
+  --t-layer: 200ms;  /* drawer, модал, тост       */
+  --t-color: 300ms;  /* смена цвета таймера       */
+  --t-draw: 400ms;   /* stroke-draw галочки       */
+
+  /* фокус — §9 */
+  --focus-ring: 2px;
+  --focus-offset: 2px;
+}
+
+/* §8 — вся анимация функциональна; при reduce она исчезает, а не замедляется. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms; --t-step: 0ms; --t-layer: 0ms; --t-color: 0ms; --t-draw: 0ms;
+  }
+}

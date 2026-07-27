@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · АРМ ЦОН — Styleguide (Ф0)</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* Стили самой витрины. НЕ часть библиотеки — на экранах АРМ их нет. */
+  .sg-head {
+    position: sticky; top: 0; z-index: 40;
+    display: flex; align-items: center; gap: var(--s-4);
+    height: var(--h-topbar);
+    padding-inline: var(--s-6);
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+  }
+  .sg-wrap { max-width: var(--w-canvas); margin-inline: auto; padding: var(--s-8) var(--s-6) var(--s-16); }
+  .sg-sec { padding-block: var(--s-8); border-top: 1px solid var(--line); }
+  .sg-sec:first-of-type { border-top: 0; }
+  .sg-sec > h2 { margin-bottom: var(--s-2); }
+  .sg-note { color: var(--ink-2); font-size: 13px; margin-bottom: var(--s-6); max-width: 68ch; }
+  /* Подзаголовок внутри раздела — когда в одном разделе несколько компонентов. */
+  .sg-sub { margin: var(--s-8) 0 var(--s-3); }
+  .sg-sub:first-of-type { margin-top: var(--s-4); }
+  .sg-grid { display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: flex-end; }
+  .sg-demo {
+    display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: center;
+    padding: var(--s-5);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--r-l);
+  }
+  .sg-demo--col { flex-direction: column; align-items: stretch; }
+  .sg-demo--bg { background: var(--bg); }
+  .sg-cap {
+    font-size: 12px; font-weight: 550; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.02em;
+    margin-bottom: var(--s-2);
+  }
+  .sg-cell { display: flex; flex-direction: column; gap: var(--s-2); }
+
+  /* Цветовые плашки */
+  .sw { display: flex; flex-direction: column; gap: var(--s-1); width: 116px; }
+  .sw__chip { height: 56px; border-radius: var(--r-m); border: 1px solid var(--line-in); }
+  .sw__name { font-size: 12px; font-weight: 550; }
+  .sw__val  { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+  /* Сетка иконок */
+  .ic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: var(--s-2); }
+  .ic {
+    display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+    padding: var(--s-3) var(--s-2);
+    border-radius: var(--r-m);
+    text-align: center;
+  }
+  .ic:hover { background: var(--hover); }
+  .ic__name { font-size: 11px; color: var(--ink-faint); word-break: break-all; line-height: 1.2; }
+
+  /* Пары hue */
+  .hue-row { display: flex; align-items: center; gap: var(--s-3); }
+  .hue-box {
+    display: flex; align-items: center; gap: var(--s-2);
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-m);
+    background: var(--hue-bg); color: var(--hue-fg);
+    font-size: 13px; font-weight: 550;
+    min-width: 190px;
+  }
+
+  .sg-type-row { display: flex; align-items: baseline; gap: var(--s-6); padding-block: var(--s-3); border-bottom: 1px solid var(--line-in); }
+  .sg-type-meta { flex: none; width: 190px; font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+  table.sg-tbl { width: 100%; font-size: 13px; }
+  table.sg-tbl th { text-align: left; padding: var(--s-2) var(--s-3); color: var(--ink-3); font-weight: 550; border-bottom: 1px solid var(--line); }
+  table.sg-tbl td { padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line-in); vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<header class="sg-head">
+  <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-logo"/></svg>
+  <strong>eKhizmat · АРМ ЦОН — Styleguide</strong>
+  <span class="pill pill--draft">Ф0 · Фундамент</span>
+  <span class="spacer"></span>
+  <span class="small" id="theme-name">Светлая тема</span>
+  <button class="btn btn--secondary btn--s" id="theme-toggle" aria-pressed="false">
+    <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-moon"/></svg>
+    Тема
+  </button>
+</header>
+
+<main class="sg-wrap">
+
+  <p class="sg-note" style="margin-bottom:var(--s-8)">
+    Витрина библиотеки компонентов §5 плана. Критерий приёмки Ф0: страница совпадает
+    с Figma в обеих темах, кнопки/поля/пилюли показаны во всех состояниях.
+    Всё на токенах <code>css/tokens.css</code> — сырых hex в компонентах нет.
+    Переключите тему в шапке и сверьте оба состояния.
+  </p>
+
+  <!-- ============ ЦВЕТ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Цвет</h2>
+    <p class="sg-note">
+      Значения сняты с Figma (light — node 8-2, dark — node 10-81). §9: <code>--blue</code>
+      на белом даёт 3.2:1 — он разрешён только для заливок и крупных элементов;
+      текст и ссылки всегда <code>--blue-ink</code> (4.8:1).
+    </p>
+
+    <div class="sg-cap">Ink</div>
+    <div class="sg-grid" style="margin-bottom:var(--s-6)" data-swatches="ink,ink-2,ink-3,ink-faint"></div>
+
+    <div class="sg-cap">Поверхности</div>
+    <div class="sg-grid" style="margin-bottom:var(--s-6)" data-swatches="bg,panel,hero,field,field-on-panel"></div>
+
+    <div class="sg-cap">Линии и состояния</div>
+    <div class="sg-grid" style="margin-bottom:var(--s-6)" data-swatches="line,line-in,hover,press,track-off,control-line"></div>
+
+    <div class="sg-cap">Действие</div>
+    <div class="sg-grid" style="margin-bottom:var(--s-6)" data-swatches="blue,blue-hover,blue-press,blue-ink,blue-tint,on-blue"></div>
+
+    <div class="sg-cap">Семантика</div>
+    <div class="sg-grid" data-swatches="green,green-tint,red,red-fill,red-ink,red-tint,amber,amber-tint,focus"></div>
+  </section>
+
+  <!-- ============ ТИПОГРАФИКА ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Типографика</h2>
+    <p class="sg-note">
+      ALS Hauss Next VF (400/550/720), фолбэк — Inter. <strong>Внимание:</strong> специмен
+      в Figma отрисован в масштабе 1.5× — здесь приведены реальные UI-размеры
+      (специмен ÷ 1.5). Базовый размер документа 15px.
+    </p>
+    <div class="sg-demo sg-demo--col" style="gap:0">
+      <div class="sg-type-row"><span class="sg-type-meta">Display/H1 · 44/1.15 · 720 · −2%</span><span class="h1">Заявление принято</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Heading/H2 · 24/1.15 · 720 · −2%</span><span class="h2">Идентификация гражданина</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Heading/H3 · 17/1.3 · 550 · −1%</span><span class="h3">Ожидаем согласие гражданина</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Body/Large · 16/1.5 · 400</span><span class="body-l">Справка о составе семьи · срок 1 день 4 часа</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Body/Base · 15/1.55 · 400</span><span class="body">Базовый текст всего АРМ. Попросите гражданина открыть приложение eKhizmat.</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Label · 13/1.4 · 550 · +2% · caps</span><span class="label">Будет доступно оператору</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Small · 13/1.4 · 400</span><span class="small">Только на время приёма, все действия записываются в журнал</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Button · 15/1 · 550</span><span style="font-size:15px;font-weight:550;line-height:1">Начать приём</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">Caption · 12/1.3 · 550</span><span class="caption">Активна</span></div>
+      <div class="sg-type-row"><span class="sg-type-meta">tabular-nums</span><span class="tnum">Таймер 24:31 · ИНН 123 456 789 · № 2107-000045</span></div>
+    </div>
+  </section>
+
+  <!-- ============ РАДИУСЫ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Радиусы</h2>
+    <p class="sg-note">Карта применения — §4.2.</p>
+    <div class="sg-grid">
+      <div class="sg-cell"><div style="width:120px;height:64px;background:var(--field);border-radius:var(--r-s)"></div><span class="small">--r-s 10 · чипы, бейджи</span></div>
+      <div class="sg-cell"><div style="width:120px;height:64px;background:var(--field);border-radius:var(--r-m)"></div><span class="small">--r-m 14 · поля, строки</span></div>
+      <div class="sg-cell"><div style="width:120px;height:64px;background:var(--field);border-radius:var(--r-l)"></div><span class="small">--r-l 18 · карточки, панели</span></div>
+      <div class="sg-cell"><div style="width:120px;height:64px;background:var(--field);border-radius:var(--r-xl)"></div><span class="small">--r-xl 24 · модалы, QR</span></div>
+      <div class="sg-cell"><div style="width:120px;height:64px;background:var(--field);border-radius:var(--r-pill)"></div><span class="small">--r-pill · кнопки, пилюли</span></div>
+    </div>
+  </section>
+
+  <!-- ============ ИКОНКИ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Иконки</h2>
+    <p class="sg-note">
+      Hugeicons 24×24, stroke 1.5, <code>currentColor</code>. Спрайт
+      <code>assets/icons.svg</code> сгенерирован из Figma node 15-2.
+      Использование: <code>&lt;svg class="icon"&gt;&lt;use href="assets/icons.svg#i-qr"/&gt;&lt;/svg&gt;</code>.
+      Размеры: 24 (по умолчанию), 20 (кнопки M/S), 16 (чипы).
+      Всего: <strong id="ic-count">—</strong>.
+    </p>
+    <div class="sg-demo" style="margin-bottom:var(--s-4)">
+      <span class="sg-cap" style="margin:0">Размеры:</span>
+      <svg class="icon" aria-label="24px"><use href="assets/icons.svg#i-qr"/></svg>
+      <svg class="icon icon--20" aria-label="20px"><use href="assets/icons.svg#i-qr"/></svg>
+      <svg class="icon icon--16" aria-label="16px"><use href="assets/icons.svg#i-qr"/></svg>
+      <svg class="icon icon--48" aria-label="48px"><use href="assets/icons.svg#i-girih-tile"/></svg>
+      <span class="spacer"></span>
+      <span class="sg-cap" style="margin:0">Наследуют цвет:</span>
+      <svg class="icon blue-ink"><use href="assets/icons.svg#i-shield"/></svg>
+      <svg class="icon green-ink"><use href="assets/icons.svg#i-check"/></svg>
+      <svg class="icon red-ink"><use href="assets/icons.svg#i-trash"/></svg>
+      <svg class="icon amber-ink"><use href="assets/icons.svg#i-clock"/></svg>
+    </div>
+    <div class="ic-grid" id="ic-grid"></div>
+  </section>
+
+  <!-- ============ КНОПКИ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Кнопки</h2>
+    <p class="sg-note">
+      Figma node 21-2. Радиус всегда pill. На экране ровно одна Primary (P2).
+      Размеры: L 51 — главное действие «ворот»; M 40 — стандарт; S 32 — в полосах и строках.
+    </p>
+
+    <div class="sg-cap">Вид × размер</div>
+    <div class="sg-demo" style="margin-bottom:var(--s-4)">
+      <div class="sg-cell"><span class="small">Primary</span>
+        <div class="row g-3">
+          <button class="btn btn--primary btn--l">Начать смену</button>
+          <button class="btn btn--primary">Далее — документы</button>
+          <button class="btn btn--primary btn--s">Отправить</button>
+        </div>
+      </div>
+    </div>
+    <div class="sg-demo" style="margin-bottom:var(--s-4)">
+      <div class="sg-cell"><span class="small">Secondary</span>
+        <div class="row g-3">
+          <button class="btn btn--secondary btn--l">Сохранить черновик</button>
+          <button class="btn btn--secondary">Загрузить файл</button>
+          <button class="btn btn--secondary btn--s">Отмена</button>
+        </div>
+      </div>
+    </div>
+    <div class="sg-demo" style="margin-bottom:var(--s-4)">
+      <div class="sg-cell"><span class="small">Ghost</span>
+        <div class="row g-3">
+          <button class="btn btn--ghost btn--l">Оформить ещё одну услугу</button>
+          <button class="btn btn--ghost">Отправить повторно</button>
+          <button class="btn btn--ghost btn--s">Обновить код</button>
+        </div>
+      </div>
+    </div>
+    <div class="sg-demo" style="margin-bottom:var(--s-6)">
+      <div class="sg-cell"><span class="small">Danger</span>
+        <div class="row g-3">
+          <button class="btn btn--danger btn--l">Завершить приём</button>
+          <button class="btn btn--danger">Отменить приём</button>
+          <button class="btn btn--danger btn--s">Завершить</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sg-cap">Состояния</div>
+    <p class="sg-note">
+      hover/press наводятся мышью; focus-visible — Tab с клавиатуры (кольцо 2px, offset 2).
+      Ниже состояния зафиксированы классами, чтобы их было видно одновременно.
+    </p>
+    <table class="sg-tbl sg-demo sg-demo--col" style="margin-bottom:var(--s-4)">
+      <thead><tr><th>Состояние</th><th>Primary</th><th>Secondary</th><th>Ghost</th><th>Danger</th></tr></thead>
+      <tbody id="btn-states"></tbody>
+    </table>
+
+    <div class="sg-cap">С иконкой · иконочные</div>
+    <div class="sg-demo">
+      <button class="btn btn--primary"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-qr"/></svg>Сканировать</button>
+      <button class="btn btn--secondary"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-download"/></svg>Скачать PDF</button>
+      <button class="btn btn--ghost btn--s"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-refresh"/></svg>Обновить код</button>
+      <button class="btn btn--secondary btn--icon" aria-label="Закрыть"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-x"/></svg></button>
+      <button class="btn btn--ghost btn--icon btn--s" aria-label="Ещё"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-dots"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============ ПОЛЯ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Поля ввода</h2>
+    <p class="sg-note">
+      Высота 40, фон <code>--field</code> (на панели — <code>--field-on-panel</code>),
+      радиус <code>--r-m</code>, <strong>без рамки</strong>. Рамка появляется только
+      в focus и error.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start">
+      <div class="stack g-4" style="width:280px">
+        <label class="field">
+          <span class="field__label">Логин</span>
+          <input class="field__input" value="operator.sino04">
+        </label>
+        <label class="field">
+          <span class="field__label">Плейсхолдер</span>
+          <input class="field__input" placeholder="Название, номер услуги…">
+        </label>
+        <label class="field">
+          <span class="field__label">ИНН (маска)</span>
+          <input class="field__input field__input--masked" value="123 456 789">
+          <span class="field__help">9 цифр</span>
+        </label>
+        <label class="field field--error">
+          <span class="field__label">Телефон</span>
+          <input class="field__input field__input--masked" value="+992 90 123 45" aria-invalid="true" aria-describedby="err-tel">
+          <span class="field__error" id="err-tel">Номер неполный — нужно 9 цифр после кода</span>
+        </label>
+        <label class="field">
+          <span class="field__label">Отключено</span>
+          <input class="field__input" value="Недоступно" disabled>
+        </label>
+      </div>
+
+      <div class="stack g-4" style="width:280px">
+        <label class="field">
+          <span class="field__label">Пароль</span>
+          <span class="field__wrap">
+            <input class="field__input" type="password" value="operator">
+            <button class="field__affix field__affix--action" aria-label="Показать пароль">
+              <svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-eye"/></svg>
+            </button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">Цель справки</span>
+          <span class="field__wrap">
+            <select class="field__input">
+              <option>для банка</option><option>для школы</option><option>по месту требования</option>
+            </select>
+            <span class="field__affix"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-chev-d"/></svg></span>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">Дата рождения</span>
+          <span class="field__wrap">
+            <input class="field__input field__input--masked" value="14.02.1991">
+            <button class="field__affix field__affix--action" aria-label="Открыть календарь">
+              <svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-calendar"/></svg>
+            </button>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">Поиск</span>
+          <span class="field__wrap field__wrap--search">
+            <input class="field__input" placeholder="Название, номер услуги…">
+            <span class="field__affix"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-search"/></svg></span>
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">Комментарий</span>
+          <textarea class="field__input" rows="3">Многострочное поле</textarea>
+        </label>
+      </div>
+
+      <div class="stack g-4">
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">Чип источника значения (S6)</span>
+          <div class="row g-2">
+            <span class="src src--profile"><svg class="icon" aria-hidden="true" style="width:12px;height:12px"><use href="assets/icons.svg#i-info"/></svg>из профиля</span>
+            <span class="src src--manual"><svg class="icon" aria-hidden="true" style="width:12px;height:12px"><use href="assets/icons.svg#i-edit"/></svg>введено</span>
+          </div>
+        </div>
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">Код из приложения (OTP)</span>
+          <div class="otp">
+            <input class="otp__cell" value="4" maxlength="1" aria-label="Цифра 1">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 2">
+            <input class="otp__cell" value="9" maxlength="1" aria-label="Цифра 3">
+            <input class="otp__cell" maxlength="1" aria-label="Цифра 4">
+            <input class="otp__cell" maxlength="1" aria-label="Цифра 5">
+            <input class="otp__cell" maxlength="1" aria-label="Цифра 6">
+          </div>
+        </div>
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">OTP — ошибка</span>
+          <div class="otp otp--error">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 1">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 2">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 3">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 4">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 5">
+            <input class="otp__cell" value="1" maxlength="1" aria-label="Цифра 6">
+          </div>
+          <span class="field__error">Неверный код. Осталось 2 попытки</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ПАНЕЛЬ И СТРОКА ДАННЫХ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Панель · строка данных</h2>
+    <p class="sg-note">
+      Панель: <code>--panel</code>, радиус <code>--r-l</code>, бордер 1px <code>--line</code>, pad 24.
+      Строка данных: label 13caps слева (200px), значение 15 справа, копирование по hover.
+      Копирование достижимо и с клавиатуры (§9). Мок-гражданин вымышленный (§10).
+    </p>
+    <div class="panel" style="max-width:680px">
+      <h3 class="h3 panel__title">Профиль</h3>
+      <div class="def">
+        <div class="def__row">
+          <span class="def__key">ФИО</span>
+          <span class="def__val">Каримзода Аброр Фирузович</span>
+          <button class="def__copy" aria-label="Копировать ФИО"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-doc"/></svg></button>
+        </div>
+        <div class="def__row">
+          <span class="def__key">Дата рождения</span>
+          <span class="def__val def__val--tnum">14.02.1991</span>
+          <button class="def__copy" aria-label="Копировать дату рождения"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-doc"/></svg></button>
+        </div>
+        <div class="def__row">
+          <span class="def__key">ИНН</span>
+          <span class="def__val def__val--tnum">123 456 789</span>
+          <button class="def__copy" aria-label="Копировать ИНН"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-doc"/></svg></button>
+        </div>
+      </div>
+      <div class="def__source row g-2">
+        <svg class="icon icon--16 green-ink" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>
+        Источник: ГРАЖДАНСКИЙ РЕЕСТР · обновлено 12.07.2026
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ПИЛЮЛИ И ЧИПЫ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Статус-пилюли · чипы скоупа</h2>
+    <p class="sg-note">Caption 12, тинт+инк пары. На тинт-подложке — только парный инк (§9).</p>
+    <div class="sg-demo" style="margin-bottom:var(--s-4)">
+      <span class="pill pill--active"><span class="dot"></span>Активна</span>
+      <span class="pill pill--wait"><span class="dot"></span>Ожидание</span>
+      <span class="pill pill--denied"><span class="dot"></span>Отклонено</span>
+      <span class="pill pill--draft"><span class="dot"></span>Черновик</span>
+    </div>
+    <div class="sg-demo">
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>Профиль</span>
+      <span class="chip"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>Адрес регистрации</span>
+      <span class="chip chip--locked"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg>Состав семьи</span>
+      <button class="chip"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-shield"/></svg>Доступ: 3<svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-chev-d"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ============ КАТЕГОРИИ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Категории услуг: иконка + hue</h2>
+    <p class="sg-note">
+      Карта §4.4 — 14 категорий ↔ 14 hue-пар. Дизайн-лид утверждает в Ф0.
+      Правило контраста: на подложке <code>--h-*-bg</code> глиф и текст — только
+      парный <code>--h-*-fg</code>, никогда сырой <code>--blue</code>/<code>--red</code>.
+    </p>
+    <div class="banner banner--warn" style="margin-bottom:var(--s-4)" id="hue-verdict">
+      <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>
+      <span class="banner__text">Считаем контраст…</span>
+    </div>
+    <p class="sg-note">
+      Коэффициент считается вживую из <code>tokens.css</code> для текущей темы.
+      Порог для текста 13–15px (названия категорий, чипы ситуаций) — <strong>4.5:1</strong>;
+      для глифа как графики достаточно 3:1.
+    </p>
+    <div class="sg-demo" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))">
+      <div class="hue-row hue-blue"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-cert"/></svg>Справки и выписки</span><span class="sg-ratio" data-hue="blue"></span></div>
+      <div class="hue-row hue-rose"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-health"/></svg>Здоровье</span><span class="sg-ratio" data-hue="rose"></span></div>
+      <div class="hue-row hue-pink"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-family"/></svg>Семья и брак</span><span class="sg-ratio" data-hue="pink"></span></div>
+      <div class="hue-row hue-steel"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-passport"/></svg>Паспорт и гражданство</span><span class="sg-ratio" data-hue="steel"></span></div>
+      <div class="hue-row hue-amber"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-transport"/></svg>Транспорт</span><span class="sg-ratio" data-hue="amber"></span></div>
+      <div class="hue-row hue-indigo"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-edu"/></svg>Образование</span><span class="sg-ratio" data-hue="indigo"></span></div>
+      <div class="hue-row hue-green"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-tax"/></svg>Налоги и финансы</span><span class="sg-ratio" data-hue="green"></span></div>
+      <div class="hue-row hue-terra"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-land"/></svg>Земля и недвижимость</span><span class="sg-ratio" data-hue="terra"></span></div>
+      <div class="hue-row hue-violet"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-justice"/></svg>Юстиция и суд</span><span class="sg-ratio" data-hue="violet"></span></div>
+      <div class="hue-row hue-slate"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-gov"/></svg>Госорганы</span><span class="sg-ratio" data-hue="slate"></span></div>
+      <div class="hue-row hue-teal"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-license"/></svg>Лицензии и разрешения</span><span class="sg-ratio" data-hue="teal"></span></div>
+      <div class="hue-row hue-cyan"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-culture"/></svg>Культура и туризм</span><span class="sg-ratio" data-hue="cyan"></span></div>
+      <div class="hue-row hue-olive"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-accred"/></svg>Аккредитация</span><span class="sg-ratio" data-hue="olive"></span></div>
+      <div class="hue-row hue-gray"><span class="hue-box"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-other"/></svg>Прочее</span><span class="sg-ratio" data-hue="gray"></span></div>
+    </div>
+  </section>
+
+  <!-- ============ СТЕППЕР ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Степпер</h2>
+    <p class="sg-note">
+      Пройденные шаги кликабельны (назад), будущие — disabled.
+      Активный шаг — <code>--blue</code>, пройденный — <code>--green</code> + check,
+      <code>aria-current="step"</code> (§9).
+    </p>
+    <div class="sg-demo sg-demo--bg">
+      <nav class="stepper" aria-label="Шаги оформления">
+        <button class="step step--done">
+          <span class="step__dot"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg></span>
+          <span class="step__label">Услуга</span>
+        </button>
+        <span class="step__line"></span>
+        <button class="step step--active" aria-current="step">
+          <span class="step__dot">2</span>
+          <span class="step__label">Заявление</span>
+        </button>
+        <span class="step__line"></span>
+        <button class="step step--todo" disabled>
+          <span class="step__dot">3</span>
+          <span class="step__label">Документы</span>
+        </button>
+        <span class="step__line"></span>
+        <button class="step step--todo" disabled>
+          <span class="step__dot">4</span>
+          <span class="step__label">Результат</span>
+        </button>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ============ ТАЙМЕР-КОЛЬЦО ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Таймер-кольцо</h2>
+    <p class="sg-note">
+      SVG 96–160, stroke 6, цифры tabular. Пороги §3.2/§9:
+      &gt;5:00 — <code>--blue</code>; ≤5:00 — <code>--amber</code>; ≤1:00 — <code>--red</code>.
+      <code>role="timer"</code> + <code>aria-live="off"</code>: объявление только на порогах.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-8)">
+      <div class="sg-cell center"><div class="ring" data-ring="0.72" data-label="24:31"></div><span class="small">норма · --blue</span></div>
+      <div class="sg-cell center"><div class="ring ring--warn" data-ring="0.16" data-label="04:48"></div><span class="small">≤5:00 · --amber</span></div>
+      <div class="sg-cell center"><div class="ring ring--danger" data-ring="0.03" data-label="00:52"></div><span class="small">≤1:00 · --red</span></div>
+      <div class="sg-cell center"><div class="ring ring--s" data-ring="0.88" data-label="01:47"></div><span class="small">96 · согласие S3</span></div>
+      <div class="sg-cell center"><div class="ring ring--l" data-ring="0.45" data-label="13:20"></div><span class="small">160</span></div>
+    </div>
+  </section>
+
+  <!-- ============ QR · СЕГМЕНТ · ВКЛАДКИ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">QR-плитка · сегмент-контрол · вкладки</h2>
+    <p class="sg-note">
+      QR всегда на белом даже в тёмной теме — иначе сканер телефона не прочитает код.
+      Истёкший код блюрится (§6/S2).
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start">
+      <div class="sg-cell">
+        <span class="sg-cap" style="margin:0">Ожидание сканирования</span>
+        <div class="qr qr--waiting">
+          <div class="qr__code"><img src="assets/qr-placeholder.svg" alt="QR-код для идентификации" width="216" height="216"></div>
+          <span class="qr__caption">Код действует 02:00</span>
+          <button class="btn btn--ghost btn--s"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-refresh"/></svg>Обновить код</button>
+        </div>
+      </div>
+      <div class="sg-cell">
+        <span class="sg-cap" style="margin:0">Код истёк</span>
+        <div class="qr qr--expired">
+          <div class="qr__code"><img src="assets/qr-placeholder.svg" alt="" width="216" height="216"></div>
+          <span class="qr__caption">Код истёк</span>
+          <button class="btn btn--primary btn--s"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-refresh"/></svg>Обновить код</button>
+        </div>
+      </div>
+      <div class="stack g-6">
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">Сегмент-контрол — метод идентификации (S2)</span>
+          <div class="seg" role="tablist">
+            <button class="seg__item" role="tab" aria-selected="true"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-qr"/></svg>QR-код</button>
+            <button class="seg__item" role="tab" aria-selected="false"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-bell"/></svg>Push-уведомление</button>
+            <button class="seg__item" role="tab" aria-selected="false"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-chat"/></svg>OTP по SMS</button>
+          </div>
+        </div>
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">Сегмент — язык</span>
+          <div class="seg" role="tablist">
+            <button class="seg__item" role="tab" aria-selected="true">тоҷикӣ</button>
+            <button class="seg__item" role="tab" aria-selected="false">русский</button>
+          </div>
+        </div>
+        <div class="sg-cell">
+          <span class="sg-cap" style="margin:0">Вкладки-скоупы (S5) — 🔒 = доступ не выдан</span>
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" aria-selected="true">Профиль</button>
+            <button class="tab" role="tab" aria-selected="false">Документы</button>
+            <button class="tab" role="tab" aria-selected="false">Адрес</button>
+            <button class="tab" role="tab" aria-selected="false"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg>Семья</button>
+            <button class="tab" role="tab" aria-selected="false"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg>Транспорт</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ БАНЕРЫ И ТОСТЫ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Банеры · тосты</h2>
+    <p class="sg-note">
+      Банер — full-width внутри canvas, тинт по семантике. Тост — правый-верх, 4с,
+      <code>role="status"</code> / <code>aria-live="polite"</code> (§9).
+    </p>
+    <div class="sg-demo sg-demo--col" style="margin-bottom:var(--s-4)">
+      <div class="banner banner--info">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>
+        <span class="banner__text">Продолжить с места остановки? Черновик сохранён в 14:02.</span>
+        <button class="btn btn--ghost btn--s">Восстановить</button>
+      </div>
+      <div class="banner banner--warn">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>
+        <span class="banner__text">ЗАГС не отвечает — данные могут быть неактуальны.</span>
+      </div>
+      <div class="banner banner--error">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>
+        <span class="banner__text">Гражданин отклонил запрос доступа.</span>
+        <button class="btn btn--ghost btn--s">Попробовать снова</button>
+      </div>
+      <div class="banner banner--ok">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>
+        <span class="banner__text">Согласие получено. Доступ действует до 14:32.</span>
+      </div>
+      <div class="banner banner--warn">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-globe"/></svg>
+        <span class="banner__text">Нет сети. Отправка поставлена в очередь — введённое не потеряется.</span>
+      </div>
+    </div>
+
+    <div class="sg-cap">Тосты</div>
+    <div class="sg-demo sg-demo--col" style="align-items:flex-start">
+      <div class="toast toast--success" role="status">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>Согласие получено
+      </div>
+      <div class="toast toast--error" role="status">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>Файл больше 10 МБ
+      </div>
+      <div class="toast toast--warn" role="status">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>Изображение размыто — пересканировать?
+      </div>
+      <div class="toast" role="status">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-doc"/></svg>Черновик сохранён
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ПУСТОЕ · СКЕЛЕТОН ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Пустое состояние · скелетон</h2>
+    <p class="sg-note">
+      Пустое: иконка girih-tile 48 <code>--ink-faint</code>, заголовок H3, подсказка Small.
+      Скелетон обязателен на каждом экране с данными (§5.3).
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:stretch">
+      <div class="panel grow" style="min-width:280px">
+        <div class="empty">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-girih-tile"/></svg>
+          <span class="empty__title">Ничего не найдено</span>
+          <span class="empty__hint">Проверьте написание или сбросьте фильтры</span>
+          <button class="btn btn--secondary btn--s">Сбросить</button>
+        </div>
+      </div>
+      <div class="panel grow" style="min-width:280px">
+        <div class="empty">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg>
+          <span class="empty__title">Доступ не запрашивался</span>
+          <span class="empty__hint">Данных этой вкладки нет в ответе — не скрыты, а не запрошены</span>
+          <button class="btn btn--primary btn--s">Запросить доступ</button>
+        </div>
+      </div>
+      <div class="panel grow" style="min-width:280px">
+        <div class="stack g-3">
+          <div class="skel skel--title"></div>
+          <div class="skel skel--line"></div>
+          <div class="skel skel--line" style="width:80%"></div>
+          <div class="skel skel--line" style="width:60%"></div>
+          <div class="skel skel--card"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ДОКУМЕНТЫ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Чеклист · миниатюры страниц</h2>
+    <p class="sg-note">
+      Чеклист требований и страницы скана (§5.3, S7). «Строки документа»
+      (<code>.doc-row</code>) из ранних набросков здесь больше нет: S7 показывает
+      пункты чеклиста со сканами внутри (<code>.s-docs__item</code>), а не
+      строки-файлы, и витрина не должна рекламировать компонент, которого в
+      продукте не осталось.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start">
+      <div class="panel" style="width:420px">
+        <div>
+          <span class="sg-cap">Страницы</span>
+          <div class="thumbs">
+            <span class="thumb" aria-selected="true">1</span>
+            <span class="thumb">2</span>
+            <span class="thumb"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-plus"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="width:320px">
+        <span class="label" style="display:block;margin-bottom:var(--s-3)">Требуется</span>
+        <div class="check-list">
+          <span class="check-item check-item--done"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg>Паспорт (оригинал для сверки)</span>
+          <span class="check-item check-item--todo"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-dash"/></svg>Свидетельство о браке</span>
+          <span class="check-item check-item--locked"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg>Состав семьи — будет запрошен у гражданина</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Ф2–Ф5 ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Добавлено в Ф2–Ф5</h2>
+    <p class="sg-note">
+      §5 не перечисляет их отдельными строками, но экраны §6 их требуют.
+      Все собраны из тех же токенов; ничего сверх §5 по смыслу здесь нет —
+      это композиции и состояния уже описанных элементов.
+    </p>
+
+    <h3 class="h3 sg-sub">Поле: реестровое значение, чип источника, подсказки</h3>
+    <p class="sg-note">
+      §5.2 «Чип-маркер источника значения» + §6/S6 «read-only с кнопкой
+      изменить». Чип сбрасывает капс подписи: он Caption, а не Label.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start">
+      <label class="field field--locked" style="width:320px">
+        <span class="field__label">ФИО
+          <span class="src src--profile"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-shield"/></svg>из профиля</span>
+          <button class="field__unlock btn btn--ghost btn--s" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-edit"/></svg>изменить</button>
+        </span>
+        <input class="field__input" value="Каримзода Аброр Фирузович" readonly>
+      </label>
+
+      <label class="field" style="width:320px">
+        <span class="field__label">Дата рождения
+          <span class="src src--manual"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-edit"/></svg>введено</span>
+        </span>
+        <span class="field__wrap">
+          <input class="field__input field__input--masked" value="14.02.1991">
+          <button class="field__affix field__affix--action" type="button" aria-label="Открыть календарь"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-calendar"/></svg></button>
+        </span>
+        <span class="field__hint field__hint--warn">
+          <svg class="icon icon--16" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>
+          <span class="grow">В реестре сейчас: 14.02.1990</span>
+          <button class="btn btn--ghost btn--s" type="button">Взять из реестра</button>
+        </span>
+      </label>
+    </div>
+
+    <h3 class="h3 sg-sub">Чекбокс · радио</h3>
+    <p class="sg-note">
+      Нативные контролы под <code>accent-color</code>: Space, скринридер и
+      автозаполнение работают, вид — по токенам.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6)">
+      <label class="check"><input class="check__input" type="checkbox" checked><span>Заявление прочитано гражданину вслух</span></label>
+      <div class="radio-group">
+        <label class="radio"><input class="radio__input" type="radio" name="sg-lang" checked><span>Тоҷикӣ</span></label>
+        <label class="radio"><input class="radio__input" type="radio" name="sg-lang"><span>Русский</span></label>
+      </div>
+    </div>
+
+    <h3 class="h3 sg-sub">Строка услуги (S4)</h3>
+    <p class="sg-note">
+      Курсор клавиатуры — не фокус: фокус остаётся в поиске, чтобы ↑↓ работали,
+      поэтому подсветка своя. Недоступная услуга — <code>disabled</code> + бейдж (§7).
+    </p>
+    <div class="sg-demo" style="flex-direction:column;align-items:stretch;gap:var(--s-3);max-width:760px">
+      <button class="panel srv-row is-cursor">
+        <span class="srv-row__glyph hue-blue"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-cert"/></svg></span>
+        <span class="srv-row__body">
+          <span class="srv-row__name">Справка о <mark class="mark">состав</mark>е семьи</span>
+          <span class="small ink-faint">Справки и выписки · № 01-114 · сразу при обращении · бесплатно</span>
+        </span>
+        <svg class="icon icon--20 ink-faint" aria-hidden="true"><use href="assets/icons.svg#i-chev-r"/></svg>
+      </button>
+      <button class="panel srv-row srv-row--off">
+        <span class="srv-row__glyph hue-amber"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-cat-transport"/></svg></span>
+        <span class="srv-row__body">
+          <span class="srv-row__name">Постановка ТС на учёт</span>
+          <span class="small ink-faint">Транспорт · № 06-601 · 2 дня · 250 сомони</span>
+        </span>
+        <span class="pill pill--wait"><svg class="icon icon--16" aria-hidden="true"><use href="assets/icons.svg#i-info"/></svg>Сервис ведомства недоступен</span>
+      </button>
+    </div>
+
+    <h3 class="h3 sg-sub">Меню оператора · спиннер в строке</h3>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start;background:var(--bg)">
+      <div class="popover menu" style="position:static;animation:none">
+        <div class="menu__head">
+          <strong>Фируза</strong>
+          <span class="small ink-faint">Окно 4 — ЦОН р-н Сино</span>
+        </div>
+        <hr class="rule">
+        <button class="menu__item"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-lock"/></svg><span class="grow">Заблокировать</span><kbd class="menu__kbd">Ctrl+L</kbd></button>
+        <button class="menu__item"><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-history"/></svg><span class="grow">Завершить смену</span></button>
+        <button class="menu__item" disabled><svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-out"/></svg><span class="grow">Выйти</span></button>
+        <p class="small ink-faint menu__note">Идёт приём — сначала завершите его</p>
+      </div>
+
+      <div class="banner banner--info" style="max-width:360px">
+        <span class="spin" aria-hidden="true"></span>
+        <span class="banner__text">Push отправлен на •••• 45 67, ждём открытия…</span>
+        <button class="btn btn--ghost btn--s" disabled>Повтор через 00:24</button>
+      </div>
+    </div>
+
+    <h3 class="h3 sg-sub">Миниатюра документа (S8)</h3>
+    <p class="sg-note">
+      Лист вёрстается в читаемом масштабе и ужимается трансформом — пропорции
+      и раскладка настоящие. Токены «бумаги» не переопределяются в тёмной теме:
+      документ уйдёт в принтер на белом (см. <code>tokens.css</code>).
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start">
+      <button class="doc-thumb">
+        <div class="doc-page">
+          <div class="doc-page__head">
+            <svg class="icon icon--20" aria-hidden="true"><use href="assets/icons.svg#i-logo"/></svg>
+            <span>eKhizmat · ЦОН</span><span class="spacer"></span><span class="tnum">2107-000045</span>
+          </div>
+          <h3 class="doc-page__title">СПРАВКА О СОСТАВЕ СЕМЬИ</h3>
+          <div class="doc-page__rows">
+            <div class="doc-page__row"><span class="doc-page__key">Выдана</span><span class="doc-page__val">Каримзода Аброр Фирузович</span></div>
+            <div class="doc-page__row"><span class="doc-page__key">ИНН</span><span class="doc-page__val">123 456 789</span></div>
+            <div class="doc-page__row"><span class="doc-page__key">Дата</span><span class="doc-page__val">17.07.2026 14:21</span></div>
+          </div>
+          <div class="doc-page__sign">
+            <svg class="icon icon--16" aria-hidden="true"><use href="assets/icons.svg#i-sign"/></svg>
+            <span>Документ подписан электронной подписью ЦОН</span>
+          </div>
+        </div>
+      </button>
+
+      <div class="stack g-3">
+        <div class="hero-mark hero-mark--draw"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg></div>
+        <span class="sg-cap">hero-mark · draw 400ms</span>
+      </div>
+      <div class="stack g-3">
+        <div class="hero-mark hero-mark--warn"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-clock"/></svg></div>
+        <span class="sg-cap">hero-mark--warn</span>
+      </div>
+      <div class="stack g-3">
+        <div class="hero-mark hero-mark--error"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-x"/></svg></div>
+        <span class="sg-cap">hero-mark--error</span>
+      </div>
+    </div>
+
+    <h3 class="h3 sg-sub">Интерстишл отзыва согласия (§7)</h3>
+    <p class="sg-note">
+      Красный на весь экран — не уведомление, а объяснение, почему у оператора
+      только что исчезли данные. Ниже — статичное превью.
+    </p>
+    <div class="sg-demo" style="padding:0">
+      <div class="interstitial" style="position:static;animation:none;border-radius:var(--r-l);min-height:220px">
+        <div class="hero-mark hero-mark--error"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-x"/></svg></div>
+        <h3 class="h2">Гражданин отозвал согласие</h3>
+        <p class="body-l">Доступ к данным прекращён, приём закрыт. Данные удалены с рабочего места.</p>
+        <button class="btn btn--secondary">Закрыть</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ СЛОИ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Модал · drawer · поповер</h2>
+    <p class="sg-note">
+      Модал 480 (confirm) / 640 (scope), радиус <code>--r-xl</code>, оверлей <code>--ink</code> 40%,
+      фокус-трап, Esc закрывает, фокус возвращается на триггер (§9).
+      Ниже — статичные превью без оверлея; живые слои появятся в Ф1.
+    </p>
+    <div class="sg-demo" style="gap:var(--s-6);align-items:flex-start;background:var(--bg)">
+      <div class="modal" style="position:static;animation:none;border:1px solid var(--line)">
+        <h3 class="h3 modal__title">Завершить приём?</h3>
+        <div class="modal__body stack g-2">
+          <span>Сессия с А***в Ф. будет закрыта:</span>
+          <span class="check-item check-item--todo"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-dash"/></svg>доступ к данным отозван</span>
+          <span class="check-item check-item--todo"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-dash"/></svg>незавершённое заявление → черновик в профиле гражданина</span>
+          <span class="check-item check-item--todo"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-dash"/></svg>сканы удалены с рабочего места</span>
+        </div>
+        <div class="modal__foot">
+          <button class="btn btn--secondary">Отмена</button>
+          <button class="btn btn--danger">Завершить</button>
+        </div>
+      </div>
+
+      <div class="popover" style="position:static;animation:none">
+        <span class="label" style="display:block;margin-bottom:var(--s-3)">Объём согласия</span>
+        <div class="def">
+          <div class="def__row"><span class="def__key" style="width:auto;flex:1">Профиль</span><span class="small tnum">14:02</span></div>
+          <div class="def__row"><span class="def__key" style="width:auto;flex:1">Документы</span><span class="small tnum">14:02</span></div>
+          <div class="def__row"><span class="def__key" style="width:auto;flex:1">Адрес</span><span class="small tnum">14:02</span></div>
+        </div>
+        <span class="small" style="display:block;margin-top:var(--s-3)">Подтверждено гражданином в приложении</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ УСПЕХ ============ -->
+  <section class="sg-sec">
+    <h2 class="h2">Крупные статусы</h2>
+    <p class="sg-note">Круг 96px, H1 44 — только S0 и S8 (§4.1). Галочка рисуется stroke-draw 400ms (§8).</p>
+    <div class="sg-demo" style="gap:var(--s-10)">
+      <div class="stack center g-3">
+        <span class="hero-mark"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-check"/></svg></span>
+        <span class="h1">Заявление принято</span>
+        <span class="small tnum">№ 2107-000045 · 17.07.2026 14:21</span>
+        <div class="timeline">
+          <span class="timeline__node timeline__node--done"><span class="dot"></span>Принято 14:21</span>
+          <span class="timeline__line"></span>
+          <span class="timeline__node"><span class="dot"></span>На рассмотрении (до 18.07)</span>
+          <span class="timeline__line"></span>
+          <span class="timeline__node"><span class="dot"></span>Результат</span>
+        </div>
+      </div>
+      <div class="stack center g-3">
+        <span class="hero-mark hero-mark--error"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#i-x"/></svg></span>
+        <span class="h3">Гражданин отозвал согласие</span>
+        <span class="small">Данные приёма удалены с рабочего места</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+  /* ---------- тема ---------- */
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  const name = document.getElementById('theme-name');
+  toggle.addEventListener('click', () => {
+    const dark = root.dataset.theme === 'dark';
+    root.dataset.theme = dark ? 'light' : 'dark';
+    toggle.setAttribute('aria-pressed', String(!dark));
+    name.textContent = dark ? 'Светлая тема' : 'Тёмная тема';
+    toggle.querySelector('use').setAttribute('href',
+      `assets/icons.svg#i-${dark ? 'moon' : 'sun'}`);
+    paintSwatches();   // значения токенов меняются вместе с темой
+    paintHues();       // ...и контраст вместе с ними
+  });
+
+  /* ---------- плашки токенов ---------- */
+  // Читаем вычисленные значения, а не дублируем hex — витрина не должна
+  // расходиться с tokens.css.
+  function paintSwatches() {
+    const cs = getComputedStyle(root);
+    for (const host of document.querySelectorAll('[data-swatches]')) {
+      const names = host.dataset.swatches.split(',');
+      host.replaceChildren(...names.map(n => {
+        const val = cs.getPropertyValue(`--${n}`).trim();
+        const el = document.createElement('div');
+        el.className = 'sw';
+        el.innerHTML =
+          `<div class="sw__chip" style="background:var(--${n})"></div>
+           <span class="sw__name">--${n}</span>
+           <span class="sw__val">${val}</span>`;
+        return el;
+      }));
+    }
+  }
+  paintSwatches();
+
+  /* ---------- контраст hue-пар (§4.4 «пары выверены на AA») ----------
+     Считаем вживую, а не переписываем в план: карту hue утверждает дизайн-лид,
+     а токены сняты с Figma. Витрина обязана показать факт, а не спрятать его. */
+  const AA_TEXT = 4.5;   // текст 13–15px — названия категорий, чипы ситуаций
+  const AA_UI   = 3.0;   // глиф как графика
+
+  const srgb = h => {
+    const n = parseInt(h.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+  };
+  const lum = h => { const [r, g, b] = srgb(h); return 0.2126*r + 0.7152*g + 0.0722*b; };
+  const ratio = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+  // getPropertyValue отдаёт токен как есть — в tokens.css это всегда #rrggbb.
+  const hex = n => getComputedStyle(root).getPropertyValue(`--${n}`).trim();
+  // Округляем ВНИЗ: 4.4996 должно читаться как 4.49, а не как «4.50, но почему-то
+  // помечено красным». Контраст нельзя завышать даже на сотую.
+  const fmt = r => (Math.floor(r * 100) / 100).toFixed(2);
+
+  function paintHues() {
+    let below = [];
+    for (const el of document.querySelectorAll('.sg-ratio')) {
+      const h = el.dataset.hue;
+      const r = ratio(hex(`h-${h}-fg`), hex(`h-${h}-bg`));
+      const ok = r >= AA_TEXT;
+      if (!ok) below.push(`${h} ${fmt(r)}`);
+      el.className = `sg-ratio pill ${ok ? 'pill--active' : r >= AA_UI ? 'pill--wait' : 'pill--denied'}`;
+      el.innerHTML = `<span class="tnum">${fmt(r)}:1</span>`;
+      el.title = ok ? 'AA для текста' :
+        r >= AA_UI ? 'Ниже 4.5:1 — годится для глифа и крупного текста, но не для 13–15px'
+                   : 'Ниже 3:1 — не проходит даже как графика';
+    }
+    const v = document.getElementById('hue-verdict');
+    const dark = root.dataset.theme === 'dark';
+    if (!below.length) {
+      v.className = 'banner banner--ok';
+      v.querySelector('.banner__text').textContent =
+        `Все 14 пар ≥ ${AA_TEXT}:1 — AA для текста выполняется (${dark ? 'тёмная' : 'светлая'} тема).`;
+    } else {
+      v.className = 'banner banner--warn';
+      v.querySelector('.banner__text').innerHTML =
+        `<strong>${below.length} из 14 пар ниже ${AA_TEXT}:1</strong> в ${dark ? 'тёмной' : 'светлой'} теме: ` +
+        `${below.join(', ')}. Все они ≥ 3:1, то есть годятся для глифа и крупного текста, ` +
+        `но названия категорий и чипы набраны 13–15px. Требует решения дизайн-лида в Ф0 ` +
+        `(§4.4 заявляет «пары выверены на AA», DoD §13 требует контраст AA).`;
+    }
+  }
+  paintHues();
+
+  /* ---------- сетка иконок ---------- */
+  // Имена берём из самого спрайта — список не разъедется с assets/icons.svg.
+  const grid = document.getElementById('ic-grid');
+  const sprite = await fetch('assets/icons.svg').then(r => r.text());
+  const names = [...sprite.matchAll(/<symbol id="i-([^"]+)"/g)].map(m => m[1]);
+  document.getElementById('ic-count').textContent = `${names.length} иконок`;
+  grid.replaceChildren(...names.map(n => {
+    const el = document.createElement('div');
+    el.className = 'ic';
+    el.innerHTML = `<svg class="icon"><use href="assets/icons.svg#i-${n}"/></svg>
+                    <span class="ic__name">${n}</span>`;
+    return el;
+  }));
+
+  /* ---------- таймер-кольца ---------- */
+  for (const el of document.querySelectorAll('[data-ring]')) {
+    const R = 54, C = 2 * Math.PI * R;
+    const frac = Number(el.dataset.ring);
+    el.innerHTML = `
+      <svg class="ring__svg" viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="ring__track" cx="60" cy="60" r="${R}"/>
+        <circle class="ring__bar" cx="60" cy="60" r="${R}"
+                stroke-dasharray="${C.toFixed(2)}"
+                stroke-dashoffset="${(C * (1 - frac)).toFixed(2)}"/>
+      </svg>
+      <span class="ring__value" role="timer" aria-live="off">${el.dataset.label}</span>`;
+  }
+
+  /* ---------- таблица состояний кнопок ---------- */
+  // hover/press нельзя показать статикой, поэтому в витрине они имитируются
+  // теми же токенами, что и в :hover/:active — расхождение будет видно глазом.
+  const kinds = ['primary', 'secondary', 'ghost', 'danger'];
+  const rows = [
+    ['Обычная',       k => `<button class="btn btn--${k}">Действие</button>`],
+    ['Hover',         k => `<button class="btn btn--${k}" style="${hoverStyle(k)}">Действие</button>`],
+    ['Press',         k => `<button class="btn btn--${k}" style="${pressStyle(k)}">Действие</button>`],
+    ['Focus-visible', k => `<button class="btn btn--${k}" style="outline:var(--focus-ring) solid var(--focus);outline-offset:var(--focus-offset)">Действие</button>`],
+    ['Disabled',      k => `<button class="btn btn--${k}" disabled>Действие</button>`],
+    ['Loading',       k => `<button class="btn btn--${k} btn--loading"><span>Действие</span></button>`],
+  ];
+  function hoverStyle(k) {
+    return { primary: 'background:var(--blue-hover)', secondary: 'background:var(--control-line)',
+             ghost: 'background:var(--hover)', danger: 'filter:brightness(0.94)' }[k];
+  }
+  function pressStyle(k) {
+    return { primary: 'background:var(--blue-press)', secondary: 'background:var(--track-off)',
+             ghost: 'background:var(--press)', danger: 'filter:brightness(0.88)' }[k];
+  }
+  document.getElementById('btn-states').innerHTML = rows.map(([label, fn]) =>
+    `<tr><td class="small">${label}</td>${kinds.map(k => `<td>${fn(k)}</td>`).join('')}</tr>`
+  ).join('');
+</script>
+</body>
+</html>

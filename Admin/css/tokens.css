@@ -1,0 +1,147 @@
+/* ============================================================
+   eKhizmat — design tokens
+   Language: neutral light canvas, white panels, hairlines instead
+   of borders, one action blue, per-category hues on icon tiles.
+   No decorative shadows; soft veil only on floating layers.
+   ============================================================ */
+
+@font-face{
+  font-family:"ALS Hauss Next";
+  src:url("../assets/fonts/ALSHaussNextVF.ttf") format("truetype-variations"),
+      url("../assets/fonts/ALSHaussNextVF.ttf") format("truetype");
+  font-weight:100 900;
+  font-display:swap;
+}
+
+:root{
+  /* ---- ink ---- */
+  --ink:#1B1D20;
+  --ink-2:#5C6065;
+  --ink-3:#63676D;   /* AA on paper, panel and field */
+  --ink-faint:#90949A; /* decorative strokes and glyphs only, never text */
+
+  /* ---- surfaces ---- */
+  --bg:#FAFAFA;            /* neutral canvas */
+  --panel:#FFFFFF;          /* cards, lists, menus */
+  /* hero wash endpoints live outside the theme blocks: the hero artwork's
+     baked fade overlays cross-fade between them on theme change */
+  --hero-light:#E7EEF5;     /* tuned to the day artwork's sky */
+  --hero-dark:#090D15;      /* tuned to the night artwork's sky */
+  --hero:var(--hero-light); /* cool wash behind the home hero band */
+  --field:#EFEFEF;          /* flat filled inputs on canvas */
+  --field-on-panel:#F4F4F5; /* flat filled inputs inside white panels */
+  --line:#E8E8E8;           /* hairline on canvas */
+  --line-in:rgba(27,29,32,.07); /* hairline inside panels */
+  --hover:rgba(27,29,32,.05);   /* universal rectangular hover fill */
+  --press:rgba(27,29,32,.09);
+  --track-off:#D2D3D6;          /* switch track, off — visible against panel */
+  --control-line:#C9CACE;       /* checkbox/radio resting ring on canvas */
+
+  /* ---- action ---- */
+  --blue:#0088FF;
+  --blue-hover:#007eDA; /* overwritten below; kept for var completeness */
+  --blue-press:#006FD6;
+  --blue-ink:#0066C2;    /* blue as text: AA on paper, panel and blue-tint */
+  --blue-tint:#E9F3FE;
+  --on-blue:#FFFFFF;
+
+  /* ---- semantic ---- */
+  --green:#15754A;  --green-tint:#E6F4EC;
+  --red:#E03E33;    --red-fill:#D32F24; --red-ink:#C4372D; --red-tint:#FCEAE8;
+  --amber:#855B00;  --amber-tint:#F7EED8;
+
+  /* ---- focus ---- */
+  --focus:#0088FF;
+
+  /* ---- shape ---- */
+  --r-s:10px; --r-m:14px; --r-l:18px; --r-xl:24px; --r-pill:999px;
+
+  /* ---- elevation: floating layers only (menus, modal, toast) ---- */
+  --veil:0 12px 36px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.05);
+
+  /* ---- space (4px base) ---- */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px;
+  --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px; --s-16:64px;
+
+  /* ---- type ---- */
+  --font:"ALS Hauss Next",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --fs-12:12px; --fs-13:13px; --fs-14:14px; --fs-15:15px; --fs-16:16px;
+  --fs-17:17px; --fs-20:20px; --fs-24:24px; --fs-32:32px;
+  --fs-44:clamp(32px,4.6vw,50px);
+
+  /* ---- motion ---- */
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --t-fast:150ms; --t-med:280ms;
+  --t-theme:600ms; /* hero day↔night cross-fade; band wash and art must share it */
+
+  /* ---- layout ---- */
+  --maxw:1120px; --col:640px;
+
+  /* ---- category / tile hues (bg + glyph pairs) ---- */
+  --h-blue-bg:#E3F0FE;   --h-blue-fg:#0072D6;
+  --h-rose-bg:#FCE8EC;   --h-rose-fg:#C9405E;
+  --h-amber-bg:#F8EFD8;  --h-amber-fg:#8F6400;
+  --h-green-bg:#E2F3E9;  --h-green-fg:#1E7E50;
+  --h-indigo-bg:#E9EBFB; --h-indigo-fg:#4A56C4;
+  --h-terra-bg:#F8EAE0;  --h-terra-fg:#A85A28;
+  --h-violet-bg:#F2E9FA; --h-violet-fg:#7B42B4;
+  --h-slate-bg:#E9EEF3;  --h-slate-fg:#46627E;
+  --h-teal-bg:#DFF3F2;   --h-teal-fg:#0F7A74;
+  --h-pink-bg:#FBE8F5;   --h-pink-fg:#B13D8C;
+  --h-steel-bg:#EAEFF6;  --h-steel-fg:#3E6592;
+  --h-gray-bg:#ECECEC;   --h-gray-fg:#5C6065;
+  --h-cyan-bg:#E0F2FA;   --h-cyan-fg:#0E7099;
+  --h-olive-bg:#EFF1DC;  --h-olive-fg:#6A7616;
+}
+
+:root{ --blue-hover:#0079E8; color-scheme:light }
+[data-theme="dark"]{ color-scheme:dark }
+
+[data-theme="dark"]{
+  --ink:#F0F0EE;
+  --ink-2:#A8ABAF;
+  --ink-3:#94979D;
+  --ink-faint:#76797E;
+
+  --bg:#121315;
+  --panel:#1B1C1F;
+  --hero:var(--hero-dark); /* darker than the page so panel cards step forward */
+  --field:#26272B;
+  --field-on-panel:#26272B;
+  --line:#2A2B2F;
+  --line-in:rgba(240,240,238,.08);
+  --hover:rgba(240,240,238,.06);
+  --press:rgba(240,240,238,.10);
+  --track-off:#3C3D42;
+  --control-line:#3F4046;
+
+  --blue:#0088FF;
+  --blue-hover:#2B99FF;
+  --blue-press:#0070D6;
+  --blue-ink:#55AAFF;
+  --blue-tint:#15293E;
+  --on-blue:#FFFFFF;
+
+  --green:#43BD83;  --green-tint:#15301F;
+  --red:#F0655B;    --red-fill:#C93C31; --red-ink:#F0655B; --red-tint:#3A1B17;
+  --amber:#E0AE4C;  --amber-tint:#332A12;
+
+  --focus:#55AAFF;
+
+  --veil:0 12px 36px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
+
+  --h-blue-bg:#16293D;   --h-blue-fg:#5FAEFF;
+  --h-rose-bg:#371D24;   --h-rose-fg:#F08CA3;
+  --h-amber-bg:#322817;  --h-amber-fg:#DDB45C;
+  --h-green-bg:#16301F;  --h-green-fg:#5BC68C;
+  --h-indigo-bg:#20243C; --h-indigo-fg:#9AA4F0;
+  --h-terra-bg:#352318;  --h-terra-fg:#E0945F;
+  --h-violet-bg:#2C2138; --h-violet-fg:#C49AEC;
+  --h-slate-bg:#1F262E;  --h-slate-fg:#92AFC9;
+  --h-teal-bg:#12302E;   --h-teal-fg:#54BFB8;
+  --h-pink-bg:#341E2D;   --h-pink-fg:#E58CC8;
+  --h-steel-bg:#1D2630;  --h-steel-fg:#8FB1D6;
+  --h-gray-bg:#26272B;   --h-gray-fg:#A8ABAF;
+  --h-cyan-bg:#132B36;   --h-cyan-fg:#5FC0E8;
+  --h-olive-bg:#272B14;  --h-olive-fg:#B5C45C;
+}

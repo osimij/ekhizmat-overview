@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Оператор — Оғози баст</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/blueprint.css">
+<link rel="stylesheet" href="css/operator.css">
+<style>
+  .alog{min-height:100vh; display:grid; grid-template-columns:1.1fr 1fr}
+  .alog-art{position:relative; overflow:hidden; background:var(--hero); display:flex; flex-direction:column; justify-content:space-between; padding:var(--s-12) var(--s-10); color:var(--ink)}
+  .alog-art .mk{display:flex; align-items:center; gap:10px} .alog-art .mk svg{width:30px;height:30px;color:var(--blue)} .alog-art .mk b{font-size:var(--fs-17);font-weight:650}
+  .alog-art .pitch h2{font-size:var(--fs-32); max-width:15ch; line-height:1.1}
+  .alog-art .pitch p{color:var(--ink-2); margin-top:var(--s-3); max-width:42ch}
+  .alog-art .gstar{position:absolute; right:-70px; bottom:-70px; width:340px; height:340px; opacity:.07; color:var(--ink)}
+  .alog-form{display:grid; place-items:center; padding:var(--s-10) var(--s-6)}
+  .alog-card{width:100%; max-width:380px}
+  .alog-card .eyebrow{display:flex;align-items:center;gap:8px}
+  .alog-card h1{font-size:var(--fs-24); margin:var(--s-2) 0 var(--s-2)}
+  @media(max-width:860px){ .alog{grid-template-columns:1fr} .alog-art{display:none} }
+</style>
+</head>
+<body>
+<script src="js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="alog">
+  <div class="alog-art">
+    <div class="mk"><svg aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b><span class="metachip" style="margin-left:4px">Ҷойи кории оператор</span></div>
+    <div class="pitch">
+      <h2>Шаҳрвандро бо эҳтиром ва бехатарӣ хизмат кунед</h2>
+      <p>Шахсиятро тасдиқ кунед, аризаро баррасӣ намоед ва ҳуҷҷати тайёрро ҳамин ҷо супоред. Ҳар амал — бо иҷозати шаҳрванд ва дар лог сабт мешавад.</p>
+    </div>
+    <p class="muted small">Дастрасӣ танҳо барои операторони ваколатдор. Ҳамаи воридшавиҳо тибқи қонун сабт мегарданд.</p>
+    <svg class="gstar" aria-hidden="true"><use href="#girih-tile"/></svg>
+  </div>
+
+  <div class="alog-form">
+    <div class="alog-card">
+      <span class="eyebrow"><svg width="14" height="14" style="color:var(--blue-ink)"><use href="#i-lock"/></svg>Ҷойи кории оператор</span>
+      <h1>Оғози баст</h1>
+      <p class="lead" style="font-size:var(--fs-14);margin-bottom:var(--s-5)">Бо ҳисоби хидматии худ ворид шавед ва тирезаро интихоб кунед.</p>
+
+      <div class="field"><label for="opLogin">Логин ё рақами хидматӣ</label><input class="input" id="opLogin" value="ALI-САҲШ-0142" autocomplete="username"></div>
+      <div class="field"><label for="opPass">Парол</label><input class="input" id="opPass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+
+      <div class="fld-grid">
+        <div class="field"><label for="opOffice">Идора</label><div class="select"><select id="opOffice"><option>САҲШ — н. Сино</option><option>САҲШ — н. Фирдавсӣ</option><option>МФЦ — маркази ягонаи хизматрасонӣ</option></select></div></div>
+        <div class="field"><label for="opWin">Тиреза</label><div class="select"><select id="opWin"><option>Тиреза 4</option><option>Тиреза 1</option><option>Тиреза 2</option><option>Тиреза 3</option><option>Тиреза 5</option></select></div></div>
+      </div>
+
+      <div class="note-info" style="margin-bottom:var(--s-4)">
+        <svg><use href="#i-shield"/></svg>
+        <p>Пас аз парол рамзи якдафъаина ба телефони хидматӣ фиристода мешавад (2FA).</p>
+      </div>
+
+      <a class="btn btn-pri btn-block" href="op-queue.html"><svg><use href="#i-inbox"/></svg>Кушодани тиреза ва навбат</a>
+      <button class="btn btn-ghost btn-block" data-toast="Намунавӣ: бо маъмури система тамос гиред">Паролро фаромӯш кардед?</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/operator-i18n.js"></script>
+<script src="js/operator.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+/* ============================================================
+   eKhizmat — operator (in-person service window) console
+   Built on tokens/base/components/screens/blueprint. Loaded only
+   by op-*.html. Two ideas drive the new pieces here:
+   1. a live queue an operator works through at a physical desk;
+   2. PROVENANCE — every value the operator types on the citizen's
+      behalf is tagged (.op-tag, amber) so it can never be confused
+      with registry-sourced data (.src-tag, green) or what the
+      citizen typed themselves. Transparency is the trust strategy.
+   ============================================================ */
+
+/* ---- vertical rhythm: intro leads were full-bleed (~100ch) at a loose 1.55,
+   and sat flush against the first control. Constrain the measure, tighten the
+   leading, and give a clear gap before the block below — intentional rhythm. */
+.wz-body .lead,
+.adm-body > .lead{ max-width:64ch; line-height:1.5; margin-bottom:var(--s-6) }
+.wz-body h2{ margin-bottom:var(--s-3) }
+.wz-body .blk + .j-acts,
+.wz-body section > .j-acts{ margin-top:var(--s-6) }
+/* keep wide body copy (consent text, notes) to a comfortable measure too */
+.consent .cs-tt p,
+.wz-body .note-info p{ max-width:62ch }
+
+/* ---- heading ladder: the step title (fs-20) and its in-step sub-section
+   headings were BOTH fs-20, flattening the hierarchy on every wizard step.
+   Demote the sub-blocks to fs-16 so the flow reads page-h1(24) > step(20) >
+   group(16). Scoped under #opwz (unique to op-verify.html) so admin-user-new,
+   which shares .wz-body but has no .blk inside its steps, is untouched. */
+#opwz .wz-body .blk > h2{ font-size:var(--fs-16) }
+
+/* ---- form rhythm: blueprint.css zeroes .fld-grid children's margins and the
+   grid itself has no margin-bottom, so the control AFTER a two-up select grid
+   butts against it. Restore the 20px field rhythm, scoped to the operator-only
+   login card + assisted-fill block (never the shared .fld-grid → admin-user-new). */
+.alog-card .fld-grid,
+.assist .fld-grid{ margin-bottom:var(--s-5) }
+
+/* ---- operator-attribution tag (the inverse of .src-tag) ---- *
+   green .src-tag = "the state already knew this" (once-only).
+   amber .op-tag  = "an operator typed this for you, with your consent".
+   Same shape so the two read as one family of provenance labels. */
+.op-tag{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-12); color:var(--ink-3); margin-top:var(--s-2)}
+.op-tag svg{width:13px; height:13px; color:var(--amber); flex:none}
+.op-tag b{color:var(--amber); font-weight:640}
+.pr .op-tag{margin-top:5px}
+/* the ✎ marker that flags an operator-entered field in compact summaries */
+.op-mini{color:var(--amber); font-weight:700; margin-left:5px}
+
+/* ---- ticket chip (queue) ---- */
+.tkt{display:inline-grid; place-items:center; min-width:56px; height:34px; padding:0 10px;
+  border-radius:var(--r-s); background:var(--field); color:var(--ink);
+  font-weight:700; font-variant-numeric:tabular-nums; letter-spacing:.02em; flex:none}
+.tkt.now{background:var(--blue); color:#fff}
+.tkt.pri{background:var(--amber-tint); color:var(--amber)}
+
+/* ---- "now serving" strip ---- */
+.op-now{display:flex; align-items:center; gap:var(--s-5); background:var(--panel);
+  border-radius:var(--r-xl); padding:var(--s-5) var(--s-6); margin-bottom:var(--s-5)}
+.op-now .tkt{height:54px; min-width:74px; font-size:var(--fs-24); border-radius:var(--r-m)}
+.op-now .on-body{flex:1; min-width:0}
+.op-now .on-body .eyebrow{margin-bottom:4px}
+.op-now .on-body b{font-size:var(--fs-20); font-weight:640; display:block; letter-spacing:-.01em}
+.op-now .on-body span{font-size:var(--fs-13); color:var(--ink-3)}
+.op-now .btn{flex:none}
+.op-now.empty{background:transparent; border:1.5px dashed var(--control-line); color:var(--ink-3)}
+.op-now.empty .on-body b{color:var(--ink-2); font-weight:600; font-size:var(--fs-17)}
+
+/* ---- waiting queue list ---- */
+.q-list{display:flex; flex-direction:column}
+.q-list > * + *{border-top:1px solid var(--line-in)}
+.q-item{display:flex; align-items:center; gap:var(--s-4); padding:var(--s-3) var(--s-5);
+  width:100%; text-align:left; transition:background var(--t-fast) var(--ease)}
+.q-item:hover{background:var(--hover)}
+.q-item .qi-main{min-width:0; flex:1}
+.q-item .qi-main b{display:block; font-weight:560; font-size:var(--fs-15);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.q-item .qi-main span{display:block; font-size:var(--fs-12); color:var(--ink-3)}
+.q-item .qi-wait{font-size:var(--fs-13); color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
+.q-item .chev{color:var(--ink-faint); width:18px; height:18px; flex:none}
+.q-item .pill-st{flex:none}
+
+/* a window-status pill that lives in the top bar */
+.win-chip{display:inline-flex; align-items:center; gap:7px; height:34px; padding:0 12px;
+  border-radius:var(--r-pill); background:var(--green-tint); color:var(--green);
+  font-size:var(--fs-13); font-weight:620; white-space:nowrap}
+.win-chip .led-dot{width:8px; height:8px; border-radius:50%; background:currentColor}
+.win-chip.paused{background:var(--amber-tint); color:var(--amber)}
+
+/* ---- identity card (verify step 1): registry photo + record ---- */
+.idc{display:flex; gap:var(--s-5); background:var(--panel); border-radius:var(--r-xl); padding:var(--s-5)}
+.idc .photo{flex:none; width:104px; height:128px; border-radius:var(--r-m); background:var(--field);
+  display:grid; place-items:center; color:var(--ink-faint); overflow:hidden; position:relative}
+.idc .photo > svg{width:48px; height:48px}
+.idc .photo .gw{position:absolute; right:-26px; bottom:-26px; width:96px; height:96px; opacity:.10; color:var(--ink)}
+.idc .photo .cap{position:absolute; left:0; right:0; bottom:0; font-size:10px; text-align:center;
+  padding:3px 0; background:var(--line-in); color:var(--ink-3); letter-spacing:.02em}
+.idc .idc-body{flex:1; min-width:0}
+.idc .idc-name{font-size:var(--fs-20); font-weight:640; letter-spacing:-.01em}
+.idc .idc-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:var(--s-2) var(--s-5); margin-top:var(--s-3)}
+.idc .idc-grid .k{display:block; font-size:var(--fs-12); color:var(--ink-3)}
+.idc .idc-grid .v{display:block; font-weight:600; font-variant-numeric:tabular-nums}
+
+/* the document scan placeholder before a record is pulled */
+.scanbox{display:flex; align-items:center; gap:var(--s-4); width:100%; text-align:left;
+  border:1.5px dashed var(--control-line); border-radius:var(--r-l); padding:var(--s-5);
+  background:var(--field-on-panel); transition:border-color var(--t-fast) var(--ease), background var(--t-fast) var(--ease)}
+.scanbox:hover{border-color:var(--blue); background:var(--blue-tint)}
+.scanbox .si{flex:none; width:46px; height:46px; border-radius:28%; display:grid; place-items:center;
+  background:var(--panel); color:var(--ink-2)}
+.scanbox .si svg{width:24px; height:24px}
+.scanbox:hover .si{color:var(--blue-ink)}
+.scanbox b{display:block; font-weight:600}
+.scanbox span{font-size:var(--fs-13); color:var(--ink-3)}
+
+/* ---- verification checklist rows (built on .led) ---- */
+.vrow{display:flex; gap:var(--s-4); align-items:center; padding:var(--s-4) var(--s-5)}
+.vrow .v-ic{flex:none; width:34px; height:34px; border-radius:30%; display:grid; place-items:center;
+  background:var(--field); color:var(--ink-3); transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease)}
+.vrow .v-ic svg{width:18px; height:18px}
+.vrow .v-tt{flex:1; min-width:0}
+.vrow .v-tt b{display:block; font-weight:600}
+.vrow .v-tt p{font-size:var(--fs-13); color:var(--ink-3); margin-top:1px}
+.vrow .v-act{flex:none}
+.vrow .v-done{display:none; align-items:center; gap:6px; font-size:var(--fs-13); font-weight:640; color:var(--green)}
+.vrow .v-done svg{width:16px; height:16px}
+.vrow.done .v-ic{background:var(--green-tint); color:var(--green)}
+.vrow.done .v-act{display:none}
+.vrow.done .v-done{display:inline-flex}
+/* the "all checks passed" banner reveals itself only when complete */
+.idok{display:none}
+.vchecks.allok ~ .idok{display:block}
+
+/* ---- consent gate (verify step 2) ---- *
+   the operator may only type on a citizen's behalf AFTER explicit consent. */
+.consent{display:flex; gap:var(--s-4); align-items:flex-start; background:var(--blue-tint);
+  border-radius:var(--r-l); padding:var(--s-5); margin-bottom:var(--s-5)}
+.consent .cs-ic{flex:none; width:34px; height:34px; border-radius:30%; display:grid; place-items:center;
+  background:var(--panel); color:var(--blue-ink)}
+.consent .cs-ic svg{width:18px; height:18px}
+.consent .cs-tt{flex:1; min-width:0}
+.consent .cs-tt b{font-weight:640}
+.consent .cs-tt p{font-size:var(--fs-13); color:var(--ink-2); margin-top:2px}
+.consent .sw{flex:none; margin-top:2px}
+
+/* assisted-fill block: disabled until consent is granted */
+.assist{transition:opacity var(--t-fast) var(--ease)}
+.assist[aria-disabled="true"]{opacity:.5; pointer-events:none}
+.assist[aria-disabled="true"] .op-tag{display:none}
+
+/* ---- disabled affordances on the verify session ---- *
+   the disabled primary "Идома ба баррасӣ" used the shared field/ink-3 fill,
+   making it read as an active .btn-sec; dim it so the step-1 gate looks locked. */
+#cont1[disabled]{opacity:.5}
+/* the sequential face/SMS checks dim to .45 globally → sub-AA and "absent"; give
+   them a legible muted-disabled state so the operator can anticipate the steps. */
+.vrow .v-act .btn[disabled]{opacity:1; background:var(--field); color:var(--ink-3)}
+
+/* ---- step-4 success: the operator-fill row keeps its amber provenance identity
+   (matching .op-tag / .op-mini) instead of the generic green .s-row icon. ---- */
+.wz-body .s-row.op-prov > svg{color:var(--amber)}
+
+/* ---- step-3 has a 4-button .j-acts; the shared .j-acts .btn-pri{flex:1} stretches
+   the primary into a lopsided block. Keep it at natural pill width and float it to
+   the trailing edge so back/info/reject group at the left. Scoped via #opwz so
+   admin-user-new's shared 2-button step-3 row (which wants flex:1) is unaffected. */
+#opwz section[data-step="3"] .j-acts .btn-pri{flex:none; margin-left:auto}
+
+/* ---- responsive ---- */
+@media(max-width:680px){
+  .op-now{flex-wrap:wrap; gap:var(--s-3)}
+  .op-now .btn{width:100%}
+  .idc{flex-direction:column}
+  .idc .photo{width:88px; height:108px}
+  /* identity-check rows become a 2-col grid (icon | content): the title takes the
+     full remaining width so it wraps normally, and the action/done badge drops to
+     its own line aligned under the title — fixes the one-word-per-line squish. */
+  .vrow{display:grid; grid-template-columns:34px 1fr; column-gap:var(--s-4); row-gap:var(--s-2); align-items:center}
+  .vrow .v-tt{grid-column:2; min-width:0}
+  .vrow .v-act,.vrow .v-done{grid-column:2; justify-self:start; margin-left:0}
+  /* tighten the queue top-bar cluster so the avatar doesn't crowd the edge */
+  .adm-top .at-right{gap:var(--s-1)}
+  .adm-top .win-chip{height:30px; padding:0 10px; font-size:var(--fs-12)}
+}
+
+/* the segmented control ('Тарзи гирифтан') is the lone interactive control with
+   no touch-target floor; raise it to 44px on coarse pointers (operator-scoped). */
+@media(pointer:coarse){
+  .wz-body .seg label{min-height:44px}
+}

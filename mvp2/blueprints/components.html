@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Системаи компонентҳо</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" style="margin-left:6px">UI Kit</span>
+    <div class="hdr-acts">
+      <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+      <span class="avatar" aria-hidden="true">Ф</span>
+    </div>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="kit">
+    <a class="back" href="index.html"><svg><use href="#i-chev-l"/></svg><span>Ҳама экранҳо</span></a>
+
+    <div class="kit-hero">
+      <span class="eyebrow">Системаи дизайн · манбаи ягона</span>
+      <h1>Системаи компонентҳо</h1>
+      <p>Ҳамаи унсурҳои интерфейс дар як ҷо — токенҳо, тугмаҳо, майдонҳои воридот, интихоб ва нишонаҳо. Ҳар экран маҳз аз ҳаминҳо сохта мешавад. Барои Figma омода.</p>
+    </div>
+
+    <!-- ============ COLOR ============ -->
+    <section class="kit-sect">
+      <h2>Ранг</h2>
+      <p class="sub">Як ранги амал (#0088FF). Матн дар се дараҷа. Рангҳои семантикӣ танҳо барои ҳолат.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Амал ва матн</div>
+        <div class="kit-sw">
+          <figure><div class="ch" style="background:#0088FF"></div><figcaption>Амал<b>#0088FF</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--ink)"></div><figcaption>Матн<b>ink</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--ink-2)"></div><figcaption>Матн-2<b>ink-2</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--ink-3)"></div><figcaption>Матн-3<b>ink-3</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--field)"></div><figcaption>Майдон<b>field</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--line); "></div><figcaption>Хатчаи нозук<b>line</b></figcaption></figure>
+        </div>
+        <div class="kit-cap">Семантикӣ</div>
+        <div class="kit-sw">
+          <figure><div class="ch" style="background:var(--green)"></div><figcaption>Сабз<b>иҷро</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--amber)"></div><figcaption>Каҳрабо<b>огоҳӣ</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--red-fill)"></div><figcaption>Сурх<b>хато</b></figcaption></figure>
+        </div>
+        <div class="kit-cap">Рангҳои плитка (намуна)</div>
+        <div class="kit-sw">
+          <figure><div class="ch" style="background:var(--h-blue-bg)"></div><figcaption><b>blue</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--h-violet-bg)"></div><figcaption><b>violet</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--h-green-bg)"></div><figcaption><b>green</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--h-amber-bg)"></div><figcaption><b>amber</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--h-rose-bg)"></div><figcaption><b>rose</b></figcaption></figure>
+          <figure><div class="ch" style="background:var(--h-teal-bg)"></div><figcaption><b>teal</b></figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TYPE ============ -->
+    <section class="kit-sect">
+      <h2>Типографика</h2>
+      <p class="sub">ALS Hauss Next. Сарлавҳаҳо фишурда (wdth 550), матн васеътар барои хониш.</p>
+      <div class="kit-card kit-type">
+        <div class="row"><span class="t">44 · H1</span><span class="s" style="font-size:var(--fs-44);font-weight:680;letter-spacing:-.02em">Шаффофият</span></div>
+        <div class="row"><span class="t">24 · H2</span><span class="s" style="font-size:var(--fs-24);font-weight:650;letter-spacing:-.02em">Сарлавҳаи бахш</span></div>
+        <div class="row"><span class="t">17 · H3</span><span class="s" style="font-size:var(--fs-17);font-weight:620">Унвони корт</span></div>
+        <div class="row"><span class="t">15 · Матн</span><span class="s">Матни асосӣ — як бор пурсида мешавад, дубора не.</span></div>
+        <div class="row"><span class="t">13 · Хурд</span><span class="s muted">Тавзеҳ ва тамғаҳои дуюмдараҷа</span></div>
+        <div class="row"><span class="t">12 · Лейбл</span><span class="s eyebrow">Гурӯҳи майдонҳо</span></div>
+      </div>
+    </section>
+
+    <!-- ============ RADII ============ -->
+    <section class="kit-sect">
+      <h2>Шакл ва радиус</h2>
+      <p class="sub">Панелҳо нарм, тугмаҳо ҳаб (pill). Сояҳо нест — танҳо veil дар қабатҳои шинокунанда.</p>
+      <div class="kit-card">
+        <div class="kit-radii">
+          <div class="r" style="border-radius:var(--r-s)">10 · s</div>
+          <div class="r" style="border-radius:var(--r-m)">14 · m</div>
+          <div class="r" style="border-radius:var(--r-l)">18 · l</div>
+          <div class="r" style="border-radius:var(--r-xl)">24 · xl</div>
+          <div class="r" style="border-radius:var(--r-pill)">pill</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ BUTTONS ============ -->
+    <section class="kit-sect">
+      <h2>Тугмаҳо</h2>
+      <p class="sub">Амалҳо ҳамеша ҳаб (pill). Як амали асосӣ дар як экран.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Намудҳо</div>
+        <div class="kit-row">
+          <button class="btn btn-pri">Амали асосӣ</button>
+          <button class="btn btn-sec">Дуюмдараҷа</button>
+          <button class="btn btn-ghost">Шаффоф</button>
+          <button class="btn btn-danger">Хатарнок</button>
+        </div>
+        <div class="kit-cap">Андозаҳо</div>
+        <div class="kit-row">
+          <button class="btn btn-pri btn-lg">Калон</button>
+          <button class="btn btn-pri">Муқаррарӣ</button>
+          <button class="btn btn-pri btn-sm">Хурд</button>
+        </div>
+        <div class="kit-cap">Бо нишона ва ҳолат</div>
+        <div class="kit-row">
+          <button class="btn btn-pri"><svg><use href="#i-plus"/></svg>Илова кардан</button>
+          <button class="btn btn-sec"><svg><use href="#i-download"/></svg>Боргирӣ</button>
+          <button class="btn btn-pri" disabled>Ғайрифаъол</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INPUTS ============ -->
+    <section class="kit-sect">
+      <h2>Майдонҳои воридот</h2>
+      <p class="sub">Заминаи ҳамвори хокистарӣ, бе ҳошия. Ҳолат бо ҳалқаи дохилӣ нишон дода мешавад — ҷойивазкунӣ нест.</p>
+      <div class="kit-card">
+        <div class="kit-stack">
+          <div class="field">
+            <label>Ному насаб</label>
+            <input class="input" value="Фируза Раҳимова">
+          </div>
+          <div class="field">
+            <label>Почтаи электронӣ</label>
+            <input class="input" placeholder="example@mail.tj">
+            <p class="help">Барои огоҳиҳо истифода мешавад</p>
+          </div>
+          <div class="field err">
+            <label>Рақами шиноснома</label>
+            <input class="input" value="A 12" aria-invalid="true">
+            <p class="err-msg"><svg><use href="#i-info"/></svg>Формат нодуруст — 9 рақам лозим аст</p>
+          </div>
+          <div class="field">
+            <label>Шарҳ</label>
+            <textarea class="input" placeholder="Матнро нависед…"></textarea>
+          </div>
+          <div class="field">
+            <label>Ғайрифаъол</label>
+            <input class="input" value="Қулф шуда" disabled>
+          </div>
+          <div class="select">
+            <select aria-label="Мақсад">
+              <option>Барои бонк (қарз/суратҳисоб)</option>
+              <option>Барои мактаб</option>
+              <option>Барои корхона</option>
+            </select>
+          </div>
+        </div>
+        <div class="kit-cap">Сегментӣ</div>
+        <div class="seg" style="max-width:320px">
+          <label><input type="radio" name="seg-demo" checked><span>Рақамӣ</span></label>
+          <label><input type="radio" name="seg-demo"><span>Коғазӣ</span></label>
+        </div>
+        <div class="kit-cap">Рамзи яквақта (OTP)</div>
+        <div class="otp" style="justify-content:flex-start">
+          <input value="4" inputmode="numeric" aria-label="рақами 1"><input value="8" inputmode="numeric" aria-label="рақами 2"><input inputmode="numeric" aria-label="рақами 3"><input inputmode="numeric" aria-label="рақами 4">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SELECTION ============ -->
+    <section class="kit-sect">
+      <h2>Интихоб</h2>
+      <p class="sub">Ҳама бо як ранги амал. Калид (toggle) = ҳамон забони амали тугмаҳо.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Калид</div>
+        <div class="kit-row" style="gap:var(--s-8)">
+          <span class="kit-tog"><span class="sw"><input type="checkbox"><span class="knob"></span></span>Хомӯш</span>
+          <span class="kit-tog"><span class="sw"><input type="checkbox" checked><span class="knob"></span></span>Фаъол</span>
+          <span class="kit-tog"><span class="sw"><input type="checkbox" checked disabled><span class="knob"></span></span>Қулф</span>
+        </div>
+        <div class="kit-cap">Қуттӣ ва радио</div>
+        <div class="kit-row" style="gap:var(--s-8)">
+          <span class="kit-pick"><input type="checkbox" class="check">Интихобнашуда</span>
+          <span class="kit-pick"><input type="checkbox" class="check" checked>Интихобшуда</span>
+          <span class="kit-pick"><input type="radio" name="r-demo" class="radio">Як</span>
+          <span class="kit-pick"><input type="radio" name="r-demo" class="radio" checked>Ду</span>
+        </div>
+        <div class="kit-cap">Корти интихоб</div>
+        <div style="max-width:440px">
+          <label class="opt"><input type="radio" name="opt-demo" checked><div class="tt"><b>Расондани рақамӣ</b><p>Дар ҳамёни шумо, дарҳол</p></div><span class="meta"><b>Ройгон</b>ҳамон рӯз</span></label>
+          <label class="opt"><input type="radio" name="opt-demo"><div class="tt"><b>Нусхаи коғазӣ</b><p>Аз маркази хизматрасонӣ</p></div><span class="meta"><b>12 сом.</b>2–3 рӯз</span></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAGS / PILLS ============ -->
+    <section class="kit-sect">
+      <h2>Нишона ва тамға</h2>
+      <p class="sub">Тамғаи манбаъ (src-tag) — имзои принсипи «як бор». Тамғаи ҳолат — пайгирии ариза.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Тамғаи манбаъ ва ҳолат</div>
+        <div class="kit-row tight">
+          <span class="src-tag"><svg><use href="#i-check"/></svg>аз САҲШ</span>
+          <span class="pill-st review"><svg><use href="#i-info"/></svg>Дар баррасӣ</span>
+          <span class="pill-st done"><svg><use href="#i-check"/></svg>Тайёр</span>
+          <span class="pill-st warn">Маълумоти иловагӣ</span>
+          <span class="pill-st danger">Рад шуд</span>
+          <span class="pill-st muted">Лоиҳа</span>
+        </div>
+        <div class="kit-cap">Чип ва метачип</div>
+        <div class="kit-row tight">
+          <span class="chip">Давра: <b>2026</b></span>
+          <span class="metachip"><svg><use href="#i-building"/></svg>САҲШ-и Сино</span>
+          <span class="metachip ok"><svg><use href="#i-check"/></svg>Ройгон</span>
+          <span class="metachip pay"><svg><use href="#i-money"/></svg>12 сом.</span>
+        </div>
+        <div class="kit-cap">Чипҳои филтр (пахшшаванда)</div>
+        <div class="kit-row tight">
+          <button class="chip" aria-pressed="true">Ҳама <b>41</b></button>
+          <button class="chip" aria-pressed="false">Нав <b>12</b></button>
+          <button class="chip" aria-pressed="false">Тайёр <b>5</b></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TILES ============ -->
+    <section class="kit-sect">
+      <h2>Плиткаҳои нишона</h2>
+      <p class="sub">Ҳар мавзӯъ ранг (hue) + шакл мегирад. На ороиш — мояи фарқкунанда.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Рангҳо</div>
+        <div class="kit-row tight">
+          <span class="tile t-blue"><svg><use href="#i-building"/></svg></span>
+          <span class="tile t-violet"><svg><use href="#i-users"/></svg></span>
+          <span class="tile t-green"><svg><use href="#i-check"/></svg></span>
+          <span class="tile t-amber"><svg><use href="#i-calendar"/></svg></span>
+          <span class="tile t-rose"><svg><use href="#i-role"/></svg></span>
+          <span class="tile t-teal"><svg><use href="#i-card"/></svg></span>
+          <span class="tile t-steel"><svg><use href="#i-dash"/></svg></span>
+        </div>
+        <div class="kit-cap">Шаклҳо</div>
+        <div class="kit-row tight">
+          <span class="kit-cell"><span class="tile t-blue"><svg><use href="#i-info"/></svg></span><span class="lbl">squircle</span></span>
+          <span class="kit-cell"><span class="tile t-blue sh-c"><svg><use href="#i-info"/></svg></span><span class="lbl">sh-c</span></span>
+          <span class="kit-cell"><span class="tile t-blue sh-r"><svg><use href="#i-info"/></svg></span><span class="lbl">sh-r</span></span>
+          <span class="kit-cell"><span class="tile t-blue sh-l"><svg><use href="#i-info"/></svg></span><span class="lbl">sh-l</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MENUS ============ -->
+    <section class="kit-sect">
+      <h2>Менюҳо ва навигатсия</h2>
+      <p class="sub">Як ҳалқаи равшан байни сатрҳо мегузарад — на пуркунии ҷудогона. Иваз кардани забон дар сарлавҳа.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Менюи афтанда ва пейҷер</div>
+        <div class="kit-row" style="gap:var(--s-8)">
+          <div class="dd">
+            <button class="dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false"><svg><use href="#i-sort"/></svg>Тартиб: нав<svg class="caret"><use href="#i-chev-d"/></svg></button>
+            <div class="dd-menu" role="listbox" aria-label="Тартиб">
+              <div class="dd-label" aria-hidden="true">Тартиб додан</div>
+              <button role="option" data-sort="new" aria-selected="true"><span>Аз нав ба кӯҳна</span><svg><use href="#i-check"/></svg></button>
+              <button role="option" data-sort="sla" aria-selected="false"><span>SLA — наздиктарин</span><svg><use href="#i-check"/></svg></button>
+              <button role="option" data-sort="az" aria-selected="false"><span>Алифбо</span><svg><use href="#i-check"/></svg></button>
+            </div>
+          </div>
+          <div class="pager" style="padding:0;border:0">
+            <span class="pg">
+              <button>‹</button>
+              <button aria-current="true">1</button>
+              <button>2</button>
+              <button>3</button>
+              <button>›</button>
+            </span>
+          </div>
+        </div>
+        <div class="kit-cap">Иваз кардани забон</div>
+        <p class="small muted" style="margin-top:-8px">Дар сарлавҳаи ҳар экран (боло-рост) — глобус + ТҶ/RU/EN.</p>
+      </div>
+    </section>
+
+    <!-- ============ FEEDBACK ============ -->
+    <section class="kit-sect">
+      <h2>Бозхӯрд ва воридкунии файл</h2>
+      <p class="sub">Қабати шинокунанда танҳо ҷое ки veil иҷозат дорад: модал, тост.</p>
+      <div class="kit-card">
+        <div class="kit-cap">Эзоҳи иттилоотӣ</div>
+        <div class="note-info"><svg><use href="#i-info"/></svg><p><b>Маълумоти аллакай мавҷуд</b> дубора пурсида намешавад — ин принсипи «як бор» аст.</p></div>
+        <div class="kit-cap">Минтақаи воридкунӣ</div>
+        <div style="max-width:440px">
+          <div class="dropzone" data-upload="#kit-files"><svg><use href="#i-upload"/></svg><b>Файлро интихоб кунед ё ин ҷо кашед</b><span>PDF, JPG, PNG · то 10 МБ</span></div>
+          <div class="filelist" id="kit-files"></div>
+        </div>
+        <div class="kit-cap">Амалҳои шинокунанда</div>
+        <div class="kit-row">
+          <button class="btn btn-sec" data-open="kit-modal">Кушодани модал</button>
+          <button class="btn btn-sec" data-toast="Намунаи тост — амал қабул шуд">Намоиши тост</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="small muted" style="margin:var(--s-10) 0 var(--s-16);text-align:center">eKhizmat · системаи дизайн — манбаи ягона барои ҳамаи экранҳо</p>
+  </div>
+</main>
+
+<!-- demo modal -->
+<div class="overlay" id="kit-modal" role="dialog" aria-modal="true" aria-labelledby="kit-modal-t">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="#i-info"/></svg></span><div><h3 id="kit-modal-t">Намунаи модал</h3><p>Қабати шинокунанда бо veil ва дому-фокус.</p></div></div>
+    <p class="small muted" style="margin-bottom:var(--s-5)">Ҳамаи модалҳо аз ҳамин намуна сохта мешаванд — пардохт, тақвим, ҷойгиршавӣ, тасдиқ.</p>
+    <button class="btn btn-pri btn-block" data-close>Фаҳмидам</button>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap"><div class="ft-bottom"><span>© 2026 eKhizmat</span><div class="ft-legal"><a href="index.html">Ҳама экранҳо</a></div></div></div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

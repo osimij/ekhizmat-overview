@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Танзимот</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="settings"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Танзимот</span>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body" style="max-width:920px">
+      <div class="adm-h"><h1>Танзимоти идора</h1><p>САҲШ-и ноҳияи Сино · ин танзимҳо ба вақти воқеии шаҳрвандон таъсир мерасонанд</p></div>
+
+      <!-- offices -->
+      <section class="panel" style="margin-bottom:var(--s-5)">
+        <div class="panel-h"><h3>Раёсатҳо ва идораҳо</h3><button class="btn btn-sec btn-sm" data-toast="Намунавӣ"><svg><use href="#i-plus"/></svg>Илова</button></div>
+        <div class="qrow"><span class="tile t-steel sh-c" style="width:34px;height:34px"><svg style="width:17px;height:17px"><use href="#i-building"/></svg></span><div class="tt"><b>САҲШ-и ноҳияи Сино</b><span class="k" style="display:block;font-size:var(--fs-12);color:var(--ink-3)">кӯчаи Турсунзода 2 · 14 корманд</span></div><span class="pill-st done">фаъол</span></div>
+        <div class="qrow"><span class="tile t-steel sh-c" style="width:34px;height:34px"><svg style="width:17px;height:17px"><use href="#i-building"/></svg></span><div class="tt"><b>Маркази хизматрасонии «Сино»</b><span class="k" style="display:block;font-size:var(--fs-12);color:var(--ink-3)">кӯчаи Айнӣ 14 · 9 корманд</span></div><span class="pill-st done">фаъол</span></div>
+      </section>
+
+      <!-- working hours -->
+      <section class="panel" style="margin-bottom:var(--s-5)">
+        <div class="panel-h"><h3>Соатҳои корӣ</h3><a href="#" onclick="return false">таҳрир</a></div>
+        <div class="qrow"><div class="tt"><b>Душанбе – Ҷумъа</b></div><span class="nn">8:00 – 18:00</span></div>
+        <div class="qrow"><div class="tt"><b>Шанбе</b></div><span class="nn">9:00 – 14:00</span></div>
+        <div class="qrow"><div class="tt"><b>Хизматҳои онлайн</b></div><span class="pill-st done">шабонарӯзӣ</span></div>
+      </section>
+
+      <!-- routing rules -->
+      <section class="panel" style="margin-bottom:var(--s-5)">
+        <div class="panel-h"><h3>Қоидаҳои тақсими навбат</h3></div>
+        <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Тақсими худкори аризаҳо</span><span class="k">ба мутахассиси камташ банд</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+        <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Авлавияти реҷаи фаврӣ</span><span class="k">ҳуҷҷатҳои гумшуда — навбати аввал</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+        <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Огоҳии вайроншавии SLA</span><span class="k">ба роҳбари бахш</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+      </section>
+
+      <!-- pickup points -->
+      <section class="panel">
+        <div class="panel-h"><h3>Нуқтаҳои гирифтани ҳуҷҷати коғазӣ</h3><button class="btn btn-sec btn-sm" data-toast="Намунавӣ"><svg><use href="#i-plus"/></svg>Илова</button></div>
+        <div class="qrow"><span class="tile t-teal" style="width:34px;height:34px"><svg style="width:17px;height:17px"><use href="#i-pin"/></svg></span><div class="tt"><b>Маркази «Сино»</b><span class="k" style="display:block;font-size:var(--fs-12);color:var(--ink-3)">кӯчаи Айнӣ 14 · 8:00–18:00</span></div><span class="pill-st done">фаъол</span></div>
+        <div class="qrow"><span class="tile t-teal" style="width:34px;height:34px"><svg style="width:17px;height:17px"><use href="#i-pin"/></svg></span><div class="tt"><b>Маркази «Фирдавсӣ»</b><span class="k" style="display:block;font-size:var(--fs-12);color:var(--ink-3)">хиёбони Рӯдакӣ 137 · 8:00–17:00</span></div><span class="pill-st done">фаъол</span></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

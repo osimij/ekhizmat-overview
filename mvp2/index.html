@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="tg" data-theme="light" data-auth="out">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat</title>
+<!-- restore the stored session before first paint so signed-in users see no signed-out flash -->
+<script>try{if(localStorage.getItem("ekh-auth")==="1")document.documentElement.dataset.auth="in"}catch(e){}</script>
+<!-- same for the theme: stored choice first, else the device's scheme -->
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/ALSHaussNextVF.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/hero.webp" as="image" type="image/webp" media="(min-width:881px)">
+<link rel="preload" href="assets/hero-dark.webp" as="image" type="image/webp" media="(min-width:881px) and (prefers-color-scheme:dark)">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/screens.css">
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="a11y.skip">Ба мазмуни асосӣ гузаштан</a>
+
+<!-- icon sprite: custom geometric set inspired by Tajik architectural motifs -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 722 733" fill="currentColor"><path d="M521.2 119.144L610.486 119.103C618.771 119.099 645.951 118.528 652.986 119.534C656.611 121.731 667.008 140.664 669.91 145.588L694.574 187.711C701.352 199.3 716.843 224.04 721.919 235.214C718.595 241.856 712.668 251.329 708.816 257.92L682.426 302.927L663.604 335.22C661.712 338.462 655.858 349.036 653.715 351.192C609.635 351.512 563.724 351.673 519.73 351.137C497.693 313.646 473.722 274.144 452.499 236.375C468.934 206.619 487.315 177.475 504.049 147.837C509.168 138.768 515.291 127.466 521.2 119.144Z"/><path d="M68.1128 119.079C98.886 119.404 129.883 118.901 160.65 119.129C168.745 119.189 193.605 118.535 200.127 119.597C201.676 120.506 203.034 122.264 203.918 123.809C225.389 161.319 248.606 198.367 269.571 236.112C250.431 272 226.477 307.204 207.041 343.147C205.684 345.656 203.703 349.243 201.75 351.181C157.517 351.405 112.176 351.607 67.9805 351.146C45.6186 312.549 21.7993 273.626 0 234.908C12.9276 211.619 28.1079 187.025 41.5884 163.827L57.7201 136.045C60.6665 130.974 64.6741 123.615 68.1128 119.079Z"/><path d="M519.951 376.342C542.79 376.441 635.468 375.708 653.378 377.106C654.756 377.214 716.709 482.372 721.595 492.231C718.301 499.033 712.098 508.934 708.143 515.664L682.162 559.811L663.291 592.361C661.393 595.624 655.754 606.297 653.109 608.122L563.388 608.005C551.166 608.011 532.142 608.715 520.557 607.821C497.534 570.024 474.763 529.385 452.395 490.957C465.058 467.646 481.229 442.818 494.436 419.391C499.463 410.476 514.379 383.861 519.951 376.342Z"/><path d="M68.602 376.348L157.035 376.351C164.906 376.34 196.34 375.789 202.162 377.17C204.943 380.389 209.518 388.671 211.863 392.676L227.365 419.146C241.057 442.505 256.932 467.555 269.701 491.122L225.498 566.975C219.016 578.082 208.211 597.786 201.156 607.956C195.224 608.232 187.894 608.238 181.968 608.036C144.62 606.756 105.169 609.787 68.0454 607.785L24.4695 533.8C16.6504 520.55 7.44808 505.781 0.342896 492.396C4.74108 483.658 10.7337 474.076 15.7718 465.528L41.9135 421.13L58.0704 393.374C60.8686 388.549 65.2564 380.527 68.602 376.348Z"/><path d="M294.689 501.219C300.58 500.962 307.229 501.097 313.191 501.164C351.261 501.629 389.622 500.491 427.664 501.25C430.505 504.942 435.379 513.545 437.798 517.696L453.265 544.258C466.888 567.593 482.631 593.034 495.385 616.645C488.601 630.183 474.499 653.138 466.392 666.713C454.165 687.201 440.878 712.47 428.234 732.034C385.054 732.585 338.125 732.603 294.961 731.985C288.503 722.72 277.506 702.594 271.362 692.099L227.255 616.688C234.222 602.507 249.509 577.99 257.904 563.638C268.459 545.587 283.276 517.996 294.689 501.219Z"/><path d="M294.991 0.308664C338.606 0.547463 384.429 -0.581017 427.811 0.424387C433.604 8.36353 441.943 24.8315 447.515 33.945C463.582 60.2221 478.749 89.1382 495.055 115.075C493.187 120.742 430.567 228.017 427.597 231.17L294.937 231.137C287.369 219.7 278.779 203.922 271.733 191.891L227.149 115.843C230.467 108.953 236.987 98.3968 240.995 91.528L284.645 16.9732C287.199 12.6264 292.132 3.74124 294.991 0.308664Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none"><path d="M17 17L21 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-fire" viewBox="0 0 24 24" fill="none"><path d="M13.8561 22C26.0783 19 19.2338 7 10.9227 2C9.9453 5.5 8.47838 6.5 5.54497 10C1.66121 14.6339 3.5895 20 8.96719 22C8.1524 21 6.04958 18.9008 7.5 16C8 15 9 14 8.5 12C9.47778 12.5 11.5 13 12 15.5C12.8148 14.5 13.6604 12.4 12.8783 10C19 14.5 16.5 19 13.8561 22Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none"><path d="M19 18V9.5C19 5.63401 15.866 2.5 12 2.5C8.13401 2.5 5 5.63401 5 9.5V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.5 18H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 20C13.5 20.8284 12.8284 21.5 12 21.5M10.5 20C10.5 20.8284 11.1716 21.5 12 21.5M12 21.5V20" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24" fill="none"><path d="M21.5 14.0784C20.3003 14.7189 18.9301 15.0821 17.4751 15.0821C12.7491 15.0821 8.91792 11.2509 8.91792 6.52485C8.91792 5.06986 9.28105 3.69968 9.92163 2.5C5.66765 3.49698 2.5 7.31513 2.5 11.8731C2.5 17.1899 6.8101 21.5 12.1269 21.5C16.6849 21.5 20.503 18.3324 21.5 14.0784Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24" fill="none"><path d="M17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12Z" stroke="currentColor" stroke-width="1.5"/><path d="M12 2V3.5M12 20.5V22M19.0708 4.92913L18.0101 5.98979M5.98987 18.0101L4.92921 19.0708M22 12H20.5M3.5 12H2M19.0708 19.0703L18.0101 18.0096M5.98987 5.98889L4.92921 4.92823" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-biz" viewBox="0 0 24 24" fill="none"><path d="M3.50002 10V15C3.50002 17.8284 3.50002 19.2426 4.37869 20.1213C5.25737 21 6.67159 21 9.50002 21H14.5C17.3284 21 18.7427 21 19.6213 20.1213C20.5 19.2426 20.5 17.8284 20.5 15V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 7.50184C17 8.88255 15.8807 9.99997 14.5 9.99997C13.1193 9.99997 12 8.88068 12 7.49997C12 8.88068 10.8807 9.99997 9.50002 9.99997C8.1193 9.99997 7.00002 8.88068 7.00002 7.49997C7.00002 8.88068 5.82655 9.99997 4.37901 9.99997C3.59984 9.99997 2.90008 9.67567 2.42 9.16087C1.59462 8.2758 2.12561 6.97403 2.81448 5.98842L3.20202 5.45851C4.08386 4.2527 4.52478 3.6498 5.16493 3.32494C5.80508 3.00008 6.55201 3.00018 8.04587 3.00038L15.9551 3.00143C17.4485 3.00163 18.1952 3.00173 18.8351 3.32658C19.475 3.65143 19.9158 4.25414 20.7974 5.45957L21.1855 5.99029C21.8744 6.97589 22.4054 8.27766 21.58 9.16273C21.0999 9.67754 20.4002 10.0018 19.621 10.0018C18.1734 10.0018 17 8.88255 17 7.50184Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.9971 17C14.3133 17.6072 13.2247 18 11.9985 18C10.7723 18 9.68376 17.6072 9 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-baby" viewBox="0 0 24 24" fill="none"><path d="M10 16C10.4561 16.6072 11.1822 17 12 17C12.8178 17 13.5439 16.6072 14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.625 11.258V11.611M8.375 11.258V11.611M8.75 11.5C8.75 11.2239 8.58211 11 8.375 11C8.16789 11 8 11.2239 8 11.5C8 11.7761 8.16789 12 8.375 12C8.58211 12 8.75 11.7761 8.75 11.5ZM16 11.5C16 11.2239 15.8321 11 15.625 11C15.4179 11 15.25 11.2239 15.25 11.5C15.25 11.7761 15.4179 12 15.625 12C15.8321 12 16 11.7761 16 11.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.1856 10.1728C2.48694 10.4846 2 11.1855 2 12C2 12.8145 2.48694 13.5154 3.1856 13.8272C4.02998 17.9217 7.6555 21 12 21C16.3445 21 19.97 17.9217 20.8144 13.8272C21.5131 13.5154 22 12.8145 22 12C22 11.1855 21.5131 10.4846 20.8144 10.1728C19.97 6.07831 16.3445 3 12 3C7.6555 3 4.02998 6.07831 3.1856 10.1728Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3C14 3 15.5 4.26953 15.5 5.71181C15.5 6.64505 15.0282 8 13.5 8C12.6809 8 12.1578 7.39447 12 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-rings" viewBox="0 0 24 24" fill="none"><circle cx="8.5" cy="16.5" r="5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15.5" cy="16.5" r="5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 9C12 9 16 7.14706 16 4.13889C16 2.95761 15.1579 2 14 2C13.0526 2 12.4211 2.41176 12 3.23529C11.5789 2.41176 10.9474 2 10 2C8.84211 2 8 2.95761 8 4.13889C8 7.14706 12 9 12 9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-move" viewBox="0 0 24 24" fill="none"><circle cx="17" cy="18" r="2" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="18" r="2" stroke="currentColor" stroke-width="1.5"/><path d="M5 17.9724C3.90328 17.9178 3.2191 17.7546 2.73223 17.2678C2.24536 16.7809 2.08222 16.0967 2.02755 15M9 18H15M19 17.9724C20.0967 17.9178 20.7809 17.7546 21.2678 17.2678C22 16.5355 22 15.357 22 13V11H17.3C16.5555 11 16.1832 11 15.882 10.9021C15.2731 10.7043 14.7957 10.2269 14.5979 9.61803C14.5 9.31677 14.5 8.94451 14.5 8.2C14.5 7.08323 14.5 6.52485 14.3532 6.07295C14.0564 5.15964 13.3404 4.44358 12.4271 4.14683C11.9752 4 11.4168 4 10.3 4H2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 8H8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 6H16.3212C17.7766 6 18.5042 6 19.0964 6.35371C19.6886 6.70742 20.0336 7.34811 20.7236 8.6295L22 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-job" viewBox="0 0 24 24" fill="none"><path d="M11.0065 21.0001H9.60546C6.02021 21.0001 4.22759 21.0001 3.11379 19.8652C2 18.7302 2 16.9035 2 13.2501C2 9.59674 2 7.77004 3.11379 6.63508C4.22759 5.50012 6.02021 5.50012 9.60546 5.50012H13.4082C16.9934 5.50012 18.7861 5.50012 19.8999 6.63508C20.7568 7.50831 20.9544 8.79102 21 11.0001" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20.0167 20.0233L21.9998 22M21.0528 17.5265C21.0528 15.5789 19.4739 14 17.5263 14C15.5786 14 13.9998 15.5789 13.9998 17.5265C13.9998 19.4742 15.5786 21.0531 17.5263 21.0531C19.4739 21.0531 21.0528 19.4742 21.0528 17.5265Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.9998 5.5L15.9004 5.19094C15.4054 3.65089 15.1579 2.88087 14.5686 2.44043C13.9794 2 13.1967 2 11.6313 2H11.3682C9.8028 2 9.02011 2 8.43087 2.44043C7.84162 2.88087 7.59411 3.65089 7.0991 5.19094L6.99976 5.5" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-retire" viewBox="0 0 24 24" fill="none"><path d="M9.5 7.5C9.99153 8.0057 11.2998 10 12 10M14.5 7.5C14.0085 8.0057 12.7002 10 12 10M12 10V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.3633 10.6357L16.9491 12.05" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 17H5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.63657 10.6356L7.05078 12.0498" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M21 17H19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M21 20H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M16 17C16 14.7909 14.2091 13 12 13C9.79086 13 8 14.7909 8 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none"><path d="M18.7088 3.49534C16.8165 2.55382 14.5009 2 12 2C9.4991 2 7.1835 2.55382 5.29116 3.49534C4.36318 3.95706 3.89919 4.18792 3.4496 4.91378C3 5.63965 3 6.34248 3 7.74814V11.2371C3 16.9205 7.54236 20.0804 10.173 21.4338C10.9067 21.8113 11.2735 22 12 22C12.7265 22 13.0933 21.8113 13.8269 21.4338C16.4576 20.0804 21 16.9205 21 11.2371L21 7.74814C21 6.34249 21 5.63966 20.5504 4.91378C20.1008 4.18791 19.6368 3.95706 18.7088 3.49534Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24" fill="none"><path d="M14 3H5C3.89543 3 3 3.89543 3 5C3 6.10457 3.89543 7 5 7H18C18 6.07003 18 5.60504 17.8978 5.22354C17.6204 4.18827 16.8117 3.37962 15.7765 3.10222C15.395 3 14.93 3 14 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 5V15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15V13C21 10.1716 21 8.75736 20.1213 7.87868C19.2426 7 17.8284 7 15 7H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H19C18.535 12 18.3025 12 18.1118 12.0511C17.5941 12.1898 17.1898 12.5941 17.0511 13.1118C17 13.3025 17 13.535 17 14C17 14.465 17 14.6975 17.0511 14.8882C17.1898 15.4059 17.5941 15.8102 18.1118 15.9489C18.3025 16 18.535 16 19 16H21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none"><path d="M8 17H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 13H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 2.5V3C13 5.82843 13 7.24264 13.8787 8.12132C14.7574 9 16.1716 9 19 9H19.5M20 10.6569V14C20 17.7712 20 19.6569 18.8284 20.8284C17.6569 22 15.7712 22 12 22C8.22876 22 6.34315 22 5.17157 20.8284C4 19.6569 4 17.7712 4 14V9.45584C4 6.21082 4 4.58831 4.88607 3.48933C5.06508 3.26731 5.26731 3.06508 5.48933 2.88607C6.58831 2 8.21082 2 11.4558 2C12.1614 2 12.5141 2 12.8372 2.11401C12.9044 2.13772 12.9702 2.165 13.0345 2.19575C13.3436 2.34355 13.593 2.593 14.0919 3.09188L18.8284 7.82843C19.4065 8.40649 19.6955 8.69552 19.8478 9.06306C20 9.4306 20 9.83935 20 10.6569Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24" fill="none"><path d="M3 6C3 4.58579 3 3.87868 3.43934 3.43934C3.87868 3 4.58579 3 6 3C7.41421 3 8.12132 3 8.56066 3.43934C9 3.87868 9 4.58579 9 6C9 7.41421 9 8.12132 8.56066 8.56066C8.12132 9 7.41421 9 6 9C4.58579 9 3.87868 9 3.43934 8.56066C3 8.12132 3 7.41421 3 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M3 18C3 16.5858 3 15.8787 3.43934 15.4393C3.87868 15 4.58579 15 6 15C7.41421 15 8.12132 15 8.56066 15.4393C9 15.8787 9 16.5858 9 18C9 19.4142 9 20.1213 8.56066 20.5607C8.12132 21 7.41421 21 6 21C4.58579 21 3.87868 21 3.43934 20.5607C3 20.1213 3 19.4142 3 18Z" stroke="currentColor" stroke-width="1.5"/><path d="M3 12L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 3V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 6C15 4.58579 15 3.87868 15.4393 3.43934C15.8787 3 16.5858 3 18 3C19.4142 3 20.1213 3 20.5607 3.43934C21 3.87868 21 4.58579 21 6C21 7.41421 21 8.12132 20.5607 8.56066C20.1213 9 19.4142 9 18 9C16.5858 9 15.8787 9 15.4393 8.56066C15 8.12132 15 7.41421 15 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M21 12H15C13.5858 12 12.8787 12 12.4393 12.4393C12 12.8787 12 13.5858 12 15M12 17.7692V20.5385M15 15V16.5C15 17.9464 15.7837 18 17 18C17.5523 18 18 18.4477 18 19M16 21H15M18 15C19.4142 15 20.1213 15 20.5607 15.44C21 15.8799 21 16.5881 21 18.0043C21 19.4206 21 20.1287 20.5607 20.5687C20.24 20.8898 19.7767 20.9766 19 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none"><path d="M5 14L8.5 17.5L19 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-d" viewBox="0 0 24 24" fill="none"><path d="M18 9.00005C18 9.00005 13.5811 15 12 15C10.4188 15 6 9 6 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-r" viewBox="0 0 24 24" fill="none"><path d="M9.00005 6C9.00005 6 15 10.4189 15 12C15 13.5812 9 18 9 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev-l" viewBox="0 0 24 24" fill="none"><path d="M15 6C15 6 9.00001 10.4189 9 12C8.99999 13.5812 15 18 15 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/><path d="M12 8V12L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none"><path d="M21.5 12C21.5 17.2467 17.2467 21.5 12 21.5C10.3719 21.5 8.8394 21.0904 7.5 20.3687C5.63177 19.362 4.37462 20.2979 3.26592 20.4658C3.09774 20.4913 2.93024 20.4302 2.80997 20.31C2.62741 20.1274 2.59266 19.8451 2.6935 19.6074C3.12865 18.5818 3.5282 16.6382 2.98341 15C2.6698 14.057 2.5 13.0483 2.5 12C2.5 6.75329 6.75329 2.5 12 2.5C17.2467 2.5 21.5 6.75329 21.5 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.1257 12H12.0007M8.125 12H8M16.125 12H16M12.2507 12C12.2507 12.1381 12.1388 12.25 12.0007 12.25C11.8627 12.25 11.7507 12.1381 11.7507 12C11.7507 11.8619 11.8627 11.75 12.0007 11.75C12.1388 11.75 12.2507 11.8619 12.2507 12ZM8.25 12C8.25 12.1381 8.13807 12.25 8 12.25C7.86193 12.25 7.75 12.1381 7.75 12C7.75 11.8619 7.86193 11.75 8 11.75C8.13807 11.75 8.25 11.8619 8.25 12ZM16.25 12C16.25 12.1381 16.1381 12.25 16 12.25C15.8619 12.25 15.75 12.1381 15.75 12C15.75 11.8619 15.8619 11.75 16 11.75C16.1381 11.75 16.25 11.8619 16.25 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-star8" viewBox="0 0 24 24" fill="none"><path d="M13.7276 3.44418L15.4874 6.99288C15.7274 7.48687 16.3673 7.9607 16.9073 8.05143L20.0969 8.58575C22.1367 8.92853 22.6167 10.4206 21.1468 11.8925L18.6671 14.3927C18.2471 14.8161 18.0172 15.6327 18.1471 16.2175L18.8571 19.3125C19.417 21.7623 18.1271 22.71 15.9774 21.4296L12.9877 19.6452C12.4478 19.3226 11.5579 19.3226 11.0079 19.6452L8.01827 21.4296C5.8785 22.71 4.57865 21.7522 5.13859 19.3125L5.84851 16.2175C5.97849 15.6327 5.74852 14.8161 5.32856 14.3927L2.84884 11.8925C1.389 10.4206 1.85895 8.92853 3.89872 8.58575L7.08837 8.05143C7.61831 7.9607 8.25824 7.48687 8.49821 6.99288L10.258 3.44418C11.2179 1.51861 12.7777 1.51861 13.7276 3.44418Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-health" viewBox="0 0 24 24" fill="none"><path d="M19.4626 3.99352C16.7809 2.3486 14.4404 3.01148 13.0344 4.06738C12.4578 4.50033 12.1696 4.7168 12 4.7168C11.8304 4.7168 11.5422 4.50033 10.9656 4.06738C9.55962 3.01148 7.21909 2.3486 4.53744 3.99352C1.01807 6.1523 0.221719 13.2742 8.33953 19.2827C9.88572 20.4272 10.6588 20.9994 12 20.9994C13.3412 20.9994 14.1143 20.4272 15.6605 19.2827C23.7783 13.2742 22.9819 6.1523 19.4626 3.99352Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 9V15M9 12L15 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-cat-cert" viewBox="0 0 24 24" fill="none"><path d="M14.9805 7.01556C14.9805 7.01556 15.4805 7.51556 15.9805 8.51556C15.9805 8.51556 17.5687 6.01556 18.9805 5.51556" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.99491 2.02134C7.49644 1.91556 5.56618 2.20338 5.56618 2.20338C4.34733 2.29053 2.01152 2.97385 2.01154 6.96454C2.01156 10.9213 1.9857 15.7993 2.01154 17.7439C2.01154 18.932 2.74716 21.7033 5.29332 21.8518C8.38816 22.0324 13.9628 22.0708 16.5205 21.8518C17.2052 21.8132 19.4847 21.2757 19.7732 18.7956C20.0721 16.2263 20.0126 14.4407 20.0126 14.0157" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.9999 7.01556C21.9999 9.77698 19.7592 12.0156 16.9951 12.0156C14.231 12.0156 11.9903 9.77698 11.9903 7.01556C11.9903 4.25414 14.231 2.01556 16.9951 2.01556C19.7592 2.01556 21.9999 4.25414 21.9999 7.01556Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.98053 13.0156H10.9805" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6.98053 17.0156H14.9805" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-cat-transport" viewBox="0 0 24 24" fill="none"><path d="M2.5 12L4.5 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.5 12.5L19.5 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 17.5L8.24567 16.8858C8.61101 15.9725 8.79368 15.5158 9.17461 15.2579C9.55553 15 10.0474 15 11.0311 15H12.9689C13.9526 15 14.4445 15 14.8254 15.2579C15.2063 15.5158 15.389 15.9725 15.7543 16.8858L16 17.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17V19.882C2 20.2607 2.24075 20.607 2.62188 20.7764C2.86918 20.8863 3.10538 21 3.39058 21H5.10942C5.39462 21 5.63082 20.8863 5.87812 20.7764C6.25925 20.607 6.5 20.2607 6.5 19.882V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 18V19.882C17.5 20.2607 17.7408 20.607 18.1219 20.7764C18.3692 20.8863 18.6054 21 18.8906 21H20.6094C20.8946 21 21.1308 20.8863 21.3781 20.7764C21.7592 20.607 22 20.2607 22 19.882V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 8.5L21 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8.5L3 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 9L5.5883 5.73509C6.02832 4.41505 6.24832 3.75503 6.7721 3.37752C7.29587 3 7.99159 3 9.38304 3H14.617C16.0084 3 16.7041 3 17.2279 3.37752C17.7517 3.75503 17.9717 4.41505 18.4117 5.73509L19.5 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M4.5 9H19.5C20.4572 10.0135 22 11.4249 22 12.9996V16.4702C22 17.0407 21.6205 17.5208 21.1168 17.5875L18 18H6L2.88316 17.5875C2.37955 17.5208 2 17.0407 2 16.4702V12.9996C2 11.4249 3.54279 10.0135 4.5 9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-family" viewBox="0 0 24 24" fill="none"><path d="M15.5 11C15.5 9.067 13.933 7.5 12 7.5C10.067 7.5 8.5 9.067 8.5 11C8.5 12.933 10.067 14.5 12 14.5C13.933 14.5 15.5 12.933 15.5 11Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.4827 11.3499C15.8047 11.4475 16.1462 11.5 16.5 11.5C18.433 11.5 20 9.933 20 8C20 6.067 18.433 4.5 16.5 4.5C14.6851 4.5 13.1928 5.8814 13.0173 7.65013" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.9827 7.65013C10.8072 5.8814 9.31492 4.5 7.5 4.5C5.567 4.5 4 6.067 4 8C4 9.933 5.567 11.5 7.5 11.5C7.85381 11.5 8.19535 11.4475 8.51727 11.3499" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 16.5C22 13.7386 19.5376 11.5 16.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 19.5C17.5 16.7386 15.0376 14.5 12 14.5C8.96243 14.5 6.5 16.7386 6.5 19.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5 11.5C4.46243 11.5 2 13.7386 2 16.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-edu" viewBox="0 0 24 24" fill="none"><path d="M1.99805 7.99928C1.99805 9.34126 10.0943 13 11.9857 13C13.8772 13 21.9734 9.34126 21.9734 7.99928C21.9734 6.6573 13.8772 2.99854 11.9857 2.99854C10.0943 2.99854 1.99805 6.6573 1.99805 7.99928Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.99219 11L7.24348 16.8002C7.32919 17.1975 7.52703 17.5687 7.85696 17.8054C10.0787 19.3998 13.8908 19.3998 16.1126 17.8054C16.4426 17.5687 16.6404 17.1975 16.7261 16.8002L17.9774 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.4774 9.49951V16.5006M20.4774 16.5006C19.6864 17.9471 19.3366 18.7221 18.9813 20.0011C18.9042 20.4562 18.9654 20.6855 19.2786 20.8891C19.4059 20.9718 19.5588 21.0012 19.7104 21.0012H21.229C21.3904 21.0012 21.5533 20.9675 21.6863 20.8757C21.9774 20.6747 22.0523 20.4541 21.9734 20.0011C21.662 18.8135 21.2653 18.0016 20.4774 16.5006Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-passport" viewBox="0 0 24 24" fill="none"><path d="M12.9503 22C15.595 22 16.9173 22 17.8667 21.2437C18.8161 20.4874 19.1189 19.1927 19.7247 16.6033L21.642 8.40697C21.9773 6.97363 22.145 6.25696 21.8406 5.7379C21.2878 4.79529 19.8789 5.00001 18.9593 5.00001" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9C2 5.70017 2 4.05025 3.02513 3.02513C4.05025 2 5.70017 2 9 2H12C15.2998 2 16.9497 2 17.9749 3.02513C19 4.05025 19 5.70017 19 9V15C19 18.2998 19 19.9497 17.9749 20.9749C16.9497 22 15.2998 22 12 22H9C5.70017 22 4.05025 22 3.02513 20.9749C2 19.9497 2 18.2998 2 15V9Z" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 6C12.7091 6 14.5 7.79086 14.5 10C14.5 12.2091 12.7091 14 10.5 14M10.5 6C8.29086 6 6.5 7.79086 6.5 10C6.5 12.2091 8.29086 14 10.5 14M10.5 6C9.67157 6 9 7.79086 9 10C9 12.2091 9.67157 14 10.5 14M10.5 6C11.3284 6 12 7.79086 12 10C12 12.2091 11.3284 14 10.5 14" stroke="currentColor" stroke-width="1.5"/><path d="M7 17L14 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-cat-tax" viewBox="0 0 24 24" fill="none"><path d="M5 9V19M9 9V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 9V12M19 9V12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.875 21.75H20.75M15.375 16.25H15.25M21 16L15 22M21 21.75C21 21.8881 20.8881 22 20.75 22C20.6119 22 20.5 21.8881 20.5 21.75C20.5 21.6119 20.6119 21.5 20.75 21.5C20.8881 21.5 21 21.6119 21 21.75ZM15.5 16.25C15.5 16.3881 15.3881 16.5 15.25 16.5C15.1119 16.5 15 16.3881 15 16.25C15 16.1119 15.1119 16 15.25 16C15.3881 16 15.5 16.1119 15.5 16.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.3518 9H2.64822C2.29022 9 2 8.70651 2 8.34447C2 8.12259 2.11099 7.91577 2.29495 7.79485L8.73007 3.56485C10.3171 2.52162 11.1107 2 12 2C12.8893 2 13.6829 2.52162 15.2699 3.56485L21.7051 7.79485C21.889 7.91577 22 8.12259 22 8.34447C22 8.70651 21.7098 9 21.3518 9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 22H3.64814C2.64867 22 2.14893 22 2.02456 21.6913C1.9002 21.3827 2.25356 21.0194 2.9603 20.2929L3.64814 19.5858C3.92929 19.2968 4.06987 19.1522 4.24863 19.0761C4.4274 19 4.62621 19 5.02382 19H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.125 5.75H12M12.25 5.75C12.25 5.88807 12.1381 6 12 6C11.8619 6 11.75 5.88807 11.75 5.75C11.75 5.61193 11.8619 5.5 12 5.5C12.1381 5.5 12.25 5.61193 12.25 5.75Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-land" viewBox="0 0 24 24" fill="none"><path d="M3 11.9896V14.5C3 17.7998 3 19.4497 4.02513 20.4749C5.05025 21.5 6.70017 21.5 10 21.5H14C17.2998 21.5 18.9497 21.5 19.9749 20.4749C21 19.4497 21 17.7998 21 14.5V11.9896C21 10.3083 21 9.46773 20.6441 8.74005C20.2882 8.01237 19.6247 7.49628 18.2976 6.46411L16.2976 4.90855C14.2331 3.30285 13.2009 2.5 12 2.5C10.7991 2.5 9.76689 3.30285 7.70242 4.90855L5.70241 6.46411C4.37533 7.49628 3.71179 8.01237 3.3559 8.74005C3 9.46773 3 10.3083 3 11.9896Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.0002 17C14.2007 17.6224 13.1504 18 12.0002 18C10.8499 18 9.79971 17.6224 9.00018 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-other" viewBox="0 0 24 24" fill="none"><path d="M3.88884 9.66294C4.39329 10 5.09552 10 6.49998 10C7.90445 10 8.60668 10 9.11113 9.66294C9.32951 9.51702 9.51701 9.32952 9.66292 9.11114C9.99998 8.60669 9.99998 7.90446 9.99998 6.5C9.99998 5.09554 9.99998 4.39331 9.66292 3.88886C9.51701 3.67048 9.32951 3.48298 9.11113 3.33706C8.60668 3 7.90445 3 6.49998 3C5.09552 3 4.39329 3 3.88884 3.33706C3.67046 3.48298 3.48296 3.67048 3.33705 3.88886C2.99998 4.39331 2.99998 5.09554 2.99998 6.5C2.99998 7.90446 2.99998 8.60669 3.33705 9.11114C3.48296 9.32952 3.67046 9.51702 3.88884 9.66294Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.8888 9.66294C15.3933 10 16.0955 10 17.5 10C18.9044 10 19.6067 10 20.1111 9.66294C20.3295 9.51702 20.517 9.32952 20.6629 9.11114C21 8.60669 21 7.90446 21 6.5C21 5.09554 21 4.39331 20.6629 3.88886C20.517 3.67048 20.3295 3.48298 20.1111 3.33706C19.6067 3 18.9044 3 17.5 3C16.0955 3 15.3933 3 14.8888 3.33706C14.6705 3.48298 14.483 3.67048 14.337 3.88886C14 4.39331 14 5.09554 14 6.5C14 7.90446 14 8.60669 14.337 9.11114C14.483 9.32952 14.6705 9.51702 14.8888 9.66294Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M3.88884 20.6629C4.39329 21 5.09552 21 6.49998 21C7.90445 21 8.60668 21 9.11113 20.6629C9.32951 20.517 9.51701 20.3295 9.66292 20.1111C9.99998 19.6067 9.99998 18.9045 9.99998 17.5C9.99998 16.0955 9.99998 15.3933 9.66292 14.8889C9.51701 14.6705 9.32951 14.483 9.11113 14.3371C8.60668 14 7.90445 14 6.49998 14C5.09552 14 4.39329 14 3.88884 14.3371C3.67046 14.483 3.48296 14.6705 3.33705 14.8889C2.99998 15.3933 2.99998 16.0955 2.99998 17.5C2.99998 18.9045 2.99998 19.6067 3.33705 20.1111C3.48296 20.3295 3.67046 20.517 3.88884 20.6629Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M14.8888 20.6629C15.3933 21 16.0955 21 17.5 21C18.9044 21 19.6067 21 20.1111 20.6629C20.3295 20.517 20.517 20.3295 20.6629 20.1111C21 19.6067 21 18.9045 21 17.5C21 16.0955 21 15.3933 20.6629 14.8889C20.517 14.6705 20.3295 14.483 20.1111 14.3371C19.6067 14 18.9044 14 17.5 14C16.0955 14 15.3933 14 14.8888 14.3371C14.6705 14.483 14.483 14.6705 14.337 14.8889C14 15.3933 14 16.0955 14 17.5C14 18.9045 14 19.6067 14.337 20.1111C14.483 20.3295 14.6705 20.517 14.8888 20.6629Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-gov" viewBox="0 0 24 24" fill="none"><path d="M12.125 5.75H12M12.25 5.75C12.25 5.88807 12.1381 6 12 6C11.8619 6 11.75 5.88807 11.75 5.75C11.75 5.61193 11.8619 5.5 12 5.5C12.1381 5.5 12.25 5.61193 12.25 5.75Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9V19M9 9V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 9V19M19 9V19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.3518 9H2.64822C2.29022 9 2 8.70651 2 8.34447C2 8.12259 2.11099 7.91577 2.29495 7.79485L8.73007 3.56485C10.3171 2.52162 11.1107 2 12 2C12.8893 2 13.6829 2.52162 15.2699 3.56485L21.7051 7.79485C21.889 7.91577 22 8.12259 22 8.34447C22 8.70651 21.7098 9 21.3518 9Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.0397 20.2929L20.3519 19.5858C20.0707 19.2968 19.9301 19.1522 19.7514 19.0761C19.5726 19 19.3738 19 18.9762 19H5.02382C4.62621 19 4.4274 19 4.24863 19.0761C4.06987 19.1522 3.92929 19.2968 3.64814 19.5858L2.9603 20.2929C2.25356 21.0194 1.9002 21.3827 2.02456 21.6913C2.14893 22 2.64867 22 3.64814 22H20.3519C21.3513 22 21.8511 22 21.9754 21.6913C22.0998 21.3827 21.7464 21.0194 21.0397 20.2929Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-justice" viewBox="0 0 24 24" fill="none"><path d="M12 5V22M12 22H9M12 22H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 13L18.5 8L16 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 13L5.5 8L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 8H5.0482C6.31166 8 7.5375 7.471 8.5241 6.5C10.5562 4.5 13.4438 4.5 15.4759 6.5C16.4625 7.471 17.6883 8 18.9518 8H20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 17C19.8547 17 21.0344 16.1663 21.6473 14.9349C21.978 14.2702 22.1434 13.9379 21.8415 13.469C21.5396 13 21.04 13 20.0407 13H16.9593C15.96 13 15.4604 13 15.1585 13.469C14.8566 13.9379 15.022 14.2702 15.3527 14.9349C15.9656 16.1663 17.1453 17 18.5 17Z" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 17C6.85471 17 8.03442 16.1663 8.64726 14.9349C8.97802 14.2702 9.14339 13.9379 8.84151 13.469C8.53962 13 8.04 13 7.04075 13H3.95925C2.96 13 2.46038 13 2.15849 13.469C1.85661 13.9379 2.02198 14.2702 2.35273 14.9349C2.96558 16.1663 4.14528 17 5.5 17Z" stroke="currentColor" stroke-width="1.5"/><path d="M13.5 3.5C13.5 4.32843 12.8284 5 12 5C11.1716 5 10.5 4.32843 10.5 3.5C10.5 2.67157 11.1716 2 12 2C12.8284 2 13.5 2.67157 13.5 3.5Z" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-cat-culture" viewBox="0 0 24 24" fill="none"><path d="M12 4.5C15.0776 4.5 17.8526 3.77588 19.8097 2.61579C19.9349 2.54155 20.0772 2.5 20.2228 2.5C20.652 2.5 21 2.84797 21 3.27722V9.5C21 16.5 16.5 21.5 12 21.5C7.5 21.5 3 16.5 3 9.5V3.27722C3 2.84797 3.34797 2.5 3.77722 2.5C3.92281 2.5 4.06506 2.54155 4.1903 2.61579C6.14736 3.77588 8.92241 4.5 12 4.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 9.5C6.86849 9.19313 7.40399 9 8 9C8.59601 9 9.13151 9.19313 9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15.2C13.192 15.2 14.263 14.9296 15 14.5C15 14.5 14.5 17.5 12 17.5C9.5 17.5 9 14.5 9 14.5C9.73698 14.9296 10.808 15.2 12 15.2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 9.5C14.8685 9.19313 15.404 9 16 9C16.596 9 17.1315 9.19313 17.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-license" viewBox="0 0 24 24" fill="none"><path d="M20.4999 14V10C20.4999 6.22876 20.4999 4.34315 19.3284 3.17157C18.1568 2 16.2712 2 12.4999 2H11.5C7.72883 2 5.84323 2 4.67166 3.17156C3.50008 4.34312 3.50007 6.22872 3.50004 9.99993L3.5 13.9999C3.49997 17.7712 3.49995 19.6568 4.67153 20.8284C5.8431 22 7.72873 22 11.5 22H12.4999C16.2712 22 18.1568 22 19.3284 20.8284C20.4999 19.6569 20.4999 17.7712 20.4999 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 7H16M8 12H16M8 17L12 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-cat-accred" viewBox="0 0 24 24" fill="none"><path d="M15.5 2V5M6.5 2V5M11 2V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 13.5V10.5C19 7.20017 19 5.55025 17.9749 4.52512C16.9497 3.5 15.2998 3.5 12 3.5H10C6.70017 3.5 5.05025 3.5 4.02513 4.52513C3 5.55025 3 7.20017 3 10.5V15C3 18.2998 3 19.9497 4.02513 20.9749C5.05025 22 6.70017 22 10 22H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 15H11M7 11H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 20C14 20 15 20 16 22C16 22 18.1765 17 21 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none"><path d="M12 16.5V14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4.26781 18.8447C4.49269 20.515 5.87613 21.8235 7.55966 21.9009C8.97627 21.966 10.4153 22 12 22C13.5847 22 15.0237 21.966 16.4403 21.9009C18.1239 21.8235 19.5073 20.515 19.7322 18.8447C19.879 17.7547 20 16.6376 20 15.5C20 14.3624 19.879 13.2453 19.7322 12.1553C19.5073 10.485 18.1239 9.17649 16.4403 9.09909C15.0237 9.03397 13.5847 9 12 9C10.4153 9 8.97627 9.03397 7.55966 9.09909C5.87613 9.17649 4.49269 10.485 4.26781 12.1553C4.12104 13.2453 4 14.3624 4 15.5C4 16.6376 4.12104 17.7547 4.26781 18.8447Z" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 9V6.5C7.5 4.01472 9.51472 2 12 2C14.4853 2 16.5 4.01472 16.5 6.5V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none"><path d="M21.544 11.045C21.848 11.4713 22 11.6845 22 12C22 12.3155 21.848 12.5287 21.544 12.955C20.1779 14.8706 16.6892 19 12 19C7.31078 19 3.8221 14.8706 2.45604 12.955C2.15201 12.5287 2 12.3155 2 12C2 11.6845 2.15201 11.4713 2.45604 11.045C3.8221 9.12944 7.31078 5 12 5C16.6892 5 20.1779 9.12944 21.544 11.045Z" stroke="currentColor" stroke-width="1.5"/><path d="M15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12Z" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24" fill="none"><path d="M15 17.625C14.9264 19.4769 13.3831 21.0494 11.3156 20.9988C10.8346 20.987 10.2401 20.8194 9.05112 20.484C6.18961 19.6768 3.70555 18.3203 3.10956 15.2815C3 14.7235 3 14.0961 3 12.8412V11.1588C3 9.90391 3 9.2765 3.10956 8.71854C3.70555 5.67965 6.18961 4.32316 9.05112 3.51603C10.2401 3.18064 10.8346 3.01295 11.3156 3.00119C13.3831 2.95061 14.9264 4.52307 15 6.37501" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M21 12H10M21 12C21 11.2998 19.0057 9.99153 18.5 9.5M21 12C21 12.7002 19.0057 14.0085 18.5 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-call" viewBox="0 0 24 24" fill="none"><path d="M4.91186 10.5413L7.55229 7.90088C8.09091 7.36227 8.27728 6.56642 8.05944 5.83652C7.8891 5.26577 7.69718 4.57964 7.56961 3.99292C7.45162 3.45027 6.97545 3 6.42012 3H4.91186C3.8012 3 2.88911 3.90384 3.01094 5.0078C3.93709 13.3996 10.6004 20.0629 18.9922 20.9891C20.0962 21.1109 21 20.1988 21 19.0881V17.5799C21 17.0246 20.5479 16.569 20.0015 16.4696C19.3988 16.36 18.7611 16.1804 18.2276 16.0103C17.4611 15.7659 16.6091 15.9377 16.0403 16.5065L13.4587 19.0881" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none"><path d="M2 6L8.91302 9.91697C11.4616 11.361 12.5384 11.361 15.087 9.91697L22 6" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2.01577 13.4756C2.08114 16.5412 2.11383 18.0739 3.24496 19.2094C4.37608 20.3448 5.95033 20.3843 9.09883 20.4634C11.0393 20.5122 12.9607 20.5122 14.9012 20.4634C18.0497 20.3843 19.6239 20.3448 20.7551 19.2094C21.8862 18.0739 21.9189 16.5412 21.9842 13.4756C22.0053 12.4899 22.0053 11.5101 21.9842 10.5244C21.9189 7.45886 21.8862 5.92609 20.7551 4.79066C19.6239 3.65523 18.0497 3.61568 14.9012 3.53657C12.9607 3.48781 11.0393 3.48781 9.09882 3.53656C5.95033 3.61566 4.37608 3.65521 3.24495 4.79065C2.11382 5.92608 2.08114 7.45885 2.01576 10.5244C1.99474 11.5101 1.99475 12.4899 2.01577 13.4756Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none"><path d="M13.6177 21.367C13.1841 21.773 12.6044 22 12.0011 22C11.3978 22 10.8182 21.773 10.3845 21.367C6.41302 17.626 1.09076 13.4469 3.68627 7.37966C5.08963 4.09916 8.45834 2 12.0011 2C15.5439 2 18.9126 4.09916 20.316 7.37966C22.9082 13.4393 17.599 17.6389 13.6177 21.367Z" stroke="currentColor" stroke-width="1.5"/><path d="M15.5 11C15.5 12.933 13.933 14.5 12 14.5C10.067 14.5 8.5 12.933 8.5 11C8.5 9.067 10.067 7.5 12 7.5C13.933 7.5 15.5 9.067 15.5 11Z" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="girih-tile" viewBox="0 0 80 80">
+      <g fill="none" stroke="currentColor" stroke-width="1">
+        <path d="M40 8l9 13 15 4-9 13 2 16-17-6-17 6 2-16-9-13 15-4z"/>
+        <path d="M40 22l5 7 8 2-5 7 1 9-9-3-9 3 1-9-5-7 8-2z"/>
+        <circle cx="40" cy="40" r="2" fill="currentColor" stroke="none"/>
+        <path d="M0 0h80M0 80h80M0 0v80M80 0v80" opacity=".35"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="hdr-in">
+      <button class="brand" data-go="home" aria-label="eKhizmat">
+        <svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg>
+        <b>eKhizmat</b>
+      </button>
+      <div class="dd acct">
+        <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="acctCur" data-i18n="acct.person">Шахси воқеӣ</span>
+          <svg><use href="#i-chev-d"/></svg>
+        </button>
+        <div class="dd-menu" role="listbox" data-i18n-aria="acct.label" aria-label="Намуди ҳисоб">
+          <div class="dd-label" aria-hidden="true" data-i18n="acct.label">Намуди ҳисоб</div>
+          <button role="option" data-acct="person" aria-selected="true"><span data-i18n="acct.person">Шахси воқеӣ</span><svg><use href="#i-check"/></svg></button>
+          <button role="option" data-acct="biz" aria-selected="false"><span data-i18n="acct.biz">Шахси ҳуқуқӣ</span><svg><use href="#i-check"/></svg></button>
+        </div>
+      </div>
+      <div class="hdr-acts">
+        <div class="dd lang">
+          <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">
+            <span id="langCur">ТҶ</span>
+            <svg><use href="#i-chev-d"/></svg>
+          </button>
+          <div class="dd-menu" role="listbox" aria-label="Забон / Language">
+            <div class="dd-label" aria-hidden="true" data-i18n="lang.label">Забон</div>
+            <button role="option" data-lang="tg" aria-selected="true"><span>Тоҷикӣ</span><svg><use href="#i-check"/></svg></button>
+            <button role="option" data-lang="ru" aria-selected="false"><span>Русский</span><svg><use href="#i-check"/></svg></button>
+            <button role="option" data-lang="en" aria-selected="false"><span>English</span><svg><use href="#i-check"/></svg></button>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeBtn" data-i18n-aria="nav.theme" aria-label="Иваз кардани тема">
+          <svg class="th-moon"><use href="#i-moon"/></svg>
+          <svg class="th-sun"><use href="#i-sun"/></svg>
+        </button>
+        <button class="icon-btn" id="bellBtn" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
+          <svg><use href="#i-bell"/></svg><span class="dot"></span>
+        </button>
+        <button class="avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман">Ф</button>
+        <button class="btn btn-pri btn-sm" id="loginBtn" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============ HOME ============ -->
+<section class="screen" id="scr-home">
+  <div class="hero">
+    <div class="wrap hero-in">
+      <h1 id="helloH" tabindex="-1"><span id="heroTitle" data-i18n="home.title">Хизматҳои давлатии Ҷумҳурии Тоҷикистон</span><span id="heroHi" data-i18n="home.hi">Хуш омадед, Фируза</span></h1>
+      <p class="sub" id="heroSub" data-i18n="home.sub">Ҳамаи хизматҳои давлатӣ дар як ҷо - бе навбат, бе коғазбозӣ ва бо забони одамӣ.</p>
+
+      <div class="search" id="searchWrap">
+        <svg class="ic"><use href="#i-search"/></svg>
+        <input id="searchInput" type="search" autocomplete="off" role="combobox"
+               aria-expanded="false" aria-controls="searchItems" aria-autocomplete="list"
+               data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ"
+               data-i18n-ph="search.ph" placeholder="Ман мехоҳам...">
+        <button class="search-btn" id="searchGo" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ"><svg aria-hidden="true"><use href="#i-search"/></svg><span data-i18n="search.btn">Ҷустуҷӯ</span></button>
+        <div class="search-pop" id="searchPop">
+          <div class="hint" id="searchHint" data-i18n="search.hint">Бо суханони худ нависед - мо идораашро худамон меёбем</div>
+          <div id="searchItems" role="listbox" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" aria-describedby="searchHint"></div>
+        </div>
+      </div>
+
+      <!-- 12 service categories per audience, rendered from services-data.js -->
+      <div class="cats" id="cats"></div>
+
+      <!-- Dushanbe artwork: CSS bleeds it to the band's edges and fades it into the wash -->
+      <div class="hero-art" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- "for you" hub: latest notifications, applications and payments (signed-in only) -->
+    <section class="feed" id="feedSect" data-i18n-aria="f.aria" aria-label="Барои шумо">
+      <div class="feed-head">
+        <div class="ftabs" role="tablist">
+          <button class="ftab" id="ftab-notif" role="tab" aria-selected="true" aria-controls="fpane-notif" data-ftab="notif"><span data-i18n="f.tab.notif">Огоҳиҳо</span><span class="fbadge hot">3</span></button>
+          <button class="ftab" id="ftab-apps" role="tab" aria-selected="false" aria-controls="fpane-apps" data-ftab="apps"><span data-i18n="f.tab.apps">Аризаҳо</span><span class="fbadge">2</span></button>
+          <button class="ftab" id="ftab-pay" role="tab" aria-selected="false" aria-controls="fpane-pay" data-ftab="pay"><span data-i18n="f.tab.pay">Пардохтҳо</span><span class="fbadge hot">1</span></button>
+        </div>
+        <button class="feed-all" data-go="notifs" data-i18n="f.all">Ҳамаи огоҳиҳо</button>
+      </div>
+
+      <div class="feed-grid">
+        <div class="feed-col">
+          <div class="fpane" id="fpane-notif" role="tabpanel" aria-labelledby="ftab-notif" tabindex="0">
+            <button class="frow" data-go="journey">
+              <span class="fic tile t-rose sh-c"><svg><use href="#i-baby"/></svg></span>
+              <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+              <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
+              <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+            </button>
+            <button class="frow" data-toast="toast.demo">
+              <span class="fic tile t-blue"><svg><use href="#i-doc"/></svg></span>
+              <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+              <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
+              <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+            </button>
+            <button class="frow" data-go="tracking">
+              <span class="fic tile t-green sh-r"><svg><use href="#i-check"/></svg></span>
+              <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+              <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
+              <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+            </button>
+          </div>
+
+          <div class="fpane" id="fpane-apps" role="tabpanel" aria-labelledby="ftab-apps" tabindex="0" hidden>
+            <button class="app-row" data-go="tracking">
+              <span class="ic tile t-steel sh-c"><svg><use href="#i-doc"/></svg></span>
+              <span class="tt"><b data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</b><span data-i18n="apps.i1.s">САҲШ-и ноҳияи Сино - ариза №ТҶ-2026-184302</span></span>
+              <span class="status"><span class="pulse"></span><span data-i18n="status.review">Дар баррасӣ</span></span>
+            </button>
+            <button class="app-row" data-go="tracking">
+              <span class="ic tile t-indigo sh-c"><svg><use href="#i-biz"/></svg></span>
+              <span class="tt"><b data-i18n="apps.i2.t">Сабти соҳибкори инфиродӣ</b><span data-i18n="apps.i2.s">Кумитаи андоз - ариза №ТҶ-2026-179908</span></span>
+              <span class="status done"><svg width="14" height="14"><use href="#i-check"/></svg><span data-i18n="status.done">Иҷро шуд</span></span>
+            </button>
+          </div>
+
+          <div class="fpane" id="fpane-pay" role="tabpanel" aria-labelledby="ftab-pay" tabindex="0" hidden>
+            <button class="frow" data-toast="toast.demo">
+              <span class="fic tile t-red"><svg><use href="#i-cat-tax"/></svg></span>
+              <span class="fk"><b data-i18n="f.p1.k">Андоз</b><span data-i18n="f.p1.d">то 1 июл</span></span>
+              <span class="ft"><b data-i18n="f.p1.t">Андози нақлиёт барои соли 2026</b><span data-i18n="f.p1.p">Кумитаи андоз - ҳисоби №АН-44213</span></span>
+              <span class="fact"><span class="btn btn-pri" data-i18n="f.p1.cta">Пардохтан</span></span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="pay-card">
+          <div class="pt" data-i18n="pay.t">Ба пардохт: 1 ҳисоби андоз</div>
+          <div class="sum" data-i18n="pay.sum">86,40 смн.</div>
+          <div class="old" data-i18n="pay.old">108,00 смн.</div>
+          <div class="note" data-i18n="pay.note">тахфифи 20% ҳангоми пардохт то 1 июл</div>
+          <button class="btn btn-pri" data-toast="toast.demo" data-i18n="pay.cta">Пардохт кардан</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="sect" aria-labelledby="momH">
+      <div class="sect-h">
+        <h2 id="momH" data-i18n="mom.t">Лаҳзаҳои зиндагӣ</h2>
+        <span class="sub" data-i18n="mom.sub">аз рӯи вазъият интихоб кунед - идораҳоро мо меёбем</span>
+      </div>
+      <div class="moments">
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-indigo"><svg><use href="#i-biz"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.biz.t">Тиҷорат мекушоям</h3>
+            <p data-i18n="m.biz.p">Сабт, андоз ва суратҳисоби бонкӣ - ҳамааш дар як ҷаласа.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.biz.m">то 20 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-go="journey">
+          <span class="mi tile t-rose sh-c"><svg><use href="#i-baby"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.baby.t">Фарзанддор шудам</h3>
+            <p data-i18n="m.baby.p">Шаҳодатнома, рақами андоз ва кумакпулӣ - бо як ариза.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.baby.m">5 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-violet sh-l"><svg><use href="#i-rings"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.wed.t">Издивоҷ мекунам</h3>
+            <p data-i18n="m.wed.p">Ариза ба САҲШ, интихоби сана ва ҷои маросим.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.wed.m">10 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-teal sh-r"><svg><use href="#i-move"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.move.t">Ба шаҳри нав мекӯчам</h3>
+            <p data-i18n="m.move.p">Қайди ҷои истиқомат, мактаб ва духтури оилавӣ.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.move.m">12 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-amber sh-c"><svg><use href="#i-job"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.job.t">Аз кор баромадам</h3>
+            <p data-i18n="m.job.p">Дастгирии молиявӣ, бозомӯзӣ ва ҷустуҷӯи ҷои нав.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.job.m">8 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-green"><svg><use href="#i-retire"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.ret.t">Ба нафақа мебароям</h3>
+            <p data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа - пешакӣ бинед, чӣ қадар мешавад.</p>
+            <span class="meta"><svg><use href="#i-clock"/></svg><span data-i18n="m.ret.m">15 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="#i-chev-r"/></svg></span>
+        </button>
+      </div>
+    </section>
+
+    <div class="emerg" role="region" aria-labelledby="emH">
+      <svg><use href="#i-shield"/></svg>
+      <div>
+        <b id="emH" data-i18n="em.t">Ҳуҷҷатҳоятон гум ё дуздида шуданд?</b>
+        <p data-i18n="em.p">Шиносномаи муваққатии рақамӣ фавран дода мешавад, ҳуҷҷатҳои нав бо навбати аввал.</p>
+      </div>
+      <button class="btn btn-danger" data-go="emergency" data-i18n="em.cta">Реҷаи фаврӣ</button>
+    </div>
+
+  </div>
+</section>
+<!-- ============ CATEGORY: services of one group ============ -->
+<section class="screen" id="scr-category" hidden>
+  <div class="catpage">
+    <button class="back" data-go="home"><svg><use href="#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="cp-head">
+      <h1 id="cpTitle"></h1>
+      <p class="cp-count" id="cpCount"></p>
+    </div>
+    <div class="cp-search">
+      <svg class="ic"><use href="#i-search"/></svg>
+      <input id="cpSearch" type="search" autocomplete="off" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" data-i18n-ph="cp.search.ph" placeholder="Ҷустуҷӯ дар ин бахш...">
+    </div>
+    <div class="pills" id="cpPills"></div>
+    <div class="filters" id="cpFilters" role="group" data-i18n-aria="cp.f.label" aria-label="Пардохт">
+      <button class="chip" data-pay="all" aria-pressed="true" data-i18n="cp.f.all">Ҳама</button>
+      <button class="chip" data-pay="free" aria-pressed="false" data-i18n="cp.f.free">Ройгон</button>
+      <button class="chip" data-pay="paid" aria-pressed="false" data-i18n="cp.f.paid">Музднок</button>
+    </div>
+    <div class="svc-list" id="cpList"></div>
+    <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
+  </div>
+</section>
+
+<!-- ============ JOURNEY: I JUST HAD A BABY ============ -->
+<section class="screen" id="scr-journey" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+
+    <div class="j-head">
+      <div class="j-prog" id="jprog" aria-hidden="true">
+        <svg class="st on"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="#i-star8"/></svg>
+        <span class="lbl" id="jprogLbl"></span>
+      </div>
+    </div>
+
+    <!-- step 1: confirm child -->
+    <div class="j-step" id="jstep-1">
+      <h2 data-i18n="j1.h">Маълумоти кӯдакро тасдиқ кунед</h2>
+      <p class="lead" data-i18n="j1.p">Ҳамаро аз таваллудхона гирифтем. Танҳо ном лозим аст.</p>
+
+      <div class="field">
+        <label for="childName" data-i18n="j1.name">Номи кӯдак</label>
+        <input class="input" id="childName" data-i18n-ph="j1.name.ph" placeholder="Масалан: Зарина" autocomplete="off">
+        <p class="help" data-i18n="j1.name.help">Фамилия худкор аз волидайн гирифта мешавад: Раҳимова.</p>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.sex">Ҷинс</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="sex" value="f" checked><span data-i18n="j1.sex.f">Духтар</span></label>
+          <label><input type="radio" name="sex" value="m"><span data-i18n="j1.sex.m">Писар</span></label>
+        </div>
+        <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="src.hosp">аз таваллудхонаи №3, Душанбе</span></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.dob">Санаи таваллуд</label>
+        <span class="chip"><b data-i18n="j1.dob.v">8 июни 2026, 09:14</b></span>
+        <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="src.hosp2">тасдиқшуда аз таваллудхона</span></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.par">Волидайн</label>
+        <div class="chips-row">
+          <span class="chip"><b>Фируза Раҳимова</b></span>
+          <span class="chip"><b>Далер Раҳимов</b></span>
+        </div>
+        <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="src.prof">аз профили шаҳрвандии шумо</span></span>
+      </div>
+
+      <div class="j-acts">
+        <button class="btn btn-pri btn-lg" id="toStep2" disabled data-i18n="btn.next">Идома</button>
+      </div>
+      <p class="autosave"><svg><use href="#i-check"/></svg><span data-i18n="j.autosave">Худкор сабт шуд - аз ҳар дастгоҳ идома дода метавонед</span></p>
+    </div>
+
+    <!-- step 2: bundled services -->
+    <div class="j-step" id="jstep-2" hidden>
+      <h2 data-i18n="j2.h">Якбора ҳамаашро тайёр мекунем</h2>
+      <p class="lead" data-i18n="j2.p">Ин се хизмат одатан якҷоя лозиманд. Нодаркорашро хомӯш кунед.</p>
+
+      <label class="svc">
+        <input type="checkbox" checked id="svc1">
+        <span class="tt"><b data-i18n="svc1.t">Шаҳодатномаи таваллуд</b><p data-i18n="svc1.p">Рақамӣ - дар ҳамёни шумо; коғазӣ - дар САҲШ-и наздиктарин.</p></span>
+        <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc1.m">тақрибан 2 соат</span></span>
+      </label>
+      <label class="svc">
+        <input type="checkbox" checked id="svc2">
+        <span class="tt"><b data-i18n="svc2.t">Рақами андозсупоранда барои кӯдак</b><p data-i18n="svc2.p">Баъдтар барои боғча, мактаб ва кумакпулиҳо лозим мешавад.</p></span>
+        <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc2.m">фаврӣ</span></span>
+      </label>
+      <label class="svc">
+        <input type="checkbox" checked id="svc3">
+        <span class="tt"><b data-i18n="svc3.t">Кумакпулии моҳона барои кӯдак</b><p data-i18n="svc3.p">350 сомонӣ дар моҳ то сесолагӣ. Ба ҳисоби шумо: Алиф Бонк ···· 4821.</p></span>
+        <span class="meta"><b data-i18n="svc3.b">+350 смн/моҳ</b><span data-i18n="svc3.m">аз моҳи оянда</span></span>
+      </label>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-jback="1" data-i18n="btn.back">Бозгашт</button>
+        <button class="btn btn-pri btn-lg" id="toStep3" data-i18n="btn.next">Идома</button>
+      </div>
+      <p class="autosave"><svg><use href="#i-check"/></svg><span data-i18n="j.autosave">Худкор сабт шуд - аз ҳар дастгоҳ идома дода метавонед</span></p>
+    </div>
+
+    <!-- step 3: review -->
+    <div class="j-step" id="jstep-3" hidden>
+      <h2 data-i18n="j3.h">Санҷед ва фиристед</h2>
+      <p class="lead" data-i18n="j3.p">Ҳамин - на бештар. Имзо лозим нест: вуруди шумо ҳамчун имзои электронӣ ҳисоб мешавад.</p>
+
+      <div class="review">
+        <div class="rv"><span class="k" data-i18n="rv.name">Кӯдак</span><span class="v" id="rvName">-</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.dob">Таваллуд</span><span class="v" data-i18n="j1.dob.v">8 июни 2026, 09:14</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.par">Волидайн</span><span class="v" data-i18n="rv.par.v">Фируза ва Далер Раҳимовҳо</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.svc">Хизматҳо</span><span class="v" id="rvSvc">3</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.cost">Пардохт</span><span class="v ok" data-i18n="meta.free">ройгон</span></div>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span data-i18n="j3.consent">Тасдиқ мекунам, ки маълумот дуруст аст. Агар хато бошад, дар ҳар лаҳза ислоҳ карда мешавад - ҷарима нест.</span>
+      </label>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-jback="2" data-i18n="btn.back">Бозгашт</button>
+        <button class="btn btn-pri btn-lg" id="submitAll" disabled data-i18n="j3.submit">Фиристодани ҳар се ариза</button>
+      </div>
+    </div>
+
+    <!-- step 4: success -->
+    <div class="j-step" id="jstep-4" hidden>
+      <div class="success">
+        <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+          <circle cx="50" cy="50" r="46"/>
+          <path d="M30 52l13 13 27-29"/>
+        </svg>
+        <h2 data-i18n="j4.h">Қабул шуд</h2>
+        <p class="when"><span data-i18n="j4.when">имрӯз, 14:02 - ариза №ТҶ-2026-184302</span></p>
+        <div class="s-list">
+          <div class="s-row"><svg><use href="#i-check"/></svg><span data-i18n="svc1.t">Шаҳодатномаи таваллуд</span><span class="st-l" data-i18n="j4.s1">то 16:30 тайёр мешавад</span></div>
+          <div class="s-row"><svg><use href="#i-check"/></svg><span data-i18n="svc2.t">Рақами андозсупоранда барои кӯдак</span><span class="st-l" data-i18n="j4.s2">аллакай дар ҳамён</span></div>
+          <div class="s-row"><svg><use href="#i-check"/></svg><span data-i18n="svc3.t">Кумакпулии моҳона барои кӯдак</span><span class="st-l" data-i18n="j4.s3">аз 1 июл фаъол</span></div>
+        </div>
+        <div class="j-acts j-acts-center">
+          <button class="btn btn-sec" data-go="wallet" data-own="kids" data-i18n="j4.wallet">Ба ҳамён</button>
+          <button class="btn btn-pri btn-lg" data-go="tracking" data-i18n="j4.track">Дидани ҳолат</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EMERGENCY ============ -->
+<section class="screen" id="scr-emergency" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="e-hero">
+      <h1 data-i18n="e.h">Ором бошед - ҳозир ҳамаашро барқарор мекунем</h1>
+      <p class="lead" data-i18n="e.p">Ҳуҷҷатҳои гумшуда фавран бекор карда мешаванд, то каси дигар истифода набарад. Шумо бе ҳуҷҷат намемонед.</p>
+    </div>
+    <div class="e-steps">
+      <div class="e-step"><span class="n">1</span><div><b data-i18n="e.s1.t">Кадом ҳуҷҷатҳо гум шуданд</b><p data-i18n="e.s1.p">Аз рӯйхат интихоб кунед - ҳамаашон дарҳол бекор мешаванд.</p></div></div>
+      <div class="e-step"><span class="n">2</span><div><b data-i18n="e.s2.t">Шиносномаи муваққатии рақамӣ</b><p data-i18n="e.s2.p">Фавран дар ҳамёни шумо пайдо мешавад ва 30 рӯз эътибор дорад.</p></div></div>
+      <div class="e-step"><span class="n">3</span><div><b data-i18n="e.s3.t">Ҳуҷҷатҳои нав - бо навбати аввал</b><p data-i18n="e.s3.p">Аризаҳо худкор бо тамғаи фаврӣ фиристода мешаванд. Пардохт - дар охир, як маротиба.</p></div></div>
+    </div>
+    <button class="btn btn-danger btn-lg btn-block" id="emergStart" data-i18n="e.cta">Оғоз - тақрибан 10 дақиқа</button>
+  </div>
+</section>
+
+<!-- ============ NOTIFICATIONS: full list ============ -->
+<section class="screen" id="scr-notifs" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="j-head">
+      <h2 data-i18n="nav.notif">Огоҳиҳо</h2>
+      <p class="muted small" data-i18n="n.sub">3 огоҳии нав</p>
+    </div>
+
+    <div class="n-group" data-i18n="f.g.new">Нав</div>
+    <div class="fpane">
+      <button class="frow" data-go="journey">
+        <span class="fic tile t-rose sh-c"><svg><use href="#i-baby"/></svg></span>
+        <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+        <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
+        <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-blue"><svg><use href="#i-doc"/></svg></span>
+        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+        <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
+        <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+      </button>
+      <button class="frow" data-go="tracking">
+        <span class="fic tile t-green sh-r"><svg><use href="#i-check"/></svg></span>
+        <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+        <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
+        <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+      </button>
+    </div>
+
+    <div class="n-group" data-i18n="f.g.earlier">Пештар</div>
+    <div class="fpane">
+      <button class="frow" data-go="wallet">
+        <span class="fic tile t-green sh-c"><svg><use href="#i-check"/></svg></span>
+        <span class="fk"><b data-i18n="f.n4.k">Пардохт</b><span data-i18n="f.n4.d">3 июн</span></span>
+        <span class="ft"><b data-i18n="f.n4.t">Боҷи давлатӣ пардохт шуд</b><span data-i18n="f.n4.p">35,00 смн. - сабти соҳибкори инфиродӣ. Квитансия дар ҳуҷҷатҳои шумо.</span></span>
+        <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-slate sh-l"><svg><use href="#i-shield"/></svg></span>
+        <span class="fk"><b data-i18n="f.n5.k">Махфият</b><span data-i18n="f.n5.d">1 июн</span></span>
+        <span class="ft"><b data-i18n="f.n5.t">Бонки «Эсхата» дастрасӣ пурсид</b><span data-i18n="f.n5.p">Ба маълумоти шахсии шумо барои кушодани суратҳисоб. Иҷозат диҳед ё рад кунед.</span></span>
+        <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-go="wallet">
+        <span class="fic tile t-teal"><svg><use href="#i-wallet"/></svg></span>
+        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n6.d">28 май</span></span>
+        <span class="ft"><b data-i18n="f.n6.t">Маълумотномаи набудани доғи судӣ омода аст</b><span data-i18n="f.n6.p">Ба ҳуҷҷатҳои шумо илова шуд. Мӯҳлаташ 90 рӯз.</span></span>
+        <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-steel sh-c"><svg><use href="#i-bell"/></svg></span>
+        <span class="fk"><b data-i18n="f.n7.k">Портал</b><span data-i18n="f.n7.d">26 май</span></span>
+        <span class="ft"><b data-i18n="f.n7.t">Реҷаи кор дар рӯзҳои Иди Қурбон</b><span data-i18n="f.n7.p">27-28 май марказҳои хизматрасонӣ кор намекунанд. Хизматҳои онлайн шабонарӯзӣ дастрасанд.</span></span>
+        <span class="fact"><svg><use href="#i-chev-r"/></svg></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROFILE ============ -->
+<section class="screen" id="scr-profile" hidden>
+  <div class="prof">
+    <button class="back" data-go="home"><svg><use href="#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+
+    <div class="prof-head">
+      <span class="prof-ava" aria-hidden="true">Ф</span>
+      <div>
+        <span class="eyebrow" data-i18n="p.h">Профил</span>
+        <h1>Фируза Раҳимова</h1>
+        <div class="prof-vrf">
+          <span class="tag"><svg><use href="#i-shield"/></svg><span data-i18n="p.verified">Ҳисоби тасдиқшуда</span></span>
+          <span class="how" data-i18n="p.verified.how">тасдиқ: ID-корт, 12.01.2025</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prof-grid">
+      <nav class="prof-nav" data-i18n-aria="p.h" aria-label="Профил">
+        <button class="pn" data-pane="data" aria-current="true"><svg><use href="#i-doc"/></svg><span data-i18n="p.nav.data">Маълумоти ман</span></button>
+        <button class="pn" data-pane="docs" aria-current="false"><svg><use href="#i-wallet"/></svg><span data-i18n="nav.wallet">Ҳамёни ҳуҷҷатҳо</span></button>
+        <button class="pn" data-pane="apps" aria-current="false"><svg><use href="#i-clock"/></svg><span data-i18n="nav.apps">Аризаҳои ман</span></button>
+        <button class="pn" data-pane="contact" aria-current="false"><svg><use href="#i-bell"/></svg><span data-i18n="p.nav.contact">Тамос ва огоҳиҳо</span></button>
+        <button class="pn" data-pane="family" aria-current="false"><svg><use href="#i-cat-family"/></svg><span data-i18n="p.nav.family">Оила</span></button>
+        <button class="pn" data-pane="sec" aria-current="false"><svg><use href="#i-lock"/></svg><span data-i18n="p.nav.sec">Амният</span></button>
+        <button class="pn" data-pane="access" aria-current="false"><svg><use href="#i-eye"/></svg><span data-i18n="p.nav.access">Дастрасӣ ба маълумот</span></button>
+        <button class="pn pn-out" id="logoutBtn"><svg><use href="#i-out"/></svg><span data-i18n="auth.out">Баромадан</span></button>
+      </nav>
+
+      <div class="prof-body">
+        <section class="pane" id="pane-data" data-i18n-aria="p.nav.data" aria-label="Маълумоти ман">
+          <p class="lead-s" data-i18n="p.data.sub">Ин маълумотро давлат аллакай медонад - дар формаҳо дигар пурсида намешавад. Ҳар сатр манбаи худро нишон медиҳад.</p>
+
+          <div class="note-warn">
+            <svg><use href="#i-clock"/></svg>
+            <p data-i18n="p.warn.pass">Мӯҳлати шиноснома 14 октябр ба охир мерасад. Ҳоло нав кунед - бе навбат.</p>
+            <button class="btn btn-sec btn-sm" data-toast="toast.demo" data-i18n="card.pass.cta">Нав кардан - 8 дақиқа</button>
+          </div>
+
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.pass.k">Шиноснома</span>
+                <span class="v">Т 4018236 <span class="tag warn" data-i18n="p.pass.exp">то 14.10.2026</span></span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.mvd">аз ВКД</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.birth.k">Сана ва ҷои таваллуд</span>
+                <span class="v" data-i18n="p.birth.v">14.03.1994, Душанбе</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.zags">аз САҲШ</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.inn.k">Рақами андозсупоранда</span>
+                <span class="v">6404 1893 0021</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.tax">аз Кумитаи андоз</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.addr.k">Суроғаи қайд</span>
+                <span class="v" data-i18n="p.addr.v">Душанбе, кӯчаи Рӯдакӣ 84, хонаи 12</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.addr">аз феҳристи суроғаҳо</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span>
+                <span class="v" data-i18n="p.drv.v">AB 552901 - категорияи B</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.bdd">аз БДА</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.bank.k">Суратҳисоб барои пардохтҳо</span>
+                <span class="v">Алиф Бонк ···· 4821</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.src.you">шумо илова кардед</span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+          </div>
+
+          <div class="fixrow">
+            <p data-i18n="p.fix">Хато ёфтед? Хабар диҳед - ислоҳ мекунем. Ҷарима нест.</p>
+            <button class="btn btn-ghost btn-sm" data-toast="toast.fix" data-i18n="p.fix.btn">Хабар додан</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-docs" hidden data-i18n-aria="nav.wallet" aria-label="Ҳамёни ҳуҷҷатҳо">
+          <p class="lead-s" data-i18n="w.sub">аслӣ ҳамин ҷост - нусхаи коғазӣ шарт нест</p>
+          <div class="filters" role="group" aria-label="Оила">
+            <button class="chip" data-own="me" aria-pressed="true" data-i18n="w.me">Ман</button>
+            <button class="chip" data-own="kids" aria-pressed="false" data-i18n="w.kids">Фарзандон</button>
+            <button class="chip" data-own="parents" aria-pressed="false" data-i18n="w.par">Падару модар</button>
+          </div>
+
+          <div class="docs" id="docGrid">
+            <article class="doc" data-owner="me">
+              <svg class="girih"><use href="#girih-tile"/></svg>
+              <span class="kind" data-i18n="d.pass.k">Шиноснома</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">Т 4018236</p>
+              <div class="foot">
+                <span class="exp warn" data-i18n="d.pass.e">то 14.10.2026 - вақти нав кардан</span>
+                <button class="share" data-qr="d.pass.k"><svg><use href="#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc earth" data-owner="kids" id="docBirth" hidden>
+              <svg class="girih"><use href="#girih-tile"/></svg>
+              <span class="badge-new" data-i18n="badge.new">нав</span>
+              <span class="kind" data-i18n="d.birth.k">Шаҳодатномаи таваллуд</span>
+              <h3 id="docBirthName">Зарина Раҳимова</h3>
+              <p class="num">СТ 0931184</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
+                <button class="share" data-qr="d.birth.k"><svg><use href="#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc ink" data-owner="me">
+              <svg class="girih"><use href="#girih-tile"/></svg>
+              <span class="kind" data-i18n="d.inn.k">Рақами андозсупоранда</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">6404 1893 0021</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
+                <button class="share" data-qr="d.inn.k"><svg><use href="#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc" data-owner="me">
+              <svg class="girih"><use href="#girih-tile"/></svg>
+              <span class="kind" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">AB 552901 - категорияи B</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.drv.e">то 03.2029</span>
+                <button class="share" data-qr="d.drv.k"><svg><use href="#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc earth" data-owner="me" id="docTemp" hidden>
+              <svg class="girih"><use href="#girih-tile"/></svg>
+              <span class="badge-new" data-i18n="badge.new">нав</span>
+              <span class="kind" data-i18n="d.temp.k">Шиносномаи муваққатӣ</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">ВМ 110476</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.temp.e">30 рӯз эътибор дорад</span>
+                <button class="share" data-qr="d.temp.k"><svg><use href="#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+          </div>
+
+          <p class="wallet-empty" id="walletEmpty" hidden>
+            <span data-i18n="w.empty">Ҳоло ҳуҷҷати падару модар пайваст нашудааст. Онҳоро даъват кунед - ҳуҷҷатҳояшонро бо иҷозаташон идора мекунед.</span><br><br>
+            <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
+          </p>
+        </section>
+
+        <section class="pane" id="pane-apps" hidden data-i18n-aria="nav.apps" aria-label="Аризаҳои ман">
+          <p class="lead-s" data-i18n="p.apps.sub">Ҳамаи аризаҳои шумо дар як ҷо - ҳолат дар вақти воқеӣ намоён.</p>
+          <div class="trk-card">
+            <h3 class="trk-h" data-i18n="trk.h">Шаҳодатномаи таваллуд - Зарина</h3>
+            <p class="muted small trk-sub"><span data-i18n="trk.id">ариза №ТҶ-2026-184302 - бе қуттии сиёҳ: ҳар қадам намоён аст</span></p>
+            <ol class="timeline">
+              <li class="tl">
+                <span class="dot"><svg><use href="#i-check"/></svg></span>
+                <b data-i18n="tl.1">Қабул шуд</b>
+                <span class="when" data-i18n="tl.1w">имрӯз, 14:02</span>
+              </li>
+              <li class="tl">
+                <span class="dot"><svg><use href="#i-check"/></svg></span>
+                <b data-i18n="tl.2">Санҷиши худкор гузашт</b>
+                <span class="when" data-i18n="tl.2w">имрӯз, 14:02 - маълумот бо таваллудхона мувофиқ аст</span>
+              </li>
+              <li class="tl now">
+                <span class="dot"><svg><use href="#i-clock"/></svg></span>
+                <b data-i18n="tl.3">Дар баррасӣ</b>
+                <span class="when" data-i18n="tl.3w">САҲШ-и ноҳияи Сино, мутахассиси навбатдор</span>
+                <div class="detail">
+                  <span data-i18n="tl.3d">Дар навбат пеш аз шумо: <b id="queueN">3</b> ариза. Тахмини анҷом: имрӯз, то 16:30.</span>
+                  <button class="q" data-toast="toast.chat">
+                    <svg width="15" height="15"><use href="#i-chat"/></svg><span data-i18n="tl.3q">Савол доред? Бо мутахассис нависед</span>
+                  </button>
+                </div>
+              </li>
+              <li class="tl next">
+                <span class="dot"><svg><use href="#i-star8"/></svg></span>
+                <b data-i18n="tl.4">Имзои электронӣ ва ба ҳамёни шумо</b>
+                <span class="when" data-i18n="tl.4w">push-огоҳӣ мефиристем - даркор нест, ки худатон тафтиш кунед</span>
+              </li>
+            </ol>
+          </div>
+          <div class="trk-foot">
+            <button class="btn btn-sec" data-toast="toast.notify"><svg><use href="#i-bell"/></svg><span data-i18n="trk.notify">Тайёр шавад - огоҳ кунед</span></button>
+            <button class="btn btn-ghost" data-toast="toast.demo" data-i18n="trk.paper">Нусхаи коғазӣ дар куҷо гирифта мешавад</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-contact" hidden data-i18n-aria="p.nav.contact" aria-label="Тамос ва огоҳиҳо">
+          <p class="lead-s" data-i18n="p.ct.sub">Бо ин роҳҳо давлат бо шумо тамос мегирад - шумо худатон идора мекунед.</p>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.phone.k">Телефон</span>
+                <span class="v">+992 93 555 0184 <span class="tag"><svg><use href="#i-check"/></svg><span data-i18n="p.tag.ok">тасдиқшуда</span></span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.email.k">Почтаи электронӣ</span>
+                <span class="v">firuza.rahimova@mail.tj <span class="tag"><svg><use href="#i-check"/></svg><span data-i18n="p.tag.ok">тасдиқшуда</span></span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.notif.h">Каналҳои огоҳӣ</h3>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.push">Push дар телефон</span>
+                <span class="k" data-i18n="p.notif.push.s">фаврӣ ва ройгон - роҳи асосӣ</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.push" aria-label="Push дар телефон"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.sms">SMS</span>
+                <span class="k" data-i18n="p.notif.sms.s">танҳо барои қадамҳои муҳим</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.sms" aria-label="SMS"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.mail">Почтаи электронӣ</span>
+                <span class="k" data-i18n="p.notif.mail.s">ҷамъбасти ҳафтаина</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.mail" aria-label="Почтаи электронӣ"><input type="checkbox"><span class="knob"></span></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-family" hidden data-i18n-aria="p.nav.family" aria-label="Оила">
+          <p class="lead-s" data-i18n="p.fam.sub">То 18-солагӣ шумо метавонед аз номи фарзандон ариза диҳед - ҳуҷҷатҳояшон дар ҳамёни шумо.</p>
+          <div class="plist">
+            <div class="pr">
+              <span class="pav earth" aria-hidden="true">З</span>
+              <div class="tt">
+                <span class="v">Зарина Раҳимова</span>
+                <span class="k" data-i18n="p.fam.dau">духтар - таваллуд 8.06.2026</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-go="wallet" data-own="kids" data-i18n="p.fam.docs">Ҳуҷҷатҳо дар ҳамён</button>
+            </div>
+            <div class="pr">
+              <span class="pav" aria-hidden="true">Д</span>
+              <div class="tt">
+                <span class="v">Далер Раҳимов</span>
+                <span class="k" data-i18n="p.fam.spouse">ҳамсар - ҳисоби худро дорад</span>
+              </div>
+            </div>
+          </div>
+          <div class="invite">
+            <div class="tt">
+              <b data-i18n="p.fam.par">Падару модар ҳоло пайваст нестанд</b>
+              <p data-i18n="p.fam.par.p">Даъват кунед - бо розигии онҳо аризаҳо ва ҳуҷҷатҳояшонро идора мекунед.</p>
+            </div>
+            <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-sec" hidden data-i18n-aria="p.nav.sec" aria-label="Амният">
+          <p class="lead-s" data-i18n="p.sec.sub">Ҳисоби шумо калиди ҳамаи ҳуҷҷатҳост. Онро якҷоя ҳифз мекунем.</p>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.pw">Парол</span>
+                <span class="k" data-i18n="p.sec.pw.s">иваз шуд 3 моҳ пеш</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.2fa">Вуруди дуқадама</span>
+                <span class="k" data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.sec.2fa" aria-label="Вуруди дуқадама"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.alert">Огоҳӣ дар бораи вуруди нав</span>
+                <span class="k" data-i18n="p.sec.alert.s">push ва SMS ҳангоми ҳар вуруди ношинос</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.sec.alert" aria-label="Огоҳӣ дар бораи вуруди нав"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.sec.dev">Дастгоҳҳои фаъол</h3>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.dev1">Ин дастгоҳ - Chrome, Душанбе</span>
+              </div>
+              <span class="tag"><span data-i18n="p.now">ҳозир</span></span>
+            </div>
+            <div class="pr" id="devRow2">
+              <div class="tt">
+                <span class="v" data-i18n="p.dev2">iPhone - барномаи eKhizmat</span>
+                <span class="k" data-i18n="p.dev2.s">Душанбе - дирӯз, 21:14</span>
+              </div>
+              <button class="btn btn-ghost btn-sm act" id="devOut" data-i18n="p.sec.out">Баромадан</button>
+            </div>
+          </div>
+
+          <div class="prof-foot">
+            <button class="btn btn-sec" data-toast="toast.demo"><svg><use href="#i-out"/></svg><span data-i18n="p.sec.outall">Аз ҳама дастгоҳҳо баромадан</span></button>
+            <button class="link-danger" data-toast="toast.demo" data-i18n="p.sec.del">Нест кардани ҳисоб</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-access" hidden data-i18n-aria="p.nav.access" aria-label="Дастрасӣ ба маълумот">
+          <p class="lead-s" data-i18n="p.acc.sub">Ҳар муроҷиат ба маълумоти шумо сабт мешавад - қуттии сиёҳ нест.</p>
+          <div class="plist">
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc1.org">САҲШ-и ноҳияи Сино</span>
+                <span class="desc" data-i18n="p.acc1.what">маълумоти таваллуд - барои шаҳодатномаи Зарина</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.acc1.why">асос: аризаи шумо №ТҶ-2026-184302</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc1.when">имрӯз, 14:02</span>
+            </div>
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc2.org">Кумитаи андоз</span>
+                <span class="desc" data-i18n="p.acc2.what">додани рақами андоз ба кӯдак</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.acc1.why">асос: аризаи шумо №ТҶ-2026-184302</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc2.when">имрӯз, 14:05</span>
+            </div>
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc3.org">Алиф Бонк</span>
+                <span class="desc" data-i18n="p.acc3.what">тасдиқи шахсият ҳангоми кушодани суратҳисоб</span>
+                <span class="src-tag"><svg><use href="#i-check"/></svg><span data-i18n="p.acc3.why">асос: розигии шумо</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc3.when">2 июн</span>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.cons.h">Розигиҳои фаъол</h3>
+          <div class="plist">
+            <div class="pr" id="consentRow">
+              <div class="tt">
+                <span class="v">Алиф Бонк</span>
+                <span class="k" data-i18n="p.cons1.s">дастрасӣ ба ному шиноснома - то 02.06.2027</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" id="revokeBtn" data-i18n="p.revoke">Бозхонд кардан</button>
+              <span class="tag pay act" id="revokedTag" hidden data-i18n="p.revoked">бозхонд шуд</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <div class="ft-logo"><svg aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></div>
+        <p data-i18n="ft.note">eKhizmat - консепсияи портали ягонаи хизматҳои давлатӣ. Прототип; маълумот намунавӣ аст.</p>
+      </div>
+      <nav class="ft-col" aria-labelledby="ftH1">
+        <h3 id="ftH1" data-i18n="ft.h.portal">Портал</h3>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.cab">Кабинети шахсӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.reg">Бақайдгирӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.reestr">Феҳристи хизматҳои давлатӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.orgs">Ташкилотҳо</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.vac">Ҷойҳои кории холӣ</a>
+      </nav>
+      <nav class="ft-col" aria-labelledby="ftH2">
+        <h3 id="ftH2" data-i18n="ft.h.help">Кумак</h3>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.help">Кумак ва дастгирӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.find">Тарзи ёфтани хизмат</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.guide">Дастурамал</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.off">Харитаи марказҳои хизматрасонӣ</a>
+      </nav>
+      <div class="ft-col">
+        <h3 data-i18n="ft.h.contact">Тамос</h3>
+        <a class="ft-c" href="tel:+992446607177"><svg aria-hidden="true"><use href="#i-call"/></svg>+992 44 660-71-77</a>
+        <a class="ft-c" href="mailto:khizmat.ehukumat@cpd.tj"><svg aria-hidden="true"><use href="#i-mail"/></svg>khizmat.ehukumat@cpd.tj</a>
+        <span class="ft-c"><svg aria-hidden="true"><use href="#i-pin"/></svg><span data-i18n="ft.city">ш. Душанбе</span></span>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <span>© 2026 eKhizmat</span>
+      <div class="ft-legal">
+        <a href="#" data-toast="toast.demo" data-i18n="ft.priv">Сиёсати махфият</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.a11y">Дастрасӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.api">API барои таҳиягарон</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- QR modal -->
+<div class="overlay" id="qrOverlay" role="dialog" aria-modal="true" aria-labelledby="qrH">
+  <div class="modal">
+    <h3 id="qrH"><span data-i18n="qr.h">Мубодилаи ҳуҷҷат</span></h3>
+    <p class="sub"><span id="qrDocName"></span> - <span data-i18n="qr.sub">ҳаволаи бехатар 10 дақиқа эътибор дорад ва танҳо ин ҳуҷҷатро мекушояд</span></p>
+    <div class="qr-box"><svg id="qrSvg" viewBox="0 0 29 29" shape-rendering="crispEdges"></svg><span class="qr-demo" data-i18n="qr.demo">намунавӣ</span></div>
+    <button class="btn btn-pri btn-block" id="qrClose" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<!-- mock sign-in -->
+<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginH">
+  <div class="modal">
+    <h3 id="loginH" data-i18n="auth.h">Вуруд ба eKhizmat</h3>
+    <p class="sub" data-i18n="auth.sub">Реҷаи намоишӣ - ҳар рақам қабул мешавад</p>
+    <div class="field">
+      <label for="loginPhone" data-i18n="auth.phone">Рақами телефон</label>
+      <input class="input" id="loginPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+992 90 123 45 67">
+    </div>
+    <button class="btn btn-pri btn-block" id="loginGo" data-i18n="auth.login">Вуруд</button>
+    <button class="btn btn-ghost btn-block" id="loginCancel" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="services-data.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

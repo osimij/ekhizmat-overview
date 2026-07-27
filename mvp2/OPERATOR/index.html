@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Оператор — Макетҳо</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/blueprint.css">
+<link rel="stylesheet" href="css/operator.css">
+</head>
+<body>
+<script src="js/sprite.js"></script>
+
+<!-- blueprint toolbar (dev chrome; hidden in screenshot exports) -->
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="hdr-in">
+      <a class="brand" href="index.html" aria-label="eKhizmat">
+        <svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b>
+      </a>
+      <span class="metachip" style="margin-left:8px">Оператор · макет</span>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="gx-hero">
+      <span class="eyebrow">Консоли оператор (тиреза) — блоки мустақил</span>
+      <h1>Хизматрасонии рӯ ба рӯ дар маркази хизматрасонӣ</h1>
+      <p>Се экран барои оператори тиреза: оғози баст, навбати зинда ва сессияи пурраи хизматрасонӣ (тасдиқи шахсият → баррасӣ ва пуркунӣ бо иҷозати шаҳрванд → имзои электронӣ → додани ҳуҷҷат). Дар услуби ягонаи eKhizmat, тоҷикӣ + русӣ. Тафсилот дар <code>docs/HANDOFF.md</code>.</p>
+    </div>
+
+    <!-- OPERATOR -->
+    <section class="gx-sect" aria-labelledby="s-op">
+      <div class="sect-h"><h2 id="s-op">Оператор (тиреза)</h2><span class="sub">хизматрасонии рӯ ба рӯ — тасдиқи шахсият ва супоридани ҳуҷҷат</span></div>
+      <div class="gx-grid">
+        <a class="gx-card" href="op-login.html">
+          <div class="gx-top"><span class="tile t-slate sh-c"><svg><use href="#i-lock"/></svg></span><h3>Оғози баст</h3><span class="num">О1</span></div>
+          <p>Вуруди оператор ва интихоби тиреза — оғози баст дар маркази хизматрасонӣ.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="op-queue.html">
+          <div class="gx-top"><span class="tile t-blue"><svg><use href="#i-inbox"/></svg></span><h3>Навбати тиреза</h3><span class="num">О2</span></div>
+          <p>Навбати зинда, даъвати навбатӣ, омори рӯз ва ҷустуҷӯи шаҳрванд (бо тикет ё бе навбат).</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+        <a class="gx-card" href="op-verify.html">
+          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="#i-check"/></svg></span><h3>Сессияи хизматрасонӣ</h3><span class="num">О3</span></div>
+          <p>Тасдиқи шахсият (3 санҷиш) → баррасӣ ва пуркунии маълумот бо иҷозати шаҳрванд → имзои электронӣ → додани ҳуҷҷат. Майдонҳои пуркардаи оператор нишона мегиранд.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="js/operator-i18n.js"></script>
+<script src="js/operator.js"></script>
+</body>
+</html>

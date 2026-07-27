@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Нақшҳо ва ҳуқуқ</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="roles"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Нақшҳо ва ҳуқуқ</span>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h"><div class="row">
+        <div><h1>Нақшҳо ва ҳуқуқ</h1><p>5 нақш · ваколатҳо аз рӯи нақш муайян мешаванд</p></div>
+        <button class="btn btn-pri" data-toast="Намунавӣ: нақши нав"><svg><use href="#i-plus"/></svg>Нақши нав</button>
+      </div></div>
+
+      <!-- role cards -->
+      <div class="stat-grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+        <div class="stat"><div class="k"><span class="si" style="background:var(--field);color:var(--ink-3)"><svg><use href="#i-users"/></svg></span>Оператор</div><div class="big" style="font-size:var(--fs-24)">8</div><div class="delta">корманд</div></div>
+        <div class="stat"><div class="k"><span class="si"><svg><use href="#i-users"/></svg></span>Мутахассис</div><div class="big" style="font-size:var(--fs-24)">19</div><div class="delta">корманд</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--h-violet-bg);color:var(--h-violet-fg)"><svg><use href="#i-users"/></svg></span>Роҳбари бахш</div><div class="big" style="font-size:var(--fs-24)">5</div><div class="delta">корманд</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--red-tint);color:var(--red-ink)"><svg><use href="#i-role"/></svg></span>Маъмури система</div><div class="big" style="font-size:var(--fs-24)">2</div><div class="delta">корманд</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--field);color:var(--ink-3)"><svg><use href="#i-eye"/></svg></span>Танҳо хониш</div><div class="big" style="font-size:var(--fs-24)">3</div><div class="delta">корманд</div></div>
+      </div>
+
+      <div class="adm-h" style="margin-top:var(--s-6);margin-bottom:var(--s-3)"><h2 style="font-size:var(--fs-20)">Матритсаи ҳуқуқ</h2></div>
+      <div class="tbl-wrap" style="overflow-x:auto">
+        <table class="matrix">
+          <thead><tr>
+            <th>Ваколат</th>
+            <th class="cap">Оператор</th><th class="cap">Мутахассис</th><th class="cap">Роҳбар</th><th class="cap">Маъмур</th><th class="cap">Хониш</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Дидани аризаҳо (ҳавзаи худ)</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td></tr>
+            <tr><td>Қабул ва бақайдгирӣ</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td></tr>
+            <tr><td>Баррасӣ ва қарор</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td></tr>
+            <tr><td>Имзои электронӣ</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td><td class="cap dot-n">—</td></tr>
+            <tr><td>Тақсими навбат</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td></tr>
+            <tr><td>Идораи корбарон</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td></tr>
+            <tr><td>Танзими хизматҳо</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-n">—</td></tr>
+            <tr><td>Содироти ҳисобот</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td></tr>
+            <tr><td>Дидани лог ва аудит</td><td class="cap dot-n">—</td><td class="cap dot-n">—</td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td><td class="cap dot-y"><svg><use href="#i-check"/></svg></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-info" style="margin-top:var(--s-4)"><svg><use href="#i-info"/></svg><p>Ҳангоми илова кардани корбар ҳамин ҳуқуқ аз нақш гирифта мешавад ва бо зарурат танзим мегардад.</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

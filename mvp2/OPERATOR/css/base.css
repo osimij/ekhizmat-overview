@@ -1,0 +1,60 @@
+/* ============================================================
+   eKhizmat — base: reset, typography, utilities, a11y
+   ============================================================ */
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; -webkit-tap-highlight-color:transparent}
+button,a,label,input,select{touch-action:manipulation}
+
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--font); font-size:var(--fs-15); line-height:1.55;
+  font-variation-settings:'wdth' 500;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+
+/* the hidden attribute always wins — JS routing depends on it */
+[hidden]{display:none !important}
+
+h1,h2,h3{margin:0; line-height:1.15; letter-spacing:-0.02em; font-variation-settings:'wdth' 550}
+h1{font-size:var(--fs-44); font-weight:680}
+h2{font-size:var(--fs-24); font-weight:650}
+h3{font-size:var(--fs-17); font-weight:620}
+p{margin:0}
+a{color:var(--blue-ink); text-decoration:none}
+button{font:inherit; color:inherit; cursor:pointer; border:0; background:none; padding:0}
+input,select{font:inherit}
+input[type="checkbox"],input[type="radio"]{accent-color:var(--blue)} /* native fallback */
+img,svg{display:block}
+
+.wrap{max-width:var(--maxw); margin:0 auto; padding:0 var(--s-6)}
+.col{max-width:var(--col); margin:0 auto; padding:0 var(--s-5)}
+.muted{color:var(--ink-3)}
+.small{font-size:var(--fs-13)}
+
+/* visually hidden, still readable and focusable for assistive tech */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip-path:inset(50%); white-space:nowrap;
+}
+
+.skip{
+  position:absolute; left:-9999px; top:0; background:var(--panel); color:var(--ink);
+  padding:var(--s-3) var(--s-4); border-radius:0 0 var(--r-m) 0; z-index:100;
+}
+.skip:focus{left:0}
+
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:6px}
+/* programmatic focus targets (screen headings) get no ring */
+[tabindex="-1"]:focus-visible{outline:none}
+
+::selection{background:var(--blue-tint)}
+[data-theme="dark"] ::selection{background:#1D3A57}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  html{scroll-behavior:auto}
+}

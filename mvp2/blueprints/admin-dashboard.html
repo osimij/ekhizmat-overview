@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Лавҳаи идора</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="dashboard"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Лавҳаи идора</span>
+      <div class="at-search"><svg><use href="#i-search"/></svg><input placeholder="Ҷустуҷӯ: ариза, корбар, хизмат..."></div>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" aria-label="Огоҳиҳо"><svg><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h">
+        <div class="row">
+          <div><h1>Хайр, Аброр</h1><p>САҲШ-и ноҳияи Сино · сешанбе, 18 июни 2026</p></div>
+          <a class="btn btn-pri" href="admin-inbox.html"><svg><use href="#i-inbox"/></svg>Баррасии аризаҳо</a>
+        </div>
+      </div>
+
+      <!-- KPI cards: the same transparency numbers citizens see -->
+      <div class="stat-grid">
+        <div class="stat"><div class="k"><span class="si"><svg><use href="#i-inbox"/></svg></span>Аризаҳои нав имрӯз</div><div class="big">128</div><div class="delta up">+12% нисбат ба дирӯз</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="#i-clock"/></svg></span>Дар баррасӣ</div><div class="big">41</div><div class="delta">12 таъинносуда</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--green-tint);color:var(--green)"><svg><use href="#i-check"/></svg></span>Миёнаи вақти баррасӣ</div><div class="big">1 рӯз 4 соат</div><div class="delta up">зудтар аз меъёр</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--h-rose-bg);color:var(--h-rose-fg)"><svg><use href="#i-check"/></svg></span>Қаноатмандии шаҳрвандон</div><div class="big">96%</div><div class="delta up">+1% ин ҳафта</div></div>
+      </div>
+
+      <div class="note-info" style="margin-bottom:var(--s-5)">
+        <svg><use href="#i-eye"/></svg>
+        <p><b>Ин рақамҳо оммавӣ ҳастанд.</b> Ҳамин омор дар саҳифаи асосии портал ба ҳар шаҳрванд нишон дода мешавад — шаффофият стратегияи боварист.</p>
+      </div>
+
+      <div class="cols-2">
+        <!-- queue by office + SLA -->
+        <section class="panel">
+          <div class="panel-h"><h3>Навбат аз рӯи бахш</h3><a href="admin-inbox.html">Ҳама</a></div>
+          <div class="qrow"><div class="tt"><b>Маълумотномаҳо (САҲШ)</b></div><div class="bar"><i style="width:48%"></i></div><span class="nn">19 / SLA хуб</span></div>
+          <div class="qrow"><div class="tt"><b>Шаҳодатнома ва нусхаҳо</b></div><div class="bar"><i class="warn" style="width:74%"></i></div><span class="nn">12 / наздик ба SLA</span></div>
+          <div class="qrow"><div class="tt"><b>Қайди никоҳ ва тавлид</b></div><div class="bar"><i style="width:30%"></i></div><span class="nn">7 / SLA хуб</span></div>
+          <div class="qrow"><div class="tt"><b>Дархостҳои бойгонӣ</b></div><div class="bar"><i class="danger" style="width:92%"></i></div><span class="nn">3 / SLA вайрон</span></div>
+        </section>
+
+        <!-- action needed -->
+        <section class="panel">
+          <div class="panel-h"><h3>Амали шумо лозим</h3><a href="admin-inbox.html">Ҳама (12)</a></div>
+          <a class="qrow" href="admin-review.html" style="text-decoration:none;color:inherit">
+            <span class="tile t-blue" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="#i-doc"/></svg></span>
+            <div class="tt"><b>Маълумотнома — ҳайати оила</b><span class="k" style="display:block;color:var(--ink-3);font-size:var(--fs-12)">№ТҶ-2026-204815 · Ф. Раҳимова</span></div>
+            <span class="pill-st review">нав</span>
+          </a>
+          <a class="qrow" href="admin-review.html" style="text-decoration:none;color:inherit">
+            <span class="tile t-amber sh-r" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="#i-clock"/></svg></span>
+            <div class="tt"><b>Нусхаи дубораи шаҳодатнома</b><span class="k" style="display:block;color:var(--ink-3);font-size:var(--fs-12)">№ТҶ-2026-204790 · Д. Раҳимов</span></div>
+            <span class="pill-st warn">SLA наздик</span>
+          </a>
+          <a class="qrow" href="admin-review.html" style="text-decoration:none;color:inherit">
+            <span class="tile t-violet" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="#i-rings"/></svg></span>
+            <div class="tt"><b>Ариза ба қайди никоҳ</b><span class="k" style="display:block;color:var(--ink-3);font-size:var(--fs-12)">№ТҶ-2026-204772 · С. Ҷӯраева</span></div>
+            <span class="pill-st danger">SLA вайрон</span>
+          </a>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

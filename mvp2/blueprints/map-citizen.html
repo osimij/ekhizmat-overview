@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Харитаи сафари корбар</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
+      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+    </button>
+  </div>
+</div>
+
+<header class="hdr">
+  <div class="wrap"><div class="hdr-in">
+    <a class="brand" href="index.html" aria-label="eKhizmat"><svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b></a>
+    <span class="metachip" style="margin-left:6px">Харита</span>
+  </div></div>
+</header>
+
+<main id="main" class="screen">
+  <div class="sheet-wide">
+    <a class="back" href="index.html"><svg><use href="#i-chev-l"/></svg><span>Ҳама экранҳо</span></a>
+
+    <div class="gx-hero" style="padding-top:var(--s-4)">
+      <span class="eyebrow">Харитаи сафар · як шаблон барои ҳамаи хизматҳо</span>
+      <h1>Сафари корбар: аз ёфтан то истифода</h1>
+      <p>Як давра, як шаблони ариза. Ҳар марҳила нишон медиҳад, ки корбар чӣ мебинад, кадом компонентҳо кор мекунанд ва пушти парда чӣ мешавад. Ҳамин давра барои ҳамаи 600+ хизмат — танҳо майдонҳо фарқ мекунанд.</p>
+      <div class="map-legend">
+        <span class="lane-tag"><i style="background:var(--blue)"></i>Корбар мебинад (front-stage)</span>
+        <span class="lane-tag"><i style="background:var(--ink-faint)"></i>Пушти парда (back-stage / панели админ)</span>
+        <span class="lane-tag"><i style="background:var(--green)"></i>Принсипи тарроҳӣ</span>
+      </div>
+    </div>
+
+    <div class="jmap">
+
+      <div class="jstage" style="--accent:var(--h-blue-fg)">
+        <span class="jn">1</span>
+        <div>
+          <div class="jhead"><span class="stg">Кашф</span><h3>Корбар бо вазъият меояд, на бо номи идора</h3><span class="pr-pill">Лаҳзаҳои зиндагӣ</span></div>
+          <p class="desc">«Фарзанд таваллуд шуд», «ба бонк маълумотнома лозим» — ҷустуҷӯ бо суханони худ ё интихоб аз лаҳзаҳои зиндагӣ. Портал идораро худаш меёбад.</p>
+          <div class="chips"><code>ҷустуҷӯи мақсаднок</code><code>.cat кошиҳои хидмат</code><code>.moment лаҳзаҳо</code><code>огоҳии проактивӣ</code></div>
+          <div class="jfoot"><a href="../index.html"><svg><use href="#i-arrow-ur"/></svg>Саҳифаи асосӣ</a><span class="back-stage"><svg><use href="#i-building"/></svg>феҳристи 600+ хизмат, нақшаи лаҳзаҳо</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-teal-fg)">
+        <span class="jn">2</span>
+        <div>
+          <div class="jhead"><span class="stg">Сафҳаи хизмат</span><h3>Чӣ будан, нарх, вақт ва он чи аллакай дорем</h3><span class="pr-pill">Як бор</span></div>
+          <p class="desc">Бо забони одамӣ: шумо чӣ мегиред, чанд вақт, ройгон ё музднок. Блоки «маълумоте, ки аллакай дорем» бо тамғаи манбаъ.</p>
+          <div class="chips"><code>.metachip нарх/вақт</code><code>.once пешнамоиш</code><code>.src-tag манбаъ</code><code>.led рӯйхат</code><code>CTA часпак</code></div>
+          <div class="jfoot"><a href="service.html"><svg><use href="#i-arrow-ur"/></svg>service.html</a><span class="back-stage"><svg><use href="#i-building"/></svg>пешфаъолсозӣ аз феҳристҳо (ВКД, андоз, САҲШ)</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-indigo-fg)">
+        <span class="jn">3</span>
+        <div>
+          <div class="jhead"><span class="stg">Пур кардан</span><h3>Тасдиқи маълумоти мавҷуд → танҳо чанд майдони нав</h3><span class="pr-pill">Як бор + Зудӣ</span></div>
+          <p class="desc">Қадами 1: ҳама пешакӣ пуршуда, бо тамғаи манбаъ. Қадами 2: танҳо чизи нав — мақсад, давра, файл ё сана. Автосабт.</p>
+          <div class="chips"><code>.j-prog қадамшумор</code><code>.src-tag</code><code>.field/.select</code><code>.seg</code><code>.dropzone боргузорӣ</code><code>.opt кортҳо</code></div>
+          <div class="jfoot"><a href="apply.html"><svg><use href="#i-arrow-ur"/></svg>apply.html · қадами 1–2</a><span class="back-stage"><svg><use href="#i-building"/></svg>автосабт; вуруд = имзои электронӣ</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-amber-fg)">
+        <span class="jn">4</span>
+        <div>
+          <div class="jhead"><span class="stg">Расондан ва пардохт</span><h3>Рақамӣ ё коғазӣ; нарх пешакӣ маълум</h3><span class="pr-pill">Шаффофият</span></div>
+          <p class="desc">Интихоби тарзи расондан ва маркази гирифтан. Барои хизматҳои музднок — пардохти бехатар бо тахфифи онлайн. Ройгонҳо ройгон мемонанд.</p>
+          <div class="chips"><code>.opt тарзи расондан</code><code>интихоби марказ (харита)</code><code>модали пардохт</code><code>.pm тарзи пардохт</code></div>
+          <div class="jfoot"><a href="apply.html"><svg><use href="#i-arrow-ur"/></svg>apply.html · қадами 3 + модалҳо</a><span class="back-stage"><svg><use href="#i-building"/></svg>ҳисоби боҷ, нуқтаҳои гирифтан</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-violet-fg)">
+        <span class="jn">5</span>
+        <div>
+          <div class="jhead"><span class="stg">Имзо ва фиристодан</span><h3>Санҷиш, имзои электронӣ, бе ҷарима</h3><span class="pr-pill">Шаъну эътибор</span></div>
+          <p class="desc">Ҷамъбасти кӯтоҳ, тасдиқ. «Агар хато бошад — ислоҳ мешавад, ҷарима нест.» Вуруди корбар ҳамчун имзо.</p>
+          <div class="chips"><code>.review ҷамъбаст</code><code>.consent имзо</code><code>забони шаъндор</code></div>
+          <div class="jfoot"><a href="apply.html"><svg><use href="#i-arrow-ur"/></svg>apply.html · қадами 4</a><span class="back-stage"><svg><use href="#i-building"/></svg>равонкунӣ ба идора/мутахассиси дуруст</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-blue-fg)">
+        <span class="jn">6</span>
+        <div>
+          <div class="jhead"><span class="stg">Пайгирӣ</span><h3>Ҳар қадам намоён — навбат, идора, вақти воқеӣ</h3><span class="pr-pill">Шаффофияти радикалӣ</span></div>
+          <p class="desc">Бе қуттии сиёҳ: кӣ баррасӣ мекунад, чанд нафар пеш, тахмини анҷом. Ҳолатҳо: баррасӣ · маълумоти иловагӣ · рад (ислоҳшаванда) · тайёр.</p>
+          <div class="chips"><code>.timeline</code><code>.eta вақти воқеӣ</code><code>навбат + чат</code><code>.pill-st ҳолатҳо</code></div>
+          <div class="jfoot"><a href="track.html"><svg><use href="#i-arrow-ur"/></svg>track.html</a><span class="back-stage"><svg><use href="#i-building"/></svg>навбат ва SLA дар панели админ (баррасии ариза)</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-green-fg)">
+        <span class="jn">7</span>
+        <div>
+          <div class="jhead"><span class="stg">Гирифтан</span><h3>Ҳуҷҷати рақамӣ дар ҳамён — аслӣ</h3><span class="pr-pill">Ҳама дар як ҷо</span></div>
+          <p class="desc">Маълумотнома бо имзои электронӣ ва QR. Коғаз шарт нест; агар лозим бошад, аз марказ чоп мешавад.</p>
+          <div class="chips"><code>.cert-sheet ҳуҷҷат</code><code>QR тасдиқ</code><code>.doc корти ҳамён</code><code>мӯҳлат</code></div>
+          <div class="jfoot"><a href="document.html"><svg><use href="#i-arrow-ur"/></svg>document.html</a><span class="back-stage"><svg><use href="#i-building"/></svg>имзои электронӣ, феҳристи тасдиқ</span></div>
+        </div>
+      </div>
+      <div class="jconn"><svg><use href="#i-chev-d"/></svg></div>
+
+      <div class="jstage" style="--accent:var(--h-rose-fg)">
+        <span class="jn">8</span>
+        <div>
+          <div class="jhead"><span class="stg">Истифода ва мубодила</span><h3>Мубодилаи бехатар ва тасдиқи аслият</h3><span class="pr-pill">Боварӣ</span></div>
+          <p class="desc">Ҳаволаи муваққатӣ бо QR, тасдиқи оммавии аслият, бозхонди дастрасӣ. Ҳар муроҷиат ба маълумот сабт мешавад.</p>
+          <div class="chips"><code>модали QR</code><code>тасдиқи аслият</code><code>бозхонди дастрасӣ</code><code>сабти муроҷиат</code></div>
+          <div class="jfoot"><a href="document.html"><svg><use href="#i-arrow-ur"/></svg>document.html · модалҳо</a><span class="back-stage"><svg><use href="#i-building"/></svg>сабти ҳар дастрасӣ (профил → дастрасӣ ба маълумот)</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note-info" style="margin-top:var(--s-6)">
+      <svg><use href="#i-star8"/></svg>
+      <p><b>Як шаблон, ҳама хизматҳо.</b> Майдонҳо ва модалҳои ҳар хизмат дар панели админ муайян мешаванд (Хизматрасониҳо → конструктори шакл), баъд ҳамин давра иҷро мешавад.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><div class="ft-bottom"><span>© 2026 eKhizmat</span><div class="ft-legal"><a href="index.html">Ҳама экранҳо</a><a href="map-admin.html">Харитаи админ</a></div></div></div>
+</footer>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>

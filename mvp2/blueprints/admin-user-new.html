@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · Админ — Илова кардани корбар</title>
+<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="../assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens.css">
+<link rel="stylesheet" href="../css/blueprint.css">
+</head>
+<body>
+<script src="../js/sprite.js"></script>
+
+<div class="bp-bar">
+  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right">
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+  </div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-adm-rail data-active="users"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <a class="back" href="admin-users.html" style="margin:0"><svg><use href="#i-chev-l"/></svg><span>Корбарон</span></a>
+      <span class="at-title" style="margin-left:var(--s-3)">Илова кардани корбар</span>
+      <div class="at-right">
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+      </div>
+    </div>
+
+    <div class="adm-body">
+      <div class="adm-h"><h1>Корбари нав</h1><p>корманди идораро илова кунед — шаҳрвандон худашон сабти ном мешаванд</p></div>
+
+      <div class="wz" data-flow id="wz">
+        <!-- step rail -->
+        <nav class="wz-steps" aria-label="Қадамҳо">
+          <div class="wz-step active"><span class="n">1</span><div><b>Шахсият</b><span>ном, тамос</span></div></div>
+          <div class="wz-step"><span class="n">2</span><div><b>Нақш</b><span>дараҷаи дастрасӣ</span></div></div>
+          <div class="wz-step"><span class="n">3</span><div><b>Раёсат</b><span>идора ва ҳавза</span></div></div>
+          <div class="wz-step"><span class="n">4</span><div><b>Ҳуқуқ</b><span>ваколатҳо</span></div></div>
+          <div class="wz-step"><span class="n">5</span><div><b>Даъват</b><span>санҷиш ва ирсол</span></div></div>
+        </nav>
+
+        <!-- step bodies -->
+        <div class="wz-body">
+          <!-- 1 identity -->
+          <section data-step="1">
+            <h2>Маълумоти шахсӣ</h2>
+            <p class="lead">Логин ва парол ба корманд бо даъватнома фиристода мешавад.</p>
+            <div class="fld-grid" style="margin-bottom:var(--s-4)">
+              <div class="field"><label for="nm">Ном</label><input class="input" id="nm" value="Диловар"></div>
+              <div class="field"><label for="sn">Насаб</label><input class="input" id="sn" value="Турсунов"></div>
+            </div>
+            <div class="field"><label for="em">Почтаи хидматӣ</label><input class="input" id="em" type="email" value="d.tursunov@sahsh.tj"></div>
+            <div class="fld-grid">
+              <div class="field"><label for="ph">Телефони хидматӣ</label><input class="input" id="ph" value="+992 93 555 ..."></div>
+              <div class="field"><label for="sid">Рақами хидматӣ <span class="opt-note">— худкор</span></label><input class="input" id="sid" value="SAH-СИН-0188" disabled></div>
+            </div>
+            <div class="j-acts"><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+          </section>
+
+          <!-- 2 role -->
+          <section data-step="2" hidden>
+            <h2>Нақш</h2>
+            <p class="lead">Нақш маҷмӯи стандартии ҳуқуқро муайян мекунад — дар қадами оянда онро тағйир дода метавонед.</p>
+            <label class="opt"><input type="radio" name="role"><span class="tt"><b>Оператор</b><p>қабул ва бақайдгирии аризаҳо, бе қарор.</p></span></label>
+            <label class="opt"><input type="radio" name="role" checked><span class="tt"><b>Мутахассис</b><p>баррасӣ ва қарор оид ба аризаҳо, имзои электронӣ.</p></span><span class="meta"><b>тавсия</b></span></label>
+            <label class="opt"><input type="radio" name="role"><span class="tt"><b>Роҳбари бахш</b><p>тақсими навбат, назорати SLA, ҳисоботҳо.</p></span></label>
+            <label class="opt"><input type="radio" name="role"><span class="tt"><b>Танҳо хониш</b><p>дидани аризаҳо бе амал — барои аудит.</p></span></label>
+            <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+          </section>
+
+          <!-- 3 department -->
+          <section data-step="3" hidden>
+            <h2>Раёсат ва ҳавза</h2>
+            <p class="lead">Корбар танҳо аризаҳои ҳавзаи худро мебинад.</p>
+            <div class="field"><label for="org">Идора</label><div class="select"><select id="org"><option>САҲШ — Хадамоти сабти асноди ҳолати шаҳрвандӣ</option><option>Кумитаи андоз</option><option>ВКД — Хадамоти шиносномавӣ</option></select></div></div>
+            <div class="field"><label for="reg">Ҳавза / ноҳия</label><div class="select"><select id="reg"><option>ш. Душанбе — ноҳияи Сино</option><option>ш. Душанбе — ноҳияи Фирдавсӣ</option><option>вилояти Хатлон</option></select></div></div>
+            <div class="field"><label>Категорияҳои хизмат</label>
+              <div class="led">
+                <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Маълумотномаҳо</span><span class="k">справкаҳои САҲШ</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+                <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Қайди ҳолати шаҳрвандӣ</span><span class="k">тавлид, никоҳ, фавт</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+                <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Бойгонӣ ва нусхаҳо</span><span class="k">дубораи ҳуҷҷатҳо</span></div><span class="sw"><input type="checkbox"><span class="knob"></span></span></label>
+              </div>
+            </div>
+            <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+          </section>
+
+          <!-- 4 permissions -->
+          <section data-step="4" hidden>
+            <h2>Ҳуқуқ</h2>
+            <p class="lead">Аз нақши «Мутахассис» гирифта шуд. Бо зарурат танзим кунед.</p>
+            <div class="led">
+              <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Дидани аризаҳо</span><span class="k">ҳавзаи худ</span></div><span class="sw"><input type="checkbox" checked disabled><span class="knob"></span></span></label>
+              <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Баррасӣ ва қарор</span><span class="k">тасдиқ / рад / маълумоти иловагӣ</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+              <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Имзои электронӣ</span><span class="k">сохтани ҳуҷҷати расмӣ</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
+              <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Тақсими навбат</span><span class="k">таъини ариза ба дигарон</span></div><span class="sw"><input type="checkbox"><span class="knob"></span></span></label>
+              <label class="pr" style="cursor:pointer"><div class="tt"><span class="v">Содироти ҳисобот</span><span class="k">боргирии маълумоти оморӣ</span></div><span class="sw"><input type="checkbox"><span class="knob"></span></span></label>
+            </div>
+            <div class="note-info" style="margin-top:var(--s-4)"><svg><use href="#i-eye"/></svg><p>Ҳар амали ин корбар дар лог сабт мешавад — мутобиқи принсипи шаффофият.</p></div>
+            <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+          </section>
+
+          <!-- 5 review -->
+          <section data-step="5" hidden>
+            <h2>Санҷиш ва даъват</h2>
+            <p class="lead">Ҳамаашро як бор санҷед — баъд даъватнома фиристода мешавад.</p>
+            <div class="review">
+              <div class="rv"><span class="k">Корманд</span><span class="v">Диловар Турсунов</span></div>
+              <div class="rv"><span class="k">Почта</span><span class="v">d.tursunov@sahsh.tj</span></div>
+              <div class="rv"><span class="k">Нақш</span><span class="v">Мутахассис</span></div>
+              <div class="rv"><span class="k">Раёсат</span><span class="v">САҲШ · н. Сино</span></div>
+              <div class="rv"><span class="k">Категорияҳо</span><span class="v">Маълумотномаҳо, Қайди ҳолати шаҳрвандӣ</span></div>
+              <div class="rv"><span class="k">Ҳуқуқ</span><span class="v">баррасӣ, имзои электронӣ</span></div>
+            </div>
+            <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next><svg><use href="#i-user-add"/></svg>Фиристодани даъват</button></div>
+          </section>
+
+          <!-- 6 success -->
+          <section data-step="6" hidden>
+            <div class="success" style="padding-top:var(--s-4)">
+              <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><circle cx="50" cy="50" r="46"/><path d="M30 52l13 13 27-29"/></svg>
+              <h2>Даъват фиристода шуд</h2>
+              <p class="when">ба d.tursunov@sahsh.tj · эътибор 48 соат</p>
+              <div class="s-list">
+                <div class="s-row"><svg><use href="#i-mail"/></svg><span>Даъватнома бо логин фиристода шуд</span><span class="st-l">ҳозир</span></div>
+                <div class="s-row"><svg><use href="#i-lock"/></svg><span>Корбар парол ва 2FA таъин мекунад</span><span class="st-l">ҳангоми вуруди аввал</span></div>
+                <div class="s-row"><svg><use href="#i-clock"/></svg><span>То тасдиқ ҳолат: «Даъватшуда»</span><span class="st-l">дар рӯйхат</span></div>
+              </div>
+              <div class="j-acts j-acts-center">
+                <a class="btn btn-sec" href="admin-user-new.html">Корбари дигар</a>
+                <a class="btn btn-pri btn-lg" href="admin-users.html">Ба рӯйхати корбарон</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/blueprint-i18n.js"></script>
+<script src="../js/blueprint.js"></script>
+</body>
+</html>
