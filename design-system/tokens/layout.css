@@ -1,0 +1,31 @@
+:root {
+  --maxw: 1120px;
+  --col: 640px;
+  --content-consumer: 1120px;
+  --content-workspace: 1200px;
+  --h-topbar: 60px;
+  --h-sessionbar: 48px;
+  --h-stepper: 44px;
+  --h-btn-l: 52px;
+  --h-btn-m: 44px;
+  --h-btn-s: 36px;
+  --h-field: 44px;
+  --w-canvas: 1200px;
+  --w-gate: 440px;
+  --w-gate-wide: 560px;
+  --w-form: 680px;
+  --w-context: 340px;
+  --w-drawer: 480px;
+  --w-min: 1280px;
+  --w-modal: 480px;
+  --w-modal-wide: 640px;
+  --focus-ring: 2px;
+  --focus-offset: 2px;
+  --z-content: 1;
+  --z-sticky: 30;
+  --z-popover: 50;
+  --z-drawer: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+  --z-lock: 90;
+}

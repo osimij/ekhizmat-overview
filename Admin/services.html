@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Конструктор — Феҳристи хизматҳо</title>
-<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/screens.css">
-<link rel="stylesheet" href="css/blueprint.css">
-<link rel="stylesheet" href="css/builder.css?v=2">
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/admin/app.css">
 </head>
-<body>
-<script src="js/sprite.js"></script>
+<body data-platform="admin">
 
-<div class="bp-bar">
-  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+
+<div class="bp-bar" data-dev-only data-prototype>
+  <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
   <label for="bpnav">Экран</label>
   <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
   <div class="bp-right">
-    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
   </div>
 </div>
 
@@ -31,9 +27,9 @@
   <div class="adm-main">
     <div class="adm-top">
       <span class="at-title">Хизматрасониҳо</span>
-      <div class="at-search"><svg><use href="#i-search"/></svg><input id="svcSearch" type="search" autocomplete="off" placeholder="Ҷустуҷӯи хизмат, идора ё рамз…"></div>
+      <div class="at-search"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input id="svcSearch" type="search" autocomplete="off" placeholder="Ҷустуҷӯи хизмат, идора ё рамз…"></div>
       <div class="at-right">
-        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
         <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
       </div>
     </div>
@@ -41,15 +37,15 @@
     <div class="adm-body">
       <div class="adm-h"><div class="row">
         <div><h1>Хизматрасониҳо</h1><p>Феҳрист ва конструктори раванд — ҳар хизматро таҳрир ё аз нав созед</p></div>
-        <a class="btn btn-pri" href="new-service.html"><svg><use href="#i-plus"/></svg>Хизмати нав</a>
+        <a class="btn btn-pri" href="new-service.html"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg>Хизмати нав</a>
       </div></div>
 
       <!-- registry KPIs — the two status cards double as filter shortcuts -->
       <div class="reg-stats">
-        <button class="stat" type="button" data-st-go="done" aria-pressed="false"><div class="k"><span class="si" style="background:var(--green-tint);color:var(--green)"><svg><use href="#i-check"/></svg></span>Фаъол</div><div class="big">604</div></button>
-        <button class="stat" type="button" data-st-go="warn" aria-pressed="false"><div class="k"><span class="si" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="#i-edit"/></svg></span>Сиёҳнавис</div><div class="big">8</div></button>
-        <div class="stat"><div class="k"><span class="si" style="background:var(--h-slate-bg);color:var(--h-slate-fg)"><svg><use href="#i-building"/></svg></span>Идораҳо</div><div class="big">14</div></div>
-        <div class="stat"><div class="k"><span class="si" style="background:var(--h-blue-bg);color:var(--h-blue-fg)"><svg><use href="#i-plus"/></svg></span>Нав ин моҳ</div><div class="big">12</div><div class="delta up">+3 нисбат ба моҳи гузашта</div></div>
+        <button class="stat" type="button" data-st-go="done" aria-pressed="false"><div class="k"><span class="si" style="background:var(--green-tint);color:var(--green)"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>Фаъол</div><div class="big">604</div></button>
+        <button class="stat" type="button" data-st-go="warn" aria-pressed="false"><div class="k"><span class="si" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>Сиёҳнавис</div><div class="big">8</div></button>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--h-slate-bg);color:var(--h-slate-fg)"><svg><use href="/design-system/assets/icons.svg#i-building"/></svg></span>Идораҳо</div><div class="big">14</div></div>
+        <div class="stat"><div class="k"><span class="si" style="background:var(--h-blue-bg);color:var(--h-blue-fg)"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span>Нав ин моҳ</div><div class="big">12</div><div class="delta up">+3 нисбат ба моҳи гузашта</div></div>
       </div>
 
       <section class="panel">
@@ -63,56 +59,56 @@
         </div>
 
         <a class="svc-row" href="builder.html">
-          <span class="tile t-teal sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-cat-cert"/></svg></span>
+          <span class="tile t-teal sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
           <span class="nm"><b>Маълумотнома — ҳайати оила</b><span class="k">САҲШ · шахси воқеӣ · рамзи SVC-FAM-01</span></span>
           <span class="cols"><span><b>5</b> майдон</span><span>ройгон</span><span>таҳрир: 3 рӯз пеш</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-violet" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-cat-tax"/></svg></span>
+          <span class="tile t-violet" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
           <span class="nm"><b>Маълумотнома — қарзи андоз</b><span class="k">Кумитаи андоз · шахси воқеӣ · SVC-TAX-04</span></span>
           <span class="cols"><span><b>7</b> майдон</span><span>12,00 смн.</span><span>таҳрир: дирӯз</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-amber sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-cat-cert"/></svg></span>
+          <span class="tile t-amber sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
           <span class="nm"><b>Нусхаи дубораи шаҳодатнома</b><span class="k">САҲШ · бойгонӣ · SVC-ARC-02</span></span>
           <span class="cols"><span><b>6</b> майдон</span><span>25,00 смн.</span><span>таҳрир: 1 ҳафта пеш</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-violet sh-l" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-rings"/></svg></span>
+          <span class="tile t-violet sh-l" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-rings"/></svg></span>
           <span class="nm"><b>Ариза ба қайди никоҳ</b><span class="k">САҲШ · шахси воқеӣ · SVC-MAR-01</span></span>
           <span class="cols"><span><b>8</b> майдон</span><span>40,00 смн.</span><span>таҳрир: ҳозир</span></span>
           <span class="pill-st warn">сиёҳнавис</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-indigo" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-biz"/></svg></span>
+          <span class="tile t-indigo" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
           <span class="nm"><b>Сабти соҳибкори инфиродӣ</b><span class="k">Кумитаи андоз · шахси ҳуқуқӣ · SVC-BIZ-03</span></span>
           <span class="cols"><span><b>9</b> майдон</span><span>ройгон</span><span>таҳрир: 2 ҳафта пеш</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-cyan sh-c" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-cat-land"/></svg></span>
+          <span class="tile t-cyan sh-c" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></span>
           <span class="nm"><b>Маълумотнома аз феҳристи замин</b><span class="k">Кумитаи замин · шахси воқеӣ · SVC-LND-02</span></span>
           <span class="cols"><span><b>4</b> майдон</span><span>18,00 смн.</span><span>таҳрир: 5 рӯз пеш</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-steel sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-cat-passport"/></svg></span>
+          <span class="tile t-steel sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg></span>
           <span class="nm"><b>Иваз кардани шиноснома (синну сол)</b><span class="k">ВКД · шахси воқеӣ · SVC-PAS-07</span></span>
           <span class="cols"><span><b>6</b> майдон</span><span>30,00 смн.</span><span>таҳрир: 4 рӯз пеш</span></span>
           <span class="pill-st done">фаъол</span>
         </a>
         <a class="svc-row" href="builder.html">
-          <span class="tile t-rose sh-l" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="#i-baby"/></svg></span>
+          <span class="tile t-rose sh-l" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
           <span class="nm"><b>Бақайдгирии таваллуд</b><span class="k">САҲШ · шахси воқеӣ · SVC-BRT-01</span></span>
           <span class="cols"><span><b>3</b> майдон</span><span>ройгон</span><span>таҳрир: ҳозир</span></span>
           <span class="pill-st warn">сиёҳнавис</span>
         </a>
 
         <div class="reg-empty" id="regEmpty" hidden>
-          <svg><use href="#i-search"/></svg>
+          <svg><use href="/design-system/assets/icons.svg#i-search"/></svg>
           <b>Ҳеҷ хизмат ёфт нашуд</b>
           <p>Ҷустуҷӯ ё филтрро тағйир диҳед.</p>
         </div>
@@ -124,10 +120,10 @@
         <div style="padding:0 var(--s-5) var(--s-5)">
           <p class="muted small" style="margin:0 0 var(--s-4)">Қолабҳои омодаи такроршаванда — асоси хизмати нав. Қадамҳои стандартиро доранд, шумо танҳо майдонҳоро мутобиқ мекунед.</p>
           <div class="tpl-grid">
-            <a class="opt" href="new-service.html"><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома / справка</b><p>тасдиқ → мақсад → расондан · аксаран ройгон</p></span><span class="metachip">142 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-blue" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-doc"/></svg></span><span class="tt"><b>Ариза бо ҳуҷҷат</b><p>боргузорӣ → мақсад → пардохт → баррасӣ</p></span><span class="metachip">88 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-rings"/></svg></span><span class="tt"><b>Бақайдгирӣ бо сана</b><p>интихоби сана/вақт → толор → пардохт</p></span><span class="metachip">31 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-indigo" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-biz"/></svg></span><span class="tt"><b>Хизмати шахси ҳуқуқӣ</b><p>интихоби ташкилот → ваколат → пардохт</p></span><span class="metachip">57 хизмат</span></a>
+            <a class="opt" href="new-service.html"><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома / справка</b><p>тасдиқ → мақсад → расондан · аксаран ройгон</p></span><span class="metachip">142 хизмат</span></a>
+            <a class="opt" href="new-service.html"><span class="tile t-blue" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Ариза бо ҳуҷҷат</b><p>боргузорӣ → мақсад → пардохт → баррасӣ</p></span><span class="metachip">88 хизмат</span></a>
+            <a class="opt" href="new-service.html"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-rings"/></svg></span><span class="tt"><b>Бақайдгирӣ бо сана</b><p>интихоби сана/вақт → толор → пардохт</p></span><span class="metachip">31 хизмат</span></a>
+            <a class="opt" href="new-service.html"><span class="tile t-indigo" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span><span class="tt"><b>Хизмати шахси ҳуқуқӣ</b><p>интихоби ташкилот → ваколат → пардохт</p></span><span class="metachip">57 хизмат</span></a>
           </div>
         </div>
       </section>
@@ -135,8 +131,8 @@
   </div>
 </div>
 
-<script src="js/builder-i18n.js?v=3"></script>
-<script src="js/builder.js"></script>
+<script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
 /* ===================== registry — live search + status filter =====================
    Filters the static service rows by free text (name / ведомство / code) and by

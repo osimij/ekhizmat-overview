@@ -1,0 +1,32 @@
+import { test, expect } from '@playwright/test';
+
+const cases = [
+  { name: 'launcher', route: '/', sizes: [[360, 800], [768, 1024], [1440, 1000], [1920, 1080]], noOverflow: true },
+  { name: 'citizen', route: '/citizen/', sizes: [[320, 800], [360, 800], [390, 844], [768, 1024], [1024, 900], [1440, 1000]], noOverflow: true },
+  { name: 'admin', route: '/admin/builder.html', sizes: [[768, 900], [1024, 900], [1280, 900], [1440, 900], [1920, 1080]] },
+  { name: 'ministry', route: '/ministry/', sizes: [[1024, 768], [1280, 800], [1440, 900], [1920, 1080]] },
+  { name: 'tson', route: '/tson/', sizes: [[1280, 720], [1366, 768], [1440, 900], [1920, 1080]] },
+];
+
+for (const item of cases) {
+  for (const [width, height] of item.sizes) {
+    test(`${item.name} renders at ${width}x${height}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto(`${item.route}?present=1&theme=light&lang=tg`, { waitUntil: 'networkidle' });
+      await expect(page.locator('body')).toBeVisible();
+      if (item.name !== 'launcher') await expect(page.locator('[data-shared-platform-switcher]')).toBeVisible();
+      if (item.noOverflow) {
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        expect(overflow).toBeLessThanOrEqual(1);
+      }
+      if (item.name === 'tson') await expect(page.locator('body')).not.toHaveClass(/is-too-small/);
+    });
+  }
+}
+
+test('TSON explains its intentional minimum width below 1280px', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
+  await page.goto('/tson/?present=1&theme=light&lang=ru');
+  await expect(page.locator('body')).toHaveClass(/is-too-small/);
+  await expect(page.locator('.too-small')).toBeVisible();
+});

@@ -5,24 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Конструктор — Хизмати нав</title>
-<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/screens.css">
-<link rel="stylesheet" href="css/blueprint.css">
-<link rel="stylesheet" href="css/builder.css?v=2">
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/admin/app.css">
 </head>
-<body>
-<script src="js/sprite.js"></script>
+<body data-platform="admin">
 
-<div class="bp-bar">
-  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+
+<div class="bp-bar" data-dev-only data-prototype>
+  <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
   <label for="bpnav">Экран</label>
   <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
   <div class="bp-right">
-    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
   </div>
 </div>
 
@@ -30,10 +26,10 @@
   <aside class="adm-rail" data-bld-rail data-active="new"></aside>
   <div class="adm-main">
     <div class="adm-top">
-      <a class="back" href="services.html" style="margin:0"><svg><use href="#i-chev-l"/></svg><span>Хизматрасониҳо</span></a>
+      <a class="back" href="services.html" style="margin:0"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span>Хизматрасониҳо</span></a>
       <span class="at-title" style="margin-left:var(--s-3)">Хизмати нав</span>
       <div class="at-right">
-        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg></button>
+        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
         <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
       </div>
     </div>
@@ -54,9 +50,9 @@
           <section data-step="1">
             <h2>Аз қаер оғоз кунем?</h2>
             <p class="lead">Аз сафед бунёд кунед, ё аз қолаб/хизмати мавҷуд, ки зудтар аст — қадамҳои стандартӣ аллакай омода мешаванд.</p>
-            <label class="opt"><input type="radio" name="method"><span class="tile t-slate sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-plus"/></svg></span><span class="tt"><b>Аз сафед</b><p>раванди холӣ — ҳама чизро худатон месозед.</p></span></label>
-            <label class="opt"><input type="radio" name="method" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span><span class="meta"><span class="pill-st review">тавсия</span></span></label>
-            <label class="opt"><input type="radio" name="method"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-refresh"/></svg></span><span class="tt"><b>Нусха аз хизмати мавҷуд</b><p>хизмати монандро нусхабардорӣ ва тағйир диҳед.</p></span></label>
+            <label class="opt"><input type="radio" name="method"><span class="tile t-slate sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><span class="tt"><b>Аз сафед</b><p>раванди холӣ — ҳама чизро худатон месозед.</p></span></label>
+            <label class="opt"><input type="radio" name="method" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span><span class="meta"><span class="pill-st review">тавсия</span></span></label>
+            <label class="opt"><input type="radio" name="method"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-refresh"/></svg></span><span class="tt"><b>Нусха аз хизмати мавҷуд</b><p>хизмати монандро нусхабардорӣ ва тағйир диҳед.</p></span></label>
             <div class="j-acts"><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
           </section>
 
@@ -65,10 +61,10 @@
             <h2>Кадом қолаб?</h2>
             <p class="lead">Қолаб қадамҳои стандартии раванд ва майдонҳои маъмулиро муайян мекунад. Дар конструктор ҳамаашро тағйир дода метавонед.</p>
             <div data-select data-select-out="#rvBase">
-              <label class="opt"><input type="radio" name="tpl" data-val="Маълумотнома / справка" checked tabindex="-1"><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома / справка</b><p>тасдиқи маълумот → мақсад → расондан. Аксаран ройгон.</p></span><span class="metachip">142 хизмат</span></label>
-              <label class="opt"><input type="radio" name="tpl" data-val="Ариза бо ҳуҷҷат" tabindex="-1"><span class="tile t-blue" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-doc"/></svg></span><span class="tt"><b>Ариза бо ҳуҷҷат</b><p>боргузории ҳуҷҷат → мақсад → пардохт → баррасӣ.</p></span><span class="metachip">88 хизмат</span></label>
-              <label class="opt"><input type="radio" name="tpl" data-val="Бақайдгирӣ бо сана" tabindex="-1"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-rings"/></svg></span><span class="tt"><b>Бақайдгирӣ бо сана ва вақт</b><p>интихоби сана/толор → пардохт → баррасӣ.</p></span><span class="metachip">31 хизмат</span></label>
-              <label class="opt"><input type="radio" name="tpl" data-val="Хизмати шахси ҳуқуқӣ" tabindex="-1"><span class="tile t-indigo" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="#i-biz"/></svg></span><span class="tt"><b>Хизмати шахси ҳуқуқӣ</b><p>интихоби ташкилот → ваколат → пардохт.</p></span><span class="metachip">57 хизмат</span></label>
+              <label class="opt"><input type="radio" name="tpl" data-val="Маълумотнома / справка" checked tabindex="-1"><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома / справка</b><p>тасдиқи маълумот → мақсад → расондан. Аксаран ройгон.</p></span><span class="metachip">142 хизмат</span></label>
+              <label class="opt"><input type="radio" name="tpl" data-val="Ариза бо ҳуҷҷат" tabindex="-1"><span class="tile t-blue" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Ариза бо ҳуҷҷат</b><p>боргузории ҳуҷҷат → мақсад → пардохт → баррасӣ.</p></span><span class="metachip">88 хизмат</span></label>
+              <label class="opt"><input type="radio" name="tpl" data-val="Бақайдгирӣ бо сана" tabindex="-1"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-rings"/></svg></span><span class="tt"><b>Бақайдгирӣ бо сана ва вақт</b><p>интихоби сана/толор → пардохт → баррасӣ.</p></span><span class="metachip">31 хизмат</span></label>
+              <label class="opt"><input type="radio" name="tpl" data-val="Хизмати шахси ҳуқуқӣ" tabindex="-1"><span class="tile t-indigo" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span><span class="tt"><b>Хизмати шахси ҳуқуқӣ</b><p>интихоби ташкилот → ваколат → пардохт.</p></span><span class="metachip">57 хизмат</span></label>
             </div>
             <div class="j-acts"><button class="btn btn-sec" data-back>Бозгашт</button><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
           </section>
@@ -85,14 +81,14 @@
 
             <div class="field"><label>Категория ва ранг</label>
               <div class="chips-row" data-select data-select-out="#rvCat" style="gap:8px;flex-wrap:wrap">
-                <button class="tile t-teal sh-r" type="button" data-val="Маълумотнома" aria-pressed="true" style="width:40px;height:40px" aria-label="Маълумотнома"><svg style="width:20px;height:20px"><use href="#i-cat-cert"/></svg></button>
-                <button class="tile t-violet" type="button" data-val="Андоз" aria-pressed="false" style="width:40px;height:40px" aria-label="Андоз"><svg style="width:20px;height:20px"><use href="#i-cat-tax"/></svg></button>
-                <button class="tile t-blue" type="button" data-val="Ҳуҷҷат" aria-pressed="false" style="width:40px;height:40px" aria-label="Ҳуҷҷат"><svg style="width:20px;height:20px"><use href="#i-doc"/></svg></button>
-                <button class="tile t-rose sh-l" type="button" data-val="Оила" aria-pressed="false" style="width:40px;height:40px" aria-label="Оила"><svg style="width:20px;height:20px"><use href="#i-cat-family"/></svg></button>
-                <button class="tile t-cyan sh-c" type="button" data-val="Замин" aria-pressed="false" style="width:40px;height:40px" aria-label="Замин"><svg style="width:20px;height:20px"><use href="#i-cat-land"/></svg></button>
-                <button class="tile t-steel sh-r" type="button" data-val="Шиноснома" aria-pressed="false" style="width:40px;height:40px" aria-label="Шиноснома"><svg style="width:20px;height:20px"><use href="#i-cat-passport"/></svg></button>
-                <button class="tile t-indigo" type="button" data-val="Соҳибкорӣ" aria-pressed="false" style="width:40px;height:40px" aria-label="Соҳибкорӣ"><svg style="width:20px;height:20px"><use href="#i-biz"/></svg></button>
-                <button class="tile t-amber sh-r" type="button" data-val="Дигар" aria-pressed="false" style="width:40px;height:40px" aria-label="Дигар"><svg style="width:20px;height:20px"><use href="#i-cat-other"/></svg></button>
+                <button class="tile t-teal sh-r" type="button" data-val="Маълумотнома" aria-pressed="true" style="width:40px;height:40px" aria-label="Маълумотнома"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></button>
+                <button class="tile t-violet" type="button" data-val="Андоз" aria-pressed="false" style="width:40px;height:40px" aria-label="Андоз"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></button>
+                <button class="tile t-blue" type="button" data-val="Ҳуҷҷат" aria-pressed="false" style="width:40px;height:40px" aria-label="Ҳуҷҷат"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></button>
+                <button class="tile t-rose sh-l" type="button" data-val="Оила" aria-pressed="false" style="width:40px;height:40px" aria-label="Оила"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-family"/></svg></button>
+                <button class="tile t-cyan sh-c" type="button" data-val="Замин" aria-pressed="false" style="width:40px;height:40px" aria-label="Замин"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></button>
+                <button class="tile t-steel sh-r" type="button" data-val="Шиноснома" aria-pressed="false" style="width:40px;height:40px" aria-label="Шиноснома"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg></button>
+                <button class="tile t-indigo" type="button" data-val="Соҳибкорӣ" aria-pressed="false" style="width:40px;height:40px" aria-label="Соҳибкорӣ"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></button>
+                <button class="tile t-amber sh-r" type="button" data-val="Дигар" aria-pressed="false" style="width:40px;height:40px" aria-label="Дигар"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-other"/></svg></button>
               </div>
               <p class="help">Ранг ва нишона дар феҳрист ва кортҳои шаҳрванд истифода мешаванд.</p>
             </div>
@@ -131,10 +127,10 @@
               <div class="rv"><span class="k">Нарх</span><span class="v ok" id="rvCost">ройгон</span></div>
               <div class="rv"><span class="k">Раванди стандартӣ</span><span class="v">тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат</span></div>
             </div>
-            <div class="note-info" style="margin-top:var(--s-4)"><svg><use href="#i-star8"/></svg><p>Имзои электронӣ, автозахира ва пайгирии шаффоф ба ҳамаи хизматҳо худкор илова мешаванд — онҳоро сохтан лозим нест.</p></div>
+            <div class="note-info" style="margin-top:var(--s-4)"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg><p>Имзои электронӣ, автозахира ва пайгирии шаффоф ба ҳамаи хизматҳо худкор илова мешаванд — онҳоро сохтан лозим нест.</p></div>
             <div class="j-acts">
               <button class="btn btn-sec" data-back>Бозгашт</button>
-              <a class="btn btn-pri btn-lg" href="builder.html"><svg><use href="#i-edit"/></svg>Кушодани конструктор</a>
+              <a class="btn btn-pri btn-lg" href="builder.html"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg>Кушодани конструктор</a>
             </div>
           </section>
         </div>
@@ -143,8 +139,8 @@
   </div>
 </div>
 
-<script src="js/builder-i18n.js?v=3"></script>
-<script src="js/builder.js"></script>
+<script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
 /* minimal page wiring: cost toggle + reflect a couple values into the review */
 (function(){

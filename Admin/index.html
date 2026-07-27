@@ -5,26 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Конструктори хизматрасонӣ — Макетҳо</title>
-<script>try{var t=localStorage.getItem("ekh-theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="css/tokens.css">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/components.css">
-<link rel="stylesheet" href="css/screens.css">
-<link rel="stylesheet" href="css/blueprint.css">
-<link rel="stylesheet" href="css/builder.css?v=2">
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/admin/app.css">
 </head>
-<body>
-<script src="js/sprite.js"></script>
+<body data-platform="admin">
+
 
 <!-- blueprint toolbar (dev chrome; hidden in screenshot exports) -->
-<div class="bp-bar">
-  <span class="bp-tag"><svg><use href="#i-star8"/></svg>Макет</span>
+<div class="bp-bar" data-dev-only data-prototype>
+  <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
   <label for="bpnav">Экран</label>
   <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
   <div class="bp-right">
     <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема">
-      <svg class="th-moon"><use href="#i-moon"/></svg><svg class="th-sun"><use href="#i-sun"/></svg>
+      <svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg>
     </button>
   </div>
 </div>
@@ -33,9 +29,9 @@
   <div class="wrap">
     <div class="hdr-in">
       <a class="brand" href="index.html" aria-label="eKhizmat">
-        <svg class="mark" aria-hidden="true"><use href="#i-logo"/></svg><b>eKhizmat</b>
+        <svg class="mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b>
       </a>
-      <span class="metachip" style="margin-left:8px">Конструктор · макет</span>
+      <span class="metachip" style="margin-left:8px">Маъмури хизмат</span>
     </div>
   </div>
 </header>
@@ -45,23 +41,23 @@
     <div class="gx-hero">
       <span class="eyebrow">Конструктори хизматрасонӣ — блоки мустақил</span>
       <h1>Маъмур худаш хизмати нав месозад — бе барномасоз</h1>
-      <p>Се экран барои маъмури платформа: феҳристи ҳамаи хизматҳо, оғози хизмати нав (аз сафед, аз қолаб ё нусхабардорӣ) ва худи <b>конструктор</b> — ҷое ки шакл ва раванди (пайплайни) хизмат бо пешнамоиши зиндаи чашми шаҳрванд сохта мешавад. Як ҷараён ҳамаи хизматҳоро ба вуҷуд меорад — ҳамон чизе ки <code>apply.html</code> render мекунад. Дар услуби ягонаи eKhizmat, тоҷикӣ + русӣ. Тафсилот дар <code>docs/HANDOFF.md</code>.</p>
+      <p>Дар як ҷой феҳристи хизматҳоро идора кунед, хизмати навро аз сафед ё қолаб оғоз намоед ва шаклу раванди онро бо пешнамоиши зиндаи чашми шаҳрванд созед. Ҳамаи тағйирот пеш аз нашр санҷида мешаванд ва ба портали шаҳрванд танҳо баъд аз тасдиқ мерасанд.</p>
     </div>
 
     <section class="gx-sect" aria-labelledby="s-bld">
       <div class="sect-h"><h2 id="s-bld">Конструктор</h2><span class="sub">сохтани шакл ва раванди хизмат — феҳрист, оғоз, таҳрир</span></div>
       <div class="gx-grid">
         <a class="gx-card" href="services.html">
-          <div class="gx-top"><span class="tile t-blue"><svg><use href="#i-cat-cert"/></svg></span><h3>Феҳристи хизматҳо</h3><span class="num">К1</span></div>
-          <p>Ҳамаи 612 хизмат — фаъол ва сиёҳнавис. Ҷустуҷӯ, филтр аз рӯи идора ва ҳолат, кушодани ҳар яке барои таҳрир ё сохтани нав.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+          <div class="gx-top"><span class="tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><h3>Феҳристи хизматҳо</h3><span class="num">К1</span></div>
+          <p>Ҳамаи 612 хизмат — фаъол ва сиёҳнавис. Ҷустуҷӯ, филтр аз рӯи идора ва ҳолат, кушодани ҳар яке барои таҳрир ё сохтани нав.</p><span class="gx-go">Кушодан<svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
         </a>
         <a class="gx-card" href="new-service.html">
-          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="#i-plus"/></svg></span><h3>Хизмати нав</h3><span class="num">К2</span></div>
-          <p>Оғоз: аз сафед, аз қолаби омода (маълумотнома, ариза, бақайдгирӣ), ё нусхабардории хизмати мавҷуд. Сипас маълумоти асосӣ — ном, идора, нишона, нарх.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+          <div class="gx-top"><span class="tile t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><h3>Хизмати нав</h3><span class="num">К2</span></div>
+          <p>Оғоз: аз сафед, аз қолаби омода (маълумотнома, ариза, бақайдгирӣ), ё нусхабардории хизмати мавҷуд. Сипас маълумоти асосӣ — ном, идора, нишона, нарх.</p><span class="gx-go">Кушодан<svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
         </a>
         <a class="gx-card" href="builder.html">
-          <div class="gx-top"><span class="tile t-violet sh-l"><svg><use href="#i-edit"/></svg></span><h3>Таҳрири шакл ва раванд</h3><span class="num">К3</span></div>
-          <p>Се сутун: раванд (пайплайн аз қадамҳо) · муҳаррири майдонҳо бо палитраи навъҳо · пешнамоиши зиндаи чашми шаҳрванд. Майдон илова кунед — дарҳол дар пешнамоиш пайдо мешавад.</p><span class="gx-go">Кушодан<svg><use href="#i-chev-r"/></svg></span>
+          <div class="gx-top"><span class="tile t-violet sh-l"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span><h3>Таҳрири шакл ва раванд</h3><span class="num">К3</span></div>
+          <p>Се сутун: раванд (пайплайн аз қадамҳо) · муҳаррири майдонҳо бо палитраи навъҳо · пешнамоиши зиндаи чашми шаҳрванд. Майдон илова кунед — дарҳол дар пешнамоиш пайдо мешавад.</p><span class="gx-go">Кушодан<svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
         </a>
       </div>
     </section>
@@ -69,17 +65,17 @@
     <section class="gx-sect" aria-labelledby="s-how">
       <div class="sect-h"><h2 id="s-how">Чӣ тавр кор мекунад</h2><span class="sub">як қолаб → ҳамаи хизматҳо</span></div>
       <div class="jmap">
-        <div class="jstage"><span class="tile t-teal sh-r"><svg><use href="#i-plus"/></svg></span><div><b>1 · Оғоз</b><p>Маъмур қолаб ё хизмати мавҷударо интихоб мекунад ва маълумоти асосиро медиҳад.</p></div></div>
-        <div class="jstage"><span class="tile t-blue"><svg><use href="#i-edit"/></svg></span><div><b>2 · Раванд</b><p>Қадамҳои хизмат: тасдиқи маълумот → майдонҳои нав → расондан → баррасӣ → додани ҳуҷҷат.</p></div></div>
-        <div class="jstage"><span class="tile t-violet sh-l"><svg><use href="#i-dots"/></svg></span><div><b>3 · Майдонҳо</b><p>Аз палитра навъи майдон илова мекунад: матн, рӯйхат, сана, файл, маълумоти феҳрист…</p></div></div>
-        <div class="jstage"><span class="tile t-amber sh-r"><svg><use href="#i-eye"/></svg></span><div><b>4 · Пешнамоиш</b><p>Дар тарафи рост чашми шаҳрванд — дарҳол мебинад, ки шакл чӣ гуна намоиш меёбад.</p></div></div>
-        <div class="jstage"><span class="tile t-green sh-c"><svg><use href="#i-check"/></svg></span><div><b>5 · Нашр</b><p>Захира ҳамчун сиёҳнавис ё нашр — хизмат дар <code>apply.html</code>-и шаҳрвандон фаъол мешавад.</p></div></div>
+        <div class="jstage"><span class="tile t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><div><b>1 · Оғоз</b><p>Маъмур қолаб ё хизмати мавҷударо интихоб мекунад ва маълумоти асосиро медиҳад.</p></div></div>
+        <div class="jstage"><span class="tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span><div><b>2 · Раванд</b><p>Қадамҳои хизмат: тасдиқи маълумот → майдонҳои нав → расондан → баррасӣ → додани ҳуҷҷат.</p></div></div>
+        <div class="jstage"><span class="tile t-violet sh-l"><svg><use href="/design-system/assets/icons.svg#i-dots"/></svg></span><div><b>3 · Майдонҳо</b><p>Аз палитра навъи майдон илова мекунад: матн, рӯйхат, сана, файл, маълумоти феҳрист…</p></div></div>
+        <div class="jstage"><span class="tile t-amber sh-r"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg></span><div><b>4 · Пешнамоиш</b><p>Дар тарафи рост чашми шаҳрванд — дарҳол мебинад, ки шакл чӣ гуна намоиш меёбад.</p></div></div>
+        <div class="jstage"><span class="tile t-green sh-c"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span><div><b>5 · Нашр</b><p>Ҳамчун сиёҳнавис захира кунед ё пас аз санҷиш барои шаҳрвандон нашр намоед.</p></div></div>
       </div>
     </section>
   </div>
 </main>
 
-<script src="js/builder-i18n.js?v=3"></script>
-<script src="js/builder.js"></script>
+<script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
 </body>
 </html>

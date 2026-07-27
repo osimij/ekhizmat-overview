@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat · АРМ оператора ЦОН</title>
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/tson/app.css">
+</head>
+<body data-platform="tson">
+
+<a class="skip-link" href="#screen">К содержимому</a>
+
+<!-- Шелл (§3.2). Размывается под замком, поэтому это один узел. -->
+<div id="shell" class="shell">
+  <header id="topbar" class="topbar"></header>
+
+  <!-- Session bar и stepper существуют только в сессии — не hidden,
+       а с пустым содержимым: в них физически нечему быть вне сессии (P1). -->
+  <div id="sessionbar" class="sessionbar" hidden></div>
+  <div id="stepper" class="stepper-bar" hidden></div>
+
+  <!-- Контейнер данных сессии. wipe() чистит именно его (§2.3.3). -->
+  <main id="screen" class="screen" tabindex="-1">
+    <div id="session-root"></div>
+  </main>
+</div>
+
+<!-- Слои поверх шелла -->
+<div id="lock-root"></div>
+<div id="layers"></div>
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<!-- §9 — пороги таймера сессии объявляются сюда. Отдельно от тостов: тост
+     живёт 4 секунды и уносит текст с собой, а порог «до конца приёма минута»
+     должен оставаться доступным скринридеру, пока он верен. -->
+<div id="live" class="sr-only" aria-live="polite"></div>
+
+<!-- §7 — окно уже 1280px. Заглушка вне #shell: она не должна размываться.
+     Текст лежит в разметке по-русски и переписывается из словаря при старте
+     (см. app.js): без словаря АРМ вообще не запустится, но заглушка обязана
+     быть читаемой и в этот момент. -->
+<div class="too-small">
+  <svg class="icon icon--48" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+  <span class="empty__title" data-i18n="err.tooSmall.title">Разверните окно</span>
+  <span class="empty__hint" data-i18n="err.tooSmall.hint">АРМ рассчитан на ширину от 1280 пикселей.
+    Разверните окно браузера на весь экран.</span>
+</div>
+
+<noscript>
+  <div class="canvas empty">
+    <span class="empty__title">Нужен JavaScript</span>
+    <span class="empty__hint">АРМ — приложение, включите JavaScript в браузере.</span>
+  </div>
+</noscript>
+
+<script type="module" src="/apps/tson/js/app.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
+</body>
+</html>

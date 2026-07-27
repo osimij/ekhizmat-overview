@@ -1,0 +1,23 @@
+:root {
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-layer: cubic-bezier(.2, 0, 0, 1);
+  --t-fast: 120ms;
+  --t-step: 180ms;
+  --t-layer: 200ms;
+  --t-med: 200ms;
+  --t-color: 300ms;
+  --t-theme: 300ms;
+  --t-draw: 400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-step: 0ms;
+    --t-layer: 0ms;
+    --t-med: 0ms;
+    --t-color: 0ms;
+    --t-theme: 0ms;
+    --t-draw: 0ms;
+  }
+}

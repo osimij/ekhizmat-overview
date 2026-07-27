@@ -1,0 +1,24 @@
+.wrap { width: min(100%, var(--maxw)); margin-inline: auto; padding-inline: var(--s-6); }
+.col { width: min(100%, var(--col)); margin-inline: auto; padding-inline: var(--s-5); }
+.muted, .ink-3 { color: var(--ink-3); }
+.ink-2 { color: var(--ink-2); }
+.ink-faint { color: var(--ink-faint); }
+.small { font-size: var(--fs-13); }
+.tnum { font-variant-numeric: tabular-nums; }
+.spacer { flex: 1; }
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.stack { display: grid; }
+.g-2 { gap: var(--s-2); }
+.g-3 { gap: var(--s-3); }
+.g-4 { gap: var(--s-4); }
+.grow { flex: 1; }

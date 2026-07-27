@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="tg" data-theme="light" data-auth="out">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eKhizmat</title>
+<!-- restore the stored session before first paint so signed-in users see no signed-out flash -->
+<script>try{if(localStorage.getItem("ekh.citizen.auth")==="1")document.documentElement.dataset.auth="in"}catch(e){}</script>
+<!-- same for the theme: stored choice first, else the device's scheme -->
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="preload" href="/design-system/assets/fonts/ALSHaussNextVF.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="/apps/citizen/assets/hero.webp" as="image" type="image/webp" media="(min-width:881px)">
+<link rel="preload" href="/apps/citizen/assets/hero-dark.webp" as="image" type="image/webp" media="(min-width:881px) and (prefers-color-scheme:dark)">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/citizen/app.css">
+</head>
+<body data-platform="citizen">
+<a class="skip" href="#main" data-i18n="a11y.skip">Ба мазмуни асосӣ гузаштан</a>
+
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="hdr-in">
+      <button class="brand" data-go="home" aria-label="eKhizmat">
+        <svg class="mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg>
+        <b>eKhizmat</b>
+      </button>
+      <div class="dd acct">
+        <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false">
+          <span id="acctCur" data-i18n="acct.person">Шахси воқеӣ</span>
+          <svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+        </button>
+        <div class="dd-menu" role="listbox" data-i18n-aria="acct.label" aria-label="Намуди ҳисоб">
+          <div class="dd-label" aria-hidden="true" data-i18n="acct.label">Намуди ҳисоб</div>
+          <button role="option" data-acct="person" aria-selected="true"><span data-i18n="acct.person">Шахси воқеӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+          <button role="option" data-acct="biz" aria-selected="false"><span data-i18n="acct.biz">Шахси ҳуқуқӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+        </div>
+      </div>
+      <div class="hdr-acts">
+        <div class="dd lang">
+          <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">
+            <span id="langCur">ТҶ</span>
+            <svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+          </button>
+          <div class="dd-menu" role="listbox" aria-label="Забон / Language">
+            <div class="dd-label" aria-hidden="true" data-i18n="lang.label">Забон</div>
+            <button role="option" data-lang="tg" aria-selected="true"><span>Тоҷикӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+            <button role="option" data-lang="ru" aria-selected="false"><span>Русский</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+            <button role="option" data-lang="en" aria-selected="false"><span>English</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+          </div>
+        </div>
+        <button class="icon-btn" id="themeBtn" data-i18n-aria="nav.theme" aria-label="Иваз кардани тема">
+          <svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg>
+          <svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg>
+        </button>
+        <button class="icon-btn" id="bellBtn" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
+          <svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span class="dot"></span>
+        </button>
+        <button class="avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман">Ф</button>
+        <button class="btn btn-pri btn-sm" id="loginBtn" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<!-- ============ HOME ============ -->
+<section class="screen" id="scr-home">
+  <div class="hero">
+    <div class="wrap hero-in">
+      <h1 id="helloH" tabindex="-1"><span id="heroTitle" data-i18n="home.title">Хизматҳои давлатии Ҷумҳурии Тоҷикистон</span><span id="heroHi" data-i18n="home.hi">Хуш омадед, Фируза</span></h1>
+      <p class="sub" id="heroSub" data-i18n="home.sub">Ҳамаи хизматҳои давлатӣ дар як ҷо - бе навбат, бе коғазбозӣ ва бо забони одамӣ.</p>
+
+      <div class="search" id="searchWrap">
+        <svg class="ic"><use href="/design-system/assets/icons.svg#i-search"/></svg>
+        <input id="searchInput" type="search" autocomplete="off" role="combobox"
+               aria-expanded="false" aria-controls="searchItems" aria-autocomplete="list"
+               data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ"
+               data-i18n-ph="search.ph" placeholder="Ман мехоҳам...">
+        <button class="search-btn" id="searchGo" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"/></svg><span data-i18n="search.btn">Ҷустуҷӯ</span></button>
+        <div class="search-pop" id="searchPop">
+          <div class="hint" id="searchHint" data-i18n="search.hint">Бо суханони худ нависед - мо идораашро худамон меёбем</div>
+          <div id="searchItems" role="listbox" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" aria-describedby="searchHint"></div>
+        </div>
+      </div>
+
+      <!-- 12 service categories per audience, rendered from services-data.js -->
+      <div class="cats" id="cats"></div>
+
+      <!-- Dushanbe artwork: CSS bleeds it to the band's edges and fades it into the wash -->
+      <div class="hero-art" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- "for you" hub: latest notifications, applications and payments (signed-in only) -->
+    <section class="feed" id="feedSect" data-i18n-aria="f.aria" aria-label="Барои шумо">
+      <div class="feed-head">
+        <div class="ftabs" role="tablist">
+          <button class="ftab" id="ftab-notif" role="tab" aria-selected="true" aria-controls="fpane-notif" data-ftab="notif"><span data-i18n="f.tab.notif">Огоҳиҳо</span><span class="fbadge hot">3</span></button>
+          <button class="ftab" id="ftab-apps" role="tab" aria-selected="false" aria-controls="fpane-apps" data-ftab="apps"><span data-i18n="f.tab.apps">Аризаҳо</span><span class="fbadge">2</span></button>
+          <button class="ftab" id="ftab-pay" role="tab" aria-selected="false" aria-controls="fpane-pay" data-ftab="pay"><span data-i18n="f.tab.pay">Пардохтҳо</span><span class="fbadge hot">1</span></button>
+        </div>
+        <button class="feed-all" data-go="notifs" data-i18n="f.all">Ҳамаи огоҳиҳо</button>
+      </div>
+
+      <div class="feed-grid">
+        <div class="feed-col">
+          <div class="fpane" id="fpane-notif" role="tabpanel" aria-labelledby="ftab-notif" tabindex="0">
+            <button class="frow" data-go="journey">
+              <span class="fic tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
+              <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+              <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
+              <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+            </button>
+            <button class="frow" data-toast="toast.demo">
+              <span class="fic tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+              <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+              <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
+              <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+            </button>
+            <button class="frow" data-go="tracking">
+              <span class="fic tile t-green sh-r"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+              <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+              <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
+              <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+            </button>
+          </div>
+
+          <div class="fpane" id="fpane-apps" role="tabpanel" aria-labelledby="ftab-apps" tabindex="0" hidden>
+            <button class="app-row" data-go="tracking">
+              <span class="ic tile t-steel sh-c"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+              <span class="tt"><b data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</b><span data-i18n="apps.i1.s">САҲШ-и ноҳияи Сино - ариза №ТҶ-2026-184302</span></span>
+              <span class="status"><span class="pulse"></span><span data-i18n="status.review">Дар баррасӣ</span></span>
+            </button>
+            <button class="app-row" data-go="tracking">
+              <span class="ic tile t-indigo sh-c"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
+              <span class="tt"><b data-i18n="apps.i2.t">Сабти соҳибкори инфиродӣ</b><span data-i18n="apps.i2.s">Кумитаи андоз - ариза №ТҶ-2026-179908</span></span>
+              <span class="status done"><svg width="14" height="14"><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="status.done">Иҷро шуд</span></span>
+            </button>
+          </div>
+
+          <div class="fpane" id="fpane-pay" role="tabpanel" aria-labelledby="ftab-pay" tabindex="0" hidden>
+            <button class="frow" data-toast="toast.demo">
+              <span class="fic tile t-red"><svg><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
+              <span class="fk"><b data-i18n="f.p1.k">Андоз</b><span data-i18n="f.p1.d">то 1 июл</span></span>
+              <span class="ft"><b data-i18n="f.p1.t">Андози нақлиёт барои соли 2026</b><span data-i18n="f.p1.p">Кумитаи андоз - ҳисоби №АН-44213</span></span>
+              <span class="fact"><span class="btn btn-pri" data-i18n="f.p1.cta">Пардохтан</span></span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="pay-card">
+          <div class="pt" data-i18n="pay.t">Ба пардохт: 1 ҳисоби андоз</div>
+          <div class="sum" data-i18n="pay.sum">86,40 смн.</div>
+          <div class="old" data-i18n="pay.old">108,00 смн.</div>
+          <div class="note" data-i18n="pay.note">тахфифи 20% ҳангоми пардохт то 1 июл</div>
+          <button class="btn btn-pri" data-toast="toast.demo" data-i18n="pay.cta">Пардохт кардан</button>
+        </aside>
+      </div>
+    </section>
+
+    <section class="sect" aria-labelledby="momH">
+      <div class="sect-h">
+        <h2 id="momH" data-i18n="mom.t">Лаҳзаҳои зиндагӣ</h2>
+        <span class="sub" data-i18n="mom.sub">аз рӯи вазъият интихоб кунед - идораҳоро мо меёбем</span>
+      </div>
+      <div class="moments">
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-indigo"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.biz.t">Тиҷорат мекушоям</h3>
+            <p data-i18n="m.biz.p">Сабт, андоз ва суратҳисоби бонкӣ - ҳамааш дар як ҷаласа.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.biz.m">то 20 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-go="journey">
+          <span class="mi tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.baby.t">Фарзанддор шудам</h3>
+            <p data-i18n="m.baby.p">Шаҳодатнома, рақами андоз ва кумакпулӣ - бо як ариза.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.baby.m">5 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-violet sh-l"><svg><use href="/design-system/assets/icons.svg#i-rings"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.wed.t">Издивоҷ мекунам</h3>
+            <p data-i18n="m.wed.p">Ариза ба САҲШ, интихоби сана ва ҷои маросим.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.wed.m">10 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-move"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.move.t">Ба шаҳри нав мекӯчам</h3>
+            <p data-i18n="m.move.p">Қайди ҷои истиқомат, мактаб ва духтури оилавӣ.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.move.m">12 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-amber sh-c"><svg><use href="/design-system/assets/icons.svg#i-job"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.job.t">Аз кор баромадам</h3>
+            <p data-i18n="m.job.p">Дастгирии молиявӣ, бозомӯзӣ ва ҷустуҷӯи ҷои нав.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.job.m">8 дақиқа - ройгон</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+        <button class="moment" data-toast="toast.demo">
+          <span class="mi tile t-green"><svg><use href="/design-system/assets/icons.svg#i-retire"/></svg></span>
+          <span class="mt">
+            <h3 data-i18n="m.ret.t">Ба нафақа мебароям</h3>
+            <p data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа - пешакӣ бинед, чӣ қадар мешавад.</p>
+            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.ret.m">15 дақиқа</span></span>
+          </span>
+          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        </button>
+      </div>
+    </section>
+
+    <div class="emerg" role="region" aria-labelledby="emH">
+      <svg><use href="/design-system/assets/icons.svg#i-shield"/></svg>
+      <div>
+        <b id="emH" data-i18n="em.t">Ҳуҷҷатҳоятон гум ё дуздида шуданд?</b>
+        <p data-i18n="em.p">Шиносномаи муваққатии рақамӣ фавран дода мешавад, ҳуҷҷатҳои нав бо навбати аввал.</p>
+      </div>
+      <button class="btn btn-danger" data-go="emergency" data-i18n="em.cta">Реҷаи фаврӣ</button>
+    </div>
+
+  </div>
+</section>
+<!-- ============ CATEGORY: services of one group ============ -->
+<section class="screen" id="scr-category" hidden>
+  <div class="catpage">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="cp-head">
+      <h1 id="cpTitle"></h1>
+      <p class="cp-count" id="cpCount"></p>
+    </div>
+    <div class="cp-search">
+      <svg class="ic"><use href="/design-system/assets/icons.svg#i-search"/></svg>
+      <input id="cpSearch" type="search" autocomplete="off" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" data-i18n-ph="cp.search.ph" placeholder="Ҷустуҷӯ дар ин бахш...">
+    </div>
+    <div class="pills" id="cpPills"></div>
+    <div class="filters" id="cpFilters" role="group" data-i18n-aria="cp.f.label" aria-label="Пардохт">
+      <button class="chip" data-pay="all" aria-pressed="true" data-i18n="cp.f.all">Ҳама</button>
+      <button class="chip" data-pay="free" aria-pressed="false" data-i18n="cp.f.free">Ройгон</button>
+      <button class="chip" data-pay="paid" aria-pressed="false" data-i18n="cp.f.paid">Музднок</button>
+    </div>
+    <div class="svc-list" id="cpList"></div>
+    <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
+  </div>
+</section>
+
+<!-- ============ JOURNEY: I JUST HAD A BABY ============ -->
+<section class="screen" id="scr-journey" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+
+    <div class="j-head">
+      <div class="j-prog" id="jprog" aria-hidden="true">
+        <svg class="st on"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
+        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg>
+        <span class="lbl" id="jprogLbl"></span>
+      </div>
+    </div>
+
+    <!-- step 1: confirm child -->
+    <div class="j-step" id="jstep-1">
+      <h2 data-i18n="j1.h">Маълумоти кӯдакро тасдиқ кунед</h2>
+      <p class="lead" data-i18n="j1.p">Ҳамаро аз таваллудхона гирифтем. Танҳо ном лозим аст.</p>
+
+      <div class="field">
+        <label for="childName" data-i18n="j1.name">Номи кӯдак</label>
+        <input class="input" id="childName" data-i18n-ph="j1.name.ph" placeholder="Масалан: Зарина" autocomplete="off">
+        <p class="help" data-i18n="j1.name.help">Фамилия худкор аз волидайн гирифта мешавад: Раҳимова.</p>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.sex">Ҷинс</label>
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="sex" value="f" checked><span data-i18n="j1.sex.f">Духтар</span></label>
+          <label><input type="radio" name="sex" value="m"><span data-i18n="j1.sex.m">Писар</span></label>
+        </div>
+        <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="src.hosp">аз таваллудхонаи №3, Душанбе</span></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.dob">Санаи таваллуд</label>
+        <span class="chip"><b data-i18n="j1.dob.v">8 июни 2026, 09:14</b></span>
+        <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="src.hosp2">тасдиқшуда аз таваллудхона</span></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="j1.par">Волидайн</label>
+        <div class="chips-row">
+          <span class="chip"><b>Фируза Раҳимова</b></span>
+          <span class="chip"><b>Далер Раҳимов</b></span>
+        </div>
+        <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="src.prof">аз профили шаҳрвандии шумо</span></span>
+      </div>
+
+      <div class="j-acts">
+        <button class="btn btn-pri btn-lg" id="toStep2" disabled data-i18n="btn.next">Идома</button>
+      </div>
+      <p class="autosave"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="j.autosave">Худкор сабт шуд - аз ҳар дастгоҳ идома дода метавонед</span></p>
+    </div>
+
+    <!-- step 2: bundled services -->
+    <div class="j-step" id="jstep-2" hidden>
+      <h2 data-i18n="j2.h">Якбора ҳамаашро тайёр мекунем</h2>
+      <p class="lead" data-i18n="j2.p">Ин се хизмат одатан якҷоя лозиманд. Нодаркорашро хомӯш кунед.</p>
+
+      <label class="svc">
+        <input type="checkbox" checked id="svc1">
+        <span class="tt"><b data-i18n="svc1.t">Шаҳодатномаи таваллуд</b><p data-i18n="svc1.p">Рақамӣ - дар ҳамёни шумо; коғазӣ - дар САҲШ-и наздиктарин.</p></span>
+        <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc1.m">тақрибан 2 соат</span></span>
+      </label>
+      <label class="svc">
+        <input type="checkbox" checked id="svc2">
+        <span class="tt"><b data-i18n="svc2.t">Рақами андозсупоранда барои кӯдак</b><p data-i18n="svc2.p">Баъдтар барои боғча, мактаб ва кумакпулиҳо лозим мешавад.</p></span>
+        <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc2.m">фаврӣ</span></span>
+      </label>
+      <label class="svc">
+        <input type="checkbox" checked id="svc3">
+        <span class="tt"><b data-i18n="svc3.t">Кумакпулии моҳона барои кӯдак</b><p data-i18n="svc3.p">350 сомонӣ дар моҳ то сесолагӣ. Ба ҳисоби шумо: Алиф Бонк ···· 4821.</p></span>
+        <span class="meta"><b data-i18n="svc3.b">+350 смн/моҳ</b><span data-i18n="svc3.m">аз моҳи оянда</span></span>
+      </label>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-jback="1" data-i18n="btn.back">Бозгашт</button>
+        <button class="btn btn-pri btn-lg" id="toStep3" data-i18n="btn.next">Идома</button>
+      </div>
+      <p class="autosave"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="j.autosave">Худкор сабт шуд - аз ҳар дастгоҳ идома дода метавонед</span></p>
+    </div>
+
+    <!-- step 3: review -->
+    <div class="j-step" id="jstep-3" hidden>
+      <h2 data-i18n="j3.h">Санҷед ва фиристед</h2>
+      <p class="lead" data-i18n="j3.p">Ҳамин - на бештар. Имзо лозим нест: вуруди шумо ҳамчун имзои электронӣ ҳисоб мешавад.</p>
+
+      <div class="review">
+        <div class="rv"><span class="k" data-i18n="rv.name">Кӯдак</span><span class="v" id="rvName">-</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.dob">Таваллуд</span><span class="v" data-i18n="j1.dob.v">8 июни 2026, 09:14</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.par">Волидайн</span><span class="v" data-i18n="rv.par.v">Фируза ва Далер Раҳимовҳо</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.svc">Хизматҳо</span><span class="v" id="rvSvc">3</span></div>
+        <div class="rv"><span class="k" data-i18n="rv.cost">Пардохт</span><span class="v ok" data-i18n="meta.free">ройгон</span></div>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span data-i18n="j3.consent">Тасдиқ мекунам, ки маълумот дуруст аст. Агар хато бошад, дар ҳар лаҳза ислоҳ карда мешавад - ҷарима нест.</span>
+      </label>
+
+      <div class="j-acts">
+        <button class="btn btn-sec" data-jback="2" data-i18n="btn.back">Бозгашт</button>
+        <button class="btn btn-pri btn-lg" id="submitAll" disabled data-i18n="j3.submit">Фиристодани ҳар се ариза</button>
+      </div>
+    </div>
+
+    <!-- step 4: success -->
+    <div class="j-step" id="jstep-4" hidden>
+      <div class="success">
+        <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
+          <circle cx="50" cy="50" r="46"/>
+          <path d="M30 52l13 13 27-29"/>
+        </svg>
+        <h2 data-i18n="j4.h">Қабул шуд</h2>
+        <p class="when"><span data-i18n="j4.when">имрӯз, 14:02 - ариза №ТҶ-2026-184302</span></p>
+        <div class="s-list">
+          <div class="s-row"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="svc1.t">Шаҳодатномаи таваллуд</span><span class="st-l" data-i18n="j4.s1">то 16:30 тайёр мешавад</span></div>
+          <div class="s-row"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="svc2.t">Рақами андозсупоранда барои кӯдак</span><span class="st-l" data-i18n="j4.s2">аллакай дар ҳамён</span></div>
+          <div class="s-row"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="svc3.t">Кумакпулии моҳона барои кӯдак</span><span class="st-l" data-i18n="j4.s3">аз 1 июл фаъол</span></div>
+        </div>
+        <div class="j-acts j-acts-center">
+          <button class="btn btn-sec" data-go="wallet" data-own="kids" data-i18n="j4.wallet">Ба ҳамён</button>
+          <button class="btn btn-pri btn-lg" data-go="tracking" data-i18n="j4.track">Дидани ҳолат</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EMERGENCY ============ -->
+<section class="screen" id="scr-emergency" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="e-hero">
+      <h1 data-i18n="e.h">Ором бошед - ҳозир ҳамаашро барқарор мекунем</h1>
+      <p class="lead" data-i18n="e.p">Ҳуҷҷатҳои гумшуда фавран бекор карда мешаванд, то каси дигар истифода набарад. Шумо бе ҳуҷҷат намемонед.</p>
+    </div>
+    <div class="e-steps">
+      <div class="e-step"><span class="n">1</span><div><b data-i18n="e.s1.t">Кадом ҳуҷҷатҳо гум шуданд</b><p data-i18n="e.s1.p">Аз рӯйхат интихоб кунед - ҳамаашон дарҳол бекор мешаванд.</p></div></div>
+      <div class="e-step"><span class="n">2</span><div><b data-i18n="e.s2.t">Шиносномаи муваққатии рақамӣ</b><p data-i18n="e.s2.p">Фавран дар ҳамёни шумо пайдо мешавад ва 30 рӯз эътибор дорад.</p></div></div>
+      <div class="e-step"><span class="n">3</span><div><b data-i18n="e.s3.t">Ҳуҷҷатҳои нав - бо навбати аввал</b><p data-i18n="e.s3.p">Аризаҳо худкор бо тамғаи фаврӣ фиристода мешаванд. Пардохт - дар охир, як маротиба.</p></div></div>
+    </div>
+    <button class="btn btn-danger btn-lg btn-block" id="emergStart" data-i18n="e.cta">Оғоз - тақрибан 10 дақиқа</button>
+  </div>
+</section>
+
+<!-- ============ NOTIFICATIONS: full list ============ -->
+<section class="screen" id="scr-notifs" hidden>
+  <div class="col">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <div class="j-head">
+      <h2 data-i18n="nav.notif">Огоҳиҳо</h2>
+      <p class="muted small" data-i18n="n.sub">3 огоҳии нав</p>
+    </div>
+
+    <div class="n-group" data-i18n="f.g.new">Нав</div>
+    <div class="fpane">
+      <button class="frow" data-go="journey">
+        <span class="fic tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
+        <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+        <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
+        <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+        <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
+        <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+      </button>
+      <button class="frow" data-go="tracking">
+        <span class="fic tile t-green sh-r"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+        <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+        <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
+        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+      </button>
+    </div>
+
+    <div class="n-group" data-i18n="f.g.earlier">Пештар</div>
+    <div class="fpane">
+      <button class="frow" data-go="wallet">
+        <span class="fic tile t-green sh-c"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+        <span class="fk"><b data-i18n="f.n4.k">Пардохт</b><span data-i18n="f.n4.d">3 июн</span></span>
+        <span class="ft"><b data-i18n="f.n4.t">Боҷи давлатӣ пардохт шуд</b><span data-i18n="f.n4.p">35,00 смн. - сабти соҳибкори инфиродӣ. Квитансия дар ҳуҷҷатҳои шумо.</span></span>
+        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-slate sh-l"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg></span>
+        <span class="fk"><b data-i18n="f.n5.k">Махфият</b><span data-i18n="f.n5.d">1 июн</span></span>
+        <span class="ft"><b data-i18n="f.n5.t">Бонки «Эсхата» дастрасӣ пурсид</b><span data-i18n="f.n5.p">Ба маълумоти шахсии шумо барои кушодани суратҳисоб. Иҷозат диҳед ё рад кунед.</span></span>
+        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-go="wallet">
+        <span class="fic tile t-teal"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg></span>
+        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n6.d">28 май</span></span>
+        <span class="ft"><b data-i18n="f.n6.t">Маълумотномаи набудани доғи судӣ омода аст</b><span data-i18n="f.n6.p">Ба ҳуҷҷатҳои шумо илова шуд. Мӯҳлаташ 90 рӯз.</span></span>
+        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+      </button>
+      <button class="frow" data-toast="toast.demo">
+        <span class="fic tile t-steel sh-c"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg></span>
+        <span class="fk"><b data-i18n="f.n7.k">Портал</b><span data-i18n="f.n7.d">26 май</span></span>
+        <span class="ft"><b data-i18n="f.n7.t">Реҷаи кор дар рӯзҳои Иди Қурбон</b><span data-i18n="f.n7.p">27-28 май марказҳои хизматрасонӣ кор намекунанд. Хизматҳои онлайн шабонарӯзӣ дастрасанд.</span></span>
+        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROFILE ============ -->
+<section class="screen" id="scr-profile" hidden>
+  <div class="prof">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+
+    <div class="prof-head">
+      <span class="prof-ava" aria-hidden="true">Ф</span>
+      <div>
+        <span class="eyebrow" data-i18n="p.h">Профил</span>
+        <h1>Фируза Раҳимова</h1>
+        <div class="prof-vrf">
+          <span class="tag"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg><span data-i18n="p.verified">Ҳисоби тасдиқшуда</span></span>
+          <span class="how" data-i18n="p.verified.how">тасдиқ: ID-корт, 12.01.2025</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prof-grid">
+      <nav class="prof-nav" data-i18n-aria="p.h" aria-label="Профил">
+        <button class="pn" data-pane="data" aria-current="true"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg><span data-i18n="p.nav.data">Маълумоти ман</span></button>
+        <button class="pn" data-pane="docs" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg><span data-i18n="nav.wallet">Ҳамёни ҳуҷҷатҳо</span></button>
+        <button class="pn" data-pane="apps" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="nav.apps">Аризаҳои ман</span></button>
+        <button class="pn" data-pane="contact" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span data-i18n="p.nav.contact">Тамос ва огоҳиҳо</span></button>
+        <button class="pn" data-pane="family" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-cat-family"/></svg><span data-i18n="p.nav.family">Оила</span></button>
+        <button class="pn" data-pane="sec" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-lock"/></svg><span data-i18n="p.nav.sec">Амният</span></button>
+        <button class="pn" data-pane="access" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg><span data-i18n="p.nav.access">Дастрасӣ ба маълумот</span></button>
+        <button class="pn pn-out" id="logoutBtn"><svg><use href="/design-system/assets/icons.svg#i-out"/></svg><span data-i18n="auth.out">Баромадан</span></button>
+      </nav>
+
+      <div class="prof-body">
+        <section class="pane" id="pane-data" data-i18n-aria="p.nav.data" aria-label="Маълумоти ман">
+          <p class="lead-s" data-i18n="p.data.sub">Ин маълумотро давлат аллакай медонад - дар формаҳо дигар пурсида намешавад. Ҳар сатр манбаи худро нишон медиҳад.</p>
+
+          <div class="note-warn">
+            <svg><use href="/design-system/assets/icons.svg#i-clock"/></svg>
+            <p data-i18n="p.warn.pass">Мӯҳлати шиноснома 14 октябр ба охир мерасад. Ҳоло нав кунед - бе навбат.</p>
+            <button class="btn btn-sec btn-sm" data-toast="toast.demo" data-i18n="card.pass.cta">Нав кардан - 8 дақиқа</button>
+          </div>
+
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.pass.k">Шиноснома</span>
+                <span class="v">Т 4018236 <span class="tag warn" data-i18n="p.pass.exp">то 14.10.2026</span></span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.mvd">аз ВКД</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.birth.k">Сана ва ҷои таваллуд</span>
+                <span class="v" data-i18n="p.birth.v">14.03.1994, Душанбе</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.zags">аз САҲШ</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.inn.k">Рақами андозсупоранда</span>
+                <span class="v">6404 1893 0021</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.tax">аз Кумитаи андоз</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.addr.k">Суроғаи қайд</span>
+                <span class="v" data-i18n="p.addr.v">Душанбе, кӯчаи Рӯдакӣ 84, хонаи 12</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.addr">аз феҳристи суроғаҳо</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span>
+                <span class="v" data-i18n="p.drv.v">AB 552901 - категорияи B</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.bdd">аз БДА</span></span>
+              </div>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.bank.k">Суратҳисоб барои пардохтҳо</span>
+                <span class="v">Алиф Бонк ···· 4821</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.src.you">шумо илова кардед</span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+          </div>
+
+          <div class="fixrow">
+            <p data-i18n="p.fix">Хато ёфтед? Хабар диҳед - ислоҳ мекунем. Ҷарима нест.</p>
+            <button class="btn btn-ghost btn-sm" data-toast="toast.fix" data-i18n="p.fix.btn">Хабар додан</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-docs" hidden data-i18n-aria="nav.wallet" aria-label="Ҳамёни ҳуҷҷатҳо">
+          <p class="lead-s" data-i18n="w.sub">аслӣ ҳамин ҷост - нусхаи коғазӣ шарт нест</p>
+          <div class="filters" role="group" aria-label="Оила">
+            <button class="chip" data-own="me" aria-pressed="true" data-i18n="w.me">Ман</button>
+            <button class="chip" data-own="kids" aria-pressed="false" data-i18n="w.kids">Фарзандон</button>
+            <button class="chip" data-own="parents" aria-pressed="false" data-i18n="w.par">Падару модар</button>
+          </div>
+
+          <div class="docs" id="docGrid">
+            <article class="doc" data-owner="me">
+              <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <span class="kind" data-i18n="d.pass.k">Шиноснома</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">Т 4018236</p>
+              <div class="foot">
+                <span class="exp warn" data-i18n="d.pass.e">то 14.10.2026 - вақти нав кардан</span>
+                <button class="share" data-qr="d.pass.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc earth" data-owner="kids" id="docBirth" hidden>
+              <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <span class="badge-new" data-i18n="badge.new">нав</span>
+              <span class="kind" data-i18n="d.birth.k">Шаҳодатномаи таваллуд</span>
+              <h3 id="docBirthName">Зарина Раҳимова</h3>
+              <p class="num">СТ 0931184</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
+                <button class="share" data-qr="d.birth.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc ink" data-owner="me">
+              <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <span class="kind" data-i18n="d.inn.k">Рақами андозсупоранда</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">6404 1893 0021</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
+                <button class="share" data-qr="d.inn.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc" data-owner="me">
+              <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <span class="kind" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">AB 552901 - категорияи B</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.drv.e">то 03.2029</span>
+                <button class="share" data-qr="d.drv.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+
+            <article class="doc earth" data-owner="me" id="docTemp" hidden>
+              <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <span class="badge-new" data-i18n="badge.new">нав</span>
+              <span class="kind" data-i18n="d.temp.k">Шиносномаи муваққатӣ</span>
+              <h3>Фируза Раҳимова</h3>
+              <p class="num">ВМ 110476</p>
+              <div class="foot">
+                <span class="exp" data-i18n="d.temp.e">30 рӯз эътибор дорад</span>
+                <button class="share" data-qr="d.temp.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
+              </div>
+            </article>
+          </div>
+
+          <p class="wallet-empty" id="walletEmpty" hidden>
+            <span data-i18n="w.empty">Ҳоло ҳуҷҷати падару модар пайваст нашудааст. Онҳоро даъват кунед - ҳуҷҷатҳояшонро бо иҷозаташон идора мекунед.</span><br><br>
+            <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
+          </p>
+        </section>
+
+        <section class="pane" id="pane-apps" hidden data-i18n-aria="nav.apps" aria-label="Аризаҳои ман">
+          <p class="lead-s" data-i18n="p.apps.sub">Ҳамаи аризаҳои шумо дар як ҷо - ҳолат дар вақти воқеӣ намоён.</p>
+          <div class="trk-card">
+            <h3 class="trk-h" data-i18n="trk.h">Шаҳодатномаи таваллуд - Зарина</h3>
+            <p class="muted small trk-sub"><span data-i18n="trk.id">ариза №ТҶ-2026-184302 - бе қуттии сиёҳ: ҳар қадам намоён аст</span></p>
+            <ol class="timeline">
+              <li class="tl">
+                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+                <b data-i18n="tl.1">Қабул шуд</b>
+                <span class="when" data-i18n="tl.1w">имрӯз, 14:02</span>
+              </li>
+              <li class="tl">
+                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+                <b data-i18n="tl.2">Санҷиши худкор гузашт</b>
+                <span class="when" data-i18n="tl.2w">имрӯз, 14:02 - маълумот бо таваллудхона мувофиқ аст</span>
+              </li>
+              <li class="tl now">
+                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg></span>
+                <b data-i18n="tl.3">Дар баррасӣ</b>
+                <span class="when" data-i18n="tl.3w">САҲШ-и ноҳияи Сино, мутахассиси навбатдор</span>
+                <div class="detail">
+                  <span data-i18n="tl.3d">Дар навбат пеш аз шумо: <b id="queueN">3</b> ариза. Тахмини анҷом: имрӯз, то 16:30.</span>
+                  <button class="q" data-toast="toast.chat">
+                    <svg width="15" height="15"><use href="/design-system/assets/icons.svg#i-chat"/></svg><span data-i18n="tl.3q">Савол доред? Бо мутахассис нависед</span>
+                  </button>
+                </div>
+              </li>
+              <li class="tl next">
+                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg></span>
+                <b data-i18n="tl.4">Имзои электронӣ ва ба ҳамёни шумо</b>
+                <span class="when" data-i18n="tl.4w">push-огоҳӣ мефиристем - даркор нест, ки худатон тафтиш кунед</span>
+              </li>
+            </ol>
+          </div>
+          <div class="trk-foot">
+            <button class="btn btn-sec" data-toast="toast.notify"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span data-i18n="trk.notify">Тайёр шавад - огоҳ кунед</span></button>
+            <button class="btn btn-ghost" data-toast="toast.demo" data-i18n="trk.paper">Нусхаи коғазӣ дар куҷо гирифта мешавад</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-contact" hidden data-i18n-aria="p.nav.contact" aria-label="Тамос ва огоҳиҳо">
+          <p class="lead-s" data-i18n="p.ct.sub">Бо ин роҳҳо давлат бо шумо тамос мегирад - шумо худатон идора мекунед.</p>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.phone.k">Телефон</span>
+                <span class="v">+992 93 555 0184 <span class="tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.tag.ok">тасдиқшуда</span></span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="k" data-i18n="p.email.k">Почтаи электронӣ</span>
+                <span class="v">firuza.rahimova@mail.tj <span class="tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.tag.ok">тасдиқшуда</span></span></span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.notif.h">Каналҳои огоҳӣ</h3>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.push">Push дар телефон</span>
+                <span class="k" data-i18n="p.notif.push.s">фаврӣ ва ройгон - роҳи асосӣ</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.push" aria-label="Push дар телефон"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.sms">SMS</span>
+                <span class="k" data-i18n="p.notif.sms.s">танҳо барои қадамҳои муҳим</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.sms" aria-label="SMS"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.notif.mail">Почтаи электронӣ</span>
+                <span class="k" data-i18n="p.notif.mail.s">ҷамъбасти ҳафтаина</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.notif.mail" aria-label="Почтаи электронӣ"><input type="checkbox"><span class="knob"></span></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-family" hidden data-i18n-aria="p.nav.family" aria-label="Оила">
+          <p class="lead-s" data-i18n="p.fam.sub">То 18-солагӣ шумо метавонед аз номи фарзандон ариза диҳед - ҳуҷҷатҳояшон дар ҳамёни шумо.</p>
+          <div class="plist">
+            <div class="pr">
+              <span class="pav earth" aria-hidden="true">З</span>
+              <div class="tt">
+                <span class="v">Зарина Раҳимова</span>
+                <span class="k" data-i18n="p.fam.dau">духтар - таваллуд 8.06.2026</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-go="wallet" data-own="kids" data-i18n="p.fam.docs">Ҳуҷҷатҳо дар ҳамён</button>
+            </div>
+            <div class="pr">
+              <span class="pav" aria-hidden="true">Д</span>
+              <div class="tt">
+                <span class="v">Далер Раҳимов</span>
+                <span class="k" data-i18n="p.fam.spouse">ҳамсар - ҳисоби худро дорад</span>
+              </div>
+            </div>
+          </div>
+          <div class="invite">
+            <div class="tt">
+              <b data-i18n="p.fam.par">Падару модар ҳоло пайваст нестанд</b>
+              <p data-i18n="p.fam.par.p">Даъват кунед - бо розигии онҳо аризаҳо ва ҳуҷҷатҳояшонро идора мекунед.</p>
+            </div>
+            <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-sec" hidden data-i18n-aria="p.nav.sec" aria-label="Амният">
+          <p class="lead-s" data-i18n="p.sec.sub">Ҳисоби шумо калиди ҳамаи ҳуҷҷатҳост. Онро якҷоя ҳифз мекунем.</p>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.pw">Парол</span>
+                <span class="k" data-i18n="p.sec.pw.s">иваз шуд 3 моҳ пеш</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" data-toast="toast.demo" data-i18n="p.btn.change">Иваз кардан</button>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.2fa">Вуруди дуқадама</span>
+                <span class="k" data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.sec.2fa" aria-label="Вуруди дуқадама"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.sec.alert">Огоҳӣ дар бораи вуруди нав</span>
+                <span class="k" data-i18n="p.sec.alert.s">push ва SMS ҳангоми ҳар вуруди ношинос</span>
+              </div>
+              <label class="sw" data-i18n-aria="p.sec.alert" aria-label="Огоҳӣ дар бораи вуруди нав"><input type="checkbox" checked><span class="knob"></span></label>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.sec.dev">Дастгоҳҳои фаъол</h3>
+          <div class="plist">
+            <div class="pr">
+              <div class="tt">
+                <span class="v" data-i18n="p.dev1">Ин дастгоҳ - Chrome, Душанбе</span>
+              </div>
+              <span class="tag"><span data-i18n="p.now">ҳозир</span></span>
+            </div>
+            <div class="pr" id="devRow2">
+              <div class="tt">
+                <span class="v" data-i18n="p.dev2">iPhone - барномаи eKhizmat</span>
+                <span class="k" data-i18n="p.dev2.s">Душанбе - дирӯз, 21:14</span>
+              </div>
+              <button class="btn btn-ghost btn-sm act" id="devOut" data-i18n="p.sec.out">Баромадан</button>
+            </div>
+          </div>
+
+          <div class="prof-foot">
+            <button class="btn btn-sec" data-toast="toast.demo"><svg><use href="/design-system/assets/icons.svg#i-out"/></svg><span data-i18n="p.sec.outall">Аз ҳама дастгоҳҳо баромадан</span></button>
+            <button class="link-danger" data-toast="toast.demo" data-i18n="p.sec.del">Нест кардани ҳисоб</button>
+          </div>
+        </section>
+
+        <section class="pane" id="pane-access" hidden data-i18n-aria="p.nav.access" aria-label="Дастрасӣ ба маълумот">
+          <p class="lead-s" data-i18n="p.acc.sub">Ҳар муроҷиат ба маълумоти шумо сабт мешавад - қуттии сиёҳ нест.</p>
+          <div class="plist">
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc1.org">САҲШ-и ноҳияи Сино</span>
+                <span class="desc" data-i18n="p.acc1.what">маълумоти таваллуд - барои шаҳодатномаи Зарина</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.acc1.why">асос: аризаи шумо №ТҶ-2026-184302</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc1.when">имрӯз, 14:02</span>
+            </div>
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc2.org">Кумитаи андоз</span>
+                <span class="desc" data-i18n="p.acc2.what">додани рақами андоз ба кӯдак</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.acc1.why">асос: аризаи шумо №ТҶ-2026-184302</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc2.when">имрӯз, 14:05</span>
+            </div>
+            <div class="pr top">
+              <div class="tt">
+                <span class="v" data-i18n="p.acc3.org">Алиф Бонк</span>
+                <span class="desc" data-i18n="p.acc3.what">тасдиқи шахсият ҳангоми кушодани суратҳисоб</span>
+                <span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="p.acc3.why">асос: розигии шумо</span></span>
+              </div>
+              <span class="when" data-i18n="p.acc3.when">2 июн</span>
+            </div>
+          </div>
+
+          <h3 data-i18n="p.cons.h">Розигиҳои фаъол</h3>
+          <div class="plist">
+            <div class="pr" id="consentRow">
+              <div class="tt">
+                <span class="v">Алиф Бонк</span>
+                <span class="k" data-i18n="p.cons1.s">дастрасӣ ба ному шиноснома - то 02.06.2027</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" id="revokeBtn" data-i18n="p.revoke">Бозхонд кардан</button>
+              <span class="tag pay act" id="revokedTag" hidden data-i18n="p.revoked">бозхонд шуд</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div class="ft-brand">
+        <div class="ft-logo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b></div>
+        <p data-i18n="ft.note">eKhizmat - консепсияи портали ягонаи хизматҳои давлатӣ. Прототип; маълумот намунавӣ аст.</p>
+      </div>
+      <nav class="ft-col" aria-labelledby="ftH1">
+        <h3 id="ftH1" data-i18n="ft.h.portal">Портал</h3>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.cab">Кабинети шахсӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.reg">Бақайдгирӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.reestr">Феҳристи хизматҳои давлатӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.orgs">Ташкилотҳо</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.vac">Ҷойҳои кории холӣ</a>
+      </nav>
+      <nav class="ft-col" aria-labelledby="ftH2">
+        <h3 id="ftH2" data-i18n="ft.h.help">Кумак</h3>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.help">Кумак ва дастгирӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.find">Тарзи ёфтани хизмат</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.guide">Дастурамал</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.off">Харитаи марказҳои хизматрасонӣ</a>
+      </nav>
+      <div class="ft-col">
+        <h3 data-i18n="ft.h.contact">Тамос</h3>
+        <a class="ft-c" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
+        <a class="ft-c" href="mailto:khizmat.ehukumat@cpd.tj"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-mail"/></svg>khizmat.ehukumat@cpd.tj</a>
+        <span class="ft-c"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-pin"/></svg><span data-i18n="ft.city">ш. Душанбе</span></span>
+      </div>
+    </div>
+    <div class="ft-bottom">
+      <span>© 2026 eKhizmat</span>
+      <div class="ft-legal">
+        <a href="#" data-toast="toast.demo" data-i18n="ft.priv">Сиёсати махфият</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.a11y">Дастрасӣ</a>
+        <a href="#" data-toast="toast.demo" data-i18n="ft.api">API барои таҳиягарон</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- QR modal -->
+<div class="overlay" id="qrOverlay" role="dialog" aria-modal="true" aria-labelledby="qrH">
+  <div class="modal">
+    <h3 id="qrH"><span data-i18n="qr.h">Мубодилаи ҳуҷҷат</span></h3>
+    <p class="sub"><span id="qrDocName"></span> - <span data-i18n="qr.sub">ҳаволаи бехатар 10 дақиқа эътибор дорад ва танҳо ин ҳуҷҷатро мекушояд</span></p>
+    <div class="qr-box"><svg id="qrSvg" viewBox="0 0 29 29" shape-rendering="crispEdges"></svg><span class="qr-demo" data-i18n="qr.demo">намунавӣ</span></div>
+    <button class="btn btn-pri btn-block" id="qrClose" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<!-- mock sign-in -->
+<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginH">
+  <div class="modal">
+    <h3 id="loginH" data-i18n="auth.h">Вуруд ба eKhizmat</h3>
+    <p class="sub" data-i18n="auth.sub">Реҷаи намоишӣ - ҳар рақам қабул мешавад</p>
+    <div class="field">
+      <label for="loginPhone" data-i18n="auth.phone">Рақами телефон</label>
+      <input class="input" id="loginPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+992 90 123 45 67">
+    </div>
+    <button class="btn btn-pri btn-block" id="loginGo" data-i18n="auth.login">Вуруд</button>
+    <button class="btn btn-ghost btn-block" id="loginCancel" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="/apps/citizen/js/app.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
+</body>
+</html>

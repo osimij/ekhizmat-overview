@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eKhizmat Design System</title>
+  <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/design-system/global.css">
+  <link rel="stylesheet" href="/apps/styleguide.css">
+</head>
+<body data-platform="styleguide">
+  <a class="skip" href="#main">Ба мазмуни асосӣ гузаштан</a>
+  <header class="sg-header">
+    <a href="/" class="sg-brand"><img src="/design-system/assets/logo.svg" alt="" width="28" height="29"><strong>eKhizmat</strong><span>Design system · 1.0</span></a>
+    <div class="sg-actions"><button class="btn btn-sec btn-sm" id="density">Compact</button><button class="btn btn-sec btn-sm" id="language">RU</button><button class="btn btn-sec btn-sm" id="theme">Dark</button></div>
+  </header>
+  <main class="sg-main" id="main">
+    <aside class="sg-nav" aria-label="Мундариҷа"><a href="#foundations">Foundations</a><a href="#actions">Actions</a><a href="#forms">Forms & auth</a><a href="#data">Data</a><a href="#feedback">Feedback</a><a href="#workflow">Workflow</a></aside>
+    <div class="sg-content">
+      <section class="sg-intro"><span class="launch-eyebrow">Canonical source</span><h1>eKhizmat UI</h1><p>Як забони визуалӣ барои шаҳрванд, оператори ЦОН, мутахассиси идора ва маъмури хизмат.</p></section>
+
+      <section class="sg-section" id="foundations"><div class="sg-title"><h2>Foundations</h2><p>Ранг, ҳуруф, фосила ва шакл аз токенҳои ягона меоянд.</p></div><div class="swatches"><span style="--sw:var(--bg)">Canvas</span><span style="--sw:var(--panel)">Panel</span><span style="--sw:var(--action)">Action</span><span style="--sw:var(--green)">Success</span><span style="--sw:var(--amber)">Warning</span><span style="--sw:var(--red-fill)">Danger</span></div></section>
+
+      <section class="sg-section" id="actions"><div class="sg-title"><h2>Actions</h2><p>Як анатомия дар ҳамаи платформаҳо; fill-и амал бо матни сафед AA аст.</p></div><div class="sg-demo"><div class="sg-row"><button class="btn btn-pri">Амали асосӣ</button><button class="btn btn-sec">Дуюмдараҷа</button><button class="btn btn-ghost">Бе замина</button><button class="btn btn-danger">Нест кардан</button></div><div class="sg-row"><button class="btn btn-pri" aria-busy="true">Сабт мешавад</button><button class="btn btn-pri" disabled>Ғайрифаъол</button><button class="btn btn-sec btn-sm">Compact</button><button class="btn btn-pri btn-lg">Large touch</button></div></div></section>
+
+      <section class="sg-section" id="forms"><div class="sg-title"><h2>Forms & auth</h2><p>Майдон, хато, OTP ва амали вуруд дар ҳама flow-ҳо як хеланд.</p></div><div class="sg-demo sg-form-grid"><div class="field"><label for="sg-name">Номи пурраи аризадиҳанда</label><input class="input" id="sg-name" name="full_name" autocomplete="name" value="Фируза Абдураҳмонова"><p class="help">Аз профили тасдиқшуда гирифта шудааст</p></div><div class="field err"><label for="sg-phone">Рақами телефон</label><input class="input" id="sg-phone" name="phone" type="tel" autocomplete="tel" aria-invalid="true" value="+992 00"><p class="err-msg">Рақамро пурра ворид кунед</p></div><div class="field"><label for="sg-select">Идораи масъул</label><select class="input" id="sg-select" name="agency"><option>Вазорати адлияи Ҷумҳурии Тоҷикистон</option></select></div><div class="field"><label for="sg-note">Шарҳ</label><textarea class="input" id="sg-note" name="note">Матни дароз барои санҷиши забони тоҷикӣ ва сатри дуюм.</textarea></div><div class="sg-auth panel"><div class="panel__body"><span class="tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-lock"></use></svg></span><h3>Тасдиқи воридшавӣ</h3><p>Рамзи шашрақамаи ба дастгоҳи хизматӣ фиристодашударо ворид кунед.</p><div class="otp-demo" aria-label="Рамзи тасдиқ"><input value="1" aria-label="Рақами 1"><input value="4" aria-label="Рақами 2"><input value="8" aria-label="Рақами 3"><input value="2" aria-label="Рақами 4"><input value="7" aria-label="Рақами 5"><input value="5" aria-label="Рақами 6"></div><button class="btn btn-pri btn-block">Тасдиқ</button></div></div></div></section>
+
+      <section class="sg-section" id="data"><div class="sg-title"><h2>Data display</h2><p>Comfortable ва compact як component-ро истифода мебаранд.</p></div><div class="metric-strip"><div class="metric"><span class="metric__label">Ҳамаи аризаҳо</span><strong class="metric__value">612</strong></div><div class="metric"><span class="metric__label">Дар муҳлат</span><strong class="metric__value">587</strong></div><div class="metric"><span class="metric__label">SLA наздик</span><strong class="metric__value">18</strong></div></div><div class="data-table-wrap"><table class="data-table"><thead><tr><th>Ариза</th><th>Хизмат</th><th>Аризадиҳанда</th><th>Ҳолат</th></tr></thead><tbody><tr><td class="tnum">TJ-2026-04182</td><td>Маълумотнома оид ба ҳайати оила</td><td>Фируза Абдураҳмонова</td><td><span class="status-pill status-pill--success">дар муҳлат</span></td></tr><tr><td class="tnum">TJ-2026-04193</td><td>Бақайдгирии шахси ҳуқуқӣ</td><td>ҶДММ «Роҳи Нави Рушд»</td><td><span class="status-pill status-pill--warning">12 дақ.</span></td></tr></tbody></table></div></section>
+
+      <section class="sg-section" id="feedback"><div class="sg-title"><h2>Feedback & layers</h2><p>Диалог focus-ро нигоҳ медорад, Escape-ро қабул мекунад ва ба trigger бармегардонад.</p></div><div class="sg-demo"><div class="banner"><svg><use href="/design-system/assets/icons.svg#i-info"></use></svg><span>Маълумот аз Smart Bridge ба таври худкор санҷида шуд.</span></div><div class="banner banner--warning"><svg><use href="/design-system/assets/icons.svg#i-clock"></use></svg><span>То анҷоми муҳлати хизмат 18 дақиқа мондааст.</span></div><div class="sg-row"><button class="btn btn-pri" id="dialogDemo">Кушодани диалог</button><button class="btn btn-sec" id="toastDemo">Нишон додани toast</button></div></div></section>
+
+      <section class="sg-section" id="workflow"><div class="sg-title"><h2>Workflow</h2><p>Қадамҳо ва empty/loading states барои ҳамаи муҳитҳо.</p></div><div class="sg-demo"><div class="stepper"><span class="stepper__step"><span class="stepper__number">1</span>Шиносоӣ</span><span class="stepper__line"></span><span class="stepper__step" aria-current="step"><span class="stepper__number">2</span>Маълумот</span><span class="stepper__line"></span><span class="stepper__step"><span class="stepper__number">3</span>Натиҷа</span></div><div class="empty-state panel"><svg><use href="/design-system/assets/icons.svg#i-inbox"></use></svg><h3>Аризае ёфт нашуд</h3><p>Филтрҳоро тағйир диҳед ё рақами аризаро аз нав санҷед.</p><button class="btn btn-sec">Тоза кардани филтрҳо</button></div><div class="sg-skeletons"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div></div></section>
+    </div>
+  </main>
+  <script type="module" src="/apps/styleguide.js"></script>
+</body>
+</html>

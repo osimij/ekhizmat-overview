@@ -5,10 +5,11 @@ test-results/
 .history/
 .DS_Store
 **/.DS_Store
-Admin/qa/**/*.png
-mvp2/.qa/*.png
-mvp2/reference/
-mvp2/references/
+legacy/Admin/qa/**/*.png
+legacy/mvp2/.qa/
+legacy/mvp2/reference/
+legacy/mvp2/references/
+legacy/mvp2/услуги/.venv/
 *.log
 .env
 .env.*

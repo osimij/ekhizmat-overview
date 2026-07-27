@@ -1,0 +1,21 @@
+{
+  "name": "ekhizmat-unified-platforms",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "npm run lint:design-system && npm run test:contrast && playwright test qa/functional qa/privacy qa/presentation qa/responsive",
+    "test:visual": "playwright test qa/visual",
+    "test:a11y": "playwright test qa/accessibility",
+    "test:contrast": "node qa/contrast.mjs",
+    "lint:design-system": "node qa/design-lint.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.62.0",
+    "vite": "8.1.5"
+  }
+}
