@@ -8,7 +8,7 @@ Verified on 2026-07-27 after legacy cleanup:
 
 | Command | Result | Coverage |
 | --- | --- | --- |
-| `npm test` | 49/49 passed | Design drift, contrast, route/page errors, key workflows, storage privacy, presentation mode, keyboard shortcuts, and the required viewport matrix |
+| `npm test` | 50/50 passed | Design drift, contrast, canonical stroke-icon rendering, route/page errors, key workflows, storage privacy, presentation mode, keyboard shortcuts, and the required viewport matrix |
 | `npm run test:visual` | 5/5 tests; 11 snapshots passed | Launcher, Citizen mobile, and four-platform light/Russian plus dark/Tajik screenshot matrix |
 | `npm run test:a11y` | 12/12 passed | Axe WCAG A/AA scans in both themes on launcher, all platforms, and styleguide |
 | `npm run test:contrast` | 4/4 pairs passed | Token-level foreground/background AA checks; primary action is 4.80:1 |

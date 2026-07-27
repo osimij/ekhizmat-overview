@@ -29,6 +29,20 @@ test('launcher exposes exactly four real platform links', async ({ page }) => {
   ]);
 });
 
+test('canonical stroke icons never fall back to a black SVG fill', async ({ page }) => {
+  await page.goto('/');
+  const launcherFills = await page.locator('.platform-icon svg').evaluateAll(elements =>
+    elements.map(element => getComputedStyle(element).fill),
+  );
+  expect(launcherFills).toEqual(['none', 'none', 'none', 'none']);
+
+  await page.goto('/citizen/');
+  const citizenFills = await page.locator('.cat .tile svg').evaluateAll(elements =>
+    elements.map(element => getComputedStyle(element).fill),
+  );
+  expect(new Set(citizenFills)).toEqual(new Set(['none']));
+});
+
 test('launcher theme and language follow navigation', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: /забон/i }).click();

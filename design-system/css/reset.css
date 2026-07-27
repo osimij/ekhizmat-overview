@@ -6,4 +6,7 @@ button, a, label, input, select { touch-action: manipulation; }
 button { border: 0; padding: 0; color: inherit; background: none; cursor: pointer; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
+/* The canonical sprite is stroke-first. Set this on the host too so external
+   <use> instances cannot fall back to SVG's default black fill. */
+svg:has(> use) { fill: none; }
 [hidden] { display: none !important; }
