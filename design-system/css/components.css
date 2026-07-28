@@ -23,7 +23,7 @@
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
   border-radius:var(--r-pill); font-weight:600; font-size:var(--fs-15);
-  padding:11px 22px; text-align:center;
+  min-height:var(--h-btn-m); padding:0 22px; line-height:1; text-align:center;
   transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .btn svg{width:18px; height:18px}
@@ -38,6 +38,7 @@
 .btn-danger:hover{filter:brightness(1.06)}
 .btn-lg,.btn--l{min-height:var(--h-btn-l); padding:0 28px; font-size:var(--fs-17)}
 .btn-sm,.btn--s{min-height:var(--h-btn-s); padding:0 16px; font-size:var(--fs-13)}
+.j-acts > .btn{min-height:var(--h-btn-l); padding:0 28px; font-size:var(--fs-17)}
 .btn--icon{width:var(--h-btn-m); padding:0}
 .btn[disabled]{pointer-events:none}
 .btn-pri[disabled]{background:var(--field); color:var(--ink-3)}
@@ -83,12 +84,12 @@
   transition:box-shadow var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .input::placeholder{color:var(--ink-3)}
-.input:focus{outline:none; box-shadow:0 0 0 2px var(--blue) inset}
+.input:focus-visible{outline:none; box-shadow:0 0 0 2px var(--blue) inset}
 .input:disabled{opacity:.55; cursor:not-allowed}
 textarea.input{height:auto; min-height:104px; padding:var(--s-3) var(--s-4); line-height:1.5; resize:vertical}
 /* validation: ring carries the state, no layout shift */
 .field.err .input,.input[aria-invalid="true"]{box-shadow:0 0 0 1.5px var(--red) inset}
-.field.err .input:focus,.input[aria-invalid="true"]:focus{box-shadow:0 0 0 2px var(--red) inset}
+.field.err .input:focus-visible,.input[aria-invalid="true"]:focus-visible{box-shadow:0 0 0 2px var(--red) inset}
 .field.ok .input{box-shadow:0 0 0 1.5px var(--green) inset}
 .field .err-msg{display:flex; align-items:center; gap:5px; font-size:var(--fs-13); color:var(--red-ink); margin-top:var(--s-2)}
 .field .err-msg svg{width:14px; height:14px; flex:none}
@@ -190,24 +191,24 @@ button.chip[aria-pressed="true"] b{color:var(--bg)}
 .sw input:disabled + .knob{opacity:.5; cursor:not-allowed}
 
 /* ============ CHECKBOX / RADIO ============ */
-.check,.radio{
+input.check,input.radio{
   appearance:none; -webkit-appearance:none; flex:none; margin:0; cursor:pointer; position:relative;
   width:20px; height:20px; border-radius:6px; background:var(--panel);
   box-shadow:inset 0 0 0 1.5px var(--control-line);
   transition:background var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
-.radio{border-radius:50%}
-.check:hover,.radio:hover{box-shadow:inset 0 0 0 1.5px var(--ink-3)}
-.check:checked,.radio:checked{background:var(--blue); box-shadow:inset 0 0 0 1.5px var(--blue)}
-.check:checked::after{
+input.radio{border-radius:50%}
+input.check:hover,input.radio:hover{box-shadow:inset 0 0 0 1.5px var(--ink-3)}
+input.check:checked,input.radio:checked{background:var(--blue); box-shadow:inset 0 0 0 1.5px var(--blue)}
+input.check:checked::after{
   content:""; position:absolute; left:6.5px; top:3px; width:5px; height:9px;
   border:solid var(--pure-white); border-width:0 2px 2px 0; rotate:45deg;
 }
-.radio:checked::after{
+input.radio:checked::after{
   content:""; position:absolute; inset:0; margin:auto; width:8px; height:8px; border-radius:50%; background:var(--pure-white);
 }
-.check:focus-visible,.radio:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
-.check:disabled,.radio:disabled{opacity:.5; cursor:not-allowed}
+input.check:focus-visible,input.radio:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 
 /* ============ BACK LINK ============ */
 .back{
@@ -295,12 +296,25 @@ button.chip[aria-pressed="true"] b{color:var(--bg)}
 .pagination button { display:grid; place-items:center; min-width:40px; height:40px; border-radius:var(--r-s); }
 .pagination button:hover,.pagination button[aria-current='page'] { background:var(--hover); }
 
-.banner { display:flex; gap:var(--s-3); padding:var(--s-4); border-radius:var(--r-m); background:var(--blue-tint); color:var(--ink); }
+.banner { display:flex; gap:var(--s-3); padding:var(--s-4); border-radius:var(--r-m); background:var(--blue-tint); color:var(--blue-ink); }
 .banner > svg { width:20px; height:20px; flex:none; color:var(--blue-ink); }
-.banner--warning { background:var(--amber-tint); }
-.banner--warning > svg { color:var(--amber); }
-.banner--danger { background:var(--red-tint); }
-.banner--danger > svg { color:var(--red-ink); }
+
+/* One semantic vocabulary for every platform, including the short aliases used
+   by the operational apps. The icon always inherits the banner's state color. */
+.banner--info { background:var(--blue-tint); color:var(--blue-ink); }
+.banner--warning,
+.banner--warn { background:var(--amber-tint); color:var(--amber); }
+.banner--danger,
+.banner--error { background:var(--red-tint); color:var(--red-ink); }
+.banner--success,
+.banner--ok { background:var(--green-tint); color:var(--green); }
+.banner--info > svg,
+.banner--warning > svg,
+.banner--warn > svg,
+.banner--danger > svg,
+.banner--error > svg,
+.banner--success > svg,
+.banner--ok > svg { color:currentColor; }
 .empty-state { display:grid; justify-items:center; gap:var(--s-3); padding:var(--s-12) var(--s-5); text-align:center; }
 .empty-state > svg { width:40px; height:40px; color:var(--ink-3); }
 .empty-state p { max-width:44ch; color:var(--ink-3); }

@@ -16,8 +16,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: "ALS Hauss Next VF", "ALS Hauss", Inter, -apple-system,
-               "Segoe UI", sans-serif;
+  font-family: var(--font);
   font-size: 15px;            /* Body/Base — базовый текст всего АРМ */
   line-height: 1.55;
   font-weight: 400;
@@ -53,15 +52,15 @@ table { border-collapse: collapse; border-spacing: 0; }
 /* ---------- типографика (§4.1) ---------- */
 .h1 {
   font-size: 44px; line-height: 1.15;
-  font-weight: 720; letter-spacing: -0.02em;
+  font-weight: 720; letter-spacing: 0;
 }
 .h2 {
   font-size: 24px; line-height: 1.15;
-  font-weight: 720; letter-spacing: -0.02em;
+  font-weight: 720; letter-spacing: 0;
 }
 .h3 {
   font-size: 17px; line-height: 1.3;
-  font-weight: 550; letter-spacing: -0.01em;
+  font-weight: 550; letter-spacing: 0;
 }
 .body-l  { font-size: 16px; line-height: 1.5;  font-weight: 400; }
 .body    { font-size: 15px; line-height: 1.55; font-weight: 400; }
@@ -648,7 +647,7 @@ button.step:focus-visible {
   font-size: 24px;
   font-weight: 550;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 /* ============================================================
@@ -850,22 +849,52 @@ button.step:focus-visible {
   max-width: 100%;
   max-height: 100%;
   overflow: auto;
+  overscroll-behavior: contain;
   padding: var(--s-6);
   background: var(--panel);
   border-radius: var(--r-xl);
+  text-align: left;
   animation: pop var(--t-layer) var(--ease);
 }
 .modal--wide { --w-modal: var(--w-modal-wide); }  /* запрос скоупа */
 @keyframes pop { from { opacity: 0; transform: scale(0.98); } }
 
-.modal__title  { margin-bottom: var(--s-3); }
+.modal__title  { margin-bottom: var(--s-3); text-wrap: balance; }
 .modal__body   { color: var(--ink-2); }
 /* Главное действие справа — рука оператора всегда там (P2). */
 .modal__foot {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--s-3);
   margin-top: var(--s-6);
+}
+/* global.css also contains a compact legacy modal. Its stacked-button margin
+   must not leak into this application's horizontal action footer. */
+.modal .modal__foot > .btn + .btn { margin-top: 0; }
+
+/* Registration is a verification task, so its summary follows one stable
+   reading axis instead of centring every label and value independently. */
+.s-enroll-confirm__summary .def__row {
+  display: grid;
+  grid-template-columns: minmax(132px, 160px) minmax(0, 1fr);
+  align-items: baseline;
+}
+.s-enroll-confirm__summary .def__key { width: auto; text-align: left; }
+.s-enroll-confirm__summary .def__val {
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.s-enroll-confirm .check {
+  width: 100%;
+  align-items: flex-start;
+  line-height: 1.45;
+  text-align: left;
+}
+.s-enroll-confirm .check__input { margin-top: 2px; }
+.s-enroll-confirm .modal__foot > .btn {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* ============================================================
@@ -1338,7 +1367,7 @@ button.step:focus-visible {
   font-size: 12px;
   color: var(--doc-ink-2);
 }
-.doc-page__title { font-size: 17px; font-weight: 720; letter-spacing: -0.01em; }
+.doc-page__title { font-size: 17px; font-weight: 720; letter-spacing: 0; }
 .doc-page__rows { display: flex; flex-direction: column; gap: var(--s-2); }
 .doc-page__row  { display: flex; gap: var(--s-3); font-size: 13px; }
 .doc-page__key  { width: 96px; flex: none; color: var(--doc-ink-2); }
@@ -1678,7 +1707,14 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    сверяет две вещи — скан слева и поле справа. Сузить его до ворот значило
    бы заставить листать глазами то, что должно лежать рядом.
    ============================================================ */
-.s-enroll { display: flex; flex-direction: column; gap: var(--s-4); }
+.s-enroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  /* The fixed action bar is removed from document flow. Keep enough runway
+     for the final fields to scroll fully above it instead of hiding beneath it. */
+  padding-bottom: calc(var(--s-16) + var(--s-6));
+}
 .s-enroll__head { max-width: 72ch; }
 .s-enroll__verified {
   align-self: flex-start;
@@ -1765,14 +1801,19 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 
 .s-enroll__foot {
-  position: sticky;
+  position: fixed;
   bottom: 0;
-  z-index: 20;
+  inset-inline: 0;
+  padding: var(--s-3) max(
+    var(--s-6),
+    calc((100vw - var(--w-canvas)) / 2 + var(--s-6))
+  ) calc(var(--s-3) + env(safe-area-inset-bottom));
+  z-index: 40;
   display: flex;
   align-items: center;
   gap: var(--s-3);
-  padding: var(--s-4) 0;
-  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  background: var(--bg);
+  border-top: 1px solid var(--line);
 }
 
 /* ============================================================

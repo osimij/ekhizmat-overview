@@ -18,6 +18,8 @@
   border: 0 !important;
 }
 .stack { display: grid; }
+.row { display: flex; flex-direction: row; align-items: center; }
+.between { justify-content: space-between; }
 .g-2 { gap: var(--s-2); }
 .g-3 { gap: var(--s-3); }
 .g-4 { gap: var(--s-4); }

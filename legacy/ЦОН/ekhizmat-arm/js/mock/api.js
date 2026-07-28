@@ -867,7 +867,7 @@ function pagePng(n) {
     ${bar(14, 120, 182, 4, 0.1)}
     ${bar(14, 130, 182, 4, 0.1)}
     ${bar(14, 140, 90, 4, 0.1)}
-    <text x="105" y="270" text-anchor="middle" font-family="monospace"
+    <text x="105" y="270" text-anchor="middle"
           font-size="9" fill="${ink}" fill-opacity="0.32">СТРАНИЦА ${n}</text>
   </svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
@@ -895,7 +895,7 @@ function passportPng(page = 1) {
     + `stroke="${ink}" stroke-opacity="${o}" stroke-width="0.6"/>`;
 
   const mrz = (y, text) =>
-    `<text x="8" y="${y}" font-family="monospace" font-size="4.4" letter-spacing="0.5"`
+    `<text x="8" y="${y}" font-size="4.4" letter-spacing="0.5"`
     + ` fill="${ink}" fill-opacity="0.42">${text}</text>`;
 
   const body = page === 1

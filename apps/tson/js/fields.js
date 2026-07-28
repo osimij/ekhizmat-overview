@@ -35,8 +35,8 @@ export function selectField({ label, options = [], value, help, name }) {
 }
 
 /* ---------- пароль (§6/S0) ---------- */
-export function passwordField({ label, autocomplete = 'current-password' }) {
-  const input = h('input', { class: 'field__input', type: 'password', autocomplete });
+export function passwordField({ label, autocomplete = 'current-password', name = 'password' }) {
+  const input = h('input', { class: 'field__input', type: 'password', autocomplete, name });
   const btn = h('button', {
     class: 'field__affix field__affix--action', type: 'button',
     'aria-label': t('login.showPassword'),

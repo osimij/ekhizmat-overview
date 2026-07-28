@@ -75,7 +75,7 @@ export function renderLogin(host) {
   /* ---------- шаг 1: креды ---------- */
   function stepCreds() {
     const err = h('span', { class: 'field__error', role: 'alert' });
-    const login = field({ label: t('login.login'), value: 'operator.sino04', name: 'login' });
+    const login = field({ label: t('login.login'), value: 'operator.sino04', name: 'username', autocomplete: 'username' });
     const pass = passwordField({ label: t('login.password') });
     const submit = h('button', { class: 'btn btn--primary btn--l s-login__submit', type: 'submit' },
       t('login.submit'));
@@ -114,7 +114,7 @@ export function renderLogin(host) {
       t('login.submit'));
 
     const resend = h('button', {
-      class: 'btn btn--ghost', type: 'button',
+      class: 'btn btn--ghost btn--l', type: 'button',
       onClick: async () => { await auth.resendOtp(); toast(t('login.otpResent'), 'success'); },
     }, t('login.otpResend'));
 

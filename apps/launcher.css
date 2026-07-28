@@ -3,7 +3,7 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .launch-header { display: flex; align-items: center; min-height: 76px; border-bottom: 1px solid var(--line); }
 .brand-lockup { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
 .brand-lockup img { width: 31px; height: 32px; }
-.brand-lockup strong { font-size: 20px; font-weight: 690; letter-spacing: -.025em; }
+.brand-lockup strong { font-size: 20px; font-weight: 690; letter-spacing: 0; }
 .launch-actions { display: flex; gap: var(--s-2); margin-left: auto; }
 .launch-control { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: var(--r-pill); color: var(--ink-2); font-weight: 620; }
 .launch-control:hover { background: var(--hover); color: var(--ink); }
@@ -29,7 +29,7 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .platform-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; }
 .platform-icon svg { width: 29px; height: 29px; }
 .platform-copy { position: relative; z-index: 1; display: grid; gap: 6px; }
-.platform-copy strong { font-size: 23px; line-height: 1.2; letter-spacing: -.018em; }
+.platform-copy strong { font-size: 23px; line-height: 1.2; letter-spacing: 0; }
 .platform-copy > span:last-child { max-width: 390px; color: var(--ink-2); line-height: 1.5; }
 .platform-kicker { color: var(--ink-3); font-size: var(--fs-13); font-weight: 650; }
 .platform-arrow { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--field); color: var(--ink-2); }

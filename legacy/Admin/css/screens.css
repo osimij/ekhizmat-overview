@@ -484,7 +484,7 @@ a.ft-c:hover{color:var(--ink)}
   width:72px; height:72px; border-radius:50%; flex:none;
   background:var(--h-blue-bg); color:var(--h-blue-fg);
   font-size:28px; font-weight:700; display:grid; place-items:center;
-  font-variation-settings:'wdth' 550;
+
 }
 .prof-head .eyebrow{font-size:var(--fs-12); font-weight:640; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3)}
 .prof-head h1{font-size:var(--fs-32); margin-top:2px}

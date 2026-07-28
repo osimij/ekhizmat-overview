@@ -3,8 +3,12 @@ import { test, expect } from '@playwright/test';
 const cases = [
   { name: 'launcher', route: '/', sizes: [[360, 800], [768, 1024], [1440, 1000], [1920, 1080]], noOverflow: true },
   { name: 'citizen', route: '/citizen/', sizes: [[320, 800], [360, 800], [390, 844], [768, 1024], [1024, 900], [1440, 1000]], noOverflow: true },
-  { name: 'admin', route: '/admin/builder.html', sizes: [[768, 900], [1024, 900], [1280, 900], [1440, 900], [1920, 1080]] },
-  { name: 'ministry', route: '/ministry/', sizes: [[1024, 768], [1280, 800], [1440, 900], [1920, 1080]] },
+  { name: 'admin dashboard', route: '/admin/', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
+  { name: 'admin services', route: '/admin/services.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
+  { name: 'admin new service', route: '/admin/new-service.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
+  { name: 'admin builder', route: '/admin/builder.html', sizes: [[390, 844], [768, 900], [1024, 900], [1280, 900], [1440, 900], [1920, 1080]], noOverflow: true },
+  { name: 'ministry', route: '/ministry/', sizes: [[390, 844], [768, 1024], [1024, 768], [1280, 800], [1440, 900], [1920, 1080]], noOverflow: true },
+  { name: 'design system', route: '/design-system/styleguide.html', sizes: [[390, 844], [768, 1024], [1440, 1000]], noOverflow: true },
   { name: 'tson', route: '/tson/', sizes: [[1280, 720], [1366, 768], [1440, 900], [1920, 1080]] },
 ];
 
@@ -14,7 +18,9 @@ for (const item of cases) {
       await page.setViewportSize({ width, height });
       await page.goto(`${item.route}?present=1&theme=light&lang=tg`, { waitUntil: 'networkidle' });
       await expect(page.locator('body')).toBeVisible();
-      if (item.name !== 'launcher') await expect(page.locator('[data-shared-platform-switcher]')).toBeVisible();
+      if (item.name !== 'launcher' && item.name !== 'design system') {
+        await expect(page.locator('[data-shared-platform-switcher]')).toBeVisible();
+      }
       if (item.noOverflow) {
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         expect(overflow).toBeLessThanOrEqual(1);

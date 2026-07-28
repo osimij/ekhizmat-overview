@@ -91,8 +91,8 @@
     "family": {
       "ui": {
         "$type": "fontFamily",
-        "$value": ["ALS Hauss Next", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
-        "$description": "Variable font, self-hosted (assets/fonts/ALSHaussNextVF.ttf). Verified Tajik Cyrillic coverage incl. the six extensions (Ғғ Ӣӣ Ққ Ӯӯ Ҳҳ Ҷҷ). Body runs at wdth 500, headings at wdth 550."
+        "$value": ["Google Sans", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        "$description": "Self-hosted Google Sans variable font (400–700). Verified Tajik Cyrillic coverage, including Ғғ Ӣӣ Ққ Ӯӯ Ҳҳ Ҷҷ."
       }
     },
     "size": {

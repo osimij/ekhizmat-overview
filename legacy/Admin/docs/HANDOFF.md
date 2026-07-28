@@ -68,7 +68,7 @@ BUILDER/
     builder-i18n.js   the full blueprint tg→ru dictionary (copied) + an Object.assign block of
                       ~150 builder-specific RU keys appended at the end. 1281 ru keys total.
   assets/
-    logo.svg, fonts/ALSHaussNextVF.ttf
+    logo.svg, fonts/GoogleSans.woff2
   qa/builder.mjs      Playwright: screenshots every screen × {light,dark} × {desktop,mobile}
                       + drives the builder (palette → add → live edit → stage → paid → publish)
   docs/HANDOFF.md     this file

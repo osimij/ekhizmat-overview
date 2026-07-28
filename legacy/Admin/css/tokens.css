@@ -6,10 +6,10 @@
    ============================================================ */
 
 @font-face{
-  font-family:"ALS Hauss Next";
-  src:url("../assets/fonts/ALSHaussNextVF.ttf") format("truetype-variations"),
-      url("../assets/fonts/ALSHaussNextVF.ttf") format("truetype");
-  font-weight:100 900;
+  font-family:"Google Sans";
+  src:url("/design-system/assets/fonts/GoogleSans.woff2") format("woff2");
+  font-weight:400 700;
+  font-style:normal;
   font-display:swap;
 }
 
@@ -64,7 +64,7 @@
   --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px; --s-16:64px;
 
   /* ---- type ---- */
-  --font:"ALS Hauss Next",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font:"Google Sans",-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --fs-12:12px; --fs-13:13px; --fs-14:14px; --fs-15:15px; --fs-16:16px;
   --fs-17:17px; --fs-20:20px; --fs-24:24px; --fs-32:32px;
   --fs-44:clamp(32px,4.6vw,50px);

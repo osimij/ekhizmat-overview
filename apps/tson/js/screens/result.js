@@ -51,7 +51,7 @@ export function renderResult(host) {
       h('div', { class: 'row center g-3 s-result__foot' },
         h('button', { class: 'btn btn--primary btn--l', onClick: () => endVisit() },
           t('session.end'), h('kbd', { class: 'kbd' }, 'F9')),
-        h('button', { class: 'btn btn--ghost', onClick: again }, t('result.again')))));
+        h('button', { class: 'btn btn--ghost btn--l', onClick: again }, t('result.again')))));
 
   svc.instant ? instant() : deferred();
 

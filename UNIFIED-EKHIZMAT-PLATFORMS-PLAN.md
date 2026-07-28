@@ -74,7 +74,7 @@ The token values are related, but the component APIs are not. For example, the c
 | Before | After | Why |
 | --- | --- | --- |
 | Several copied `tokens.css`, `base.css`, and `components.css` files | One versioned core under `/design-system` | A design-system change must propagate everywhere by default |
-| Home/Admin load the bundled ALS Hauss font; Orgs/ЦОН refer to it but do not ship it and can fall back to another font | One shared, preloaded font asset and one font stack | Prevents typography, wrapping, and vertical-alignment differences |
+| Platforms used inconsistent or missing font assets | One shared, preloaded Google Sans asset and one font stack | Prevents typography, wrapping, and vertical-alignment differences |
 | Inline icon sprite in Home and Orgs, JS-injected sprite in Admin, external sprite in ЦОН | One shared external icon sprite and one icon component pattern | Removes duplicated geometry and inconsistent delivery |
 | Home/Admin use `ekh-theme`; Orgs uses `varm-theme`; ЦОН uses `arm.theme` | One global `ekh.preferences.theme` and `ekh.preferences.lang` | Theme and language should follow the presenter between platforms |
 | Orgs uses many standalone bordered KPI cards and a visually heavier table shell | Shared metric strip, panel, and data-table primitives with a compact density option | Keeps back-office density without looking like a separate brand |
@@ -129,7 +129,7 @@ eKhizmat/
     assets/
       logo.svg
       icons.svg
-      fonts/ALSHaussNextVF.ttf
+      fonts/GoogleSans.woff2
     styleguide.html               # live component states and rules
   apps/
     citizen/
@@ -345,7 +345,7 @@ Exit gate:
 Tasks:
 
 - Create `/design-system` and consolidate foundations.
-- Load one ALS Hauss font file from one path and verify Tajik Cyrillic glyphs.
+- Load one Google Sans font file from one path and verify Tajik Cyrillic glyphs.
 - Consolidate the largest complete icon set into one external sprite.
 - Implement shared buttons, fields, selectors, navigation primitives, panels, tables, status states, dialogs, toasts, and empty states.
 - Create the live styleguide and component state matrix.
@@ -611,4 +611,3 @@ End-of-week review:
 - Run the styleguide and launcher from a clean checkout.
 - Approve the first shared-component visual matrix.
 - Select Citizen as the migration proof before parallelizing the remaining apps.
-

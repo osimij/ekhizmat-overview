@@ -147,33 +147,38 @@ import './data.js';
   /* ================================================================== */
   function renderLogin() {
     var step = S.loginStep;
+    var loginErr = S._loginErr || '';
     var body =
       '<div class="login">' +
         '<div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
         '<div class="login__subtitle body-l">' + esc(t('login_sub')) + '</div>' +
-        '<div class="panel login__card' + (S._loginErr ? ' is-shake' : '') + '">' +
+        '<div class="panel login__card' + (loginErr ? ' is-shake' : '') + '">' +
           (step === 1 ?
             '<div class="stack g-4">' +
               '<div class="field"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
-                '<input class="field__input" id="l-user" value="' + esc(D.ME.login) + '" autocomplete="username"></div>' +
+                '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" autocomplete="username" spellcheck="false"></div>' +
               '<div class="field"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
-                '<div class="field__wrap"><input class="field__input" id="l-pass" type="password" value="········" autocomplete="current-password">' +
+                '<div class="field__wrap"><input class="field__input" id="l-pass" name="password" type="password" autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '>' +
                 '<span class="field__affix">' + ic('i-lock', 'icon--20') + '</span></div></div>' +
-              '<button class="btn btn--primary btn--l" data-act="login-next">' + esc(t('login_next')) + '</button>' +
+              (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+              '<button class="btn btn--primary btn--l" type="button" data-act="login-next">' + esc(t('login_next')) + '</button>' +
             '</div>'
           :
             '<div class="stack g-4">' +
               '<div class="login__step small">' + esc(t('login_mfa_hint')) + ' <span class="login__mfa-target">•••• 40 22</span></div>' +
-              '<div class="field"><label class="field__label">' + esc(t('login_mfa')) + '</label>' +
+              '<div class="field"><span class="field__label" id="l-otp-label">' + esc(t('login_mfa')) + '</span>' +
                 '<div class="otp" id="l-otp">' +
-                  [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" inputmode="numeric" maxlength="1" data-otp="'+i+'" value="'+('284913'[i])+'">';}).join('') +
+                  [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" name="otp-'+(i+1)+'" inputmode="numeric" maxlength="1" data-otp="'+i+'" autocomplete="one-time-code" aria-label="'+esc(t('login_mfa'))+' '+(i+1)+'"'+(loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '')+'>';}).join('') +
                 '</div></div>' +
-              '<button class="btn btn--primary btn--l" data-act="login-enter">' + ic('i-shield','icon--20') + esc(t('login_enter')) + '</button>' +
-              '<button class="btn btn--ghost" data-act="login-back">' + esc(t('login_back')) + '</button>' +
+              (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+              '<div class="login__actions">' +
+                '<button class="btn btn--primary btn--l" type="button" data-act="login-enter">' + ic('i-shield','icon--20') + esc(t('login_enter')) + '</button>' +
+                '<button class="btn btn--ghost btn--l" type="button" data-act="login-back">' + esc(t('login_back')) + '</button>' +
+              '</div>' +
             '</div>'
           ) +
         '</div>' +
-        '<div class="login__legend small">' + ic('i-shield','icon--16') + ' ' + esc(t('login_legend')) + '</div>' +
+        '<div class="login__legend small">' + ic('i-shield','icon--16') + '<span>' + esc(t('login_legend')) + '</span></div>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
     S._loginErr = false;
@@ -227,7 +232,7 @@ import './data.js';
           '<div class="side__spacer"></div>' +
           '<div class="side__foot"><div class="row g-3"><span class="avatar">' + esc(D.ME.initials) + '</span>' +
             '<div class="stack" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
-            '<span class="caption ink-faint" style="text-transform:none;font-weight:400">' + esc(D.ME.division) + '</span></div></div>' +
+            '<span class="side__division">' + esc(D.ME.division) + '</span></div></div>' +
           '</div>' +
         '</nav></aside>' +
 
@@ -683,10 +688,9 @@ import './data.js';
       '<span>' + esc(t('rep_col_breach')) + '</span><span>' + esc(t('rep_col_rate')) + '</span></div>';
     D.REPORT_SPECIALISTS.forEach(function (sp) {
       var rate = Math.round(sp.onTime / sp.total * 100), breach = sp.total - sp.onTime;
-      var cls = rate >= 95 ? '' : rate >= 85 ? 'meter__fill--warn' : 'meter__fill--bad';
       h += '<div class="report-row"><span class="report-row__who"><span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name) + '</span>' +
         '<span class="report-row__num">' + sp.total + '</span><span class="report-row__num" style="color:' + (breach ? 'var(--red-ink)' : 'inherit') + '">' + breach + '</span>' +
-        '<span class="row g-3"><span class="meter grow"><span class="meter__fill ' + cls + '" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
+        '<span class="row g-3"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
     });
     h += '</div></div></div>';
     return h;
@@ -1018,9 +1022,29 @@ import './data.js';
     if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'user-open') closePop();
 
     switch (act) {
-      case 'login-next': S.loginStep = 2; renderLogin(); return;
-      case 'login-back': S.loginStep = 1; renderLogin(); return;
-      case 'login-enter': S.authed = true; startApp(); return;
+      case 'login-next': {
+        var loginUser = document.getElementById('l-user');
+        var loginPass = document.getElementById('l-pass');
+        if (!loginUser.value.trim() || !loginPass.value) {
+          S._loginErr = t('login_required'); renderLogin();
+          (document.getElementById(!loginUser.value.trim() ? 'l-user' : 'l-pass') || document.body).focus();
+          return;
+        }
+        S._loginErr = '';
+        S.loginStep = 2; renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
+      }
+      case 'login-back': S._loginErr = ''; S.loginStep = 1; renderLogin(); return;
+      case 'login-enter': {
+        var loginCode = Array.prototype.map.call(document.querySelectorAll('[data-otp]'), function (el) { return el.value; }).join('');
+        if (!/^\d{6}$/.test(loginCode)) {
+          S._loginErr = t('login_mfa_required'); renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
+        }
+        if (loginCode === '111111') {
+          S._loginErr = t('login_mfa_invalid'); renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
+        }
+        S._loginErr = '';
+        S.authed = true; startApp(); return;
+      }
 
       case 'nav': e.preventDefault(); go(tgt.getAttribute('data-view')); return;
       case 'nav-toggle': document.getElementById('app').classList.toggle('nav-open'); return;
@@ -1090,6 +1114,37 @@ import './data.js';
       case 'unlock': S.locked = false; document.getElementById('lock-root').remove(); document.getElementById('app').classList.remove('is-blurred'); return;
       case 'noop': return;
     }
+  });
+
+  document.addEventListener('input', function (e) {
+    var cell = closest(e.target, '[data-otp]');
+    if (!cell) return;
+    cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
+    if (cell.value) {
+      var next = document.querySelector('[data-otp="' + (Number(cell.getAttribute('data-otp')) + 1) + '"]');
+      if (next) next.focus();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    var cell = closest(e.target, '[data-otp]');
+    if (cell) {
+      var index = Number(cell.getAttribute('data-otp'));
+      if (e.key === 'Backspace' && !cell.value && index > 0) document.querySelector('[data-otp="' + (index - 1) + '"]')?.focus();
+      if (e.key === 'ArrowLeft' && index > 0) { e.preventDefault(); document.querySelector('[data-otp="' + (index - 1) + '"]')?.focus(); }
+      if (e.key === 'ArrowRight' && index < 5) { e.preventDefault(); document.querySelector('[data-otp="' + (index + 1) + '"]')?.focus(); }
+    }
+    if (e.key === 'Enter' && S.loginStep === 1 && document.getElementById('l-pass')) document.querySelector('[data-act="login-next"]')?.click();
+    if (e.key === 'Enter' && S.loginStep === 2 && document.getElementById('l-otp')) document.querySelector('[data-act="login-enter"]')?.click();
+  });
+
+  document.addEventListener('paste', function (e) {
+    if (!closest(e.target, '[data-otp]')) return;
+    var digits = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+    if (!digits) return;
+    e.preventDefault();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-otp]'), function (cell, i) { cell.value = digits[i] || ''; });
+    (document.querySelector('[data-otp="' + Math.min(digits.length, 5) + '"]') || e.target).focus();
   });
 
   // фильтры: input / change
@@ -1193,7 +1248,7 @@ import './data.js';
     lock.innerHTML = '<div class="s-locked"><div class="panel s-locked__card">' + ic('i-lock','icon--48') +
       '<h2 class="h2">Рабочее место заблокировано</h2>' +
       '<p class="small">' + esc(D.ME.name) + ' · ' + esc(D.ME.agency) + '</p>' +
-      '<input class="field__input" type="password" value="········" aria-label="Пароль">' +
+      '<input class="field__input" name="password" type="password" autocomplete="current-password" aria-label="Пароль">' +
       '<button class="btn btn--primary" data-act="unlock">Разблокировать</button></div></div>';
     document.getElementById('root').appendChild(lock);
     toast(t('t_locked'), 'success');

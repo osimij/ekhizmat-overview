@@ -9,14 +9,14 @@ button,a,label,input,select{touch-action:manipulation}
 body{
   margin:0; background:var(--bg); color:var(--ink);
   font-family:var(--font); font-size:var(--fs-15); line-height:1.55;
-  font-variation-settings:'wdth' 500;
+
   -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
 }
 
 /* the hidden attribute always wins — JS routing depends on it */
 [hidden]{display:none !important}
 
-h1,h2,h3{margin:0; line-height:1.15; letter-spacing:-0.02em; font-variation-settings:'wdth' 550}
+h1,h2,h3{margin:0; line-height:1.15; letter-spacing:-0.02em}
 h1{font-size:var(--fs-44); font-weight:680}
 h2{font-size:var(--fs-24); font-weight:650}
 h3{font-size:var(--fs-17); font-weight:620}

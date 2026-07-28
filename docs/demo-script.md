@@ -18,17 +18,17 @@ On the launcher, point out the four clear destinations, shared visual language, 
 
 ### 1:00–3:30 — Citizen (`1`)
 
-Use search or choose a category. Open a life event, then sign in with the prefilled demo phone; any non-empty password works. Enter any six digits except `111111` for the demo OTP. Show profile/wallet, open a document QR, close it, and sign out. If using the mobile tab, show the same content at 390 pixels.
+Use search or choose a category. Open a life event, then sign in with any non-empty demo phone number. Citizen sign-in is intentionally phone-only in this prototype; it does not silently invent a password or second-factor step. Show profile/wallet, open a document QR, close it, and sign out. If using the mobile tab, show the same content at 390 pixels.
 
 ### 3:30–5:30 — ЦОН Operator (`2`)
 
-Use the demo staff sign-in and enter any six digits except `111111`. Bind/start the workstation shift, begin a visit, and show how identification, consent, service selection, scope, form/documents, and result form one controlled session. End the visit and explain that citizen information is wiped from memory, page content, storage, and the URL.
+The assigned workstation username is prefilled. Enter any non-empty demo password, then any six digits except `111111`. Passwords and verification codes are never prefilled. Begin a visit and show how identification, consent, service selection, scope, form/documents, and result form one controlled session. End the visit and explain that citizen information is wiped from memory, page content, storage, and the URL.
 
 ЦОН intentionally asks for a wider window below 1280 pixels; that is a documented workstation requirement.
 
 ### 5:30–7:30 — Ministry Specialist (`3`)
 
-Complete the prefilled staff MFA. Show the compact queue, filtering/sorting, an application detail, its tabs and provenance/SLA signals. Demonstrate “request information” or the decision dialog, mentioning four-eyes approval for sensitive outcomes.
+The assigned staff username is prefilled. Enter any non-empty demo password, then any six digits except `111111`; sensitive values start empty here too. Show the compact queue, filtering/sorting, an application detail, its tabs and provenance/SLA signals. Demonstrate “request information” or the decision dialog, mentioning four-eyes approval for sensitive outcomes.
 
 ### 7:30–9:30 — Service Administrator (`4`)
 

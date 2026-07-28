@@ -135,11 +135,11 @@ function trap(e, node) {
 }
 
 /* ---------- модал (§5.3) ---------- */
-export function modal({ title, body, actions = [], wide = false, onClose = null }) {
+export function modal({ title, body, actions = [], wide = false, className = '', onClose = null }) {
   const titleId = `m-${Math.random().toString(36).slice(2, 8)}`;
 
   const card = h('div', {
-    class: `modal${wide ? ' modal--wide' : ''}`,
+    class: `modal${wide ? ' modal--wide' : ''}${className ? ` ${className}` : ''}`,
     role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId,
   },
     h('h2', { class: 'h3 modal__title', id: titleId }, title),

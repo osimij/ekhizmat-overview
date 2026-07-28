@@ -18,7 +18,7 @@ The live catalogue is at `/design-system/styleguide.html`. Open it with `?dev=1`
 ## Foundations
 
 - `tokens/color.css` — light/dark surfaces, text, action, state, category, and preview colors.
-- `tokens/type.css` — ALS Hauss Next and the shared type scale.
+- `tokens/type.css` — Google Sans and the shared type scale.
 - `tokens/space.css` — the 4-pixel spacing scale.
 - `tokens/shape.css` — approved radii and control sizes.
 - `tokens/motion.css` — timing, easing, and reduced-motion behavior.

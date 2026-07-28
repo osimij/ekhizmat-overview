@@ -596,7 +596,7 @@ export function renderEnroll(host) {
     let close = () => {};
 
     const ok = h('button', {
-      class: 'btn btn--primary', disabled: true,
+      class: 'btn btn--primary', type: 'button', disabled: true,
       onClick: () => { close(); send(); },
     }, t('enroll.submit'));
 
@@ -606,8 +606,9 @@ export function renderEnroll(host) {
 
     close = modal({
       title: t('enroll.confirmTitle'),
+      className: 's-enroll-confirm',
       body: h('div', { class: 'stack g-4' },
-        h('div', { class: 'def' },
+        h('div', { class: 'def s-enroll-confirm__summary' },
           row(t('enroll.f.full'), v('full')),
           row(t('enroll.f.birth'), v('birth')),
           row(t('enroll.f.inn'), v('inn')),
@@ -619,7 +620,7 @@ export function renderEnroll(host) {
         // это явно, а не нажатием кнопки «дальше».
         h('label', { class: 'check' }, checked, h('span', {}, t('enroll.attest')))),
       actions: [
-        h('button', { class: 'btn btn--secondary', onClick: () => close() }, t('common.cancel')),
+        h('button', { class: 'btn btn--secondary', type: 'button', onClick: () => close() }, t('common.cancel')),
         ok,
       ],
     });

@@ -3,6 +3,14 @@
    Размеры типографики — РЕАЛЬНЫЕ UI-размеры (специмен Figma ÷ 1.5).
    ============================================================ */
 
+@font-face {
+  font-family: "Google Sans";
+  src: url("/design-system/assets/fonts/GoogleSans.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ---------- reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -16,8 +24,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: "ALS Hauss Next VF", "ALS Hauss", Inter, -apple-system,
-               "Segoe UI", sans-serif;
+  font-family: "Google Sans", -apple-system, "Segoe UI", sans-serif;
   font-size: 15px;            /* Body/Base — базовый текст всего АРМ */
   line-height: 1.55;
   font-weight: 400;

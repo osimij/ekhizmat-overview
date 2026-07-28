@@ -14,9 +14,11 @@ async function files(dir, suffix) {
 const errors = [];
 const activeCss = [...await files('apps', '.css'), ...await files('design-system/css', '.css')];
 const rawColor = /(?<![\w-])#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)/gi;
+const negativeLetterSpacing = /letter-spacing\s*:\s*-(?:\d|\.)/i;
 for (const file of activeCss) {
   const source = await readFile(file, 'utf8');
   for (const match of source.matchAll(rawColor)) errors.push(`${file}: raw color ${match[0]}`);
+  if (negativeLetterSpacing.test(source)) errors.push(`${file}: negative letter-spacing is forbidden`);
   if (/transition\s*:\s*all\b/i.test(source)) errors.push(`${file}: transition: all is forbidden`);
 }
 

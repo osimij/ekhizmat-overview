@@ -6,7 +6,7 @@ Vite serves clean HTML routes without iframes. This preserves browser history, d
 
 ## One canonical design system
 
-Home/Citizen supplied the baseline visual language. Proven workstation and back-office primitives from ЦОН, Ministry, and Admin were added as variants. Foundation files, the ALS Hauss Next font, logo, icon sprite, dialog behavior, preferences, and platform switching exist only under `design-system/`.
+Home/Citizen supplied the baseline visual language. Proven workstation and back-office primitives from ЦОН, Ministry, and Admin were added as variants. Foundation files, the Google Sans font, logo, icon sprite, dialog behavior, preferences, and platform switching exist only under `design-system/`.
 
 The action blue is `#0072d6` because it maintains the intended identity while meeting contrast requirements for primary labels. Hairlines, neutral panels, restrained elevation, semantic red, and category hue tiles remain the binding visual rules.
 

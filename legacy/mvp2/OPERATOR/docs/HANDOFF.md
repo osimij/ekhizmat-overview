@@ -43,7 +43,7 @@ OPERATOR/
 │   ├── logo.svg          Favicon / brand mark
 │   ├── hero.webp         (carried with the design system; not used by operator screens)
 │   ├── hero-dark.webp    (carried with the design system; not used by operator screens)
-│   └── fonts/ALSHaussNextVF.ttf   Variable brand font (referenced by tokens.css)
+│   └── fonts/GoogleSans.woff2   Variable brand font (referenced by tokens.css)
 ├── qa/
 │   └── operator.mjs      Playwright screenshot + driven-session harness
 └── docs/
