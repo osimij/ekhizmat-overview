@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
@@ -11,7 +14,8 @@
     "test:visual": "playwright test qa/visual",
     "test:a11y": "playwright test qa/accessibility",
     "test:contrast": "node qa/contrast.mjs",
-    "lint:design-system": "node qa/design-lint.mjs"
+    "lint:design-system": "node qa/design-lint.mjs",
+    "check:vercel": "npm run build && node qa/vercel-readiness.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",

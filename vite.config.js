@@ -14,23 +14,29 @@ const pages = {
   styleguide: 'design-system/styleguide.html',
 };
 
-function copyStableRuntimeAssets() {
+function copyStableRuntimeFiles() {
   return {
-    name: 'copy-stable-runtime-assets',
+    name: 'copy-stable-runtime-files',
     closeBundle() {
-      const target = resolve(import.meta.dirname, 'dist/design-system/assets');
-      mkdirSync(target, { recursive: true });
+      const assetTarget = resolve(import.meta.dirname, 'dist/design-system/assets');
+      mkdirSync(assetTarget, { recursive: true });
       copyFileSync(
         resolve(import.meta.dirname, 'design-system/assets/icons.svg'),
-        resolve(target, 'icons.svg'),
+        resolve(assetTarget, 'icons.svg'),
       );
+
+      const docsTarget = resolve(import.meta.dirname, 'dist/docs');
+      mkdirSync(docsTarget, { recursive: true });
+      for (const file of ['demo-script.md', 'migration-map.md']) {
+        copyFileSync(resolve(import.meta.dirname, 'docs', file), resolve(docsTarget, file));
+      }
     },
   };
 }
 
 export default defineConfig({
   appType: 'mpa',
-  plugins: [copyStableRuntimeAssets()],
+  plugins: [copyStableRuntimeFiles()],
   build: {
     rollupOptions: {
       input: Object.fromEntries(

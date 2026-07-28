@@ -27,6 +27,22 @@ npm run build
 npm run preview
 ```
 
+## Deploy to Vercel
+
+The repository is configured for Vercel and does not require environment variables.
+
+1. In Vercel, choose **Add New → Project** and import `osimij/ekhizmat-five-by-gpt`.
+2. Keep the detected settings. `vercel.json` selects Vite, runs `npm ci` and `npm run build`, and publishes `dist`.
+3. Select **Deploy**.
+
+Before deploying, you can verify the exact production output locally:
+
+```bash
+npm run check:vercel
+```
+
+This checks every public platform route, all Admin subpages, the style guide, and the stable shared icon asset expected by the deployed applications.
+
 ## Presentation and developer modes
 
 Use this deterministic presentation link:

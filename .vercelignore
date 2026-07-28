@@ -1,0 +1,14 @@
+.git/
+.history/
+.DS_Store
+node_modules/
+dist/
+test-results/
+playwright-report/
+
+# Development, QA, and archived source are not needed by Vite.
+qa/
+legacy/
+Admin/
+UNIFIED-EKHIZMAT-PLATFORMS-PLAN.md
+agency-logo.svg
