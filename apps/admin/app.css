@@ -682,7 +682,9 @@ body.shot .bp-bar{display:none}
 
 /* ============ GALLERY (blueprints/index.html) ============ */
 .gx-hero{padding:var(--s-10) 0 var(--s-6)}
-.gx-hero h1{font-size:var(--fs-32); max-width:24ch}
+.gx-main{padding-bottom:max(var(--s-12),env(safe-area-inset-bottom))}
+.gx-hero h1{font-size:var(--fs-32); max-width:none}
+.gx-hero h1 span{display:block}
 .gx-hero p{color:var(--ink-2); font-size:var(--fs-17); margin-top:var(--s-3); max-width:64ch}
 .gx-sect{margin-top:var(--s-10)}
 .gx-sect > .sect-h{margin-bottom:var(--s-4)}
@@ -699,6 +701,32 @@ body.shot .bp-bar{display:none}
 .gx-card p{font-size:var(--fs-13); color:var(--ink-3); line-height:1.5}
 .gx-card .gx-go{display:inline-flex; align-items:center; gap:6px; margin-top:auto; font-size:var(--fs-13); font-weight:600; color:var(--blue-ink)}
 .gx-card .gx-go svg{width:15px; height:15px}
+.gx-how{
+  display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+  list-style:none; margin:0; padding:0;
+  background:var(--panel); border-radius:var(--r-xl); overflow:hidden;
+}
+.gx-step{min-width:0; padding:var(--s-5); text-align:left}
+.gx-step + .gx-step{border-left:1px solid var(--line-in)}
+.gx-step__head{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s-3); margin-bottom:var(--s-5)}
+.gx-step__number{font-size:var(--fs-12); font-weight:650; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.gx-step h3{font-size:var(--fs-16); font-weight:650; line-height:1.3}
+.gx-step p{margin-top:var(--s-2); color:var(--ink-3); font-size:var(--fs-13); line-height:1.5}
+@media(max-width:900px){
+  .gx-how{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gx-step + .gx-step{border-left:0}
+  .gx-step:nth-child(even){border-left:1px solid var(--line-in)}
+  .gx-step:nth-child(n+3){border-top:1px solid var(--line-in)}
+  .gx-step:last-child{grid-column:1/-1}
+}
+@media(max-width:560px){
+  .gx-hero h1 span{display:inline}
+  .gx-hero h1 span + span::before{content:" "}
+  .gx-how{grid-template-columns:1fr}
+  .gx-step,.gx-step:nth-child(even){border-left:0}
+  .gx-step:nth-child(n+2){border-top:1px solid var(--line-in)}
+  .gx-step:last-child{grid-column:auto}
+}
 
 /* ============ GENERIC PAGE SHELL FOR CITIZEN BLUEPRINTS ============ */
 /* a calm centred reading column, a touch wider than --col for forms */
