@@ -35,18 +35,19 @@ export function renderLogin(host) {
 
   mount(host,
     h('div', { class: 's-login' },
-      h('div', { class: 's-login__brand' },
-        icon('logo', { size: 24 }),
-        h('span', { class: 'h3' }, t('login.title'))),
-      h('p', { class: 'small s-login__subtitle' }, t('app.subtitle')),
-      slider,
-      // §6/S0 требует в подвале версию рядом с «Сессия действует…» (Д-21):
-      // при разборе инцидента первое, что спрашивают у оператора, — какая
-      // версия АРМ на окне, и искать её в devtools ему нечем.
-      h('p', { class: 'small s-login__legend' },
-        t('login.legend'),
-        h('span', { class: 'ink-faint' }, ' · '),
-        h('span', { class: 'tnum ink-faint' }, `${t('app.version')} ${VERSION}`))));
+      h('div', { class: 's-login__inner' },
+        h('div', { class: 's-login__brand' },
+          icon('logo', { size: 24 }),
+          h('span', { class: 'h3' }, t('login.title'))),
+        h('p', { class: 'small s-login__subtitle' }, t('app.subtitle')),
+        slider,
+        // §6/S0 требует в подвале версию рядом с «Сессия действует…» (Д-21):
+        // при разборе инцидента первое, что спрашивают у оператора, — какая
+        // версия АРМ на окне, и искать её в devtools ему нечем.
+        h('p', { class: 'small s-login__legend' },
+          t('login.legend'),
+          h('span', { class: 'ink-faint' }, ' · '),
+          h('span', { class: 'tnum ink-faint' }, `${t('app.version')} ${VERSION}`)))));
 
   go(0);
   return () => clearInterval(cooldownTimer);

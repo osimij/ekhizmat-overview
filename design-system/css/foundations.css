@@ -17,6 +17,9 @@ h3 { font-size: var(--fs-17); font-weight: 620; }
 .h2 { font-size: var(--fs-24); font-weight: 650; }
 p { margin: 0; }
 a { color: var(--blue-ink); }
+
+/* Brand marks use the brighter accessible blue supplied by each theme. */
+use[href$="#i-logo"] { color: var(--brand-logo); }
 input[type='checkbox'], input[type='radio'] { accent-color: var(--action); }
 
 :focus-visible {

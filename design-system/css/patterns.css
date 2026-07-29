@@ -120,3 +120,151 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
 }
 .ekh-demo-tools strong { padding-inline: var(--s-2); font-size: var(--fs-13); }
 .ekh-demo-tools .btn { min-height: 36px; }
+
+/* Shared audience vocabulary: selectors compose differently per app, while
+   badges remain identical everywhere. */
+.audience-badge,.environment-badge,.review-badge,.demo-data-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-height:26px;
+  padding:0 10px;
+  border-radius:var(--r-pill);
+  background:var(--field);
+  color:var(--ink-2);
+  font-size:var(--fs-12);
+  font-weight:650;
+  white-space:nowrap;
+}
+.audience-badge svg,.environment-badge svg,.review-badge svg,.demo-data-badge svg { width:14px; height:14px; }
+.audience-badge--guest { background:var(--h-violet-bg); color:var(--h-violet-fg); }
+.audience-badge--person { background:var(--h-blue-bg); color:var(--h-blue-fg); }
+.audience-badge--business { background:var(--h-indigo-bg); color:var(--h-indigo-fg); }
+.environment-badge--stage { background:var(--amber-tint); color:var(--amber); }
+.environment-badge--published,.review-badge--published,.review-badge--approved { background:var(--green-tint); color:var(--green); }
+.review-badge--review,.review-badge--resubmitted { background:var(--blue-tint); color:var(--blue-ink); }
+.review-badge--changes,.review-badge--rejected { background:var(--red-tint); color:var(--red-ink); }
+.review-badge--draft { background:var(--field); color:var(--ink-2); }
+.demo-data-badge { background:var(--h-slate-bg); color:var(--h-slate-fg); }
+
+.audience-selector { display:flex; flex-wrap:wrap; gap:var(--s-2); }
+.audience-selector label {
+  display:flex;
+  align-items:center;
+  gap:var(--s-2);
+  min-height:44px;
+  padding:0 var(--s-4);
+  border:1px solid var(--line);
+  border-radius:var(--r-m);
+  background:var(--panel);
+  color:var(--ink-2);
+  font-size:var(--fs-14);
+  font-weight:620;
+  cursor:pointer;
+}
+.audience-selector label:has(input:checked) { border-color:var(--blue); background:var(--blue-tint); color:var(--blue-ink); }
+
+/* Cabinet category count uses the same tile/card grammar as the public
+   catalogue, with a stable total that does not change when lists filter. */
+.category-count-card {
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:var(--s-3);
+  padding:var(--s-4);
+  border:1px solid var(--line);
+  border-radius:var(--r-m);
+  background:var(--panel);
+  color:var(--ink);
+  text-align:left;
+  transition:background var(--t-fast) var(--ease),border-color var(--t-fast) var(--ease);
+}
+.category-count-card:hover { background:var(--hover); border-color:var(--line-strong); }
+.category-count-card__copy { min-width:0; display:grid; gap:2px; flex:1; }
+.category-count-card__copy b { overflow-wrap:anywhere; }
+.category-count-card__count { color:var(--ink-3); font-size:var(--fs-13); }
+.category-count-card > svg { width:18px; height:18px; color:var(--ink-3); flex:none; }
+
+/* Face scan is shared by Citizen and TSON. It never accesses a camera; apps
+   only switch semantic state classes around this visual recipe. */
+.facescan {
+  width:min(100%,280px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:var(--s-3);
+  padding:var(--s-5);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  background:var(--panel);
+}
+.facescan__frame {
+  position:relative;
+  width:240px;
+  max-width:100%;
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border:2px solid currentColor;
+  border-radius:var(--r-xl);
+  color:var(--ink-3);
+  background:var(--field-on-panel);
+}
+.facescan__frame::before {
+  content:"";
+  position:absolute;
+  inset:18%;
+  border:1px dashed currentColor;
+  border-radius:46% 46% 42% 42%;
+  opacity:.42;
+}
+.facescan__frame > svg { width:72px; height:72px; }
+.facescan__caption { color:var(--ink-2); font-size:var(--fs-13); font-variant-numeric:tabular-nums; text-align:center; }
+.facescan--scanning .facescan__frame { color:var(--blue-ink); }
+.facescan--scanning .facescan__frame::before { animation:ekhFacePulse 1.8s var(--ease) infinite; }
+.facescan--scanning .facescan__frame::after {
+  content:"";
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:12%;
+  height:2px;
+  border-radius:var(--r-pill);
+  background:var(--blue);
+  box-shadow:0 0 14px var(--blue);
+  animation:ekhFaceLine 1.8s var(--ease) infinite;
+}
+.facescan--success .facescan__frame { color:var(--green); background:var(--green-tint); }
+.facescan--error .facescan__frame { color:var(--red-ink); background:var(--red-tint); }
+.facescan--modal { width:auto; padding:0; border:0; background:transparent; }
+.facescan--modal .facescan__frame { width:200px; }
+@keyframes ekhFacePulse { 50% { opacity:.75; transform:scale(1.03); } }
+@keyframes ekhFaceLine { 0%,100% { top:12%; } 50% { top:86%; } }
+
+.comment-thread { display:grid; gap:var(--s-3); }
+.comment {
+  display:grid;
+  grid-template-columns:36px minmax(0,1fr);
+  gap:var(--s-3);
+  padding:var(--s-4);
+  border:1px solid var(--line-in);
+  border-radius:var(--r-m);
+  background:var(--panel);
+}
+.comment__avatar { display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--h-slate-bg); color:var(--h-slate-fg); font-size:var(--fs-12); font-weight:700; }
+.comment__head { display:flex; flex-wrap:wrap; gap:var(--s-2); align-items:baseline; }
+.comment__head time,.comment__anchor { color:var(--ink-3); font-size:var(--fs-12); }
+.comment__body { margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; }
+
+@media (max-width:640px) {
+  .ekh-demo-tools { right:var(--s-3); left:var(--s-3); bottom:var(--s-3); flex-wrap:wrap; }
+  .ekh-demo-tools strong { flex:1 0 100%; }
+  .ekh-dialog__actions { flex-direction:column-reverse; }
+  .ekh-dialog__actions .btn { width:100%; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .category-count-card { transition:none; }
+  .facescan--scanning .facescan__frame::before,.facescan--scanning .facescan__frame::after { animation:none; }
+  .facescan--scanning .facescan__frame::after { display:none; }
+}

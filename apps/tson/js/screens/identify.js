@@ -12,7 +12,7 @@
    событием — за гражданина играет демо-панель (§11.5). Отсюда identify.wait().
    ============================================================ */
 import { h, mount, icon } from '../ui.js';
-import { t, errText } from '../i18n.js';
+import { t, errText, getLang } from '../i18n.js';
 import { dispatch } from '../store.js';
 import { identify } from '../mock/api.js';
 import { maskedField, otpInput, setLoading } from '../fields.js';
@@ -50,6 +50,12 @@ export function renderIdentify(host) {
       banner,
       seg,
       body,
+      h('div', { class:'panel guest-identify' },
+        h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:16 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость'),
+        h('div', { class:'grow stack g-1' },
+          h('strong', {}, getLang() === 'tg' ? 'Хизмат бе муайян кардани шахсият' : 'Услуга без идентификации'),
+          h('span', { class:'small ink-faint' }, getLang() === 'tg' ? 'Танҳо хизматҳои иҷозатшудаи намоишӣ дастрасанд.' : 'Будут доступны только разрешённые демонстрационные услуги.')),
+        h('button', { class:'btn btn--secondary', onClick:() => dispatch('GUEST') }, getLang() === 'tg' ? 'Ҳамчун меҳмон идома додан' : 'Продолжить как гость')),
       h('div', { class: 'row center s-identify__foot' },
         h('button', {
           class: 'btn btn--ghost',

@@ -95,11 +95,12 @@
 
             <div class="fld-grid">
               <div class="field"><label>Барои кӣ</label>
-                <div class="seg" style="max-width:none">
-                  <label><input type="radio" name="who" checked><span>Шахси воқеӣ</span></label>
-                  <label><input type="radio" name="who"><span>Шахси ҳуқуқӣ</span></label>
-                  <label><input type="radio" name="who"><span>Ҳар ду</span></label>
+                <div class="audience-selector" style="max-width:none">
+                  <label><input type="checkbox" name="audience" data-lc-audience="person" checked><span>Шахси воқеӣ</span></label>
+                  <label><input type="checkbox" name="audience" data-lc-audience="business"><span>Шахси ҳуқуқӣ</span></label>
+                  <label><input type="checkbox" name="audience" data-lc-audience="guest" checked><span>Меҳмон</span></label>
                 </div>
+                <p class="help">Як ё якчанд аудиторияро интихоб кунед.</p>
               </div>
               <div class="field"><label for="sla">Мӯҳлати иҷро</label><input class="input" id="sla" value="1 рӯзи корӣ"></div>
             </div>
@@ -123,6 +124,7 @@
               <div class="rv"><span class="k">Ном</span><span class="v" id="rvName">Маълумотнома дар бораи маҳалли истиқомат</span></div>
               <div class="rv"><span class="k">Асос (қолаб)</span><span class="v" id="rvBase">Маълумотнома / справка</span></div>
               <div class="rv"><span class="k">Категория</span><span class="v" id="rvCat">Маълумотнома</span></div>
+              <div class="rv"><span class="k">Барои кӣ</span><span class="v" id="rvAudience"><span class="audience-badge audience-badge--person">Шахси воқеӣ</span> <span class="audience-badge audience-badge--guest">Меҳмон</span></span></div>
               <div class="rv"><span class="k">Идора</span><span class="v">САҲШ</span></div>
               <div class="rv"><span class="k">Нарх</span><span class="v ok" id="rvCost">ройгон</span></div>
               <div class="rv"><span class="k">Раванди стандартӣ</span><span class="v">тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат</span></div>
@@ -140,6 +142,7 @@
 </div>
 
 <script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/apps/admin/js/lowcode.js"></script>
 <script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
 /* minimal page wiring: cost toggle + reflect a couple values into the review */
@@ -155,6 +158,13 @@
   document.querySelectorAll('#costSeg input').forEach(function(r){ r.addEventListener('change', syncCost); });
   var amt=$('#amt'); if(amt) amt.addEventListener('input', syncCost);
   var ntg=$('#ntg'); if(ntg) ntg.addEventListener('input', function(){ $('#rvName').textContent=this.value||'Хизмати беном'; });
+  function syncAudience(){
+    var labels={person:'Шахси воқеӣ',business:'Шахси ҳуқуқӣ',guest:'Меҳмон'};
+    var out=Array.from(document.querySelectorAll('[name="audience"]:checked')).map(function(i){var a=i.getAttribute('data-lc-audience');return '<span class="audience-badge audience-badge--'+a+'">'+labels[a]+'</span>';});
+    $('#rvAudience').innerHTML=out.join(' ');
+  }
+  document.querySelectorAll('[name="audience"]').forEach(function(i){i.addEventListener('change',syncAudience);});
+  syncAudience();
   syncCost();
 })();
 </script>

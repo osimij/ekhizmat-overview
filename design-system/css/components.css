@@ -24,7 +24,7 @@
   display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
   border-radius:var(--r-pill); font-weight:600; font-size:var(--fs-15);
   min-height:var(--h-btn-m); padding:0 22px; line-height:1; text-align:center;
-  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
 }
 .btn svg{width:18px; height:18px}
 .btn-pri,.btn--primary{background:var(--action); color:var(--on-blue)}
@@ -44,6 +44,7 @@
 .btn-pri[disabled]{background:var(--field); color:var(--ink-3)}
 .btn-sec[disabled],.btn-ghost[disabled],.btn-danger[disabled]{opacity:.45}
 .btn-block{width:100%}
+.btn:not([disabled]):active{transform:scale(.97)}
 
 /* ============ ICON TILES ============ */
 /* every category and list row gets a tile: hue + shape vary by subject */
@@ -95,14 +96,14 @@ textarea.input{height:auto; min-height:104px; padding:var(--s-3) var(--s-4); lin
 .field .err-msg svg{width:14px; height:14px; flex:none}
 
 /* segmented choice — gray capsule, white active thumb */
-.seg{display:flex; gap:4px; background:var(--field); border-radius:var(--r-pill); padding:4px}
+.seg{position:relative;display:flex; gap:4px; background:var(--field); border-radius:var(--r-pill); padding:4px}
 .seg label{
   flex:1; display:flex; align-items:center; justify-content:center; gap:var(--s-2);
   border-radius:var(--r-pill); padding:10px;
   font-weight:600; font-size:var(--fs-14); color:var(--ink-2); cursor:pointer; margin:0;
   transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.seg input{position:absolute; opacity:0; pointer-events:none}
+.seg input{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);opacity:0;pointer-events:none}
 .seg label:has(input:checked){background:var(--panel); color:var(--ink)}
 .seg input:focus-visible + span{outline:2px solid var(--focus); outline-offset:8px; border-radius:4px}
 
@@ -277,6 +278,9 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .metric:last-child { border-right:0; }
 .metric__label { display:block; color:var(--ink-3); font-size:var(--fs-13); }
 .metric__value { display:block; margin-top:var(--s-2); font-size:var(--fs-32); font-weight:690; line-height:1; font-variant-numeric:tabular-nums; }
+.metric__context { display:block; margin-top:var(--s-2); color:var(--ink-3); font-size:var(--fs-12); line-height:1.35; }
+.metric--warning .metric__context { color:var(--amber); }
+.metric--danger .metric__context { color:var(--red-ink); }
 
 .data-table-wrap { overflow:auto; border:1px solid var(--line-in); border-radius:var(--r-l); background:var(--panel); }
 .data-table { width:100%; border-collapse:collapse; text-align:left; }
@@ -288,6 +292,11 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .status-pill--success { background:var(--green-tint); color:var(--green); }
 .status-pill--warning { background:var(--amber-tint); color:var(--amber); }
 .status-pill--danger { background:var(--red-tint); color:var(--red-ink); }
+.status-pill--info { background:var(--blue-tint); color:var(--blue-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:not([disabled]):active { transform:none; }
+}
 
 .tabs { display:flex; gap:var(--s-1); padding:var(--s-1); border-radius:var(--r-pill); background:var(--field); }
 .tab { min-height:36px; padding:0 var(--s-4); border-radius:var(--r-pill); color:var(--ink-2); font-size:var(--fs-14); font-weight:620; }

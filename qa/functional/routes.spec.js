@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/new-service.html', '/admin/builder.html', '/design-system/styleguide.html'];
+const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/new-service.html', '/admin/builder.html', '/admin/review.html', '/design-system/styleguide.html'];
 
 for (const route of routes) {
   test(`${route} loads without page errors`, async ({ page }) => {
@@ -42,6 +42,12 @@ test('shared brand assets use the uploaded agency logo geometry', async () => {
   expect(paths(symbol)).toEqual(paths(sourceSvg));
   expect(standalone.match(/<svg[^>]*viewBox="([^"]+)"/)[1]).toBe('0 0 112 105');
   expect(symbol.match(/viewBox="([^"]+)"/)[1]).toBe('0 0 112 105');
+});
+
+test('brand logo uses the design-system light blue in dark mode', async ({ page }) => {
+  await page.goto('/?theme=dark');
+  const color = await page.locator('.brand-lockup use').evaluate(element => getComputedStyle(element).color);
+  expect(color).toBe('rgb(103, 179, 255)');
 });
 
 test('canonical stroke icons never fall back to a black SVG fill', async ({ page }) => {

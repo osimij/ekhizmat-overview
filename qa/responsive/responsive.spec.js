@@ -7,6 +7,7 @@ const cases = [
   { name: 'admin services', route: '/admin/services.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
   { name: 'admin new service', route: '/admin/new-service.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
   { name: 'admin builder', route: '/admin/builder.html', sizes: [[390, 844], [768, 900], [1024, 900], [1280, 900], [1440, 900], [1920, 1080]], noOverflow: true },
+  { name: 'admin review', route: '/admin/review.html', sizes: [[390, 844], [768, 900], [1280, 900], [1440, 900]], noOverflow: true },
   { name: 'ministry', route: '/ministry/', sizes: [[390, 844], [768, 1024], [1024, 768], [1280, 800], [1440, 900], [1920, 1080]], noOverflow: true },
   { name: 'design system', route: '/design-system/styleguide.html', sizes: [[390, 844], [768, 1024], [1440, 1000]], noOverflow: true },
   { name: 'tson', route: '/tson/', sizes: [[1280, 720], [1366, 768], [1440, 900], [1920, 1080]] },

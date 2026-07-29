@@ -1,4 +1,5 @@
 import './data.js';
+import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/js/lowcode.js';
 
 /* ============================================================
    app.js — прототип «АРМ специалиста ведомства» (§7Б ТЗ eKhizmat).
@@ -31,6 +32,12 @@ import './data.js';
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
     batchSvc: '',                       // услуга для экрана массовой обработки
+    formDraft: null,
+    formReadOnly: false,
+    formStep: 'fields',
+    formFieldOpen: null,
+    formPaletteOpen: false,
+    formPreviewOpen: false,
     modal: null,                        // объект текущей модалки
     pop: null                           // 'notif' | 'user' | null
   };
@@ -79,6 +86,17 @@ import './data.js';
   function statusInfo(key) { return D.STATUS[key] || { ru: key, tg: key, pill: 'pill--draft' }; }
   function statusLabel(key) { var s = statusInfo(key); return s[S.lang] || s.ru; }
   function svc(app) { return D.SERVICE[app.svc]; }
+  function lc() { return getLowCodeState(); }
+  function localValue(value, fallback) {
+    if (typeof value === 'string') return value;
+    return value && (value[S.lang] || value.ru || value.tg) || fallback || '';
+  }
+  function lowCodeStatusLabel(status) {
+    return t('form_status_' + status) || status;
+  }
+  function lowCodeStatusTone(status) {
+    return ({ draft:'draft', stage:'stage', in_review:'review', changes_requested:'changes', resubmitted:'review', approved:'approved', rejected:'rejected', published:'published' })[status] || 'draft';
+  }
 
   /* ------------------------------------------------------------------ */
   /* Данные: материализация и хранение                                  */
@@ -150,17 +168,19 @@ import './data.js';
     var loginErr = S._loginErr || '';
     var body =
       '<div class="login">' +
-        '<div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
+        '<div class="login__inner"><div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
         '<div class="login__subtitle body-l">' + esc(t('login_sub')) + '</div>' +
         '<div class="panel login__card' + (loginErr ? ' is-shake' : '') + '">' +
           (step === 1 ?
             '<div class="stack g-4">' +
-              '<div class="field"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
-                '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" autocomplete="username" spellcheck="false"></div>' +
-              '<div class="field"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
-                '<div class="field__wrap"><input class="field__input" id="l-pass" name="password" type="password" autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '>' +
-                '<span class="field__affix">' + ic('i-lock', 'icon--20') + '</span></div></div>' +
-              (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+              '<div class="login__fields">' +
+                '<div class="field login-field--floating"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
+                  '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" placeholder=" " autocomplete="username" spellcheck="false"></div>' +
+                '<div class="field login-field--floating"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
+                  '<div class="field__wrap"><input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '>' +
+                  '<span class="field__affix">' + ic('i-lock', 'icon--20') + '</span></div></div>' +
+                (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+              '</div>' +
               '<button class="btn btn--primary btn--l" type="button" data-act="login-next">' + esc(t('login_next')) + '</button>' +
             '</div>'
           :
@@ -178,7 +198,7 @@ import './data.js';
             '</div>'
           ) +
         '</div>' +
-        '<div class="login__legend small">' + ic('i-shield','icon--16') + '<span>' + esc(t('login_legend')) + '</span></div>' +
+        '<div class="login__legend small"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '<br>' + esc(t('login_legend_secondary')) + '</span></div></div>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
     S._loginErr = false;
@@ -229,6 +249,8 @@ import './data.js';
           '<div class="side__group-label">' + esc(t('nav_group2')) + '</div>' +
           navItem('interop', 'i-refresh', t('nav_interop'), iCount, false) +
           navItem('reports', 'i-dash', t('nav_reports'), null, false) +
+          '<div class="side__group-label">' + esc(t('nav_group3')) + '</div>' +
+          navItem('forms', 'i-edit', t('nav_forms'), null, false) +
           '<div class="side__spacer"></div>' +
           '<div class="side__foot"><div class="row g-3"><span class="avatar">' + esc(D.ME.initials) + '</span>' +
             '<div class="stack" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
@@ -253,8 +275,15 @@ import './data.js';
   function renderMain() {
     var main = document.getElementById('main');
     if (!main) return;
+    var shell = document.getElementById('app');
+    if (shell) {
+      shell.classList.toggle('is-form-workspace', S.view === 'forms' || S.view === 'form-builder');
+      shell.classList.toggle('is-form-builder', S.view === 'form-builder');
+    }
     var html;
     if (S.view === 'card') html = viewCard();
+    else if (S.view === 'forms') html = viewForms();
+    else if (S.view === 'form-builder') html = viewFormBuilder();
     else if (S.view === 'reports') html = viewReports();
     else if (S.view === 'interop') html = viewInterop();
     else if (S.view === 'batch') html = viewBatch();
@@ -263,8 +292,237 @@ import './data.js';
     tick();                       // сразу проставить живые сроки
     // синхронизировать активную навигацию (view мог смениться на 'card')
     document.querySelectorAll('.nav-item').forEach(function (b) {
-      b.classList.toggle('is-active', b.getAttribute('data-view') === S.view);
+      var activeView = S.view === 'form-builder' ? 'forms' : S.view;
+      b.classList.toggle('is-active', b.getAttribute('data-view') === activeView);
     });
+  }
+
+  /* ---- формы услуг: автор ведомства → проверка портала ---- */
+  function formAudienceBadges(audience) {
+    var labels = { person:t('form_person'), business:t('form_business'), guest:t('form_guest') };
+    var selected = audience || [];
+    return ['person','business','guest'].filter(function (id) { return selected.indexOf(id) >= 0; }).map(function (id) {
+      return '<span class="form-audience form-audience--' + esc(id) + '">' + esc(labels[id] || id) + '</span>';
+    }).join('');
+  }
+
+  function ministryForms() {
+    var state = lc();
+    return [
+      {
+        id:'shared', current:true, icon:'i-users', tone:'hue-indigo',
+        name:localValue(state.serviceName, t('form_default_name')),
+        status:state.status, version:state.serviceVersion, audience:state.audience,
+        meta:t('form_updated_now')
+      },
+      { id:'apostille', icon:'i-cat-cert', tone:'hue-teal', name:S.lang === 'tg' ? 'Гузоштани апостил' : 'Проставление апостиля', status:'published', version:'1.8', audience:['person','guest'], meta:t('form_updated_4d') },
+      { id:'notary', icon:'i-cat-license', tone:'hue-amber', name:S.lang === 'tg' ? 'Иҷозатнома барои фаъолияти нотариалӣ' : 'Лицензия на нотариальную деятельность', status:'published', version:'2.1', audience:['person'], meta:t('form_updated_12d') },
+      { id:'extract', icon:'i-doc', tone:'hue-blue', name:S.lang === 'tg' ? 'Иқтибос аз феҳристи шахсони ҳуқуқӣ' : 'Выписка из реестра юридических лиц', status:'approved', version:'0.9', audience:['business','guest'], meta:t('form_updated_yesterday') }
+    ];
+  }
+
+  function viewForms() {
+    S.formDraft = null;
+    S.formReadOnly = false;
+    var forms = ministryForms(), state = lc();
+    var drafts = forms.filter(function (f) { return ['draft','stage','changes_requested','rejected'].indexOf(f.status) >= 0; }).length;
+    var review = forms.filter(function (f) { return ['in_review','resubmitted','approved'].indexOf(f.status) >= 0; }).length;
+    var published = forms.filter(function (f) { return f.status === 'published'; }).length;
+    var h = '<div class="view forms-view">' +
+      '<div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('forms_title')) + '</h1>' +
+      '<div class="view__sub">' + esc(t('forms_sub')) + '</div></div>' +
+      '<div class="view__actions"><button class="btn btn--primary" type="button" data-act="form-create">' + ic('i-plus','icon--20') + esc(t('forms_create')) + '</button></div></div>' +
+      '<div class="stat-grid forms-stats">' +
+        statTile('i-edit', drafts, t('forms_drafts'), '') +
+        statTile('i-eye', review, t('forms_review'), review ? 'warn' : '') +
+        statTile('i-check', published, t('forms_published'), 'ok') +
+        statTile('i-doc', forms.length, t('forms_total'), '') +
+      '</div>' +
+      '<div class="panel forms-catalog"><div class="forms-catalog__head"><div><h2 class="h3">' + esc(t('forms_registry')) + '</h2><p class="small">' + esc(t('forms_registry_hint')) + '</p></div>' +
+      '<span class="form-role">' + ic('i-edit','icon--16') + esc(t('forms_role')) + '</span></div>' +
+      '<div class="form-list">';
+
+    forms.forEach(function (form) {
+      var openAct = form.current ? 'form-open' : 'form-open-static';
+      h += '<button class="form-row" type="button" data-act="' + openAct + '" data-id="' + esc(form.id) + '">' +
+        '<span class="form-row__icon ' + esc(form.tone) + '">' + ic(form.icon,'') + '</span>' +
+        '<span class="form-row__main"><b>' + esc(form.name) + '</b><span>' + esc(t('form_version')) + ' ' + esc(form.version) + ' · ' + esc(form.meta) + '</span><span class="form-row__audiences">' + formAudienceBadges(form.audience) + '</span></span>' +
+        '<span class="form-status form-status--' + lowCodeStatusTone(form.status) + '">' + esc(lowCodeStatusLabel(form.status)) + '</span>' +
+        ic('i-chev-r','icon--16') + '</button>';
+    });
+    h += '</div></div>';
+    if (state.comments && state.comments.length) {
+      h += '<div class="banner banner--info forms-comment-note">' + ic('i-info','icon--20') + '<span class="banner__text">' + esc(t('forms_comments_waiting').replace('{n}', state.comments.length)) + '</span></div>';
+    }
+    return h + '</div>';
+  }
+
+  function makeFormDraft(state) {
+    var fields = state.formFields && state.formFields.length ? state.formFields : [
+      { id:'field-1', label:{ru:'Название организации',tg:'Номи ташкилот'}, type:'text', required:true }
+    ];
+    return {
+      serviceName:{ ru:localValue(state.serviceName, t('form_default_name')), tg:state.serviceName && state.serviceName.tg || '' },
+      audience:(state.audience || ['person']).slice(),
+      formFields:fields.map(function (field) {
+        return { id:field.id, label:{ ru:field.label && field.label.ru || localValue(field.label,''), tg:field.label && field.label.tg || '' }, type:field.type || 'text', required:field.required !== false };
+      })
+    };
+  }
+
+  function isFormEditable() {
+    if (S.formReadOnly) return false;
+    return ['draft','stage','changes_requested','rejected'].indexOf(lc().status) >= 0;
+  }
+
+  function formStepGroups() {
+    return [
+      { label:t('form_flow_citizen'), items:[
+        { id:'confirm', icon:'i-shield', title:t('form_step_confirm'), sub:t('form_step_confirm_sub') },
+        { id:'fields', icon:'i-edit', title:t('form_step_fields'), sub:t('form_step_fields_sub') },
+        { id:'delivery', icon:'i-wallet', title:t('form_step_delivery'), sub:t('form_step_delivery_sub') },
+        { id:'review', icon:'i-sign', title:t('form_step_review'), sub:t('form_step_review_sub') }
+      ]},
+      { label:t('form_flow_agency'), items:[
+        { id:'checks', icon:'i-check', title:t('form_step_checks'), sub:t('form_step_checks_sub') },
+        { id:'route', icon:'i-users', title:t('form_step_route'), sub:t('form_step_route_sub') },
+        { id:'issue', icon:'i-doc', title:t('form_step_issue'), sub:t('form_step_issue_sub') }
+      ]}
+    ];
+  }
+
+  function formFieldTypeLabel(type) { return t('form_type_' + (type || 'text')); }
+  function formFieldTypeIcon(type) {
+    return ({ textarea:'i-edit', select:'i-dots', date:'i-calendar', file:'i-upload', checkbox:'i-check' })[type] || 'i-edit';
+  }
+
+  function formPipeline(draft, editable) {
+    var groups = formStepGroups();
+    var h = '<aside class="mfb-pipeline" aria-label="' + esc(t('form_flow_title')) + '"><div class="mfb-pipeline__head"><h2>' + esc(t('form_flow_title')) + '</h2><span>' + esc(t('form_flow_steps')) + '</span></div>';
+    groups.forEach(function (group) {
+      h += '<div class="mfb-pipeline__label">' + esc(group.label) + '</div><div class="mfb-pipeline__group" role="tablist" aria-label="' + esc(group.label) + '">';
+      group.items.forEach(function (step) {
+        var active = S.formStep === step.id;
+        h += '<button class="mfb-step" type="button" role="tab" data-act="form-step" data-id="' + step.id + '" aria-selected="' + (active ? 'true' : 'false') + '" tabindex="' + (active ? '0' : '-1') + '">' +
+          '<span class="mfb-step__icon">' + ic(step.icon,'icon--16') + '</span><span class="mfb-step__text"><b>' + esc(step.title) + '</b><span>' + esc(step.sub) + '</span></span>' +
+          (step.id === 'fields' ? '<span class="mfb-step__count">' + draft.formFields.length + '</span>' : step.id === 'route' && editable ? '<span class="mfb-step__dot" aria-hidden="true"></span>' : '') + '</button>';
+      });
+      h += '</div>';
+    });
+    return h + '</aside>';
+  }
+
+  function formToggleRow(icon, title, meta, checked, disabled) {
+    return '<label class="mfb-toggle-row"><span class="mfb-toggle-row__icon">' + ic(icon,'icon--16') + '</span><span class="mfb-toggle-row__text"><b>' + esc(title) + '</b><span>' + esc(meta) + '</span></span><span class="sw"><input type="checkbox" ' + (checked ? 'checked ' : '') + (disabled ? 'disabled ' : '') + '><span class="knob"></span></span></label>';
+  }
+
+  function formFieldPreview(field) {
+    var label = localValue(field.label, t('form_untitled_field')) + (field.required ? ' *' : '');
+    var common = '<span class="field__label" data-preview-field="' + esc(field.id) + '">' + esc(label) + '</span>';
+    if (field.type === 'textarea') return '<label class="field">' + common + '<textarea class="input" rows="2" disabled placeholder="' + esc(t('form_preview_placeholder')) + '"></textarea></label>';
+    if (field.type === 'select') return '<label class="field">' + common + '<select class="input" disabled><option>' + esc(t('form_preview_select')) + '</option></select></label>';
+    if (field.type === 'date') return '<label class="field">' + common + '<input class="input" type="date" disabled></label>';
+    if (field.type === 'file') return '<div class="mfb-preview-upload">' + ic('i-upload','icon--20') + '<span><b>' + esc(label) + '</b><small>' + esc(t('form_preview_upload')) + '</small></span></div>';
+    if (field.type === 'checkbox') return '<label class="mfb-preview-check"><input type="checkbox" disabled><span>' + esc(label) + '</span></label>';
+    return '<label class="field">' + common + '<input class="input" disabled placeholder="' + esc(t('form_preview_placeholder')) + '"></label>';
+  }
+
+  function formPreview(draft, title) {
+    var fields = draft.formFields.map(formFieldPreview).join('');
+    return '<aside class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" id="formPreview" tabindex="0" aria-label="' + esc(t('form_preview')) + '"><div class="mfb-preview__bar"><span class="mfb-live"><i></i>' + esc(t('form_preview')) + '</span><span>' + esc(t('form_preview_mode')) + '</span><button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div>' +
+      '<div class="mfb-preview__stage"><div class="mfb-phone"><div class="mfb-phone__status"><span>9:41</span><span>● ◒</span></div><div class="mfb-phone__screen"><div class="mfb-preview-head">' + ic('i-logo','icon--20') + '<b>eKhizmat</b><span>Ф</span></div><div class="mfb-preview-progress"><i class="is-on"></i><i></i><i></i><i></i></div><div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_preview_intro')) + '</p>' + (fields || '<div class="mfb-preview-empty">' + esc(t('form_no_fields')) + '</div>') + '<div class="mfb-preview-actions"><button class="btn btn--secondary" type="button" disabled>' + esc(t('form_preview_back')) + '</button><button class="btn btn--primary" type="button" disabled>' + esc(t('form_preview_continue')) + '</button></div></div></div></div></div></aside>';
+  }
+
+  function formFieldsEditor(draft, editable) {
+    var fields = draft.formFields.map(function (field, index) {
+      var open = S.formFieldOpen === field.id;
+      var label = localValue(field.label, t('form_untitled_field'));
+      var requiredMark = field.required
+        ? '<span class="mfb-required-mark" aria-hidden="true">*</span><span class="sr-only">, ' + esc(t('form_required')) + '</span>'
+        : '';
+      var summary = '<span class="mfb-field-icon">' + ic(formFieldTypeIcon(field.type),'icon--16') + '</span><span class="mfb-field-title"><b>' + esc(label) + requiredMark + '</b><span><em>' + esc(formFieldTypeLabel(field.type)) + '</em></span></span>';
+      var opener = editable
+        ? '<button class="mfb-field-open" type="button" data-act="form-field-open" data-id="' + esc(field.id) + '" aria-expanded="' + (open ? 'true' : 'false') + '">' + summary + '</button>'
+        : '<div class="mfb-field-open mfb-field-open--static">' + summary + '</div>';
+      return '<article class="mfb-field-item form-field-row ' + (open && editable ? 'is-open' : '') + '" data-form-field-row="' + esc(field.id) + '"><div class="mfb-field-head"><span class="mfb-field-grip" aria-hidden="true"></span>' + opener +
+        (editable ? '<span class="mfb-field-actions"><button class="btn btn--icon btn--s" type="button" data-act="form-field-up" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_move_up')) + '" ' + (index === 0 ? 'disabled' : '') + '>' + ic('i-chev-d','icon--16 mfb-icon-up') + '</button><button class="btn btn--icon btn--s" type="button" data-act="form-field-down" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_move_down')) + '" ' + (index === draft.formFields.length - 1 ? 'disabled' : '') + '>' + ic('i-chev-d','icon--16') + '</button><button class="btn btn--icon btn--s" type="button" data-act="form-remove-field" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_remove_field')) + '">' + ic('i-trash','icon--16') + '</button></span>' : '') + '</div>' +
+        (open && editable ? '<div class="mfb-field-body"><div class="form-name-grid"><label class="field"><span class="field__label">' + esc(t('form_field_label')) + ' · ' + esc(S.lang.toUpperCase()) + '</span><input class="input" data-form-field-label="' + esc(field.id) + '" value="' + esc(field.label && field.label[S.lang] || '') + '"></label><label class="field"><span class="field__label">' + esc(t('form_field_type')) + '</span><select class="input" data-form-field-type="' + esc(field.id) + '">' + ['text','textarea','select','date','file','checkbox'].map(function (type) { return '<option value="' + type + '" ' + (field.type === type ? 'selected' : '') + '>' + esc(formFieldTypeLabel(type)) + '</option>'; }).join('') + '</select></label></div><label class="mfb-required"><input class="check__input" type="checkbox" data-form-field-required="' + esc(field.id) + '" ' + (field.required ? 'checked' : '') + '><span>' + esc(t('form_required_field')) + '</span></label></div>' : '') + '</article>';
+    }).join('');
+
+    var types = ['text','textarea','select','date','file','checkbox'];
+    var palette = S.formPaletteOpen && editable ? '<div class="mfb-palette" role="group" aria-label="' + esc(t('form_choose_type')) + '"><div class="mfb-palette__head"><b>' + esc(t('form_choose_type')) + '</b><button class="btn btn--icon btn--s" type="button" data-act="form-add-field" aria-label="' + esc(t('form_palette_close')) + '">' + ic('i-x','icon--16') + '</button></div><div class="mfb-palette__grid">' + types.map(function (type) { return '<button type="button" data-act="form-add-field-type" data-id="' + type + '"><span>' + ic(formFieldTypeIcon(type),'icon--20') + '</span><b>' + esc(formFieldTypeLabel(type)) + '</b><small>' + esc(t('form_type_' + type + '_hint')) + '</small></button>'; }).join('') + '</div></div>' : '';
+
+    return '<div class="mfb-name-grid"><label class="field"><span class="field__label">' + esc(t('form_name_ru')) + '</span><input class="input" data-form-name="ru" value="' + esc(draft.serviceName.ru || '') + '" ' + (editable ? '' : 'disabled') + '></label><label class="field"><span class="field__label">' + esc(t('form_name_tg')) + '</span><input class="input" data-form-name="tg" value="' + esc(draft.serviceName.tg || '') + '" ' + (editable ? '' : 'disabled') + '></label></div><div class="mfb-field-list">' + (fields || '<div class="mfb-fields-empty">' + ic('i-edit','icon--24') + '<b>' + esc(t('form_no_fields')) + '</b><span>' + esc(t('form_no_fields_hint')) + '</span></div>') + '</div>' + (editable ? '<button class="btn btn--secondary form-add-field" type="button" data-act="form-add-field">' + ic('i-plus','icon--16') + esc(t('form_add_field')) + '</button>' + palette : '');
+  }
+
+  function formEditorPane(draft, editable) {
+    var step = S.formStep;
+    var heads = {
+      confirm:[t('form_step_confirm'),t('form_editor_confirm_intro')], fields:[t('form_step_fields'),t('form_editor_fields_intro')], delivery:[t('form_step_delivery'),t('form_editor_delivery_intro')], review:[t('form_step_review'),t('form_editor_review_intro')], checks:[t('form_step_checks'),t('form_editor_checks_intro')], route:[t('form_step_route'),t('form_editor_route_intro')], issue:[t('form_step_issue'),t('form_editor_issue_intro')]
+    };
+    var body = '';
+    if (step === 'fields') body = formFieldsEditor(draft, editable);
+    else if (step === 'confirm') body = '<div class="mfb-section-label">' + esc(t('form_prefilled_data')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-user',t('form_prefill_person'),t('form_prefill_person_sub'),true,!editable) + formToggleRow('i-building',t('form_prefill_org'),t('form_prefill_org_sub'),true,!editable) + formToggleRow('i-pin',t('form_prefill_address'),t('form_prefill_address_sub'),false,!editable) + '</div>';
+    else if (step === 'delivery') body = '<div class="mfb-section-label">' + esc(t('form_delivery_methods')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-wallet',t('form_delivery_digital'),t('form_delivery_digital_sub'),true,!editable) + formToggleRow('i-doc',t('form_delivery_paper'),t('form_delivery_paper_sub'),false,!editable) + '</div><div class="mfb-section-label">' + esc(t('form_cost')) + '</div><div class="seg mfb-seg"><label><input type="radio" name="form-cost" checked ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_free')) + '</span></label><label><input type="radio" name="form-cost" ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_paid')) + '</span></label></div>';
+    else if (step === 'review') body = '<div class="mfb-section-label">' + esc(t('form_consent')) + '</div><label class="field"><textarea class="input" rows="3" ' + (editable ? '' : 'disabled') + '>' + esc(t('form_consent_text')) + '</textarea></label><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-sign',t('form_esign'),t('form_esign_sub'),true,true) + formToggleRow('i-call',t('form_sms'),t('form_sms_sub'),false,!editable) + '</div>';
+    else if (step === 'checks') body = '<div class="mfb-section-label">' + esc(t('form_active_checks')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-shield',t('form_check_registry'),t('form_check_registry_sub'),true,!editable) + formToggleRow('i-search',t('form_check_duplicate'),t('form_check_duplicate_sub'),true,!editable) + formToggleRow('i-doc',t('form_check_files'),t('form_check_files_sub'),false,!editable) + '</div>';
+    else if (step === 'route') body = '<div class="form-name-grid"><label class="field"><span class="field__label">' + esc(t('form_responsible_unit')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_unit_nko')) + '</option><option>' + esc(t('form_unit_legal')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_reviewer_role')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_role_specialist')) + '</option><option>' + esc(t('form_role_lead')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_sla')) + '</span><input class="input" value="' + esc(t('form_sla_value')) + '" ' + (editable ? '' : 'disabled') + '></label></div><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-bell',t('form_escalation'),t('form_escalation_sub'),true,!editable) + '</div>';
+    else body = '<div class="mfb-section-label">' + esc(t('form_result_document')) + '</div><div class="mfb-output-card"><span>' + ic('i-doc','icon--20') + '</span><div><b>' + esc(t('form_result_nko')) + '</b><p>' + esc(t('form_result_nko_sub')) + '</p></div><button class="btn btn--secondary btn--s" type="button" ' + (editable ? '' : 'disabled') + '>' + esc(t('form_template_edit')) + '</button></div><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-wallet',t('form_wallet_result'),t('form_wallet_result_sub'),true,!editable) + '</div>';
+
+    var citizenStep = ['confirm','fields','delivery','review'].indexOf(step);
+    var stepContext = citizenStep >= 0 ? t('form_step_label') + ' ' + (citizenStep + 1) + ' · ' + t('form_flow_citizen') : t('form_flow_agency');
+    return '<section class="mfb-editor" role="tabpanel"><div class="mfb-editor__inner"><header class="mfb-editor__head"><span>' + ic((formStepGroups().reduce(function (all,g) { return all.concat(g.items); },[]).filter(function (item) { return item.id === step; })[0] || {icon:'i-edit'}).icon,'icon--14') + esc(stepContext) + '</span><h1>' + esc(heads[step][0]) + '</h1><p>' + esc(heads[step][1]) + '</p></header>' + body + '</div></section>';
+  }
+
+  function viewFormBuilder() {
+    var state = lc();
+    if (!S.formDraft) S.formDraft = makeFormDraft(state);
+    var draft = S.formDraft, editable = isFormEditable();
+    var title = localValue(draft.serviceName, t('form_untitled'));
+    var status = S.formReadOnly ? 'published' : state.status;
+    var comments = (state.comments || []).map(function (comment) {
+      return '<article class="form-comment"><div><b>' + esc(comment.author === 'reviewer' ? t('form_reviewer') : t('forms_role')) + '</b><span>' + esc(comment.at) + '</span></div><p>' + esc(comment.body) + '</p></article>';
+    }).join('');
+    var canSend = editable && draft.formFields.length > 0;
+    var sendLabel = state.status === 'changes_requested' ? t('form_resubmit') : t('form_send');
+
+    return '<div class="form-builder-view">' +
+      '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><span class="mfb-service-icon">' + ic('i-cat-justice','icon--16') + '</span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + esc(lowCodeStatusLabel(status)) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
+      (editable ? '<div class="mfb-actions"><button class="btn btn--secondary btn--s" type="button" data-act="form-save">' + ic('i-check','icon--16') + esc(t('form_save_short')) + '</button><button class="btn btn--primary btn--s" type="button" data-act="form-send" ' + (canSend ? '' : 'disabled') + '>' + ic('i-users','icon--16') + esc(sendLabel) + '</button></div>' : '') + '</header>' +
+      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + esc(lowCodeStatusLabel(status)) + '</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span><span>' + ic('i-edit','icon--14') + esc(t('forms_role')) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><div class="mfb-meta__comments">' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></div></div>' +
+      (!editable ? '<div class="banner banner--info form-lock-note">' + ic('i-lock','icon--20') + '<span class="banner__text">' + esc(t(S.formReadOnly ? 'form_readonly_sub' : 'form_locked_review')) + '</span></div>' : '') +
+      (comments ? '<div class="mfb-comments banner banner--info">' + ic('i-chat','icon--20') + '<div><b>' + esc(t('form_comments')) + '</b><div class="form-comments">' + comments + '</div></div></div>' : '') +
+      '<div class="form-builder-grid mfb-work">' + formPipeline(draft, editable) + formEditorPane(draft, editable) + formPreview(draft, title) + '</div>' +
+      (S.formPreviewOpen ? '<button class="mfb-preview-backdrop" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '"></button>' : '') +
+    '</div>';
+  }
+
+  function staticFormDraft(id) {
+    var form = ministryForms().filter(function (item) { return item.id === id; })[0];
+    if (!form) return null;
+    return {
+      serviceName:{ ru:form.name, tg:form.name },
+      audience:form.audience.slice(),
+      formFields:[
+        { id:id + '-request', label:{ru:t('form_static_request'),tg:t('form_static_request')}, type:'text', required:true },
+        { id:id + '-contact', label:{ru:t('form_static_contact'),tg:t('form_static_contact')}, type:'text', required:true }
+      ]
+    };
+  }
+
+  function persistFormDraft(saveStage) {
+    if (!S.formDraft) return;
+    S._lowCodeBusy = true;
+    dispatchLowCode('UPDATE_SERVICE', { serviceName:S.formDraft.serviceName, formFields:S.formDraft.formFields });
+    var currentAudience = getLowCodeState().audience || [];
+    ['person','business','guest'].forEach(function (id) {
+      if ((S.formDraft.audience.indexOf(id) >= 0) !== (currentAudience.indexOf(id) >= 0)) {
+        dispatchLowCode('SET_AUDIENCE', { value:id });
+        currentAudience = getLowCodeState().audience || [];
+      }
+    });
+    if (saveStage) dispatchLowCode('SAVE_STAGE');
+    S._lowCodeBusy = false;
   }
 
   /* ---- очередь / все / просроченные ---- */
@@ -384,7 +642,7 @@ import './data.js';
       '<span class="q-num">' + esc(a.number) + '</span>' +
       '<span class="q-service"><span class="q-glyph">' + ic(s.icon,'') + '</span>' +
         '<span class="stack" style="min-width:0"><span class="q-service__name">' + esc(s.name) + '</span>' +
-        '<span class="q-service__cat">' + esc(s.cat) + (s.critical ? ' · <span class="q-flag">' + ic('i-shield','icon--16') + '4 глаза</span>' : '') + '</span></span></span>' +
+        '<span class="q-service__cat">' + esc(s.cat) + (a.audience === 'guest' || s.audience === 'guest' ? ' · <span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') + (s.critical ? ' · <span class="q-flag">' + ic('i-shield','icon--16') + '4 глаза</span>' : '') + '</span></span></span>' +
       '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
       '<span class="q-date">' + esc(fmtDate(a.submittedAt)) + '</span>' +
@@ -427,6 +685,7 @@ import './data.js';
       '<div class="panel">' +
         '<div class="def">' +
           defRow(t('col_status'), '<span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span>' + esc(statusLabel(a.status)) + '</span>') +
+          (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
           defRow(t('priority'), esc(a.priority)) +
           defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
           defRow(t('division'), esc(D.ME.division)) +
@@ -443,6 +702,7 @@ import './data.js';
         '<div class="card-head__titles"><div class="card-head__num">' + esc(a.number) + '</div>' +
           '<h1 class="h2">' + esc(s.name) + '</h1>' +
           '<div class="card-head__meta"><span class="small">' + esc(s.cat) + '</span>' +
+            (a.audience === 'guest' || s.audience === 'guest' ? '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') +
             (s.critical ? '<span class="chip"><span>' + ic('i-shield','icon--16') + '</span>Решение в четыре глаза</span>' : '') +
           '</div></div></div>' +
       '<div class="tabs" role="tablist" aria-label="' + esc(s.name) + '">' +
@@ -1050,6 +1310,53 @@ import './data.js';
       case 'nav-toggle': document.getElementById('app').classList.toggle('nav-open'); return;
       case 'nav-close': document.getElementById('app').classList.remove('nav-open'); return;
 
+      case 'form-create':
+        S._lowCodeBusy = true; dispatchLowCode('RESET'); S._lowCodeBusy = false;
+        S.formDraft = {
+          serviceName:{ru:'',tg:''}, audience:['person'],
+          formFields:[{id:'field-' + Date.now(),label:{ru:t('form_new_field'),tg:t('form_new_field')},type:'text',required:true}]
+        };
+        S.formReadOnly = false; S.formStep = 'fields'; S.formFieldOpen = S.formDraft.formFields[0].id; S.formPaletteOpen = false; go('form-builder'); return;
+      case 'form-open': S.formDraft = null; S.formReadOnly = false; S.formStep = 'fields'; S.formFieldOpen = null; S.formPaletteOpen = false; go('form-builder'); return;
+      case 'form-open-static': S.formDraft = staticFormDraft(id); S.formReadOnly = true; S.formStep = 'fields'; S.formFieldOpen = null; S.formPaletteOpen = false; go('form-builder'); return;
+      case 'form-back': e.preventDefault(); go('forms'); return;
+      case 'form-step': S.formStep = id; S.formPaletteOpen = false; renderMain(); return;
+      case 'form-preview-toggle': S.formPreviewOpen = !S.formPreviewOpen; renderMain(); return;
+      case 'form-add-field':
+        S.formPaletteOpen = !S.formPaletteOpen;
+        renderMain(); return;
+      case 'form-add-field-type': {
+        var newField = {id:'field-' + Date.now(),label:{ru:t('form_new_field'),tg:t('form_new_field')},type:id || 'text',required:true};
+        S.formDraft.formFields.push(newField); S.formFieldOpen = newField.id; S.formPaletteOpen = false;
+        renderMain(); return;
+      }
+      case 'form-field-open': S.formFieldOpen = S.formFieldOpen === id ? null : id; renderMain(); return;
+      case 'form-field-up':
+      case 'form-field-down': {
+        var fieldIndex = S.formDraft.formFields.map(function (field) { return field.id; }).indexOf(id);
+        var nextIndex = act === 'form-field-up' ? fieldIndex - 1 : fieldIndex + 1;
+        if (fieldIndex >= 0 && nextIndex >= 0 && nextIndex < S.formDraft.formFields.length) {
+          var moved = S.formDraft.formFields.splice(fieldIndex, 1)[0];
+          S.formDraft.formFields.splice(nextIndex, 0, moved);
+          renderMain();
+        }
+        return;
+      }
+      case 'form-remove-field':
+        S.formDraft.formFields = S.formDraft.formFields.filter(function (field) { return field.id !== id; });
+        if (S.formFieldOpen === id) S.formFieldOpen = null;
+        renderMain(); return;
+      case 'form-save':
+        persistFormDraft(true); renderMain(); toast(t('form_saved_toast'), 'success'); return;
+      case 'form-send': {
+        var name = localValue(S.formDraft.serviceName,'').trim();
+        if (!name) { toast(t('form_name_required'), 'warn'); document.querySelector('[data-form-name="' + S.lang + '"]')?.focus(); return; }
+        persistFormDraft(true);
+        var submitEvent = getLowCodeState().status === 'changes_requested' ? 'RESUBMIT' : 'SEND_REVIEW';
+        S._lowCodeBusy = true; dispatchLowCode(submitEvent); S._lowCodeBusy = false;
+        renderMain(); toast(t(submitEvent === 'RESUBMIT' ? 'form_resubmitted_toast' : 'form_sent_toast'), 'success'); return;
+      }
+
       case 'open-card': openCard(id); return;
       case 'tab': S.cardTab = tgt.getAttribute('data-tab'); renderMain(); return;
 
@@ -1117,6 +1424,26 @@ import './data.js';
   });
 
   document.addEventListener('input', function (e) {
+    var nameLang = e.target.getAttribute && e.target.getAttribute('data-form-name');
+    if (nameLang && S.formDraft) {
+      S.formDraft.serviceName[nameLang] = e.target.value;
+      var previewTitle = document.querySelector('.mfb-preview-body h2');
+      var pageTitle = document.querySelector('.mfb-title h1');
+      var nextTitle = localValue(S.formDraft.serviceName, t('form_untitled'));
+      if (previewTitle) previewTitle.textContent = nextTitle;
+      if (pageTitle) pageTitle.textContent = nextTitle;
+      return;
+    }
+    var fieldId = e.target.getAttribute && e.target.getAttribute('data-form-field-label');
+    if (fieldId && S.formDraft) {
+      var draftField = S.formDraft.formFields.filter(function (field) { return field.id === fieldId; })[0];
+      if (draftField) draftField.label[S.lang] = e.target.value;
+      var previewLabel = document.querySelector('[data-preview-field="' + fieldId + '"]');
+      var fieldTitle = document.querySelector('[data-form-field-row="' + fieldId + '"] .mfb-field-title b');
+      if (previewLabel) previewLabel.textContent = (e.target.value || t('form_untitled_field')) + (draftField && draftField.required ? ' *' : '');
+      if (fieldTitle) fieldTitle.textContent = e.target.value || t('form_untitled_field');
+      return;
+    }
     var cell = closest(e.target, '[data-otp]');
     if (!cell) return;
     cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
@@ -1159,6 +1486,25 @@ import './data.js';
     }
   });
   document.addEventListener('change', function (e) {
+    var fieldType = e.target.getAttribute && e.target.getAttribute('data-form-field-type');
+    if (fieldType && S.formDraft) {
+      var typeField = S.formDraft.formFields.filter(function (field) { return field.id === fieldType; })[0];
+      if (typeField) typeField.type = e.target.value;
+      renderMain(); return;
+    }
+    var fieldRequired = e.target.getAttribute && e.target.getAttribute('data-form-field-required');
+    if (fieldRequired && S.formDraft) {
+      var requiredField = S.formDraft.formFields.filter(function (field) { return field.id === fieldRequired; })[0];
+      if (requiredField) requiredField.required = e.target.checked;
+      renderMain(); return;
+    }
+    var audience = e.target.getAttribute && e.target.getAttribute('data-form-audience');
+    if (audience && S.formDraft) {
+      if (e.target.checked && S.formDraft.audience.indexOf(audience) < 0) S.formDraft.audience.push(audience);
+      if (!e.target.checked) S.formDraft.audience = S.formDraft.audience.filter(function (id) { return id !== audience; });
+      if (!S.formDraft.audience.length) { S.formDraft.audience.push(audience); e.target.checked = true; toast(t('form_audience_required'), 'warn'); }
+      renderMain(); return;
+    }
     // выбор решения (нативные радио, доступны с клавиатуры)
     if (e.target.name === 'dm' && S.modal && S.modal.type === 'decide') {
       S.modal.choice = e.target.value;
@@ -1202,6 +1548,18 @@ import './data.js';
         ae.matches('[data-act][tabindex="0"]:not(button):not(a):not(input):not(select):not(textarea)')) {
       e.preventDefault(); ae.click(); return;
     }
+    if (ae && ae.matches && ae.matches('.mfb-step') && ['ArrowRight','ArrowLeft','ArrowDown','ArrowUp','Home','End'].indexOf(e.key) >= 0) {
+      e.preventDefault();
+      var flowTabs = [].slice.call(document.querySelectorAll('.mfb-step'));
+      var flowIndex = flowTabs.indexOf(ae);
+      if (e.key === 'Home') flowIndex = 0;
+      else if (e.key === 'End') flowIndex = flowTabs.length - 1;
+      else flowIndex = (flowIndex + (e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1) + flowTabs.length) % flowTabs.length;
+      var flowId = flowTabs[flowIndex].getAttribute('data-id');
+      flowTabs[flowIndex].click();
+      document.querySelector('.mfb-step[data-id="' + flowId + '"]')?.focus();
+      return;
+    }
     // стрелки по вкладкам карточки (roving tabindex)
     if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && ae && ae.matches && ae.matches('.tabs .tab')) {
       e.preventDefault();
@@ -1225,7 +1583,8 @@ import './data.js';
   }
   function go(view) {
     S.view = view; S.cardId = null; S.sel = {}; closeLayers(false);
-    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-view') === view); });
+    var activeView = view === 'form-builder' ? 'forms' : view;
+    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-view') === activeView); });
     var app = document.getElementById('app'); if (app) app.classList.remove('nav-open');
     var main = document.getElementById('main'); if (main) main.scrollTop = 0;
     renderMain();
@@ -1279,6 +1638,11 @@ import './data.js';
     renderLogin();
     setInterval(function () { if (S.authed && !S.locked) tick(); }, 1000);
   }
+
+  subscribeLowCode(function () {
+    if (S._lowCodeBusy || !S.authed) return;
+    if (S.view === 'forms' || S.view === 'form-builder') renderMain();
+  });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

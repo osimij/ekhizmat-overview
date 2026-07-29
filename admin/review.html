@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<title>eKhizmat · Low Code Review</title>
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/admin/app.css">
+</head>
+<body data-platform="admin">
+<div class="bp-bar" data-dev-only data-prototype>
+  <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right"><button class="icon-btn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button></div>
+</div>
+
+<div class="adm">
+  <aside class="adm-rail" data-bld-rail data-active="review"></aside>
+  <div class="adm-main">
+    <div class="adm-top">
+      <span class="at-title">Low Code · Review</span>
+      <div class="at-right"><button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button><span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span></div>
+    </div>
+    <main class="adm-body lc-review" id="lowCodeReview"></main>
+  </div>
+</div>
+
+<script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/apps/admin/js/lowcode.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
+</body>
+</html>

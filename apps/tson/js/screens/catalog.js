@@ -10,7 +10,7 @@
    работать без единого клика.
    ============================================================ */
 import { h, mount, icon, openLayer, closeLayer, toast } from '../ui.js';
-import { t, plural, errText } from '../i18n.js';
+import { t, plural, errText, getLang } from '../i18n.js';
 import { dispatch, getState, patchSession, STEP } from '../store.js';
 import { catalog } from '../mock/api.js';
 import { searchField } from '../fields.js';
@@ -50,6 +50,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
   let cursor = -1;
   let closeDrawer = null;
   let seq = 0;                // гонка живого поиска: отвечает только последний
+  const guestMode = !readonly && !!getState().session?.guest;
 
   const search = searchField({ placeholder: t('catalog.search'), onInput: onSearch });
   const browse = h('div', { class: 's-catalog__browse' });
@@ -73,6 +74,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
       list));
 
   drawBrowse();
+  if (guestMode) showGuestServices();
   loadCounts();
 
   // Автофокус синхронно (см. README «Два правила, которые легко сломать»).
@@ -114,10 +116,10 @@ export function renderCatalog(host, { readonly = false } = {}) {
     try {
       const r = await catalog.search(s);
       if (dead || my !== seq) return;      // приехал ответ на устаревший запрос
-      results = r;
-      cursor = r.length ? 0 : -1;
-      showResults(r.length
-        ? r.map((svc, i) => row(svc, i, s))
+      results = guestMode ? r.filter(svc => svc.guest) : r;
+      cursor = results.length ? 0 : -1;
+      showResults(results.length
+        ? results.map((svc, i) => row(svc, i, s))
         : [empty(s)]);
     } catch (e) {
       if (dead || my !== seq) return;
@@ -127,9 +129,22 @@ export function renderCatalog(host, { readonly = false } = {}) {
   }
 
   function showBrowse() {
+    if (guestMode) { showGuestServices(); return; }
     results = []; cursor = -1;
     browse.hidden = false;
     list.hidden = true;
+  }
+
+  function showGuestServices() {
+    results = Object.values(SERVICE).filter(svc => svc.guest);
+    cursor = results.length ? 0 : -1;
+    showResults([
+      h('div', { class:'banner banner--info' }, icon('user'),
+        h('span', { class:'banner__text' }, getState().session?.guest
+          ? (getLang() === 'tg' ? 'Қабули меҳмон: дар хотира профил, РМА ва розигиҳои шаҳрванд нест.' : 'Гостевой приём: в памяти нет профиля, ИНН и согласий гражданина.')
+          : '')),
+      ...results.map((svc, i) => row(svc, i, '')),
+    ]);
   }
 
   function showResults(nodes) {
@@ -212,7 +227,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
       ? SITUATIONS.find(s => s.id === f.id).services
       : Object.values(SERVICE).filter(s => s.cat === f.id).map(s => s.id);
 
-    results = ids.map(id => SERVICE[id]).filter(Boolean);
+    results = ids.map(id => SERVICE[id]).filter(svc => svc && (!guestMode || svc.guest));
     cursor = results.length ? 0 : -1;
     showResults(results.length ? results.map((svc, i) => row(svc, i, '')) : [empty(f.name)]);
     search.input.value = '';
@@ -245,6 +260,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
         // номере, — и тогда строка выглядит как случайная (Д-18). Показываем,
         // чем именно совпало: «прописка» → «Адресная регистрация».
         matchedSynonym(svc, q)),
+      svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость') : null,
       svc.unavailable
         ? h('span', { class: 'pill pill--wait' }, icon('info', { size: 16 }), svc.unavailable)
         : icon('chev-r', { size: 20, cls: 'ink-faint' }));
@@ -287,6 +303,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
     },
       h('div', { class: 'drawer__head' },
         h('div', { class: 'stack g-2' },
+          svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), getLang() === 'tg' ? 'Барои меҳмон дастрас' : 'Доступно гостю') : null,
           h('h2', { class: 'h2' }, svc.name),
           h('span', { class: 'small ink-faint' },
             `${CATEGORY[svc.cat].name} · ${t('catalog.term')}: ${fmtTerm(svc)}`),

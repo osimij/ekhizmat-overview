@@ -11,6 +11,7 @@ const pages = {
   adminServices: 'admin/services.html',
   adminNewService: 'admin/new-service.html',
   adminBuilder: 'admin/builder.html',
+  adminReview: 'admin/review.html',
   styleguide: 'design-system/styleguide.html',
 };
 

@@ -13,6 +13,7 @@ const requiredRoutes = [
   '/admin/services.html',
   '/admin/new-service.html',
   '/admin/builder.html',
+  '/admin/review.html',
   '/design-system/styleguide.html',
   '/design-system/assets/icons.svg',
 ];

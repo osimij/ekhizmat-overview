@@ -35,6 +35,7 @@
           <div class="dd-label" aria-hidden="true" data-i18n="acct.label">Намуди ҳисоб</div>
           <button role="option" data-acct="person" aria-selected="true"><span data-i18n="acct.person">Шахси воқеӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
           <button role="option" data-acct="biz" aria-selected="false"><span data-i18n="acct.biz">Шахси ҳуқуқӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+          <button role="option" data-acct="guest" aria-selected="false"><span id="acctGuestLabel">Меҳмон</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
         </div>
       </div>
       <div class="hdr-acts">
@@ -58,6 +59,7 @@
           <svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span class="dot"></span>
         </button>
         <button class="avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман">Ф</button>
+        <button class="guest-avatar" id="guestAvatar" type="button" data-i18n-aria="nav.profile" aria-label="Профили ман" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg></button>
         <button class="btn btn-pri btn-sm" id="loginBtn" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
       </div>
     </div>
@@ -69,6 +71,11 @@
 <section class="screen" id="scr-home">
   <div class="hero">
     <div class="wrap hero-in">
+      <div class="guest-strip" id="guestStrip" hidden>
+        <span class="audience-badge audience-badge--guest"><svg><use href="/design-system/assets/icons.svg#i-user"/></svg><span id="guestStripBadge">Меҳмон</span></span>
+        <span id="guestStripText">Шумо бе воридшавӣ хизматҳоро мебинед. Танҳо хизматҳои бе маълумоти шахсӣ дастрасанд.</span>
+        <button class="btn btn-sec btn-sm" id="guestLoginBtn">Ворид шудан</button>
+      </div>
       <h1 id="helloH" tabindex="-1"><span id="heroTitle" data-i18n="home.title">Хизматҳои давлатии Ҷумҳурии Тоҷикистон</span><span id="heroHi" data-i18n="home.hi">Хуш омадед, Фируза</span></h1>
       <p class="sub" id="heroSub" data-i18n="home.sub">Ҳамаи хизматҳои давлатӣ дар як ҷо - бе навбат, бе коғазбозӣ ва бо забони одамӣ.</p>
 
@@ -467,6 +474,49 @@
   </div>
 </section>
 
+<!-- ============ GUEST APPOINTMENT ============ -->
+<section class="screen" id="scr-guest-service" hidden>
+  <div class="col guest-service">
+    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span id="guestBack">Бозгашт</span></button>
+    <div class="guest-service-head">
+      <span class="audience-badge audience-badge--guest"><svg><use href="/design-system/assets/icons.svg#i-user"/></svg><span id="guestServiceBadge">Дастрас бе воридшавӣ</span></span>
+      <h1 id="guestServiceTitle">Сабти қабули меҳмон дар маркази хизматрасонӣ</h1>
+      <p class="lead-s" id="guestServiceLead">Танҳо маълумоти зарурӣ барои сабт. Маълумоти шахсӣ дар кабинет нигоҳ дошта намешавад.</p>
+    </div>
+    <form class="guest-form trk-card" id="guestServiceForm" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label for="guestCenter" id="guestCenterLabel">Марказ</label>
+          <select class="input" id="guestCenter" required>
+            <option value="">Интихоб кунед</option>
+            <option value="sino">Маркази ноҳияи Сино</option>
+            <option value="firdavsi">Маркази ноҳияи Фирдавсӣ</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="guestDate" id="guestDateLabel">Сана</label>
+          <input class="input" id="guestDate" type="date" required>
+        </div>
+        <div class="field form-span">
+          <label for="guestEmail" id="guestEmailLabel">Почтаи электронӣ барои талон</label>
+          <input class="input" id="guestEmail" type="email" autocomplete="email" placeholder="name@example.tj" required>
+          <span class="field-help" id="guestEmailHelp">Талони намунавӣ ба ин суроға фиристода мешавад.</span>
+        </div>
+      </div>
+      <label class="consent guest-consent"><input type="checkbox" id="guestConsent"><span id="guestConsentText">Розӣ ҳастам, ки ин маълумот барои сохтани талони намоишӣ истифода шавад.</span></label>
+      <p class="field-error" id="guestFormError" role="alert" hidden></p>
+      <button class="btn btn-pri btn-lg" id="guestSubmit" type="submit" disabled>Сохтани талон</button>
+    </form>
+    <div class="guest-success success" id="guestServiceSuccess" hidden aria-live="polite">
+      <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><circle cx="50" cy="50" r="46"/><path d="M30 52l13 13 27-29"/></svg>
+      <h2 id="guestSuccessTitle">Демо-заявка сформирована</h2>
+      <p id="guestSuccessId">GST-2026-0042</p>
+      <p class="lead-s" id="guestSuccessText">Талони намоишӣ омода аст. Барои идора кардани аризаҳои шахсӣ ворид шавед.</p>
+      <div class="j-acts j-acts-center"><button class="btn btn-sec" data-go="home" id="guestSuccessHome">Ба саҳифаи асосӣ</button><button class="btn btn-pri" id="guestSuccessLogin">Ворид шудан</button></div>
+    </div>
+  </div>
+</section>
+
 <!-- ============ PROFILE ============ -->
 <section class="screen" id="scr-profile" hidden>
   <div class="prof">
@@ -475,12 +525,16 @@
     <div class="prof-head">
       <span class="prof-ava" aria-hidden="true">Ф</span>
       <div>
-        <span class="eyebrow" data-i18n="p.h">Профил</span>
-        <h1>Фируза Раҳимова</h1>
-        <div class="prof-vrf">
-          <span class="tag"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg><span data-i18n="p.verified">Ҳисоби тасдиқшуда</span></span>
-          <span class="how" data-i18n="p.verified.how">тасдиқ: ID-корт, 12.01.2025</span>
-        </div>
+        <h1>
+          <span>Фируза Раҳимова</span>
+          <span class="prof-verified" role="img" tabindex="0" data-i18n-aria="p.verified" aria-label="Ҳисоби тасдиқшуда">
+            <span class="prof-verified__icon" aria-hidden="true">
+              <svg class="prof-verified__shield"><use href="/design-system/assets/icons.svg#i-shield"/></svg>
+              <svg class="prof-verified__check"><use href="/design-system/assets/icons.svg#i-check"/></svg>
+            </span>
+            <span class="prof-verified__tooltip" aria-hidden="true" data-i18n="p.verified">Ҳисоби тасдиқшуда</span>
+          </span>
+        </h1>
       </div>
     </div>
 
@@ -632,43 +686,7 @@
         </section>
 
         <section class="pane" id="pane-apps" hidden data-i18n-aria="nav.apps" aria-label="Аризаҳои ман">
-          <p class="lead-s" data-i18n="p.apps.sub">Ҳамаи аризаҳои шумо дар як ҷо - ҳолат дар вақти воқеӣ намоён.</p>
-          <div class="trk-card">
-            <h3 class="trk-h" data-i18n="trk.h">Шаҳодатномаи таваллуд - Зарина</h3>
-            <p class="muted small trk-sub"><span data-i18n="trk.id">ариза №ТҶ-2026-184302 - бе қуттии сиёҳ: ҳар қадам намоён аст</span></p>
-            <ol class="timeline">
-              <li class="tl">
-                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-                <b data-i18n="tl.1">Қабул шуд</b>
-                <span class="when" data-i18n="tl.1w">имрӯз, 14:02</span>
-              </li>
-              <li class="tl">
-                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-                <b data-i18n="tl.2">Санҷиши худкор гузашт</b>
-                <span class="when" data-i18n="tl.2w">имрӯз, 14:02 - маълумот бо таваллудхона мувофиқ аст</span>
-              </li>
-              <li class="tl now">
-                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg></span>
-                <b data-i18n="tl.3">Дар баррасӣ</b>
-                <span class="when" data-i18n="tl.3w">САҲШ-и ноҳияи Сино, мутахассиси навбатдор</span>
-                <div class="detail">
-                  <span data-i18n="tl.3d">Дар навбат пеш аз шумо: <b id="queueN">3</b> ариза. Тахмини анҷом: имрӯз, то 16:30.</span>
-                  <button class="q" data-toast="toast.chat">
-                    <svg width="15" height="15"><use href="/design-system/assets/icons.svg#i-chat"/></svg><span data-i18n="tl.3q">Савол доред? Бо мутахассис нависед</span>
-                  </button>
-                </div>
-              </li>
-              <li class="tl next">
-                <span class="dot"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg></span>
-                <b data-i18n="tl.4">Имзои электронӣ ва ба ҳамёни шумо</b>
-                <span class="when" data-i18n="tl.4w">push-огоҳӣ мефиристем - даркор нест, ки худатон тафтиш кунед</span>
-              </li>
-            </ol>
-          </div>
-          <div class="trk-foot">
-            <button class="btn btn-sec" data-toast="toast.notify"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span data-i18n="trk.notify">Тайёр шавад - огоҳ кунед</span></button>
-            <button class="btn btn-ghost" data-toast="toast.demo" data-i18n="trk.paper">Нусхаи коғазӣ дар куҷо гирифта мешавад</button>
-          </div>
+          <div id="applicationsRoot"></div>
         </section>
 
         <section class="pane" id="pane-contact" hidden data-i18n-aria="p.nav.contact" aria-label="Тамос ва огоҳиҳо">
@@ -717,31 +735,7 @@
         </section>
 
         <section class="pane" id="pane-family" hidden data-i18n-aria="p.nav.family" aria-label="Оила">
-          <p class="lead-s" data-i18n="p.fam.sub">То 18-солагӣ шумо метавонед аз номи фарзандон ариза диҳед - ҳуҷҷатҳояшон дар ҳамёни шумо.</p>
-          <div class="plist">
-            <div class="pr">
-              <span class="pav earth" aria-hidden="true">З</span>
-              <div class="tt">
-                <span class="v">Зарина Раҳимова</span>
-                <span class="k" data-i18n="p.fam.dau">духтар - таваллуд 8.06.2026</span>
-              </div>
-              <button class="btn btn-sec btn-sm act" data-go="wallet" data-own="kids" data-i18n="p.fam.docs">Ҳуҷҷатҳо дар ҳамён</button>
-            </div>
-            <div class="pr">
-              <span class="pav" aria-hidden="true">Д</span>
-              <div class="tt">
-                <span class="v">Далер Раҳимов</span>
-                <span class="k" data-i18n="p.fam.spouse">ҳамсар - ҳисоби худро дорад</span>
-              </div>
-            </div>
-          </div>
-          <div class="invite">
-            <div class="tt">
-              <b data-i18n="p.fam.par">Падару модар ҳоло пайваст нестанд</b>
-              <p data-i18n="p.fam.par.p">Даъват кунед - бо розигии онҳо аризаҳо ва ҳуҷҷатҳояшонро идора мекунед.</p>
-            </div>
-            <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
-          </div>
+          <div id="childrenRoot"></div>
         </section>
 
         <section class="pane" id="pane-sec" hidden data-i18n-aria="p.nav.sec" aria-label="Амният">
@@ -756,10 +750,17 @@
             </div>
             <div class="pr">
               <div class="tt">
-                <span class="v" data-i18n="p.sec.2fa">Вуруди дуқадама</span>
-                <span class="k" data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span>
+                <span class="v"><span data-i18n="p.sec.2fa">Вуруди дуқадама</span> <span class="status-pill status-pill--success" id="twoFactorStatus">Фаъол</span></span>
+                <span class="k"><span data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span> · <span id="twoFactorDefault">бо нобаёнӣ фаъол</span></span>
               </div>
-              <label class="sw" data-i18n-aria="p.sec.2fa" aria-label="Вуруди дуқадама"><input type="checkbox" checked><span class="knob"></span></label>
+              <label class="sw" data-i18n-aria="p.sec.2fa" aria-label="Вуруди дуқадама"><input type="checkbox" id="twoFactorToggle" checked><span class="knob"></span></label>
+            </div>
+            <div class="pr">
+              <div class="tt">
+                <span class="v" id="biometricTitle">Вуруд бо шинохти чеҳра</span>
+                <span class="k" id="biometricSubtitle">Барои ин дастгоҳ омода нест</span>
+              </div>
+              <button class="btn btn-sec btn-sm act" id="biometricSetup">Танзим кардан</button>
             </div>
             <div class="pr">
               <div class="tt">
@@ -902,6 +903,47 @@
     </div>
     <button class="btn btn-pri btn-block" id="loginGo" data-i18n="auth.login">Вуруд</button>
     <button class="btn btn-ghost btn-block" id="loginCancel" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<!-- child profile demo -->
+<div class="overlay" id="childOverlay" role="dialog" aria-modal="true" aria-labelledby="childH">
+  <form class="modal" id="childForm" novalidate>
+    <h3 id="childH">Илова кардани фарзанд</h3>
+    <p class="sub" id="childSub">Танҳо фарзандони то 18-сола метавонанд ба кабинети шумо пайваст шаванд.</p>
+    <div class="field"><label for="familyName" id="familyNameLabel">Ному насаб</label><input class="input" id="familyName" autocomplete="name" required></div>
+    <div class="field"><label for="familyDob" id="familyDobLabel">Санаи таваллуд</label><input class="input" id="familyDob" type="date" required></div>
+    <div class="field"><label for="familyDocument" id="familyDocumentLabel">Рақами шаҳодатнома ё ҳуҷҷат</label><input class="input" id="familyDocument" autocomplete="off" required></div>
+    <div class="field"><label for="familyRelation" id="familyRelationLabel">Робита бо довталаб</label><select class="input" id="familyRelation" required><option value="">Интихоб кунед</option><option value="parent">Падар ё модар</option><option value="guardian">Сарпараст</option></select></div>
+    <p class="field-error" id="childError" role="alert" hidden></p>
+    <button class="btn btn-pri btn-block" id="childSave" type="submit">Илова кардан</button>
+    <button class="btn btn-ghost btn-block" id="childCancel" type="button">Пӯшидан</button>
+  </form>
+</div>
+
+<!-- two-factor confirmation -->
+<div class="overlay" id="twoFactorOverlay" role="dialog" aria-modal="true" aria-labelledby="twoFactorH">
+  <div class="modal">
+    <h3 id="twoFactorH">Вуруди дуқадамаро хомӯш мекунед?</h3>
+    <p class="sub" id="twoFactorText">Ин ҳифзи ҳисобро кам мекунад. Шумо метавонед онро ҳар вақт дубора фаъол кунед.</p>
+    <button class="btn btn-danger btn-block" id="twoFactorConfirm">Хомӯш кардан</button>
+    <button class="btn btn-ghost btn-block" id="twoFactorCancel">Нигоҳ доштан</button>
+  </div>
+</div>
+
+<!-- mock biometric setup -->
+<div class="overlay" id="biometricOverlay" role="dialog" aria-modal="true" aria-labelledby="biometricH">
+  <div class="modal biometric-modal">
+    <span class="demo-data-badge" id="biometricDemoBadge">Намоишӣ · камера истифода намешавад</span>
+    <h3 id="biometricH">Шинохти чеҳра</h3>
+    <div class="facescan facescan--idle" id="biometricScan" aria-live="polite">
+      <span class="facescan__frame"><svg><use href="/design-system/assets/icons.svg#i-user"/></svg></span>
+      <strong class="facescan__title" id="biometricScanTitle">Ба маркази чорчӯба нигоҳ кунед</strong>
+      <span class="facescan__hint" id="biometricScanHint">Ин аниматсияи намунавӣ аст ва камераро намекушояд.</span>
+    </div>
+    <button class="btn btn-pri btn-block" id="biometricStart">Оғоз</button>
+    <button class="btn btn-ghost btn-block" id="biometricFail">Намоиши хатогӣ</button>
+    <button class="btn btn-ghost btn-block" id="biometricClose">Пӯшидан</button>
   </div>
 </div>
 

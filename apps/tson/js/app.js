@@ -18,6 +18,8 @@ import { renderData } from './screens/data.js';
 import { renderForm } from './screens/form.js';
 import { renderDocs } from './screens/docs.js';
 import { renderResult } from './screens/result.js';
+import { renderDashboardCenter } from './screens/dashboard-center.js';
+import { renderDashboardLeadership } from './screens/dashboard-leadership.js';
 import { startSessionClock, endVisit, ttlLeft } from './session.js';
 import { initDemo } from './demo.js';
 import { clock } from './clock.js';
@@ -32,6 +34,8 @@ const SCREENS = {
   // Справочный каталог вне приёма (§6/S1, Д-09) — тот же экран, режим только
   // на чтение: ни сессии, ни скоупов, ни старта оформления.
   '#/catalog-view': host => renderCatalog(host, { readonly: true }),
+  '#/dashboard-center': renderDashboardCenter,
+  '#/dashboard-leadership': renderDashboardLeadership,
   '#/identify': renderIdentify,
   '#/enroll': renderEnroll,
   '#/consent': renderConsent,
@@ -55,6 +59,7 @@ async function boot() {
     ? initDemo()
     : { redraw() {} };
   bindHotkeys();
+  addEventListener('ekh:tson-role', () => renderTopbar(document.getElementById('topbar')));
   watchIdle();
   watchViewport();
   translateStatic();

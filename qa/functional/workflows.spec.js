@@ -31,12 +31,101 @@ test('Citizen category, profile, wallet, QR and logout flow', async ({ page }) =
 
   await page.locator('[data-go="profile"]').first().click();
   await expect(page.locator('#scr-profile')).toBeVisible();
+  await expect(page.locator('.prof-head .eyebrow')).toHaveCount(0);
+  await expect(page.locator('.prof-verified')).toHaveAttribute('aria-label', 'Ҳисоби тасдиқшуда');
+  await expect(page.locator('.prof-verified__shield')).toHaveCount(1);
+  await expect(page.locator('.prof-verified__check')).toHaveCount(1);
+  await page.locator('.prof-verified').hover();
+  await expect(page.locator('.prof-verified__tooltip')).toBeVisible();
   await page.locator('[data-pane="docs"]').click();
   await page.locator('[data-qr]').first().click();
   await expect(page.locator('#qrOverlay')).toHaveClass(/is-open/);
   await page.locator('#qrClose').click();
   await page.locator('#logoutBtn').click();
   await expect(page.locator('html')).toHaveAttribute('data-auth', 'out');
+});
+
+test('Citizen guest appointment, cabinet categories, child validation and biometric demo work', async ({ page }) => {
+  await page.goto('/citizen/?lang=ru&theme=light');
+  await page.locator('.dd.acct .dd-btn').click();
+  await page.locator('[data-acct="guest"]').click();
+  await expect(page.locator('#guestStrip')).toBeVisible();
+  await expect(page.locator('.cat')).toHaveCount(4);
+  await page.locator('#guestAvatar').click();
+  await expect(page.locator('#loginOverlay .sub')).toContainText('личный кабинет');
+  await page.locator('#loginCancel').click();
+  await page.locator('.cat').first().click();
+  await page.locator('[data-go="guestService"]').click();
+  await page.locator('#guestCenter').selectOption('sino');
+  await page.locator('#guestDate').fill('2026-08-12');
+  await page.locator('#guestEmail').fill('guest@example.tj');
+  await page.locator('#guestConsent').check();
+  await page.locator('#guestSubmit').click();
+  await expect(page.locator('#guestSuccessId')).toHaveText('GST-2026-0042');
+  await expect(page.locator('#guestSuccessTitle')).toContainText('Демо-заявка');
+
+  await page.locator('#guestSuccessLogin').click();
+  await page.locator('#loginPhone').fill('+992 90 000 00 00');
+  await page.locator('#loginGo').click();
+  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('[data-pane="apps"]').click();
+  await expect(page.locator('.application-category')).toHaveCount(6);
+  await expect(page.locator('[data-app-category="identity"] .tile')).toHaveClass(/t-blue/);
+  await expect(page.locator('[data-app-category="family"] .tile')).toHaveClass(/t-rose/);
+  await expect(page.locator('[data-app-category="transport"] .tile')).toHaveClass(/t-indigo/);
+  await expect(page.locator('[data-app-category="property"] .tile')).toHaveClass(/t-terra/);
+  await expect(page.locator('[data-app-category="tax"] .tile')).toHaveClass(/t-violet/);
+  await expect(page.locator('[data-app-category="social"] .tile')).toHaveClass(/t-green/);
+  await expect(page.locator('.application-summary strong')).toHaveText('16');
+  await expect(page.locator('.application-category small')).toHaveText([
+    '5 заявлений', '3 заявлений', '3 заявлений', '2 заявлений', '2 заявлений', '1 заявлений',
+  ]);
+  await page.locator('.application-category').first().click();
+  await expect(page.locator('.application-row')).toHaveCount(5);
+  await page.locator('[data-app-status="review"]').click();
+  await expect(page.locator('.application-row')).toHaveCount(1);
+  await page.locator('.application-row').first().click();
+  await expect(page.locator('.application-detail')).toBeVisible();
+  await page.locator('[data-app-action="list"]').click();
+  await page.locator('[data-app-action="categories"]').click();
+  await expect(page.locator('.application-category').first().locator('small')).toHaveText('5 заявлений');
+
+  await page.locator('[data-pane="family"]').click();
+  await page.locator('[data-child-action="add"]').first().click();
+  await page.locator('#familyName').fill('Взрослый пользователь');
+  await page.locator('#familyDob').fill('1990-01-01');
+  await page.locator('#familyDocument').fill('DEMO-12345');
+  await page.locator('#familyRelation').selectOption('parent');
+  await page.locator('#childSave').click();
+  await expect(page.locator('#childError')).toBeVisible();
+  await page.locator('#familyDob').fill('2015-01-01');
+  await page.locator('#childSave').click();
+  await expect(page.locator('#childrenRoot .pr')).toHaveCount(2);
+
+  await page.locator('[data-pane="sec"]').click();
+  await expect(page.locator('#twoFactorToggle')).toBeChecked();
+  await expect(page.locator('#twoFactorStatus')).toHaveText('Включено');
+  await page.locator('#twoFactorToggle').click();
+  await page.locator('#twoFactorConfirm').click();
+  await expect(page.locator('#twoFactorToggle')).not.toBeChecked();
+  await expect(page.locator('#twoFactorStatus')).toHaveText('Выключено');
+  await page.locator('#twoFactorToggle').check();
+  await page.locator('#biometricSetup').click();
+  const modalBox = await page.locator('#biometricOverlay .biometric-modal').boundingBox();
+  const scanBox = await page.locator('#biometricOverlay .facescan').boundingBox();
+  expect(modalBox).not.toBeNull();
+  expect(scanBox).not.toBeNull();
+  expect(Math.abs((modalBox.x + modalBox.width / 2) - (scanBox.x + scanBox.width / 2))).toBeLessThanOrEqual(1);
+  await expect(page.locator('#biometricStart')).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#biometricOverlay')).not.toHaveClass(/open|is-open/);
+  await expect(page.locator('#biometricSetup')).toBeFocused();
+  await page.locator('#biometricSetup').click();
+  await page.locator('#biometricFail').click();
+  await expect(page.locator('#biometricScan')).toHaveClass(/facescan--error/);
+  await page.locator('#biometricStart').click();
+  await expect(page.locator('#biometricScan')).toHaveClass(/facescan--success/, { timeout: 3000 });
+  await expect(page.locator('#biometricDemoBadge')).toContainText(/камера/i);
 });
 
 test('Authentication never pre-fills a password or verification code', async ({ page }) => {
@@ -124,6 +213,7 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   }));
   expect(alertValueColor.value).toBe(alertValueColor.defaultText);
   await expect(page.locator('.q-head')).toHaveCSS('border-bottom-width', '0px');
+  await expect(page.locator('.audience-badge--guest').first()).toBeVisible();
 
   await page.locator('.nav-item[data-view="reports"]').click();
   const reportStyle = await page.evaluate(() => {
@@ -182,6 +272,56 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   }
 });
 
+test('Ministry workers can create a form and hand it to the shared review queue', async ({ page }) => {
+  await page.goto('/ministry/?lang=ru&theme=light');
+  await page.locator('#l-pass').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const otp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
+  await page.locator('[data-act="login-enter"]').click();
+
+  await page.locator('.nav-item[data-view="forms"]').click();
+  await expect(page.locator('.forms-catalog')).toBeVisible();
+  await expect(page.locator('.form-row')).toHaveCount(4);
+  await expect(page.locator('.form-role')).toContainText('Автор ведомства');
+
+  await page.locator('[data-act="form-create"]').click();
+  await expect(page.locator('.form-builder-grid')).toBeVisible();
+  await expect(page.locator('.mfb-step')).toHaveCount(7);
+  await expect(page.locator('.mfb-step[aria-selected="true"]')).toContainText('Новые поля');
+  await page.locator('[data-form-name="ru"]').fill('Онлайн-регистрация общественного объединения');
+  await page.locator('[data-form-name="tg"]').fill('Бақайдгирии онлайнии иттиҳодияи ҷамъиятӣ');
+  await page.locator('[data-form-audience="guest"]').check();
+  await page.locator('[data-act="form-add-field"]').click();
+  await expect(page.locator('.mfb-palette')).toBeVisible();
+  await page.locator('[data-act="form-add-field-type"][data-id="select"]').click();
+  await expect(page.locator('.form-field-row')).toHaveCount(2);
+  await page.locator('.form-field-row').last().locator('[data-form-field-label]').fill('Цель обращения');
+  const ministryPreview = page.locator('.mfb-preview');
+  if (!(await ministryPreview.isVisible())) {
+    await page.locator('.mfb-preview-toggle').click();
+    await expect(ministryPreview).toHaveClass(/is-open/);
+  }
+  await expect(ministryPreview).toContainText('Цель обращения');
+  if (await page.locator('.mfb-preview__close').isVisible()) {
+    await page.locator('.mfb-preview__close').click();
+  }
+  await page.locator('.mfb-step[data-id="route"]').click();
+  await expect(page.locator('.mfb-editor')).toContainText('Ответственное подразделение');
+  await page.locator('.mfb-step[data-id="fields"]').click();
+  await page.locator('[data-act="form-save"]').click();
+  await expect(page.locator('.form-builder-head .form-status')).toContainText('На stage');
+  await page.locator('[data-act="form-send"]').click();
+  await expect(page.locator('.form-builder-head .form-status')).toContainText('На проверке');
+  await expect(page.locator('.form-lock-note')).toBeVisible();
+  await expect(page.locator('[data-act="form-send"]')).toHaveCount(0);
+
+  await page.goto('/admin/review.html?lang=ru&theme=light');
+  await page.locator('[data-lc-role]').selectOption('reviewer');
+  await expect(page.locator('#lowCodeReview .lc-service-card h2')).toHaveText('Онлайн-регистрация общественного объединения');
+  await expect(page.locator('#lowCodeReview .review-badge')).toContainText('На проверке');
+});
+
 test('TSON MFA reaches the shift dashboard and exposes operational start', async ({ page }) => {
   await page.goto('/tson/?lang=ru&theme=light');
   await page.locator('input[type="password"]').fill('demo');
@@ -192,6 +332,52 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
   await expect(page).toHaveURL(/#\/idle/);
+});
+
+test('TSON demo roles expose both dashboards, drill-down and guest reception', async ({ page }) => {
+  await page.goto('/tson/?lang=ru&theme=light');
+  await page.locator('input[type="password"]').fill('demo');
+  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  const cells = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
+
+  await page.getByRole('button', { name: /меню оператора/i }).click();
+  await page.getByRole('menuitem', { name: /Руководитель отделения/ }).click();
+  await expect(page).toHaveURL(/#\/dashboard-center/);
+  await expect(page.locator('.dashboard-kpis .metric')).toHaveCount(5);
+  await page.getByLabel('Сценарий').selectOption('high');
+  await expect(page.locator('.banner--danger')).toBeVisible();
+  await page.getByLabel('Сценарий').selectOption('empty');
+  await expect(page.locator('.dashboard-state')).toContainText('За выбранный период визитов нет');
+  await page.getByLabel('Сценарий').selectOption('loading');
+  await expect(page.locator('.dashboard .skel').first()).toBeVisible();
+  await page.getByLabel('Сценарий').selectOption('error');
+  await expect(page.locator('.dashboard-state')).toContainText('Не удалось обновить данные');
+  await page.getByLabel('Сценарий').selectOption('normal');
+  await page.getByRole('button', { name: /меню оператора/i }).click();
+  await page.getByRole('menuitem', { name: /^Руководство/ }).click();
+  await expect(page).toHaveURL(/#\/dashboard-leadership/);
+  const trend = await page.locator('.line-chart polyline').evaluate((line) => ({
+    namespace: line.namespaceURI,
+    length: line.getTotalLength(),
+  }));
+  expect(trend.namespace).toBe('http://www.w3.org/2000/svg');
+  expect(trend.length).toBeGreaterThan(0);
+  const networkTotal = await page.locator('.dashboard-center-row td:nth-child(2)').evaluateAll((cells) =>
+    cells.reduce((sum, cell) => sum + Number(cell.textContent.trim()), 0),
+  );
+  expect(networkTotal).toBe(2486);
+  await page.getByLabel('Аудитория').selectOption('guest');
+  await expect(page.locator('.audience-bar')).toHaveCount(1);
+  await page.locator('.dashboard-center-row').first().click();
+  await expect(page).toHaveURL(/#\/dashboard-center/);
+
+  await page.getByRole('button', { name: /меню оператора/i }).click();
+  await page.getByRole('menuitem', { name: /^Оператор/ }).click();
+  await page.locator('.s-idle__start').click();
+  await page.getByRole('button', { name: /Продолжить как гость/ }).click();
+  await expect(page.locator('.srv-row .audience-badge--guest')).toBeVisible();
+  await expect(page.locator('.sessionbar .audience-badge--guest')).toBeVisible();
 });
 
 test('TSON registration confirmation keeps its attestation above the actions', async ({ page }) => {
@@ -288,8 +474,12 @@ test('TSON registration confirmation keeps its attestation above the actions', a
   expect(Math.abs(geometry.actions[0].width - geometry.actions[1].width)).toBeLessThanOrEqual(1);
 });
 
-test('Admin new-service wizard, builder edit and publish gate flow', async ({ page }) => {
+test('Admin new-service audience and full review / approval / publish workflow', async ({ page }) => {
+  await page.goto('/admin/services.html');
+  await page.evaluate(() => localStorage.removeItem('ekh.demo.lowcode'));
   await page.goto('/admin/new-service.html?lang=tg&theme=light');
+  await expect(page.locator('[name="audience"]')).toHaveCount(3);
+  await expect(page.locator('[data-lc-audience="guest"]')).toBeChecked();
   for (let step = 2; step <= 4; step += 1) {
     await page.locator('[data-step]:not([hidden]) [data-next]').click();
     await expect(page.locator(`[data-step="${step}"]`)).toBeVisible();
@@ -302,7 +492,38 @@ test('Admin new-service wizard, builder edit and publish gate flow', async ({ pa
   await page.locator('#addField').click();
   await page.locator('#paletteModal [data-add="text"]').click();
   await expect(page.locator('.fb-item')).toHaveCount(before + 1);
-  await page.locator('#publishBtn').click();
-  await expect(page.locator('#publishModal')).toHaveClass(/open/);
-  await expect(page.locator('#chkList .chk-row')).not.toHaveCount(0);
+  await expect(page.locator('#publishBtn')).toBeDisabled();
+  await page.locator('#approveBtn').click();
+  await expect(page.locator('#lowCodeActionOverlay')).toBeVisible();
+  await page.locator('[data-lc-confirm="SEND_REVIEW"]').click();
+
+  await page.goto('/admin/review.html?lang=ru&theme=light');
+  await page.locator('[data-lc-filter="audience"]').selectOption('business');
+  await expect(page.locator('#lowCodeReview .empty-state')).toBeVisible();
+  await page.locator('[data-lc-filter="audience"]').selectOption('guest');
+  await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
+  await page.locator('[data-lc-role]').selectOption('reviewer');
+  await page.locator('[data-lc-action="ADD_COMMENT"]').click();
+  await expect(page.locator('.comment')).toHaveCount(1);
+  await page.locator('[data-lc-action="REQUEST_CHANGES"]').click();
+  await expect(page.locator('.review-badge--changes')).toBeVisible();
+
+  await page.locator('[data-lc-role]').selectOption('agency-author');
+  await page.locator('[data-lc-action="REPLY"]').click();
+  await page.locator('[data-lc-action="RESUBMIT"]').click();
+  await expect(page.locator('.review-badge--review')).toBeVisible();
+  await expect(page.getByText('0.5', { exact: true }).first()).toBeVisible();
+
+  await page.locator('[data-lc-role]').selectOption('reviewer');
+  await page.locator('[data-lc-action="APPROVE"]').click();
+  await expect(page.locator('.review-badge--approved')).toBeVisible();
+  await expect(page.getByText(/Demo reviewer · 14:36/)).toBeVisible();
+  await page.locator('[data-lc-role]').selectOption('agency-author');
+  await expect(page.locator('[data-lc-action="PUBLISH"]')).toBeDisabled();
+  await page.locator('[data-lc-role]').selectOption('portal-admin');
+  await page.locator('[data-lc-action="PUBLISH"]').click();
+  await page.locator('[data-lc-confirm="PUBLISH"]').click();
+  await expect(page.locator('.review-badge--published')).toBeVisible();
+  await page.locator('[data-lc-action="RESET"]').click();
+  await expect(page.locator('.review-badge--draft')).toBeVisible();
 });

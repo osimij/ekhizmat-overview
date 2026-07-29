@@ -15,6 +15,11 @@
   --w-gate-wide: 560px;
   --w-form: 680px;
   --w-context: 340px;
+  --w-builder-pipeline: 280px;
+  --w-builder-editor: 680px;
+  --w-builder-preview-min: 400px;
+  --w-builder-preview-max: 500px;
+  --ratio-phone-preview: 9 / 18.5;
   --w-drawer: 480px;
   --w-min: 1280px;
   --w-modal: 480px;

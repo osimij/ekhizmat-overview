@@ -17,7 +17,7 @@ test('shared origin stores only approved non-personal settings', async ({ page }
     cookie: document.cookie,
     url: location.href,
   }));
-  expect(state.keys.every(key => /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail))$/.test(key))).toBeTruthy();
+  expect(state.keys.every(key => /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail|demo\.lowcode))$/.test(key))).toBeTruthy();
   expect(state.values.join(' ')).not.toMatch(/Фируза|Раҳимова|\+992|\d{9,}/);
   expect(state.sessionKeys).toEqual([]);
   expect(state.cookie).toBe('');

@@ -412,6 +412,19 @@ export const FORM_STUB = {
   ],
 };
 
+const FORM_GUEST_APPOINTMENT = {
+  sections:[{
+    title:'Данные записи',
+    fields:[
+      { id:'center', label:'Центр обслуживания', type:'select', required:true,
+        options:[{ v:'sino', n:'ЦОН района Сино' }, { v:'firdavsi', n:'ЦОН района Фирдавси' }] },
+      { id:'date', label:'Дата посещения', type:'date', required:true },
+      { id:'email', label:'Email для демо-талона', type:'text', required:true,
+        help:'Контакт используется только в демонстрационной заявке' },
+    ],
+  }],
+};
+
 /* ---------- каталог (§11.4) ----------
    docs: required — без них S7 не отпустит заявление (§12, критерий Ф4).
 
@@ -428,6 +441,14 @@ export const FORM_STUB = {
    прогрессивно (§6/S4), поэтому base-скоупы здесь тоже перечислены явно:
    услуга описывает свою потребность, а не разницу с текущим согласием. */
 export const CATALOG = [
+  {
+    id:'guest-appointment', no:'00-G01',
+    name:'Запись гостя на посещение ЦОН',
+    cat:'cert', guest:true,
+    synonyms:['гость','запись в цон','талон','приём без регистрации'],
+    about:'Демонстрационная запись без входа в личный кабинет. Потребуются только центр, дата и контакт для талона.',
+    instant:true, fee:null, scopes:[], docs:[], form:FORM_GUEST_APPOINTMENT,
+  },
   {
     id: 'fam-cert', no: '01-114',
     name: 'Справка о составе семьи',
@@ -570,3 +591,56 @@ export const SERVICE = Object.fromEntries(CATALOG.map(s => [s.id, s]));
 
 /* «Часто оформляете» (§6/S4) — статистика окна, не гражданина: ПД здесь нет. */
 export const FREQUENT = ['fam-cert', 'marriage', 'passport-replace'];
+
+/* Fixed aggregate fixtures for the two demo dashboards. They intentionally
+   contain no citizen-level data: dashboards operate on queues, windows and
+   service totals only. The six visible center rows add up to 2,486 visits. */
+export const TSON_DASHBOARD = {
+  center: {
+    name: 'ЦОН №3, Душанбе', updated: '14:32',
+    kpis: [
+      { id:'visits', value:'47', label:'Визиты сегодня', context:'+8% к прошлому дню', tone:'good' },
+      { id:'queue', value:'12', label:'В очереди сейчас', context:'3 ожидают больше 15 минут', tone:'warn' },
+      { id:'wait', value:'06:12', label:'Среднее ожидание', context:'цель — до 10 минут', tone:'good' },
+      { id:'done', value:'31', label:'Услуги завершены', context:'89% без возврата', tone:'good' },
+      { id:'windows', value:'8/10', label:'Окна работают', context:'1 перерыв · 1 закрыто', tone:'warn' },
+    ],
+    queues:[
+      { id:'docs', label:'Документы', waiting:6, long:2, wait:'08:40' },
+      { id:'registration', label:'Регистрация', waiting:4, long:1, wait:'06:10' },
+      { id:'consulting', label:'Консультации', waiting:2, long:0, wait:'03:25' },
+    ],
+    hours:[18,31,44,57,63,51,39,28],
+    windows:[
+      { no:1, operator:'Оператор 01', status:'serving', served:7, avg:'05:40' },
+      { no:2, operator:'Оператор 02', status:'serving', served:6, avg:'06:05' },
+      { no:3, operator:'Оператор 03', status:'serving', served:5, avg:'07:12' },
+      { no:4, operator:'Оператор 04', status:'serving', served:5, avg:'05:58' },
+      { no:5, operator:'Оператор 05', status:'serving', served:4, avg:'06:21' },
+      { no:6, operator:'Оператор 06', status:'serving', served:4, avg:'06:44' },
+      { no:7, operator:'Оператор 07', status:'serving', served:0, avg:'—' },
+      { no:8, operator:'Оператор 08', status:'serving', served:0, avg:'—' },
+      { no:9, operator:'Оператор 09', status:'break', served:0, avg:'—' },
+      { no:10, operator:'Не назначен', status:'closed', served:0, avg:'—' },
+    ],
+  },
+  network: {
+    kpis:[
+      { value:'2 486', label:'Всего визитов', context:'+6,4% к прошлой неделе' },
+      { value:'92,6%', label:'Обслужено в SLA', context:'цель — 90%' },
+      { value:'08:14', label:'Среднее ожидание', context:'−00:42 к прошлой неделе' },
+      { value:'42/45', label:'Активные центры', context:'3 требуют внимания' },
+      { value:'4,6/5', label:'Удовлетворённость', context:'18 204 оценки' },
+    ],
+    trend:[2010,2180,2265,2190,2370,2415,2486],
+    centers:[
+      { id:'dushanbe-3', name:'ЦОН №3, Душанбе', region:'Душанбе', visits:512, sla:'91,2%', wait:'10:48', load:'94%', status:'warning' },
+      { id:'khujand-1', name:'ЦОН №1, Худжанд', region:'Согд', visits:474, sla:'96,4%', wait:'06:20', load:'82%', status:'normal' },
+      { id:'bokhtar-2', name:'ЦОН №2, Бохтар', region:'Хатлон', visits:421, sla:'93,8%', wait:'07:45', load:'78%', status:'normal' },
+      { id:'dushanbe-1', name:'ЦОН №1, Душанбе', region:'Душанбе', visits:398, sla:'95,1%', wait:'06:58', load:'81%', status:'normal' },
+      { id:'tursunzoda-1', name:'ЦОН №1, Турсунзаде', region:'РРП', visits:361, sla:'86,7%', wait:'16:12', load:'103%', status:'danger' },
+      { id:'khorugh-1', name:'ЦОН №1, Хорог', region:'ГБАО', visits:320, sla:'92,2%', wait:'08:04', load:'69%', status:'normal' },
+    ],
+    audiences:[{label:'ФЛ',value:69},{label:'ЮЛ',value:23},{label:'Гость',value:8}],
+  },
+};

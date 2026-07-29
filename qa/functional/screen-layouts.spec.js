@@ -34,6 +34,111 @@ async function expectLayerFits(page, layer) {
   expect(bounds.bottom).toBeLessThanOrEqual(bounds.viewportHeight + 1);
 }
 
+test('Authentication forms stay vertically centered across platforms', async ({ page }) => {
+  await page.setViewportSize({ width: 1357, height: 987 });
+
+  await page.goto('/ministry/?lang=ru&theme=light');
+  const ministry = await page.evaluate(() => {
+    const surface = document.querySelector('.login').getBoundingClientRect();
+    const content = document.querySelector('.login__inner').getBoundingClientRect();
+    const subtitleRange = document.createRange();
+    subtitleRange.selectNodeContents(document.querySelector('.login__subtitle'));
+    return {
+      centerDelta: Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)),
+      legendText: document.querySelector('.login__legend-copy').textContent.trim(),
+      legendBlockCount: document.querySelector('.login__legend').children.length,
+      legendBreakCount: document.querySelectorAll('.login__legend-copy br').length,
+      legendTextAlign: getComputedStyle(document.querySelector('.login__legend')).textAlign,
+      legendIconCount: document.querySelectorAll('.login__legend .icon').length,
+      fieldGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field')).gap),
+      groupGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__card > .stack')).gap),
+      fieldGroupGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__fields')).gap),
+      fieldGroupMarginBottom: Number.parseFloat(getComputedStyle(document.querySelector('.login__fields')).marginBottom),
+      cardHeight: document.querySelector('.login__card').getBoundingClientRect().height,
+      cardRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).borderRadius),
+      cardPaddingTop: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).paddingTop),
+      cardPaddingBottom: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).paddingBottom),
+      buttonTopMargin: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .btn')).marginTop),
+      subtitleLineCount: subtitleRange.getClientRects().length,
+      inputRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).borderRadius),
+      inputHeight: document.querySelector('.login__card .field__input').getBoundingClientRect().height,
+      buttonHeight: document.querySelector('.login__card .btn--l').getBoundingClientRect().height,
+      inputOutline: getComputedStyle(document.querySelector('.login__card .field__input')).boxShadow,
+      buttonBackground: getComputedStyle(document.querySelector('.login__card .btn--primary')).backgroundColor,
+      inputFontSize: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).fontSize),
+      loginLabelFontSize: Number.parseFloat(getComputedStyle(document.querySelector('label[for="l-pass"]')).fontSize),
+      loginLabelFontWeight: getComputedStyle(document.querySelector('label[for="l-pass"]')).fontWeight,
+      loginLabelLetterSpacing: getComputedStyle(document.querySelector('label[for="l-pass"]')).letterSpacing,
+      usernameLabelTransform: getComputedStyle(document.querySelector('label[for="l-user"]')).transform,
+      passwordLabelTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).transform,
+      loginLabelTextTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).textTransform,
+    };
+  });
+  expect(ministry.centerDelta).toBeLessThanOrEqual(1);
+  expect(ministry.legendIconCount).toBe(0);
+  expect(ministry.legendBlockCount).toBe(1);
+  expect(ministry.legendBreakCount).toBe(1);
+  expect(ministry.legendTextAlign).toBe('center');
+  expect(ministry.fieldGap).toBe(0);
+  expect(ministry.groupGap).toBe(12);
+  expect(ministry.fieldGroupGap).toBe(12);
+  expect(ministry.fieldGroupMarginBottom).toBe(20);
+  expect(ministry.cardHeight).toBe(300);
+  expect(ministry.cardRadius).toBe(28);
+  expect(ministry.cardPaddingTop).toBe(36);
+  expect(ministry.cardPaddingBottom).toBe(32);
+  expect(ministry.buttonTopMargin).toBe(0);
+  expect(ministry.subtitleLineCount).toBe(1);
+  expect(ministry.inputRadius).toBeGreaterThanOrEqual(ministry.inputHeight / 2);
+  expect(ministry.inputHeight).toBe(ministry.buttonHeight);
+  expect(ministry.inputOutline).not.toBe('none');
+  expect(ministry.buttonBackground).not.toBe('rgb(0, 0, 0)');
+  expect(ministry.inputFontSize).toBe(16);
+  expect(ministry.loginLabelFontSize).toBe(16);
+  expect(ministry.loginLabelFontWeight).toBe('400');
+  expect(ministry.loginLabelLetterSpacing).toBe('normal');
+  expect(ministry.usernameLabelTransform).not.toBe(ministry.passwordLabelTransform);
+  expect(ministry.loginLabelTextTransform).toBe('none');
+  expect(ministry.legendText).toContain('Доступ по усиленной аутентификации (МФА).');
+  expect(ministry.legendText).toContain('Все действия фиксируются в журнале аудита.');
+
+  await page.locator('#l-pass').focus();
+  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).transform))
+    .toBe(ministry.usernameLabelTransform);
+  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => Number.parseFloat(getComputedStyle(label).fontSize)))
+    .toBe(13);
+  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).fontWeight))
+    .toBe('500');
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/ministry/?lang=tg&theme=light');
+  await expectPageFits(page);
+  const ministryMobileDelta = await page.evaluate(() => {
+    const surface = document.querySelector('.login').getBoundingClientRect();
+    const content = document.querySelector('.login__inner').getBoundingClientRect();
+    return Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2));
+  });
+  expect(ministryMobileDelta).toBeLessThanOrEqual(1);
+
+  await page.setViewportSize({ width: 1357, height: 987 });
+  await page.goto('/tson/?lang=ru&theme=light');
+  await expect(page.locator('.s-login__inner')).toBeVisible();
+  const tson = await page.evaluate(() => {
+    const surface = document.querySelector('.s-login').getBoundingClientRect();
+    const content = document.querySelector('.s-login__inner').getBoundingClientRect();
+    return Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2));
+  });
+  expect(tson).toBeLessThanOrEqual(1);
+
+  await page.goto('/citizen/?lang=ru&theme=light');
+  await page.locator('#loginBtn').click();
+  await expect(page.locator('#loginOverlay .modal')).toBeVisible();
+  await expect.poll(() => page.locator('#loginOverlay .modal').evaluate((element) => {
+    const modal = element.getBoundingClientRect();
+    return Math.abs((modal.top + modal.height / 2) - innerHeight / 2);
+  })).toBeLessThanOrEqual(1);
+});
+
 test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/citizen/?lang=tg&theme=light');
@@ -72,7 +177,7 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
 
-  for (const view of ['queue', 'all', 'overdue', 'batch', 'interop', 'reports']) {
+  for (const view of ['queue', 'all', 'overdue', 'batch', 'interop', 'reports', 'forms']) {
     if (view !== 'queue') {
       await page.locator('[data-act="nav-toggle"]').click();
       await page.locator(`.nav-item[data-view="${view}"]`).click();
@@ -80,6 +185,16 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
     await expect(page.locator('.app__main')).not.toBeEmpty();
     await expectPageFits(page);
   }
+
+  await page.locator('[data-act="form-create"]').click();
+  await expect(page.locator('.form-builder-grid')).toBeVisible();
+  await expectPageFits(page);
+  await page.locator('[data-act="form-add-field"]').click();
+  await expectPageFits(page);
+  await page.locator('[data-act="form-add-field-type"][data-id="date"]').click();
+  await page.locator('.mfb-preview-toggle').click();
+  await expectLayerFits(page, page.locator('.mfb-preview.is-open'));
+  await page.locator('.mfb-preview__close').click();
 
   await page.locator('[data-act="notif-open"]').click();
   await expectLayerFits(page, page.locator('.notif-pop'));
@@ -105,6 +220,108 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   }
 });
 
+test('Ministry and Admin form builders share the same desktop layout geometry', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/ministry/?lang=ru&theme=light');
+  await page.locator('#l-pass').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const otp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
+  await page.locator('[data-act="login-enter"]').click();
+  await page.locator('.nav-item[data-view="forms"]').click();
+  await page.locator('[data-act="form-create"]').click();
+
+  const ministry = await page.evaluate(() => ({
+    pipeline: document.querySelector('.mfb-pipeline').getBoundingClientRect().width,
+    editor: document.querySelector('.mfb-editor__inner').getBoundingClientRect().width,
+    preview: document.querySelector('.mfb-preview').getBoundingClientRect().width,
+    input: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-name-grid .input')).height),
+    fieldLayout: getComputedStyle(document.querySelector('.mfb-field-item.is-open')).display,
+    fieldWidth: document.querySelector('.mfb-field-item.is-open').getBoundingClientRect().width,
+    fieldHeadWidth: document.querySelector('.mfb-field-item.is-open .mfb-field-head').getBoundingClientRect().width,
+    fieldBodyWidth: document.querySelector('.mfb-field-item.is-open .mfb-field-body').getBoundingClientRect().width,
+    tipCount: document.querySelectorAll('.mfb-tip').length,
+    requiredCopyCount: [...document.querySelectorAll('.mfb-field-title > span')].filter((node) => /обязательно/i.test(node.textContent)).length,
+    requiredMarkCount: document.querySelectorAll('.mfb-required-mark').length,
+    requiredMarkDisplay: getComputedStyle(document.querySelector('.mfb-required-mark')).display,
+    fieldLabelFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-name-grid .field__label')).fontSize),
+    phoneRatio: document.querySelector('.mfb-phone').getBoundingClientRect().height / document.querySelector('.mfb-phone').getBoundingClientRect().width,
+    previewAudienceRows: new Set([...document.querySelectorAll('.mfb-preview-audiences .form-audience')].map((node) => Math.round(node.getBoundingClientRect().top))).size,
+    previewAudienceOrder: [...document.querySelectorAll('.mfb-preview-audiences .form-audience')].map((node) => ['person', 'business', 'guest'].find((id) => node.classList.contains(`form-audience--${id}`))),
+    previewTitleFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-preview-body h2')).fontSize),
+    previewIntroFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-preview-body > p')).fontSize),
+    previewLabelFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-preview-body .field__label')).fontSize),
+    previewInputFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-preview-body .input')).fontSize),
+    editorHeadGap: document.querySelector('.mfb-name-grid').getBoundingClientRect().top - document.querySelector('.mfb-editor__head').getBoundingClientRect().bottom,
+    nameFieldGap: document.querySelector('.mfb-field-list').getBoundingClientRect().top - document.querySelector('.mfb-name-grid').getBoundingClientRect().bottom,
+    requiredCenterDelta: Math.abs(
+      document.querySelector('.mfb-required .check__input').getBoundingClientRect().top + document.querySelector('.mfb-required .check__input').getBoundingClientRect().height / 2
+      - document.querySelector('.mfb-required > span').getBoundingClientRect().top - document.querySelector('.mfb-required > span').getBoundingClientRect().height / 2
+    ),
+  }));
+
+  await page.setViewportSize({ width: 912, height: 690 });
+  const medium = await page.evaluate(() => {
+    const title = document.querySelector('.mfb-title h1');
+    const previewToggle = document.querySelector('.mfb-preview-toggle').getBoundingClientRect();
+    const titleRect = title.getBoundingClientRect();
+    return {
+      titleClipped: title.scrollWidth > title.clientWidth + 1,
+      titleBottom: titleRect.bottom,
+      controlsTop: previewToggle.top,
+    };
+  });
+  await expectPageFits(page);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+
+  await page.locator('[data-act="form-back"]').click();
+  await page.locator('[data-act="form-open-static"][data-id="apostille"]').click();
+  const published = await page.evaluate(() => ({
+    fieldEditorCount: document.querySelectorAll('.mfb-field-body').length,
+    fieldButtonCount: document.querySelectorAll('button.mfb-field-open').length,
+    readonlyNotice: document.querySelector('.form-lock-note')?.textContent.trim(),
+  }));
+
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  const admin = await page.evaluate(() => ({
+    pipeline: document.querySelector('.bld-pipe').getBoundingClientRect().width,
+    editor: document.querySelector('.bld-edit .edit-pane:not([hidden])').getBoundingClientRect().width,
+    preview: document.querySelector('.bld-prev').getBoundingClientRect().width,
+    input: Number.parseFloat(getComputedStyle(document.querySelector('.bld-edit .input')).height),
+    phoneRatio: document.querySelector('.pv-phone').getBoundingClientRect().height / document.querySelector('.pv-phone').getBoundingClientRect().width,
+  }));
+
+  expect(ministry.pipeline).toBeCloseTo(admin.pipeline, 0);
+  expect(ministry.preview).toBeCloseTo(admin.preview, 0);
+  expect(ministry.editor).toBeLessThanOrEqual(681);
+  expect(admin.editor).toBeLessThanOrEqual(681);
+  expect(ministry.input).toBe(admin.input);
+  expect(ministry.input).toBe(52);
+  expect(ministry.fieldLayout).toBe('block');
+  expect(ministry.fieldHeadWidth).toBeCloseTo(ministry.fieldWidth, 0);
+  expect(ministry.fieldBodyWidth).toBeCloseTo(ministry.fieldWidth, 0);
+  expect(ministry.tipCount).toBe(0);
+  expect(ministry.requiredCopyCount).toBe(0);
+  expect(ministry.requiredMarkCount).toBeGreaterThan(0);
+  expect(ministry.requiredMarkDisplay).toBe('inline');
+  expect(ministry.fieldLabelFont).toBe(12);
+  expect(ministry.phoneRatio).toBeGreaterThanOrEqual(2);
+  expect(ministry.previewAudienceRows).toBe(1);
+  expect(ministry.previewAudienceOrder).toEqual([...ministry.previewAudienceOrder].sort((a, b) => ['person', 'business', 'guest'].indexOf(a) - ['person', 'business', 'guest'].indexOf(b)));
+  expect(ministry.previewTitleFont).toBeGreaterThan(ministry.previewIntroFont);
+  expect(ministry.previewIntroFont).toBeGreaterThan(ministry.previewLabelFont);
+  expect(ministry.previewInputFont).toBeLessThan(ministry.previewTitleFont);
+  expect(admin.phoneRatio).toBeGreaterThanOrEqual(2);
+  expect(ministry.editorHeadGap).toBeGreaterThanOrEqual(24);
+  expect(ministry.nameFieldGap).toBeGreaterThanOrEqual(24);
+  expect(ministry.requiredCenterDelta).toBeLessThanOrEqual(1);
+  expect(medium.titleClipped).toBe(false);
+  expect(medium.controlsTop).toBeGreaterThanOrEqual(medium.titleBottom);
+  expect(published.fieldEditorCount).toBe(0);
+  expect(published.fieldButtonCount).toBe(0);
+  expect(published.readonlyNotice).toContain('Просмотр опубликованной версии');
+});
+
 test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/admin/new-service.html?lang=tg&theme=light');
@@ -128,8 +345,8 @@ test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ 
   await page.locator('#addField').click();
   await expectLayerFits(page, page.locator('#paletteModal .modal'));
   await page.locator('#paletteModal [data-close]').click();
-  await page.locator('#publishBtn').click();
-  await expectLayerFits(page, page.locator('#publishModal .modal'));
+    await page.locator('#approveBtn').click();
+    await expectLayerFits(page, page.locator('#lowCodeActionOverlay .modal'));
 });
 
 test('TSON session catalog, citizen data, form, documents, and result remain readable', async ({ page }) => {

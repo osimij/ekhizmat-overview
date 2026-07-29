@@ -21,6 +21,7 @@
   --control-line: #c9cace;
 
   --accent: #0088ff;
+  --brand-logo: var(--accent);
   --action: #0072d6;
   --action-hover: #006bc8;
   --action-press: #005eae;
@@ -104,6 +105,7 @@
   --track-off: #3c3d42;
   --control-line: #4b4c52;
   --action: #0072d6;
+  --brand-logo: var(--blue-ink);
   --action-hover: #006bc8;
   --action-press: #005eae;
   --blue: var(--action);

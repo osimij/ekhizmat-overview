@@ -53,7 +53,7 @@ const TRANSITIONS = {
   [ST.AUTH]:         { MFA_OK: ST.SETUP },
   [ST.SETUP]:        { BIND_OK: ST.IDLE },
   [ST.IDLE]:         { START: ST.IDENTIFY },
-  [ST.IDENTIFY]:     { ID_SENT: ST.CONSENT_WAIT, NOT_REGISTERED: ST.ENROLL, CANCEL: ST.IDLE },
+  [ST.IDENTIFY]:     { ID_SENT: ST.CONSENT_WAIT, NOT_REGISTERED: ST.ENROLL, GUEST: ST.SESSION, CANCEL: ST.IDLE },
 
   /* S2b — гражданина нет в eKhizmat (§6/S2b). Ветка идёт мимо CONSENT_WAIT, и
      это не срезанный угол, а разница в том, ЧТО подтверждается.
@@ -280,6 +280,19 @@ function reduce(event, p, from, to) {
       // оператор и так набрал руками: паспорт ещё не в сканере.
       state.identify = { ...state.identify, method: 'otp', registered: false, phone: p.phone };
       state.consent = null;
+      break;
+
+    case 'GUEST':
+      // Guest reception is deliberately data-light: no identity, consent
+      // scopes or registry object enters memory. The catalog then exposes
+      // only services explicitly marked guest:true.
+      state.identify = { method:'guest', maskedName:null };
+      state.consent = { status:'not-required', scopes:[], via:'guest' };
+      state.session = {
+        guest:true, citizen:{ profile:{} }, scopes:[], startedAt:Date.now(),
+        service:null, draft:null, docs:{}, application:null, enrolled:null,
+      };
+      state.step = STEP.CATALOG;
       break;
 
     case 'GRANTED':

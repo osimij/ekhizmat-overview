@@ -1,6 +1,6 @@
 import { getLang, getMode } from './preferences.js';
 
-const DEMO_PREFIXES = ['ekh.citizen.', 'ekh.tson.', 'ekh.ministry.', 'ekh.admin.'];
+const DEMO_PREFIXES = ['ekh.citizen.', 'ekh.tson.', 'ekh.ministry.', 'ekh.admin.', 'ekh.demo.'];
 
 function removeMatching(prefixes) {
   try {
@@ -25,7 +25,7 @@ export function mountDemoTools() {
     <button class="btn btn-sec btn-sm" type="button" data-reset-current>${lang === 'ru' ? 'Сбросить платформу' : 'Тоза кардани платформа'}</button>
     <button class="btn btn-danger btn-sm" type="button" data-reset-all>${lang === 'ru' ? 'Сбросить всё демо' : 'Тоза кардани ҳамаи намоиш'}</button>`;
   root.querySelector('[data-reset-current]').addEventListener('click', () => {
-    if (platform) removeMatching([`ekh.${platform}.`]);
+    if (platform) removeMatching([`ekh.${platform}.`, `ekh.demo.${platform}`, platform === 'admin' ? 'ekh.demo.lowcode' : '__never__']);
     location.reload();
   });
   root.querySelector('[data-reset-all]').addEventListener('click', () => {

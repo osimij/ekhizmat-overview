@@ -1,5 +1,6 @@
 import '../services-data.js';
 import { I18N } from './i18n.js';
+import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 
 /* ===================== APP ===================== */
 (function(){
@@ -15,6 +16,7 @@ let lang = new URLSearchParams(location.search).get("lang") || "tg";
 try { lang = new URLSearchParams(location.search).get("lang") || localStorage.getItem("ekh.preferences.lang") || "tg"; } catch(e){}
 if (!["tg", "ru", "en"].includes(lang)) lang = "tg";
 let acct = "person";
+let expansion = null;
 function t(k){
   const d = I18N[lang] || I18N.tg;
   if (d[k] !== undefined) return d[k];
@@ -31,10 +33,12 @@ function applyLang(){
   $$("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
   $$("[data-lang][role='option']").forEach(b => b.setAttribute("aria-selected", String(b.dataset.lang === lang)));
   $("#langCur").textContent = {tg:"ТҶ", ru:"РУ", en:"EN"}[lang];
+  if (acct === "guest") $("#acctCur").textContent = (COPY_GUEST[lang] || COPY_GUEST.tg).replace(/^./, ch => ch.toUpperCase());
   updateProgLbl();
   if (searchPop.classList.contains("open")) renderSearch(searchInput.value);
   renderCats();
   if (currentCat && !$("#scr-category").hidden) renderCategory(currentCat);
+  expansion?.render();
 }
 /* ---------- header dropdowns (language + account type) ---------- */
 function closeDd(dd){
@@ -82,10 +86,18 @@ $$('[data-lang][role="option"]').forEach(b => b.addEventListener('click', () => 
 $$("[data-acct]").forEach(b => b.addEventListener("click", () => {
   $$("[data-acct]").forEach(x => x.setAttribute("aria-selected", String(x === b)));
   const cur = $("#acctCur");
-  cur.dataset.i18n = "acct." + b.dataset.acct;
-  cur.textContent = t("acct." + b.dataset.acct);
+  if (b.dataset.acct === "guest"){
+    delete cur.dataset.i18n;
+    cur.textContent = (COPY_GUEST[lang] || COPY_GUEST.tg).replace(/^./, ch => ch.toUpperCase());
+  } else {
+    cur.dataset.i18n = "acct." + b.dataset.acct;
+    cur.textContent = t("acct." + b.dataset.acct);
+  }
   if (b.dataset.acct === acct) return;
   acct = b.dataset.acct;
+  document.documentElement.dataset.audience = acct;
+  applyAuth();
+  expansion?.render();
   renderCats();
   if (!$("#scr-category").hidden){
     if (findGroup(currentCat)) renderCategory(currentCat);
@@ -117,17 +129,21 @@ let authed = false;
 try { authed = localStorage.getItem(AUTH_KEY) === "1"; } catch(e){ /* storage may be blocked */ }
 const loginOverlay = $("#loginOverlay"), loginBtn = $("#loginBtn"), loginPhone = $("#loginPhone");
 function applyAuth(){
-  document.documentElement.dataset.auth = authed ? "in" : "out";
-  loginBtn.hidden = authed;
-  $("#bellBtn").hidden = !authed;
-  $(".avatar").hidden = !authed;
-  $("#feedSect").hidden = !authed;
+  const signedIn = authed && acct !== "guest";
+  document.documentElement.dataset.auth = signedIn ? "in" : "out";
+  document.documentElement.dataset.audience = acct;
+  loginBtn.hidden = signedIn;
+  $("#bellBtn").hidden = !signedIn;
+  $(".avatar").hidden = !signedIn;
+  $("#guestAvatar").hidden = acct !== "guest";
+  $("#guestStrip").hidden = acct !== "guest";
+  $("#feedSect").hidden = !signedIn;
   /* the h1 stays the focus target of go("home"); only its text swaps */
-  $("#heroTitle").hidden = authed;
-  $("#heroHi").hidden = !authed;
-  $("#heroSub").hidden = authed;
+  $("#heroTitle").hidden = signedIn;
+  $("#heroHi").hidden = !signedIn;
+  $("#heroSub").hidden = signedIn;
   const heroIn = $(".hero-in"), cats = $("#cats"), search = $("#searchWrap");
-  if (authed) heroIn.insertBefore(cats, search);
+  if (signedIn) heroIn.insertBefore(cats, search);
   else heroIn.insertBefore(search, cats);
 }
 let loginLastFocus = null;
@@ -136,6 +152,10 @@ let pendingAction = null; /* what the user was trying to do when sign-in was req
 function requireLogin(fn){ pendingAction = fn; openLogin(); }
 function openLogin(){
   loginLastFocus = document.activeElement;
+  const sub = $('#loginOverlay .sub');
+  if (sub) sub.textContent = acct === 'guest'
+    ? ({ tg:'Барои кушодани кабинети шахсӣ ворид шавед. Реҷаи меҳмон маълумоти шахсиро нишон намедиҳад.', ru:'Войдите, чтобы открыть личный кабинет. Гостевой режим не показывает персональные данные.', en:'Sign in to open your personal cabinet. Guest mode does not show personal data.' }[lang])
+    : t('auth.sub');
   loginDialog = window.EKHDialog?.openExistingDialog(loginOverlay, { initialFocus:'#loginPhone', trigger:loginLastFocus }) || null;
   if (!loginDialog) { loginOverlay.classList.add('open'); loginPhone.focus(); }
 }
@@ -151,11 +171,19 @@ function focusScreenHeading(){
   if (h){ h.setAttribute("tabindex", "-1"); h.focus({ preventScroll:true }); }
 }
 loginBtn.addEventListener("click", openLogin);
+$("#guestAvatar").addEventListener("click", openLogin);
 $("#loginCancel").addEventListener("click", closeLogin);
 loginOverlay.addEventListener("click", e => { if (e.target === loginOverlay) closeLogin(); });
 loginPhone.addEventListener("keydown", e => { if (e.key === "Enter") $("#loginGo").click(); });
 $("#loginGo").addEventListener("click", () => {
   authed = true;
+  if (acct === "guest"){
+    acct = "person";
+    $$('[data-acct]').forEach(x => x.setAttribute('aria-selected', String(x.dataset.acct === 'person')));
+    $("#acctCur").dataset.i18n = "acct.person";
+    $("#acctCur").textContent = t("acct.person");
+    renderCats();
+  }
   try { localStorage.setItem(AUTH_KEY, "1"); } catch(e){}
   loginPhone.value = "";
   applyAuth();
@@ -177,11 +205,12 @@ $("#logoutBtn").addEventListener("click", () => {
 
 /* ---------- navigation ---------- */
 const SCREENS = { home:"scr-home", category:"scr-category", journey:"scr-journey",
-                  emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs" };
+                  emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service" };
 const PERSONAL = ["profile", "wallet", "tracking", "notifs", "journey"];
 function go(name, own){
   /* personal screens ask for sign-in first, then continue where the user was headed */
-  if (!authed && PERSONAL.includes(name)){ requireLogin(() => go(name, own)); return; }
+  if ((!authed || acct === "guest") && PERSONAL.includes(name)){ requireLogin(() => go(name, own)); return; }
+  if (name === "guestService") expansion?.resetGuestFlow();
   if (name === "wallet" || name === "tracking"){ /* panes inside the profile since the cabinet layout */
     selectPane(name === "wallet" ? "docs" : "apps");
     if (own) applyFilter(own);
@@ -202,7 +231,7 @@ function go(name, own){
 }
 
 /* ---------- service catalogue (services-data.js, official registry) ---------- */
-const CATALOG = window.EKHIZMAT_DATA || { person:[], biz:[] };
+const CATALOG = { ...(window.EKHIZMAT_DATA || { person:[], biz:[] }), guest:GUEST_CATALOG };
 const CAT_ICONS = {
   docs:"i-cat-passport", family:"i-cat-family", edu:"i-cat-edu", health:"i-cat-health",
   transport:"i-cat-transport", land:"i-cat-land", tax:"i-cat-tax", justice:"i-cat-justice",
@@ -216,6 +245,7 @@ const CAT_TILES = {
   certs:"t-teal sh-r", culture:"t-pink sh-l", gov:"t-steel", other:"t-gray sh-c",
   license:"t-cyan sh-r", accred:"t-olive"
 };
+const COPY_GUEST = { tg:"меҳмон", ru:"гость", en:"guest" };
 let currentCat = null;
 let payFilter = "all";
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
@@ -234,9 +264,11 @@ function renderCats(){
 }
 function svcRow(it){
   const paid = it[2] & 4;
-  return '<button class="svc-row" data-toast="toast.demo">' +
+  const action = it[5] === "guest-appointment" ? ' data-go="guestService"' : ' data-toast="toast.demo"';
+  const guestBadge = acct === "guest" ? '<span class="audience-badge audience-badge--guest">' + t("meta.free") + ' · ' + ((COPY_GUEST[lang]) || COPY_GUEST.tg) + '</span>' : '';
+  return '<button class="svc-row"' + action + '>' +
     '<span class="tt"><b>' + esc(svcName(it)) + '</b><span class="org">' + esc(svcOrg(it)) + '</span></span>' +
-    '<span class="tag' + (paid ? ' pay' : '') + '">' + t(paid ? "meta.paid" : "meta.free") + '</span>' +
+    guestBadge + '<span class="tag' + (paid ? ' pay' : '') + '">' + t(paid ? "meta.paid" : "meta.free") + '</span>' +
   '</button>';
 }
 function renderCatList(){
@@ -487,6 +519,12 @@ function toast(key){
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
 }
+function toastText(message){
+  toastEl.textContent = message;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+}
 
 /* ---------- search with intent recognition ---------- */
 const searchInput = $("#searchInput"), searchPop = $("#searchPop"), searchItems = $("#searchItems");
@@ -602,6 +640,14 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- init ---------- */
+expansion = initCitizenExpansion({
+  getLang:() => lang,
+  getAccount:() => acct,
+  getAuthed:() => authed,
+  openLogin,
+  go,
+  toastText
+});
 applyAuth();
 applyLang();
 jstep(1);

@@ -2,7 +2,7 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .launch-header, .launch-footer { width: min(100% - 48px, 1240px); margin-inline: auto; }
 .launch-header { display: flex; align-items: center; min-height: 76px; border-bottom: 1px solid var(--line); }
 .brand-lockup { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
-.brand-lockup img { width: 31px; height: 32px; }
+.brand-lockup svg { width: 31px; height: 32px; flex: none; }
 .brand-lockup strong { font-size: 20px; font-weight: 690; letter-spacing: 0; }
 .launch-actions { display: flex; gap: var(--s-2); margin-left: auto; }
 .launch-control { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: var(--r-pill); color: var(--ink-2); font-weight: 620; }

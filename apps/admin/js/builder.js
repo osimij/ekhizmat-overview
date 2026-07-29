@@ -45,7 +45,8 @@ var PAGES=[
   ["index.html",         "◆ Ҳама экранҳои конструктор",      "◆ Все экраны конструктора"],
   ["services.html",      "Конструктор · феҳристи хизматҳо",  "Конструктор · реестр услуг"],
   ["new-service.html",   "Конструктор · хизмати нав",        "Конструктор · новая услуга"],
-  ["builder.html",       "Конструктор · таҳрири шакл",       "Конструктор · редактор формы"]
+  ["builder.html",       "Конструктор · таҳрири шакл",       "Конструктор · редактор формы"],
+  ["review.html",        "Конструктор · санҷиш ва нашр",      "Конструктор · проверка и публикация"]
 ];
 function navLang(){ var l="tg"; try{ l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('ekh.preferences.lang')||'tg'; }catch(e){} return l; }
 function navLabel(p, lang){ return (lang==="ru" && p[2]) ? p[2] : p[1]; }   /* en falls back to tg */
@@ -288,10 +289,11 @@ var BLD_NAV = [
   ["__label","Конструктор"],
   ["services",  "Хизматрасониҳо", "i-cat-cert", "612"],
   ["new",       "Хизмати нав",    "i-plus"],
+  ["review",    "Санҷиш ва нашр", "i-check", "1"],
   ["__label","Кутубхона"],
   ["templates", "Қолабҳои шакл",  "i-doc"]
 ];
-var BLD_HREF = { services:"services.html", "new":"new-service.html", templates:"services.html#templates" };
+var BLD_HREF = { services:"services.html", "new":"new-service.html", review:"review.html", templates:"services.html#templates" };
 /* collapsible-rail state: icon-only when collapsed, persisted across pages */
 var RAIL_KEY='ekh.admin.rail';
 /* tiny standalone translator (the toggle is data-no-i18n, so its labels are set

@@ -13,6 +13,7 @@ import { endVisit } from './session.js';
 import { fmtTime } from './format.js';
 import { SCOPES } from './mock/data.js';
 import { consent } from './mock/api.js';
+import { ROLE, getRole, roleLabel, setRole, resetRole } from './role.js';
 
 /* ---------- тема ---------- */
 export function initTheme() {
@@ -71,7 +72,8 @@ export function renderTopbar(host) {
       icon('logo'),
       h('strong', {}, t('app.name')),
       h('span', { class: 'ink-faint' }, '·'),
-      h('span', { class: 'ink-2' }, t('app.arm'))),
+      h('span', { class: 'ink-2' }, t('app.arm')),
+      st.operator ? h('span', { class: 'review-badge review-badge--stage' }, roleLabel()) : null),
     bind,
     h('span', { class: 'spacer' }),
     themeBtn,
@@ -100,6 +102,7 @@ function openOperatorMenu(anchor, st) {
   // не закрыв приём, значит бросить его данные в памяти. Сначала «Завершить
   // приём» — это же и есть wipe (§2.3.3).
   const inVisit = st.app === ST.SESSION;
+  const demoRole = getLang() === 'tg' ? 'Нақши намоишӣ' : 'Демо-роль';
 
   const item = (icn, label, hint, onClick, disabled = false) => h('button', {
     class: 'menu__item', role: 'menuitem', disabled,
@@ -118,12 +121,24 @@ function openOperatorMenu(anchor, st) {
       h('span', { class: 'small ink-faint' },
         st.bind ? t('shell.window', { n: st.bind.window, tson: st.bind.tsonName || st.bind.tson }) : '')),
     h('hr', { class: 'rule' }),
+    !inVisit ? h('span', { class: 'menu__label small ink-faint' }, demoRole) : null,
+    !inVisit ? item('role', roleLabel(ROLE.OPERATOR), getRole() === ROLE.OPERATOR ? '✓' : null, () => switchRole(ROLE.OPERATOR)) : null,
+    !inVisit ? item('building', roleLabel(ROLE.SUPERVISOR), getRole() === ROLE.SUPERVISOR ? '✓' : null, () => switchRole(ROLE.SUPERVISOR)) : null,
+    !inVisit ? item('history', roleLabel(ROLE.LEADERSHIP), getRole() === ROLE.LEADERSHIP ? '✓' : null, () => switchRole(ROLE.LEADERSHIP)) : null,
+    !inVisit ? h('hr', { class: 'rule' }) : null,
     item('lock', t('shell.lock'), 'Ctrl+L', () => dispatch('LOCK')),
     item('history', t('shell.endShift'), null, endShift, inVisit),
     item('out', t('shell.logout'), null, logout, inVisit),
     inVisit ? h('p', { class: 'small ink-faint menu__note' }, t('shell.busyHint')) : null);
 
   close = openLayer(node);
+
+  function switchRole(next) {
+    setRole(next);
+    renderTopbar(document.getElementById('topbar'));
+    location.hash = next === ROLE.SUPERVISOR ? '#/dashboard-center'
+      : next === ROLE.LEADERSHIP ? '#/dashboard-leadership' : '#/idle';
+  }
 }
 
 /* Обе кнопки ведут на S0 — и это не дубль. Завершение смены закрывает
@@ -154,6 +169,7 @@ function logout() {
 /* Уход с рабочего места = полный сброс к S0. Тем же путём, что и рефреш
    (§6/S0 приёмка): состояние собирается заново, в памяти не остаётся ничего. */
 function leave() {
+  resetRole();
   __reset();
   location.hash = '#/login';
 }
@@ -171,6 +187,16 @@ export function renderSessionBar(host) {
     return;
   }
   host.hidden = false;
+
+  if (st.session.guest) {
+    mount(host,
+      h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:16 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость'),
+      h('span', { class:'small ink-2' }, getLang() === 'tg' ? 'Бе маълумоти шахсӣ' : 'Без персональных данных'),
+      h('span', { class:'spacer' }),
+      h('span', { class:'sessionbar__timer tnum', role:'timer', 'aria-live':'off', 'aria-label':t('session.ttl') }, mmss(30 * 60_000)),
+      h('button', { class:'btn btn--danger btn--s', onClick:() => endVisit() }, t('session.end')));
+    return;
+  }
 
   const c = st.session.citizen?.profile || {};
   const n = st.session.scopes.length;

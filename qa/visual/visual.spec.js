@@ -26,3 +26,50 @@ for (const variant of [{ theme: 'light', lang: 'ru' }, { theme: 'dark', lang: 't
     }
   });
 }
+
+test('Citizen Guest form and categorized cabinet references', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/citizen/?present=1&theme=light&lang=ru');
+  await page.locator('.dd.acct .dd-btn').click();
+  await page.locator('[data-acct="guest"]').click();
+  await page.locator('.cat').first().click();
+  await page.locator('[data-go="guestService"]').click();
+  await expect(page).toHaveScreenshot('citizen-guest-form-mobile-light-ru.png', { fullPage: true, animations: 'disabled' });
+
+  await page.locator('#scr-guest-service [data-go="home"]').first().click();
+  await page.locator('#guestLoginBtn').click();
+  await page.locator('#loginPhone').fill('+992 90 000 00 00');
+  await page.locator('#loginGo').click();
+  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('[data-pane="apps"]').click();
+  await expect(page.locator('.application-category')).toHaveCount(6);
+  await expect(page.locator('#toast')).not.toHaveClass(/show/, { timeout: 5000 });
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(page).toHaveScreenshot('citizen-cabinet-categories-mobile-light-ru.png', { fullPage: true, animations: 'disabled' });
+});
+
+test('ЦОН centre and leadership dashboard references', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tson/?present=1&theme=light&lang=ru');
+  await page.locator('input[type="password"]').fill('demo');
+  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  const cells = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
+  await page.getByRole('button', { name: /меню оператора/i }).click();
+  await page.getByRole('menuitem', { name: /Руководитель отделения/ }).click();
+  await expect(page.locator('.dashboard-kpis .metric')).toHaveCount(5);
+  await expect(page).toHaveScreenshot('tson-center-dashboard-light-ru.png', { fullPage: true, animations: 'disabled' });
+  await page.getByRole('button', { name: /меню оператора/i }).click();
+  await page.getByRole('menuitem', { name: /^Руководство/ }).click();
+  await expect(page.locator('.dashboard-center-row')).toHaveCount(6);
+  await expect(page).toHaveScreenshot('tson-leadership-dashboard-light-ru.png', { fullPage: true, animations: 'disabled' });
+});
+
+test('Low Code review workspace reference', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/admin/review.html?present=1&theme=light&lang=ru');
+  await page.evaluate(() => localStorage.removeItem('ekh.demo.lowcode'));
+  await page.reload();
+  await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
+  await expect(page).toHaveScreenshot('admin-lowcode-review-light-ru.png', { fullPage: true, animations: 'disabled' });
+});
