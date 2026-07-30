@@ -23,6 +23,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     loginStep: 1,
     lang: pref('lang', 'ru'),
     theme: pref('theme', 'light'),
+    sideCollapsed: false,
     view: 'queue',
     cardId: null,
     cardTab: 'overview',
@@ -262,20 +263,24 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function navItem(view, icon, label, count, alert) {
     var c = count != null && count > 0
       ? '<span class="nav-count' + (alert ? ' nav-count--alert' : '') + '">' + count + '</span>' : '';
-    return '<button class="nav-item' + (S.view === view ? ' is-active' : '') + '" data-act="nav" data-view="' + view + '">' +
+    return '<button class="nav-item' + (S.view === view ? ' is-active' : '') + '" data-act="nav" data-view="' + view + '" title="' + esc(label) + '">' +
       ic(icon) + '<span class="nav-item__label">' + esc(label) + '</span>' + c + '</button>';
   }
 
   function renderApp() {
     closeLayers(true);
     var qCount = mineActive().length, oCount = overdue().length, iCount = pendingInterop();
+    var narrowNav = window.matchMedia('(max-width: 960px)').matches;
+    var navExpanded = narrowNav ? false : !S.sideCollapsed;
+    var navToggleLabel = narrowNav ? t('menu') : t(S.sideCollapsed ? 'expand_sidebar' : 'collapse_sidebar');
     var shell =
-      '<div class="app' + '" id="app">' +
+      '<div class="app' + (S.sideCollapsed ? ' side-collapsed' : '') + '" id="app">' +
         '<div class="side__backdrop" data-act="nav-close"></div>' +
 
         /* топбар */
         '<header class="topbar app__top">' +
-          '<button class="btn btn--icon btn--s nav-toggle iconbtn" data-act="nav-toggle" aria-label="' + esc(t('menu')) + '">' + ic('i-dash','icon--20') + '</button>' +
+          '<button class="btn btn--icon btn--s nav-toggle iconbtn" data-act="nav-toggle" aria-controls="ministry-sidebar" aria-expanded="' + navExpanded + '" aria-label="' + esc(navToggleLabel) + '" title="' + esc(navToggleLabel) + '">' +
+            ic('i-chev-l','icon--20 nav-toggle__desktop-icon') + ic('i-dash','icon--20 nav-toggle__mobile-icon') + '</button>' +
           '<a class="topbar__brand row g-2" href="#" data-act="nav" data-view="queue">' + ic('i-logo') + '<b>eKhizmat</b></a>' +
           '<div class="topbar__bind"><b>' + esc(t('app_title')) + '</b><span class="small">' + esc(agencyName()) + '</span></div>' +
           '<div class="field__wrap field__wrap--search topbar__search">' +
@@ -292,7 +297,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '</header>' +
 
         /* сайдбар */
-        '<aside class="app__side"><nav class="side">' +
+        '<aside class="app__side" id="ministry-sidebar"><nav class="side">' +
           '<div class="side__group-label">' + esc(t('nav_group')) + '</div>' +
           navItem('queue', 'i-inbox', t('nav_queue'), qCount, false) +
           navItem('all', 'i-history', t('nav_all'), null, false) +
@@ -304,7 +309,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           navItem('forms', 'i-edit', t('nav_forms'), null, false) +
           '<div class="side__spacer"></div>' +
           '<div class="side__foot"><div class="row g-3"><span class="avatar">' + esc(D.ME.initials) + '</span>' +
-            '<div class="stack" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
+            '<div class="stack side__identity" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
             '<span class="side__division">' + esc(divisionName()) + '</span></div></div>' +
           '</div>' +
         '</nav></aside>' +
@@ -319,6 +324,31 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
 
   function unreadNotifs() { return S.notifs.filter(function (n) { return n.unread; }).length; }
+
+  function syncNavToggle() {
+    var app = document.getElementById('app');
+    var button = document.querySelector('[data-act="nav-toggle"]');
+    if (!app || !button) return;
+    var narrow = window.matchMedia('(max-width: 960px)').matches;
+    if (!narrow) app.classList.remove('nav-open');
+    var expanded = narrow ? app.classList.contains('nav-open') : !app.classList.contains('side-collapsed');
+    var label = narrow ? t('menu') : t(expanded ? 'collapse_sidebar' : 'expand_sidebar');
+    button.setAttribute('aria-expanded', String(expanded));
+    button.setAttribute('aria-label', label);
+    button.setAttribute('title', label);
+  }
+
+  function toggleNav() {
+    var app = document.getElementById('app');
+    if (!app) return;
+    if (window.matchMedia('(max-width: 960px)').matches) {
+      app.classList.toggle('nav-open');
+    } else {
+      S.sideCollapsed = !S.sideCollapsed;
+      app.classList.toggle('side-collapsed', S.sideCollapsed);
+    }
+    syncNavToggle();
+  }
 
   /* ================================================================== */
   /* РЕНДЕР: основная область по видам                                   */
@@ -1479,8 +1509,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       }
 
       case 'nav': e.preventDefault(); go(tgt.getAttribute('data-view')); return;
-      case 'nav-toggle': document.getElementById('app').classList.toggle('nav-open'); return;
-      case 'nav-close': document.getElementById('app').classList.remove('nav-open'); return;
+      case 'nav-toggle': toggleNav(); return;
+      case 'nav-close': document.getElementById('app').classList.remove('nav-open'); syncNavToggle(); return;
 
       case 'filter-toggle': {
         var filterName = tgt.getAttribute('data-filter-name');
@@ -1793,6 +1823,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var activeView = view === 'form-builder' ? 'forms' : view;
     document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-view') === activeView); });
     var app = document.getElementById('app'); if (app) app.classList.remove('nav-open');
+    syncNavToggle();
     var main = document.getElementById('main'); if (main) main.scrollTop = 0;
     renderMain();
   }
@@ -1830,6 +1861,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     document.documentElement.lang = S.lang;
     loadData();
     document.addEventListener('visibilitychange', syncToastTimers);
+    window.addEventListener('resize', syncNavToggle);
     // авто-разрешение изначально «висящего» межвед-запроса (a4) — демонстрация
     setTimeout(function () {
       var a = appById('a4'); if (!a) return;
