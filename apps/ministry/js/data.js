@@ -25,24 +25,24 @@
   // hue/icon — из дизайн-системы. critical → решение «в четыре глаза» (§7Б.2).
   // slaHours — целевой срок услуги. pay → нужна ли пошлина (сценарий UC-B).
   var SERVICE = {
-    nko:      { name: 'Регистрация некоммерческой организации', cat: 'Регистрация', hue: 'hue-indigo', icon: 'i-users',       critical: true,  slaHours: 240, pay: 350 },
-    notary:   { name: 'Лицензия на нотариальную деятельность',  cat: 'Лицензии',    hue: 'hue-amber',  icon: 'i-cat-license', critical: true,  slaHours: 720, pay: 1200 },
-    apostille:{ name: 'Проставление апостиля',                  cat: 'Легализация', hue: 'hue-teal',   icon: 'i-cat-cert',    critical: false, slaHours: 120, pay: 180 },
-    extract:  { name: 'Выписка из реестра юридических лиц',      cat: 'Справки',     hue: 'hue-blue',   icon: 'i-doc',         critical: false, slaHours: 24,  pay: 0 },
-    marriage: { name: 'Государственная регистрация брака',       cat: 'Акты ГЗ',     hue: 'hue-rose',   icon: 'i-rings',       critical: false, slaHours: 72,  pay: 60 },
-    rename:   { name: 'Перемена имени',                          cat: 'Акты ГЗ',     hue: 'hue-violet', icon: 'i-user-add',    critical: false, slaHours: 168, pay: 90 },
-    legal:    { name: 'Государственная регистрация юр. лица',    cat: 'Регистрация', hue: 'hue-steel',  icon: 'i-biz',         critical: true,  slaHours: 120, pay: 500 },
-    accred:   { name: 'Аккредитация филиала иностранной орг.',   cat: 'Аккредитация',hue: 'hue-slate',  icon: 'i-cat-accred',  critical: true,  slaHours: 480, pay: 2400 },
-    consult:  { name: 'Консультация по услугам юстиции',          cat: 'Консультации',hue: 'hue-blue',   icon: 'i-chat',        critical: false, slaHours: 24,  pay: 0, audience:'guest' }
+    nko:      { name:{ru:'Регистрация некоммерческой организации',tg:'Бақайдгирии ташкилоти ғайритиҷоратӣ'}, cat:{ru:'Регистрация',tg:'Бақайдгирӣ'}, hue:'hue-indigo', icon:'i-users', critical:true, slaHours:240, pay:350 },
+    notary:   { name:{ru:'Лицензия на нотариальную деятельность',tg:'Иҷозатнома барои фаъолияти нотариалӣ'}, cat:{ru:'Лицензии',tg:'Иҷозатномаҳо'}, hue:'hue-amber', icon:'i-cat-license', critical:true, slaHours:720, pay:1200 },
+    apostille:{ name:{ru:'Проставление апостиля',tg:'Гузоштани апостил'}, cat:{ru:'Легализация',tg:'Қонунигардонӣ'}, hue:'hue-teal', icon:'i-cat-cert', critical:false, slaHours:120, pay:180 },
+    extract:  { name:{ru:'Выписка из реестра юридических лиц',tg:'Иқтибос аз феҳристи шахсони ҳуқуқӣ'}, cat:{ru:'Справки',tg:'Маълумотномаҳо'}, hue:'hue-blue', icon:'i-doc', critical:false, slaHours:24, pay:0 },
+    marriage: { name:{ru:'Государственная регистрация брака',tg:'Бақайдгирии давлатии никоҳ'}, cat:{ru:'Акты ГЗ',tg:'Сабти асноди ҳолати шаҳрвандӣ'}, hue:'hue-rose', icon:'i-rings', critical:false, slaHours:72, pay:60 },
+    rename:   { name:{ru:'Перемена имени',tg:'Иваз кардани ном'}, cat:{ru:'Акты ГЗ',tg:'Сабти асноди ҳолати шаҳрвандӣ'}, hue:'hue-violet', icon:'i-user-add', critical:false, slaHours:168, pay:90 },
+    legal:    { name:{ru:'Государственная регистрация юр. лица',tg:'Бақайдгирии давлатии шахси ҳуқуқӣ'}, cat:{ru:'Регистрация',tg:'Бақайдгирӣ'}, hue:'hue-steel', icon:'i-biz', critical:true, slaHours:120, pay:500 },
+    accred:   { name:{ru:'Аккредитация филиала иностранной орг.',tg:'Аккредитатсияи филиали ташкилоти хориҷӣ'}, cat:{ru:'Аккредитация',tg:'Аккредитатсия'}, hue:'hue-slate', icon:'i-cat-accred', critical:true, slaHours:480, pay:2400 },
+    consult:  { name:{ru:'Консультация по услугам юстиции',tg:'Машварат оид ба хизматҳои адлия'}, cat:{ru:'Консультации',tg:'Машваратҳо'}, hue:'hue-blue', icon:'i-chat', critical:false, slaHours:24, pay:0, audience:'guest' }
   };
 
   /* ---------- Специалист (текущая сессия, §7Б.4) ---------- */
   var ME = {
     name: 'Азизов А. Н.',
     initials: 'АА',
-    role: 'Специалист ведомства',
-    agency: 'Министерство юстиции',
-    division: 'Управление регистрации НКО',
+    role: { ru: 'Специалист ведомства', tg: 'Мутахассиси идора' },
+    agency: { ru: 'Министерство юстиции', tg: 'Вазорати адлия' },
+    division: { ru: 'Управление регистрации НКО', tg: 'Раёсати бақайдгирии ТҒТ' },
     login: 'a.azizov'
   };
 
@@ -337,10 +337,10 @@
   /* ---------- Уведомления / эскалации (§7Б.3) ---------- */
   function seedNotifs() {
     return [
-      { id: 'n1', kind: 'breach', appId: 'a8', title: 'Нарушен срок (SLA)', text: 'Аккредитация филиала «Central Asia Logistics» — просрочено. Эскалация руководителю.', ago: 30 * MIN, unread: true },
-      { id: 'n2', kind: 'breach', appId: 'a3', title: 'Нарушен срок (SLA)', text: 'Апостиль диплома (Мирзоева Г. А.) — просрочено на 3 часа.', ago: 2 * HOUR, unread: true },
-      { id: 'n3', kind: 'warn', appId: 'a6', title: 'Срок приближается', text: 'Регистрация ЮЛ «Заррина Текстиль» — до нарушения менее часа.', ago: 15 * MIN, unread: true },
-      { id: 'n4', kind: 'info', appId: 'a4', title: 'Получен ответ ведомства', text: 'Ожидается ответ ЕГРЮЛ по выписке «Помир-Трейд».', ago: 5 * MIN, unread: false }
+      { id:'n1',kind:'breach',appId:'a8',title:{ru:'Нарушен срок (SLA)',tg:'Муҳлат вайрон шуд (SLA)'},text:{ru:'Аккредитация филиала «Central Asia Logistics» — просрочено. Эскалация руководителю.',tg:'Аккредитатсияи филиали «Central Asia Logistics» — муҳлат гузаштааст. Ба роҳбар ирсол шуд.'},ago:30*MIN,unread:true },
+      { id:'n2',kind:'breach',appId:'a3',title:{ru:'Нарушен срок (SLA)',tg:'Муҳлат вайрон шуд (SLA)'},text:{ru:'Апостиль диплома (Мирзоева Г. А.) — просрочено на 3 часа.',tg:'Апостили диплом (Мирзоева Г. А.) — 3 соат дер шудааст.'},ago:2*HOUR,unread:true },
+      { id:'n3',kind:'warn',appId:'a6',title:{ru:'Срок приближается',tg:'Муҳлат наздик мешавад'},text:{ru:'Регистрация ЮЛ «Заррина Текстиль» — до нарушения менее часа.',tg:'Бақайдгирии «Заррина Текстиль» — то вайроншавии муҳлат камтар аз як соат.'},ago:15*MIN,unread:true },
+      { id:'n4',kind:'info',appId:'a4',title:{ru:'Получен ответ ведомства',tg:'Ҷавоби идора гирифта шуд'},text:{ru:'Ожидается ответ ЕГРЮЛ по выписке «Помир-Трейд».',tg:'Ҷавоби ФЯШҲ барои иқтибоси «Помир-Трейд» интизор аст.'},ago:5*MIN,unread:false }
     ];
   }
 
@@ -665,6 +665,26 @@
       login_mfa_invalid: 'Этот демонстрационный код недействителен. Введите другие 6 цифр.',
       view_app: 'Открыть карточку',
       pay_paid: 'Оплачено', pay_none: 'Не требуется', pay_wait: 'Ожидает оплаты', pay_ret: 'Возвращена',
+      menu: 'Меню', notifications: 'Уведомления', language: 'Язык', profile: 'Профиль',
+      notifications_read_all: 'Прочитать все', notifications_empty: 'Нет уведомлений', close_notification: 'Закрыть уведомление',
+      overdue_banner: 'Нарушение сроков зафиксировано в бизнес-мониторинге и эскалировано руководителю подразделения (§7Б.3).',
+      applications_short: 'зап.', sort_ascending: 'сортировка по возрастанию', sort_descending: 'сортировка по убыванию', sort_by: 'Сортировать',
+      select_all_page: 'Выбрать все на странице', select_all: 'Выбрать все', select_application: 'Выбрать заявление',
+      sla_word_breach: 'Срок нарушен', sla_word_warn: 'Срок приближается', sla_word_ok: 'В пределах срока',
+      tin_abbr: 'ИНН', four_eyes_short: '4 глаза', four_eyes: 'Решение в четыре глаза',
+      priority_high: 'Высокий', priority_normal: 'Обычный',
+      field_org_name: 'Наименование', field_full_name: 'ФИО', field_reg_num: 'Рег. номер', field_manager: 'Руководитель',
+      field_dob: 'Дата рождения', field_phone: 'Телефон', field_address: 'Адрес',
+      pages_short: 'стр.', checked: 'проверен', unchecked: 'не проверен', view_document: 'Просмотреть',
+      audit_immutable: 'Все действия фиксируются в неизменяемом журнале аудита (WORM, §7Б.4)',
+      actions: 'Действия', result: 'Результат', result_denied: 'Оформлен мотивированный отказ.', result_reason: 'Основание',
+      result_signed: 'Документ подписан ЭЦП', result_available: 'Размещён в личном кабинете заявителя', download_result: 'Скачать результат',
+      document_applicant: 'Заявитель', document_application: 'Заявление', document_date: 'Дата', document_decision: 'Решение',
+      document_positive: 'Положительное', document_esigned: 'Подписано ЭЦП', until: 'до',
+      ret_required: 'Укажите, что нужно уточнить.', first_specialist: 'Первый специалист', dm_reason_required: 'Обоснование обязательно.',
+      batch_confirm_hint: 'Одинаковое положительное решение будет применено ко всем выбранным заявлениям. Каждое действие фиксируется в аудите отдельно.',
+      batch_reason_default: 'Сведения предоставлены в полном объёме; основания для отказа отсутствуют.',
+      locked_title: 'Рабочее место заблокировано', unlock: 'Разблокировать', reset_done: 'Демо-данные восстановлены',
       close: 'Закрыть'
     },
     tg: {
@@ -968,28 +988,48 @@
       login_mfa_invalid: 'Ин рамзи намоишӣ эътибор надорад. 6 рақами дигарро ворид кунед.',
       view_app: 'Кушодани варақа',
       pay_paid: 'Пардохт шуд', pay_none: 'Лозим нест', pay_wait: 'Интизори пардохт', pay_ret: 'Баргардонида шуд',
+      menu: 'Меню', notifications: 'Огоҳиҳо', language: 'Забон', profile: 'Профил',
+      notifications_read_all: 'Ҳамаро хондан', notifications_empty: 'Огоҳӣ нест', close_notification: 'Пӯшидани огоҳӣ',
+      overdue_banner: 'Вайроншавии муҳлат дар мониторинги тиҷоратӣ сабт ва ба роҳбари шуъба ирсол шуд (§7Б.3).',
+      applications_short: 'ариза', sort_ascending: 'мураттабсозии афзоянда', sort_descending: 'мураттабсозии коҳишёбанда', sort_by: 'Мураттаб кардан',
+      select_all_page: 'Интихоби ҳамаи саҳифа', select_all: 'Ҳамаро интихоб кардан', select_application: 'Интихоби ариза',
+      sla_word_breach: 'Муҳлат вайрон шуд', sla_word_warn: 'Муҳлат наздик мешавад', sla_word_ok: 'Дар доираи муҳлат',
+      tin_abbr: 'РМА', four_eyes_short: '4 чашм', four_eyes: 'Қарори чор чашм',
+      priority_high: 'Баланд', priority_normal: 'Одатӣ',
+      field_org_name: 'Ном', field_full_name: 'Ному насаб', field_reg_num: 'Рақами бақайдгирӣ', field_manager: 'Роҳбар',
+      field_dob: 'Санаи таваллуд', field_phone: 'Телефон', field_address: 'Суроға',
+      pages_short: 'саҳ.', checked: 'санҷида шуд', unchecked: 'санҷида нашуд', view_document: 'Дидани ҳуҷҷат',
+      audit_immutable: 'Ҳамаи амалҳо дар журнали тағйирнопазири аудит сабт мешаванд (WORM, §7Б.4)',
+      actions: 'Амалҳо', result: 'Натиҷа', result_denied: 'Радди асоснок таҳия шуд.', result_reason: 'Асос',
+      result_signed: 'Ҳуҷҷат бо ИРА имзо шуд', result_available: 'Дар кабинети шахсии аризадиҳанда ҷойгир шуд', download_result: 'Боргирии натиҷа',
+      document_applicant: 'Аризадиҳанда', document_application: 'Ариза', document_date: 'Сана', document_decision: 'Қарор',
+      document_positive: 'Мусбат', document_esigned: 'Бо ИРА имзо шуд', until: 'то',
+      ret_required: 'Нависед, ки чиро бояд аниқ кард.', first_specialist: 'Мутахассиси якум', dm_reason_required: 'Асосноккунӣ ҳатмист.',
+      batch_confirm_hint: 'Як қарори мусбат ба ҳамаи аризаҳои интихобшуда татбиқ мешавад. Ҳар амал дар аудит алоҳида сабт мегардад.',
+      batch_reason_default: 'Маълумот пурра пешниҳод шуд; барои рад асос нест.',
+      locked_title: 'Ҷои кор қулф карда шуд', unlock: 'Кушодан', reset_done: 'Маълумоти намоишӣ барқарор шуд',
       close: 'Пӯшидан'
     }
   };
 
   /* ---------- Ведомства-источники для запроса сведений ---------- */
   var SOURCE_AGENCIES = [
-    'Государственный реестр населения',
-    'Налоговый комитет',
-    'Единый реестр юридических лиц',
-    'МВД · Информационный центр',
-    'Министерство образования',
-    'Реестр актов гражданского состояния',
-    'МИД · Консульский департамент'
+    { ru:'Государственный реестр населения', tg:'Феҳристи давлатии аҳолӣ' },
+    { ru:'Налоговый комитет', tg:'Кумитаи андоз' },
+    { ru:'Единый реестр юридических лиц', tg:'Феҳристи ягонаи шахсони ҳуқуқӣ' },
+    { ru:'МВД · Информационный центр', tg:'ВКД · Маркази иттилоотӣ' },
+    { ru:'Министерство образования', tg:'Вазорати маориф' },
+    { ru:'Реестр актов гражданского состояния', tg:'Феҳристи сабти асноди ҳолати шаҳрвандӣ' },
+    { ru:'МИД · Консульский департамент', tg:'ВКХ · Раёсати консулӣ' }
   ];
   var INFO_TYPES = [
-    'Сведения о физическом лице',
-    'Проверка налоговой задолженности',
-    'Сведения из ЕГРЮЛ',
-    'Проверка судимости',
-    'Подтверждение документа об образовании',
-    'Проверка семейного положения',
-    'Проверка апостиля'
+    { ru:'Сведения о физическом лице', tg:'Маълумот дар бораи шахси воқеӣ' },
+    { ru:'Проверка налоговой задолженности', tg:'Санҷиши қарзи андоз' },
+    { ru:'Сведения из ЕГРЮЛ', tg:'Маълумот аз ФЯШҲ' },
+    { ru:'Проверка судимости', tg:'Санҷиши доғи судӣ' },
+    { ru:'Подтверждение документа об образовании', tg:'Тасдиқи ҳуҷҷати таҳсилот' },
+    { ru:'Проверка семейного положения', tg:'Санҷиши вазъи оилавӣ' },
+    { ru:'Проверка апостиля', tg:'Санҷиши апостил' }
   ];
 
   global.DATA = {

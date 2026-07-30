@@ -20,6 +20,7 @@ for (const file of activeCss) {
   for (const match of source.matchAll(rawColor)) errors.push(`${file}: raw color ${match[0]}`);
   if (negativeLetterSpacing.test(source)) errors.push(`${file}: negative letter-spacing is forbidden`);
   if (/transition\s*:\s*all\b/i.test(source)) errors.push(`${file}: transition: all is forbidden`);
+  if (/cubic-bezier\s*\(/i.test(source)) errors.push(`${file}: raw cubic-bezier is forbidden; use a motion token`);
 }
 
 const htmlFiles = ['index.html', ...await files('citizen', '.html'), ...await files('tson', '.html'), ...await files('ministry', '.html'), ...await files('admin', '.html')];

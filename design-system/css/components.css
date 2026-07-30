@@ -35,7 +35,8 @@
 .btn-ghost,.btn--ghost{color:var(--blue-ink)}
 .btn-ghost:hover,.btn--ghost:hover{background:var(--blue-tint)}
 .btn-danger,.btn--danger{background:var(--red-fill); color:var(--on-blue)}
-.btn-danger:hover{filter:brightness(1.06)}
+.btn-danger:hover,.btn--danger:hover{background:var(--red-hover)}
+.btn-danger:active,.btn--danger:active{background:var(--red-press)}
 .btn-lg,.btn--l{min-height:var(--h-btn-l); padding:0 28px; font-size:var(--fs-17)}
 .btn-sm,.btn--s{min-height:var(--h-btn-s); padding:0 16px; font-size:var(--fs-13)}
 .j-acts > .btn{min-height:var(--h-btn-l); padding:0 28px; font-size:var(--fs-17)}
@@ -45,6 +46,7 @@
 .btn-sec[disabled],.btn-ghost[disabled],.btn-danger[disabled]{opacity:.45}
 .btn-block{width:100%}
 .btn:not([disabled]):active{transform:scale(.97)}
+.btn--icon:not([disabled]):active{transform:scale(.96)}
 
 /* ============ ICON TILES ============ */
 /* every category and list row gets a tile: hue + shape vary by subject */

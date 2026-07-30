@@ -48,6 +48,14 @@ These are documented variants of one system. They still use the same tokens, foc
 6. Add visible focus, hover, active, disabled, loading, error, and reduced-motion behavior where relevant.
 7. Test Tajik and Russian copy; do not size controls around one language.
 
+## Motion rules
+
+- Keep frequent work actions immediate. Motion explains the arrival or departure of a layer; it does not decorate filtering, searching, or queue redraws.
+- Use the shared timing and easing tokens. Raw `cubic-bezier()` curves in application or component CSS are rejected by the design lint.
+- Entrances may use `--t-layer`; exits use the faster `--t-exit`. Layer removal must wait for the exit transition to finish.
+- Buttons use a short transform-only press response: `scale(.97)` for regular buttons and `scale(.96)` for icon buttons. Do not use spring or bounce easing.
+- `prefers-reduced-motion` removes spatial press and layer movement while preserving state and color feedback. Loading spinners remain visible.
+
 ## Making a shared change
 
 1. Confirm the need applies to more than one platform. If it does not, keep it in the app stylesheet.

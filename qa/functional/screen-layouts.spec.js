@@ -106,7 +106,12 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
   await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).transform))
     .toBe(ministry.usernameLabelTransform);
   await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => Number.parseFloat(getComputedStyle(label).fontSize)))
-    .toBe(13);
+    .toBe(16);
+  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => {
+    const style = getComputedStyle(label);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    return Number.parseFloat(style.fontSize) * Math.hypot(matrix.a, matrix.b);
+  })).toBeCloseTo(13, 1);
   await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).fontWeight))
     .toBe('500');
 
@@ -176,6 +181,16 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
+
+  const queueGeometry = await page.evaluate(() => {
+    const viewportWidth = document.documentElement.clientWidth;
+    const main = document.querySelector('.app__main').getBoundingClientRect();
+    const queueRow = document.querySelector('.q-row').getBoundingClientRect();
+    return { viewportWidth, mainWidth: main.width, mainRight: main.right, queueRowRight: queueRow.right };
+  });
+  expect(queueGeometry.mainWidth).toBeLessThanOrEqual(queueGeometry.viewportWidth + 1);
+  expect(queueGeometry.mainRight).toBeLessThanOrEqual(queueGeometry.viewportWidth + 1);
+  expect(queueGeometry.queueRowRight).toBeLessThanOrEqual(queueGeometry.viewportWidth + 1);
 
   for (const view of ['queue', 'all', 'overdue', 'batch', 'interop', 'reports', 'forms']) {
     if (view !== 'queue') {

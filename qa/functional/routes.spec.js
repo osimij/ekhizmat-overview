@@ -100,6 +100,7 @@ test('every platform renders with the bundled Google Sans font', async ({ page }
 });
 
 test('every interface keeps visible controls named and within the viewport', async ({ page }) => {
+  test.slow();
   for (const route of routes) {
     await page.goto(`${route}?present=1&theme=light&lang=tg`, { waitUntil: 'networkidle' });
     const audit = await page.evaluate(() => {

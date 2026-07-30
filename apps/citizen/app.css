@@ -227,7 +227,7 @@
 .pay-card .btn{width:100%; justify-content:center; margin-top:var(--s-3)}
 
 /* notifications screen groups */
-.n-group{margin:var(--s-8) 0 var(--s-3); font-size:var(--fs-12); font-weight:640; color:var(--ink-3); text-transform:uppercase; letter-spacing:.09em}
+.n-group{margin:var(--s-8) 0 var(--s-3); font-size:var(--fs-14); font-weight:640; color:var(--ink-3); text-transform:none; letter-spacing:0}
 .n-group:first-of-type{margin-top:var(--s-2)}
 
 /* ============ SECTIONS ============ */

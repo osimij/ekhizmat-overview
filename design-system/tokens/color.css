@@ -36,6 +36,8 @@
   --green-tint: #e6f4ec;
   --red: #e03e33;
   --red-fill: #c4372d;
+  --red-hover: #b83229;
+  --red-press: #a62c24;
   --red-ink: #b92f27;
   --red-tint: #fceae8;
   --amber: #855b00;
@@ -114,7 +116,7 @@
   --blue-ink: #67b3ff;
   --blue-tint: #15293e;
   --green: #55c78f; --green-tint: #15301f;
-  --red: #f3776e; --red-fill: #c93c31; --red-ink: #ff8e86; --red-tint: #3a1b17;
+  --red: #f3776e; --red-fill: #c93c31; --red-hover: #b9362c; --red-press: #a52f27; --red-ink: #ff8e86; --red-tint: #3a1b17;
   --amber: #e7b95d; --amber-tint: #332a12;
   --focus: #72baff;
   --h-blue-bg: #16293d; --h-blue-fg: #6ab3ff;

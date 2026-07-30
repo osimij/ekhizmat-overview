@@ -151,19 +151,18 @@ test('Authentication never pre-fills a password or verification code', async ({ 
 test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page }) => {
   await page.goto('/ministry/?lang=ru&theme=light');
   const legendGeometry = await page.locator('.login__legend').evaluate((legend) => {
-    const icon = legend.querySelector('.icon').getBoundingClientRect();
     const text = legend.querySelector('span').getBoundingClientRect();
     return {
       display: getComputedStyle(legend).display,
-      iconTop: icon.top,
-      iconRight: icon.right,
-      textTop: text.top,
-      textLeft: text.left,
+      textAlign: getComputedStyle(legend).textAlign,
+      iconCount: legend.querySelectorAll('.icon').length,
+      textWidth: text.width,
     };
   });
   expect(legendGeometry.display).toBe('flex');
-  expect(Math.abs(legendGeometry.iconTop - legendGeometry.textTop)).toBeLessThanOrEqual(3);
-  expect(legendGeometry.iconRight).toBeLessThanOrEqual(legendGeometry.textLeft);
+  expect(legendGeometry.textAlign).toBe('center');
+  expect(legendGeometry.iconCount).toBe(0);
+  expect(legendGeometry.textWidth).toBeGreaterThan(0);
   await expect(page.locator('#l-pass')).toHaveValue('');
   await page.locator('#l-pass').fill('demo');
   await page.locator('[data-act="login-next"]').click();
@@ -255,6 +254,18 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   await page.locator('#top-search').fill('');
   await page.locator('.q-row').first().click();
   await expect(page.locator('#tabpanel')).toBeVisible();
+  const ministryTabs = await page.locator('.card .tabs').evaluate((tabs) => {
+    const selected = tabs.querySelector('.tab[aria-selected="true"]');
+    return {
+      radius: getComputedStyle(tabs).borderRadius,
+      background: getComputedStyle(tabs).backgroundColor,
+      selectedBackground: getComputedStyle(selected).backgroundColor,
+      selectedBorderBottom: getComputedStyle(selected).borderBottomWidth,
+    };
+  });
+  expect(ministryTabs.radius).toBe('999px');
+  expect(ministryTabs.selectedBackground).not.toBe(ministryTabs.background);
+  expect(ministryTabs.selectedBorderBottom).toBe('0px');
   await page.locator('[data-tab="docs"]').click();
   await page.locator('[data-tab="overview"]').click();
 
@@ -270,6 +281,31 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
     await expect(page.locator('#overlay .modal[role="dialog"]')).toBeVisible();
     await page.locator('[data-act="modal-cancel"]').click();
   }
+});
+
+test('Ministry Tajik mode localizes service and application details', async ({ page }) => {
+  await page.goto('/ministry/?lang=tg&theme=light');
+  await page.locator('#l-pass').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const otp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
+  await page.locator('[data-act="login-enter"]').click();
+
+  await expect(page.locator('.side__division')).toHaveText('Раёсати бақайдгирии ТҒТ');
+  const accreditation = page.locator('.q-row[data-id="a8"]');
+  await expect(accreditation).toContainText('Аккредитатсияи филиали ташкилоти хориҷӣ');
+  await accreditation.click();
+
+  await expect(page.locator('.card-head h1')).toHaveText('Аккредитатсияи филиали ташкилоти хориҷӣ');
+  await expect(page.locator('.card-head__meta')).toContainText('Аккредитатсия');
+  await expect(page.locator('.card-head__meta')).toContainText('Қарори чор чашм');
+  await expect(page.locator('.card__main .panel').first()).toContainText('Аризадиҳанда');
+  const mainLabels = await page.locator('.card__main .def__key').allTextContents();
+  expect(mainLabels).toEqual(expect.arrayContaining(['Ном', 'РМА', 'Рақами бақайдгирӣ', 'Роҳбар', 'Телефон', 'Суроға', 'Номи ташкилоти асосӣ']));
+  const sideLabels = await page.locator('.card__side .def__key').allTextContents();
+  expect(sideLabels).toEqual(expect.arrayContaining(['Ҳолат', 'Афзалият', 'Иҷрокунанда', 'Раёсат', 'Боҷ']));
+  await expect(page.locator('.card__side')).toContainText('Баланд');
+  await expect(page.locator('.card__side .panel__title', { hasText: 'Амалҳо' })).toBeVisible();
 });
 
 test('Ministry workers can create a form and hand it to the shared review queue', async ({ page }) => {

@@ -2,6 +2,39 @@ import { focusSafely, trapFocus } from './focus.js';
 
 const stack = [];
 
+function timeToMs(value) {
+  const text = String(value || '').trim();
+  if (!text) return 0;
+  if (text.endsWith('ms')) return Number.parseFloat(text) || 0;
+  if (text.endsWith('s')) return (Number.parseFloat(text) || 0) * 1000;
+  return Number.parseFloat(text) || 0;
+}
+
+function waitForLayerExit(element) {
+  const duration = timeToMs(getComputedStyle(element).getPropertyValue('--t-exit'));
+  if (!duration || matchMedia('(prefers-reduced-motion: reduce)').matches) return Promise.resolve();
+  return new Promise(resolve => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      element.removeEventListener('transitionend', onTransitionEnd);
+      clearTimeout(fallback);
+      resolve();
+    };
+    const onTransitionEnd = event => { if (event.target === element) finish(); };
+    const fallback = setTimeout(finish, duration + 50);
+    element.addEventListener('transitionend', onTransitionEnd);
+  });
+}
+
+function removeStackEntry(backdrop) {
+  const index = stack.findIndex(entry => entry.backdrop === backdrop);
+  if (index >= 0) stack.splice(index, 1);
+  if (!stack.length) { unlockScroll(); setBackgroundInert(false); }
+  else setBackgroundInert(true);
+}
+
 function setBackgroundInert(active) {
   [...document.body.children].forEach(child => {
     if (child.classList.contains('ekh-dialog-backdrop') || child.classList.contains('ekh-toast-region') || child.querySelector?.('.ekh-dialog-backdrop')) return;
@@ -69,20 +102,18 @@ export function openDialog(options = {}) {
   lockScroll();
   setBackgroundInert(true);
 
+  let closePromise;
   function close(value) {
-    if (!backdrop.isConnected) return;
+    if (closePromise) return closePromise;
+    if (!backdrop.isConnected) return Promise.resolve();
     backdrop.classList.remove('is-open');
-    const finish = () => {
+    removeStackEntry(backdrop);
+    if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    closePromise = waitForLayerExit(backdrop).then(() => {
       backdrop.remove();
-      const index = stack.findIndex(entry => entry.backdrop === backdrop);
-      if (index >= 0) stack.splice(index, 1);
-      if (!stack.length) { unlockScroll(); setBackgroundInert(false); }
-      else setBackgroundInert(true);
-      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
       options.onClose?.(value);
-    };
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) finish();
-    else setTimeout(finish, 160);
+    });
+    return closePromise;
   }
 
   dialog.querySelector('[data-dialog-close]').addEventListener('click', () => close());
@@ -117,7 +148,7 @@ export function closeTopDialog() { stack.at(-1)?.backdrop.querySelector('[data-d
 
 const legacyDialogs = new WeakMap();
 
-export function openExistingDialog(backdrop, { initialFocus, trigger = document.activeElement, closeOnBackdrop = true, closeOnEscape = true } = {}) {
+export function openExistingDialog(backdrop, { initialFocus, trigger = document.activeElement, closeOnBackdrop = true, closeOnEscape = true, onClosed } = {}) {
   if (legacyDialogs.has(backdrop)) return legacyDialogs.get(backdrop);
   const dialog = backdrop.querySelector('.modal, [role="document"]') || backdrop.firstElementChild;
   backdrop.classList.add('ekh-dialog-backdrop', 'open');
@@ -132,16 +163,21 @@ export function openExistingDialog(backdrop, { initialFocus, trigger = document.
     if (dialog) trapFocus(dialog, event);
   };
   const onPointer = event => { if (event.target === backdrop && closeOnBackdrop) close(); };
+  let closePromise;
   function close() {
-    backdrop.classList.remove('is-open', 'open', 'ekh-dialog-backdrop');
-    dialog?.classList.remove('ekh-dialog');
+    if (closePromise) return closePromise;
+    backdrop.classList.remove('is-open', 'open');
     backdrop.removeEventListener('keydown', onKey);
     backdrop.removeEventListener('mousedown', onPointer);
-    legacyDialogs.delete(backdrop);
-    const index = stack.findIndex(entry => entry.backdrop === backdrop);
-    if (index >= 0) stack.splice(index, 1);
-    if (!stack.length) { unlockScroll(); setBackgroundInert(false); }
+    removeStackEntry(backdrop);
     if (trigger?.isConnected && !trigger.hidden) trigger.focus({ preventScroll: true });
+    closePromise = waitForLayerExit(backdrop).then(() => {
+      backdrop.classList.remove('ekh-dialog-backdrop');
+      dialog?.classList.remove('ekh-dialog');
+      legacyDialogs.delete(backdrop);
+      onClosed?.();
+    });
+    return closePromise;
   }
   backdrop.addEventListener('keydown', onKey);
   backdrop.addEventListener('mousedown', onPointer);
@@ -154,4 +190,4 @@ export function openExistingDialog(backdrop, { initialFocus, trigger = document.
   return controller;
 }
 
-export function closeExistingDialog(backdrop) { legacyDialogs.get(backdrop)?.close(); }
+export function closeExistingDialog(backdrop) { return legacyDialogs.get(backdrop)?.close(); }

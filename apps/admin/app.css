@@ -225,7 +225,7 @@
 .pay-card .btn{width:100%; justify-content:center; margin-top:var(--s-3)}
 
 /* notifications screen groups */
-.n-group{margin:var(--s-8) 0 var(--s-3); font-size:var(--fs-12); font-weight:640; color:var(--ink-3); text-transform:uppercase; letter-spacing:.09em}
+.n-group{margin:var(--s-8) 0 var(--s-3); font-size:var(--fs-14); font-weight:640; color:var(--ink-3); text-transform:none; letter-spacing:0}
 .n-group:first-of-type{margin-top:var(--s-2)}
 
 /* ============ SECTIONS ============ */
@@ -983,7 +983,7 @@ body.shot .bp-bar{display:none}
 .adm-brand .mark{width:28px; height:28px; color:var(--blue); flex:none}
 .adm-brand b{font-size:var(--fs-16); font-weight:650}
 .adm-brand .tag{margin-left:auto}
-.adm-nav-label{padding:var(--s-4) var(--s-3) 4px; font-size:10px; font-weight:640; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3)}
+.adm-nav-label{padding:var(--s-4) var(--s-3) 4px; font-size:12px; font-weight:640; letter-spacing:0; text-transform:none; color:var(--ink-3)}
 .an{
   display:flex; align-items:center; gap:11px; text-align:left; color:var(--ink-2);
   font-weight:600; font-size:var(--fs-14); padding:10px 12px; border-radius:var(--r-s);

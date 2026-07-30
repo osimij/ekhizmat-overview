@@ -1527,6 +1527,9 @@ button.step:focus-visible {
   display: grid;
   place-items: center;
   padding: var(--s-6);
+  /* Match the Ministry login: slightly above center, with layout-based
+     spacing so short viewports can still scroll cleanly. */
+  padding-block-end: clamp(96px, 18vh, 180px);
 }
 .s-login__inner {
   width: min(100%, var(--w-gate));
@@ -1534,6 +1537,9 @@ button.step:focus-visible {
   flex-direction: column;
   align-items: center;
   gap: var(--s-2);
+}
+@media (max-height: 700px) {
+  .s-login { place-items: start center; padding-block-end: var(--s-6); }
 }
 .s-login__brand { display: flex; align-items: center; gap: var(--s-2); }
 .s-login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); }

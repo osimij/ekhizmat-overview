@@ -1,7 +1,10 @@
 :root {
   --ease: cubic-bezier(.2, .8, .2, 1);
   --ease-layer: cubic-bezier(.2, 0, 0, 1);
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
   --t-fast: 120ms;
+  --t-popover: 150ms;
+  --t-exit: 160ms;
   --t-step: 180ms;
   --t-layer: 200ms;
   --t-med: 200ms;
@@ -13,6 +16,8 @@
 @media (prefers-reduced-motion: reduce) {
   :root {
     --t-fast: 0ms;
+    --t-popover: 0ms;
+    --t-exit: 0ms;
     --t-step: 0ms;
     --t-layer: 0ms;
     --t-med: 0ms;

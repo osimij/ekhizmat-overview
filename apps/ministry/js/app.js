@@ -38,6 +38,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     formFieldOpen: null,
     formPaletteOpen: false,
     formPreviewOpen: false,
+    statIntroPending: false,
+    filterOpen: null,                      // 'svc' | 'status' | null
     modal: null,                        // объект текущей модалки
     pop: null                           // 'notif' | 'user' | null
   };
@@ -58,7 +60,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var neg = ms < 0; ms = Math.abs(ms);
     var d = Math.floor(ms / DAY), h = Math.floor((ms % DAY) / HOUR), m = Math.floor((ms % HOUR) / MIN);
     var s;
-    if (d >= 1) s = d + 'д ' + h + 'ч';
+    if (S.lang === 'tg') {
+      if (d >= 1) s = d + 'р ' + h + 'с';
+      else if (h >= 1) s = h + 'с ' + m + 'дқ';
+      else s = m + 'дқ';
+    } else if (d >= 1) s = d + 'д ' + h + 'ч';
     else if (h >= 1) s = h + 'ч ' + m + 'м';
     else s = m + 'м';
     return (neg ? '−' : '') + s;
@@ -71,11 +77,16 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function fmtAgo(ts) {
     var diff = now() - ts;
+    if (S.lang === 'tg') {
+      if (diff < HOUR) return Math.max(1, Math.floor(diff / MIN)) + ' дақиқа пеш';
+      if (diff < DAY) return Math.floor(diff / HOUR) + ' соат пеш';
+      return Math.floor(diff / DAY) + ' рӯз пеш';
+    }
     if (diff < HOUR) return Math.max(1, Math.floor(diff / MIN)) + ' мин назад';
     if (diff < DAY) return Math.floor(diff / HOUR) + ' ч назад';
     return Math.floor(diff / DAY) + ' дн назад';
   }
-  function money(v) { return v ? new Intl.NumberFormat('ru-RU').format(v) + ' сомони' : ''; }
+  function money(v) { return v ? new Intl.NumberFormat(locale()).format(v) + ' сомони' : ''; }
 
   function slaState(app) {
     var rem = app.dueAt - now();
@@ -91,6 +102,47 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     if (typeof value === 'string') return value;
     return value && (value[S.lang] || value.ru || value.tg) || fallback || '';
   }
+  function serviceName(service) { return localValue(service && service.name); }
+  function serviceCategory(service) { return localValue(service && service.cat); }
+  function agencyName() { return localValue(D.ME.agency); }
+  function divisionName() { return localValue(D.ME.division); }
+  function roleName() { return localValue(D.ME.role); }
+  function priorityLabel(value) { return value === 'Высокий' ? t('priority_high') : t('priority_normal'); }
+  function payStatusLabel(value) {
+    return ({ 'Оплачено':t('pay_paid'), 'Не требуется':t('pay_none'), 'Ожидает оплаты':t('pay_wait'), 'Возвращена':t('pay_ret') })[value] || value;
+  }
+  var DATA_LABEL_TG = {
+    'Полное наименование':'Номи пурра',
+    'Организационно-правовая форма':'Шакли ташкилию ҳуқуқӣ',
+    'Цель деятельности':'Мақсади фаъолият',
+    'ИНН учредителя':'РМА-и муассис',
+    'Юридический адрес':'Суроғаи ҳуқуқӣ',
+    'ФИО заявителя':'Ному насаби аризадиҳанда',
+    'Стаж юридической работы':'Собиқаи кори ҳуқуқӣ',
+    'Округ деятельности':'Ҳавзаи фаъолият',
+    'Диплом о высшем образовании':'Дипломи таҳсилоти олӣ',
+    'Тип документа':'Навъи ҳуҷҷат',
+    'Страна назначения':'Кишвари таъинот',
+    'ФИО владельца':'Ному насаби соҳиби ҳуҷҷат',
+    'ИНН юридического лица':'РМА-и шахси ҳуқуқӣ',
+    'Форма выписки':'Шакли иқтибос',
+    'Текущее имя':'Номи ҷорӣ',
+    'Новое имя':'Номи нав',
+    'Основание':'Асос',
+    'Наименование':'Ном',
+    'Вид деятельности':'Навъи фаъолият',
+    'Уставный капитал':'Сармояи оинномавӣ',
+    'ИНН директора':'РМА-и директор',
+    'Жених':'Домод',
+    'Невеста':'Арӯс',
+    'Дата церемонии':'Санаи маросим',
+    'Отдел ЗАГС':'Шуъбаи САҲШ',
+    'Наименование головной организации':'Номи ташкилоти асосӣ',
+    'Страна регистрации':'Кишвари бақайдгирӣ',
+    'Регистрационный номер':'Рақами бақайдгирӣ',
+    'Руководитель филиала':'Роҳбари филиал'
+  };
+  function dataLabel(value) { return S.lang === 'tg' ? (DATA_LABEL_TG[value] || value) : value; }
   function lowCodeStatusLabel(status) {
     return t('form_status_' + status) || status;
   }
@@ -140,7 +192,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       if (f.status && a.status !== f.status) return false;
       if (f.sla !== 'all') { var st = slaState(a); if (f.sla === 'warn' && st === 'ok') return false; if (f.sla === 'breach' && st !== 'breach') return false; }
       if (q) {
-        var hay = (a.number + ' ' + svc(a).name + ' ' + a.applicant.name + ' ' + (a.applicant.tin || '')).toLowerCase();
+        var hay = (a.number + ' ' + serviceName(svc(a)) + ' ' + a.applicant.name + ' ' + (a.applicant.tin || '')).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
       }
       return true;
@@ -223,19 +275,19 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
         /* топбар */
         '<header class="topbar app__top">' +
-          '<button class="btn btn--icon btn--s nav-toggle iconbtn" data-act="nav-toggle" aria-label="Меню">' + ic('i-dash','icon--20') + '</button>' +
+          '<button class="btn btn--icon btn--s nav-toggle iconbtn" data-act="nav-toggle" aria-label="' + esc(t('menu')) + '">' + ic('i-dash','icon--20') + '</button>' +
           '<a class="topbar__brand row g-2" href="#" data-act="nav" data-view="queue">' + ic('i-logo') + '<b>eKhizmat</b></a>' +
-          '<div class="topbar__bind"><b>' + esc(t('app_title')) + '</b><span class="small">' + esc(D.ME.agency) + '</span></div>' +
+          '<div class="topbar__bind"><b>' + esc(t('app_title')) + '</b><span class="small">' + esc(agencyName()) + '</span></div>' +
           '<div class="field__wrap field__wrap--search topbar__search">' +
             '<span class="field__affix">' + ic('i-search','icon--20') + '</span>' +
             '<input class="field__input" id="top-search" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q">' +
           '</div>' +
           '<div class="topbar__actions">' +
-            '<button class="btn btn--icon iconbtn" data-act="notif-open" aria-label="Уведомления" aria-haspopup="dialog" aria-expanded="false">' + ic('i-bell','icon--20') +
+            '<button class="btn btn--icon iconbtn" data-act="notif-open" aria-label="' + esc(t('notifications')) + '" aria-haspopup="dialog" aria-expanded="false">' + ic('i-bell','icon--20') +
               (unreadNotifs() ? '<span class="badge-dot">' + unreadNotifs() + '</span>' : '') + '</button>' +
-            '<button class="btn btn--icon iconbtn" data-act="lang" aria-label="Язык · ' + (S.lang === 'ru' ? 'русский' : 'тоҷикӣ') + '">' + ic('i-globe','icon--20') + '</button>' +
+            '<button class="btn btn--icon iconbtn" data-act="lang" aria-label="' + esc(t('language')) + ' · ' + (S.lang === 'ru' ? 'русский' : 'тоҷикӣ') + '">' + ic('i-globe','icon--20') + '</button>' +
             '<button class="btn btn--icon iconbtn" data-act="theme" aria-label="' + esc(t('theme')) + '">' + ic(S.theme === 'dark' ? 'i-sun' : 'i-moon','icon--20') + '</button>' +
-            '<button class="btn btn--icon" data-act="user-open" aria-label="Профиль" aria-haspopup="menu" aria-expanded="false" style="padding:0"><span class="avatar">' + esc(D.ME.initials) + '</span></button>' +
+            '<button class="btn btn--icon" data-act="user-open" aria-label="' + esc(t('profile')) + '" aria-haspopup="menu" aria-expanded="false" style="padding:0"><span class="avatar">' + esc(D.ME.initials) + '</span></button>' +
           '</div>' +
         '</header>' +
 
@@ -245,7 +297,6 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           navItem('queue', 'i-inbox', t('nav_queue'), qCount, false) +
           navItem('all', 'i-history', t('nav_all'), null, false) +
           navItem('overdue', 'i-clock', t('nav_overdue'), oCount, true) +
-          navItem('batch', 'i-users', t('nav_batch'), null, false) +
           '<div class="side__group-label">' + esc(t('nav_group2')) + '</div>' +
           navItem('interop', 'i-refresh', t('nav_interop'), iCount, false) +
           navItem('reports', 'i-dash', t('nav_reports'), null, false) +
@@ -254,7 +305,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           '<div class="side__spacer"></div>' +
           '<div class="side__foot"><div class="row g-3"><span class="avatar">' + esc(D.ME.initials) + '</span>' +
             '<div class="stack" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
-            '<span class="side__division">' + esc(D.ME.division) + '</span></div></div>' +
+            '<span class="side__division">' + esc(divisionName()) + '</span></div></div>' +
           '</div>' +
         '</nav></aside>' +
 
@@ -289,6 +340,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     else if (S.view === 'batch') html = viewBatch();
     else html = viewQueue();     // queue | all | overdue
     main.innerHTML = html;
+    if (S.statIntroPending) S.statIntroPending = false;
     tick();                       // сразу проставить живые сроки
     // синхронизировать активную навигацию (view мог смениться на 'card')
     document.querySelectorAll('.nav-item').forEach(function (b) {
@@ -534,7 +586,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     else base = mineActive();
 
     var title, sub;
-    if (scope === 'all') { title = t('nav_all'); sub = t('of_agency') + ' · ' + D.ME.agency; }
+    if (scope === 'all') { title = t('nav_all'); sub = t('of_agency') + ' · ' + agencyName(); }
     else if (scope === 'overdue') { title = t('overdue_title'); sub = t('overdue_sub'); }
     else { title = t('queue_title'); sub = t('queue_sub'); }
 
@@ -547,13 +599,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
     if (scope === 'overdue') {
       h += '<div class="banner banner--error mt-2" style="margin-bottom:var(--s-4)">' + ic('i-clock','icon--20') +
-           '<span class="banner__text">Нарушение сроков зафиксировано в бизнес-мониторинге и эскалировано руководителю подразделения (§7Б.3).</span></div>';
+           '<span class="banner__text">' + esc(t('overdue_banner')) + '</span></div>';
     }
 
     // метрики очереди
     if (scope !== 'all') {
       var mine = mineActive();
-      h += '<div class="stat-grid">' +
+      h += '<div class="stat-grid' + (S.statIntroPending ? ' stat-grid--intro' : '') + '">' +
         statTile('i-inbox', mine.length, t('nav_queue'), '') +
         statTile('i-clock', overdue().length, t('rep_breach'), overdue().length ? 'alert' : 'ok') +
         statTile('i-refresh', pendingInterop(), t('awaiting_reply'), pendingInterop() ? 'warn' : '') +
@@ -565,13 +617,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     h += '<div class="toolbar">' +
       '<div class="field__wrap field__wrap--search"><span class="field__affix">' + ic('i-search','icon--20') + '</span>' +
         '<input class="field__input" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q"></div>' +
-      selectFilter('svc', t('f_all_services'), Object.keys(D.SERVICE).map(function (k) { return { v: k, l: D.SERVICE[k].name }; }), S.filters.svc) +
+      selectFilter('svc', t('f_all_services'), Object.keys(D.SERVICE).map(function (k) { return { v: k, l: serviceName(D.SERVICE[k]) }; }), S.filters.svc) +
       selectFilter('status', t('f_all_statuses'), Object.keys(D.STATUS).map(function (k) { return { v: k, l: statusLabel(k) }; }), S.filters.status) +
-      '<div class="seg" role="tablist" aria-label="Срок">' +
+      '<div class="seg" role="tablist" aria-label="' + esc(t('deadline')) + '">' +
         segItem('sla', 'all', t('sla_all')) + segItem('sla', 'warn', t('sla_warn')) + segItem('sla', 'breach', t('sla_breach')) +
       '</div>' +
       '<div class="toolbar__spacer"></div>' +
-      '<span class="small nowrap">' + list.length + ' зап.</span>' +
+      '<span class="small nowrap">' + list.length + ' ' + esc(t('applications_short')) + '</span>' +
     '</div>';
 
     if (!list.length) {
@@ -585,10 +637,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
     // заголовок таблицы
     var sortLabel = function (key, base) {
-      return S.sort.key === key ? base + ' — сортировка ' + (S.sort.dir === 1 ? 'по возрастанию' : 'по убыванию') : 'Сортировать: ' + base;
+      return S.sort.key === key ? base + ' — ' + (S.sort.dir === 1 ? t('sort_ascending') : t('sort_descending')) : t('sort_by') + ': ' + base;
     };
     h += '<div class="queue"><div class="q-head">' +
-      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all" ' + (selCount && selCount === list.length ? 'checked' : '') + ' aria-label="Выбрать все на странице"></span>' +
+      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all" ' + (selCount && selCount === list.length ? 'checked' : '') + ' aria-label="' + esc(t('select_all_page')) + '"></span>' +
       '<span>' + esc(t('col_num')) + '</span>' +
       '<span>' + esc(t('col_service')) + '</span>' +
       '<span>' + esc(t('col_applicant')) + '</span>' +
@@ -619,30 +671,39 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
 
   function statTile(icon, val, label, mod) {
-    return '<div class="stat' + (mod ? ' stat--' + mod : '') + '"><div class="stat__k">' + esc(label) + '</div>' +
-      '<div class="stat__v tnum">' + val + '</div></div>';
+    return '<div class="stat' + (mod ? ' stat--' + mod : '') + '"><div class="stat__v tnum">' + val + '</div>' +
+      '<div class="stat__k">' + esc(label) + '</div></div>';
   }
   function selectFilter(name, allLabel, opts, cur) {
-    var o = '<option value="">' + esc(allLabel) + '</option>';
-    opts.forEach(function (x) { o += '<option value="' + esc(x.v) + '"' + (cur === x.v ? ' selected' : '') + '>' + esc(x.l) + '</option>'; });
-    return '<div class="field__wrap"><select class="field__input" data-filter="' + name + '" aria-label="' + esc(allLabel) + '">' + o + '</select>' +
-      '<span class="field__affix">' + ic('i-chev-d','icon--16') + '</span></div>';
+    var items = [{ v: '', l: allLabel }].concat(opts);
+    var selected = items.filter(function (x) { return x.v === cur; })[0] || items[0];
+    var open = S.filterOpen === name;
+    var listId = 'filter-' + name + '-list';
+    var o = '';
+    items.forEach(function (x) {
+      var isSelected = cur === x.v;
+      o += '<button class="filter-select__option' + (isSelected ? ' is-selected' : '') + '" type="button" role="option" aria-selected="' + isSelected + '" data-act="filter-option" data-filter-name="' + name + '" data-val="' + esc(x.v) + '">' +
+        '<span>' + esc(x.l) + '</span>' + (isSelected ? ic('i-check','icon--16') : '') + '</button>';
+    });
+    return '<div class="filter-select filter-select--' + name + (open ? ' is-open' : '') + '">' +
+      '<button class="filter-select__trigger" type="button" data-act="filter-toggle" data-filter-name="' + name + '" aria-label="' + esc(allLabel) + '" aria-haspopup="listbox" aria-expanded="' + open + '" aria-controls="' + listId + '">' +
+        '<span>' + esc(selected.l) + '</span>' + ic('i-chev-d','icon--16') + '</button>' +
+      '<div class="filter-select__menu" id="' + listId + '" role="listbox" aria-label="' + esc(allLabel) + '"' + (open ? '' : ' hidden') + '>' + o + '</div></div>';
   }
   function segItem(name, val, label) {
     return '<button class="seg__item" role="tab" aria-selected="' + (S.filters[name] === val) + '" data-filter="' + name + '" data-val="' + val + '">' + esc(label) + '</button>';
   }
 
-  function slaWord(st) { return st === 'breach' ? 'Срок нарушен' : st === 'warn' ? 'Срок приближается' : 'В пределах срока'; }
+  function slaWord(st) { return st === 'breach' ? t('sla_word_breach') : st === 'warn' ? t('sla_word_warn') : t('sla_word_ok'); }
   function rowQueue(a) {
     var s = svc(a), st = slaState(a), sel = !!S.sel[a.id];
-    var appTin = a.applicant.tin ? 'ИНН ' + a.applicant.tin : '';
-    var aria = s.name + ', ' + a.applicant.name + ', ' + statusLabel(a.status) + ', ' + slaWord(st);
+    var appTin = a.applicant.tin ? t('tin_abbr') + ' ' + a.applicant.tin : '';
+    var aria = serviceName(s) + ', ' + a.applicant.name + ', ' + statusLabel(a.status) + ', ' + slaWord(st);
     return '<div class="q-row ' + s.hue + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" tabindex="0" role="button" aria-label="' + esc(aria) + '">' +
-      '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="Выбрать заявление ' + esc(a.number) + '"></span>' +
+      '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></span>' +
       '<span class="q-num">' + esc(a.number) + '</span>' +
-      '<span class="q-service"><span class="q-glyph">' + ic(s.icon,'') + '</span>' +
-        '<span class="stack" style="min-width:0"><span class="q-service__name">' + esc(s.name) + '</span>' +
-        '<span class="q-service__cat">' + esc(s.cat) + (a.audience === 'guest' || s.audience === 'guest' ? ' · <span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') + (s.critical ? ' · <span class="q-flag">' + ic('i-shield','icon--16') + '4 глаза</span>' : '') + '</span></span></span>' +
+      '<span class="q-service"><span class="stack" style="min-width:0"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
+        '<span class="q-service__cat">' + esc(serviceCategory(s)) + (a.audience === 'guest' || s.audience === 'guest' ? ' · <span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') + (s.critical ? ' · <span class="q-flag">' + ic('i-shield','icon--16') + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
       '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
       '<span class="q-date">' + esc(fmtDate(a.submittedAt)) + '</span>' +
@@ -686,9 +747,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<div class="def">' +
           defRow(t('col_status'), '<span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span>' + esc(statusLabel(a.status)) + '</span>') +
           (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
-          defRow(t('priority'), esc(a.priority)) +
+          defRow(t('priority'), esc(priorityLabel(a.priority))) +
           defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
-          defRow(t('division'), esc(D.ME.division)) +
+          defRow(t('division'), esc(divisionName())) +
           defRow(t('payment'), payLabel(a)) +
         '</div>' +
       '</div>' +
@@ -700,12 +761,12 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '<a class="back-link" href="#" data-act="nav" data-view="queue">' + ic('i-chev-l','icon--16') + esc(t('back')) + '</a>' +
       '<div class="card-head"><span class="card-head__glyph ' + s.hue + '">' + ic(s.icon,'') + '</span>' +
         '<div class="card-head__titles"><div class="card-head__num">' + esc(a.number) + '</div>' +
-          '<h1 class="h2">' + esc(s.name) + '</h1>' +
-          '<div class="card-head__meta"><span class="small">' + esc(s.cat) + '</span>' +
+          '<h1 class="h2">' + esc(serviceName(s)) + '</h1>' +
+          '<div class="card-head__meta"><span class="small">' + esc(serviceCategory(s)) + '</span>' +
             (a.audience === 'guest' || s.audience === 'guest' ? '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') +
-            (s.critical ? '<span class="chip"><span>' + ic('i-shield','icon--16') + '</span>Решение в четыре глаза</span>' : '') +
+            (s.critical ? '<span class="chip"><span>' + ic('i-shield','icon--16') + '</span>' + esc(t('four_eyes')) + '</span>' : '') +
           '</div></div></div>' +
-      '<div class="tabs" role="tablist" aria-label="' + esc(s.name) + '">' +
+      '<div class="tabs" role="tablist" aria-label="' + esc(serviceName(s)) + '">' +
         cardTab('overview', t('tab_overview')) +
         cardTab('docs', t('tab_docs'), docsN) +
         cardTab('interop', t('tab_interop'), interN) +
@@ -733,19 +794,19 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function tabOverview(a) {
     var ap = a.applicant;
     var appRows =
-      defRow(ap.kind === 'org' ? 'Наименование' : 'ФИО', esc(ap.name)) +
+      defRow(ap.kind === 'org' ? t('field_org_name') : t('field_full_name'), esc(ap.name)) +
       (ap.kind === 'org'
-        ? defRow('ИНН', '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow('Рег. номер', esc(ap.reg)) + defRow('Руководитель', esc(ap.head))
-        : defRow('ИНН', '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow('Дата рождения', esc(ap.dob))) +
-      defRow('Телефон', '<span class="def__val--tnum">' + esc(ap.phone) + '</span>') +
+        ? defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow(t('field_reg_num'), esc(ap.reg)) + defRow(t('field_manager'), esc(ap.head))
+        : defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow(t('field_dob'), esc(ap.dob))) +
+      defRow(t('field_phone'), '<span class="def__val--tnum">' + esc(ap.phone) + '</span>') +
       (ap.email ? defRow('E-mail', esc(ap.email)) : '') +
-      defRow('Адрес', esc(ap.address));
+      defRow(t('field_address'), esc(ap.address));
 
     var formRows = (a.form || []).map(function (f) {
       var src = f.src === 'реестр' ? '<span class="src src--profile">' + ic('i-shield','icon--16') + esc(t('src_registry')) + '</span>'
               : f.src === 'профиль' ? '<span class="src src--profile">' + esc(t('src_profile')) + '</span>'
               : '<span class="src src--manual">' + esc(t('src_manual')) + '</span>';
-      return '<div class="def__row"><span class="def__key">' + esc(f.k) + '</span>' +
+      return '<div class="def__row"><span class="def__key">' + esc(dataLabel(f.k)) + '</span>' +
         '<span class="def__val">' + esc(f.v) + ' &nbsp;' + src + '</span></div>';
     }).join('');
 
@@ -759,9 +820,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var rows = a.docs.map(function (d) {
       return '<div class="doc-row"><span class="doc-row__ico">' + ic('i-doc','') + '</span>' +
         '<span class="doc-row__body"><span class="doc-row__name">' + esc(d.name) + '</span>' +
-        '<span class="doc-row__meta">' + d.pages + ' стр. · ' + (d.checked ? 'проверен' : 'не проверен') + '</span></span>' +
-        (d.checked ? '<span class="pill pill--active"><span class="dot"></span>Проверен</span>' : '<span class="pill pill--wait"><span class="dot"></span>Не проверен</span>') +
-        '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="Просмотреть ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
+        '<span class="doc-row__meta">' + d.pages + ' ' + esc(t('pages_short')) + ' · ' + esc(d.checked ? t('checked') : t('unchecked')) + '</span></span>' +
+        (d.checked ? '<span class="pill pill--active"><span class="dot"></span>' + esc(t('checked')) + '</span>' : '<span class="pill pill--wait"><span class="dot"></span>' + esc(t('unchecked')) + '</span>') +
+        '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
     }).join('');
     return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
   }
@@ -775,8 +836,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         var pend = r.status === 'pending';
         return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '">' +
           '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
-          '<span class="interop-item__body"><span class="interop-item__title">' + esc(r.type) + '</span>' +
-          '<span class="interop-item__meta">' + esc(r.agency) + ' · ' + (pend ? esc(t('ij_pending')) : (esc(r.value) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
+          '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(r.type)) + '</span>' +
+          '<span class="interop-item__meta">' + esc(localValue(r.agency)) + ' · ' + (pend ? esc(t('ij_pending')) : (esc(localValue(r.value)) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
           (pend ? '<span class="spin"></span>' : '<span class="pill pill--active"><span class="dot"></span>' + esc(t('ij_received')) + '</span>') +
         '</div>';
       }).join('');
@@ -792,11 +853,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var rows = items.map(function (h, idx) {
       return '<div class="trail__item' + (idx === 0 ? '' : ' trail__item--muted') + '">' +
         '<div class="trail__rail"><span class="trail__dot"></span><span class="trail__line"></span></div>' +
-        '<div class="trail__body"><div class="trail__action"><b>' + esc(h.actor) + '</b> — ' + esc(h.action) + '</div>' +
+        '<div class="trail__body"><div class="trail__action"><b>' + esc(localValue(h.actor)) + '</b> — ' + esc(localValue(h.action)) + '</div>' +
         '<div class="trail__meta">' + esc(fmtDateTime(h.at)) + ' · ' + esc(statusLabel(h.status)) + '</div></div></div>';
     }).join('');
     return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('tab_history')) + '</h3><div class="trail">' + rows + '</div>' +
-      '<div class="def__source mt-2">' + ic('i-lock','icon--16') + ' Все действия фиксируются в неизменяемом журнале аудита (WORM, §7Б.4)</div></div>';
+      '<div class="def__source mt-2">' + ic('i-lock','icon--16') + ' ' + esc(t('audit_immutable')) + '</div></div>';
   }
 
   function lockedPanel(a) {
@@ -805,7 +866,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '<span class="banner__text">' + esc(reason) + '</span></div></div>';
   }
   function actionsPanel(a) {
-    return '<div class="panel"><h3 class="h3 panel__title">Действия</h3><div class="actions-stack">' +
+    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('actions')) + '</h3><div class="actions-stack">' +
       '<button class="btn btn--primary" data-act="act-decide">' + ic('i-check','icon--20') + esc(t('decide')) + '</button>' +
       '<button class="btn btn--secondary" data-act="act-return">' + ic('i-arrow-ur','icon--20') + esc(t('return_clarify')) + '</button>' +
       '<button class="btn btn--secondary" data-act="act-request">' + ic('i-refresh','icon--20') + esc(t('request_info')) + '</button>' +
@@ -814,28 +875,28 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
   function resultPanel(a) {
     if (a.status === 'denied') {
-      return '<div class="panel"><h3 class="h3 panel__title">Результат</h3>' +
-        '<div class="banner banner--error">' + ic('i-x','icon--20') + '<span class="banner__text">Оформлен мотивированный отказ.</span></div>' +
-        '<div class="def__source mt-4">Основание: ' + esc(a.decision ? a.decision.reason : '—') + '</div></div>';
+      return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
+        '<div class="banner banner--error">' + ic('i-x','icon--20') + '<span class="banner__text">' + esc(t('result_denied')) + '</span></div>' +
+        '<div class="def__source mt-4">' + esc(t('result_reason')) + ': ' + esc(a.decision ? a.decision.reason : '—') + '</div></div>';
     }
-    return '<div class="panel"><h3 class="h3 panel__title">Результат</h3>' +
-      '<div class="banner banner--ok">' + ic('i-sign','icon--20') + '<span class="banner__text"><b>Документ подписан ЭЦП</b><br>Размещён в личном кабинете заявителя</span></div>' +
+    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
+      '<div class="banner banner--ok">' + ic('i-sign','icon--20') + '<span class="banner__text"><b>' + esc(t('result_signed')) + '</b><br>' + esc(t('result_available')) + '</span></div>' +
       resultDoc(a) +
-      '<button class="btn btn--secondary mt-4" style="width:100%" data-act="noop">' + ic('i-download','icon--20') + 'Скачать результат</button></div>';
+      '<button class="btn btn--secondary mt-4" style="width:100%" data-act="noop">' + ic('i-download','icon--20') + esc(t('download_result')) + '</button></div>';
   }
 
   function resultDoc(a) {
     var s = svc(a);
     return '<div class="mt-4 center"><div class="doc-thumb result-doc" data-act="noop"><div class="doc-page">' +
-      '<div class="doc-page__head">' + ic('i-logo','icon--16') + ' Министерство юстиции · eKhizmat</div>' +
-      '<div class="doc-page__title">' + esc(s.name) + '</div>' +
+      '<div class="doc-page__head">' + ic('i-logo','icon--16') + ' ' + esc(agencyName()) + ' · eKhizmat</div>' +
+      '<div class="doc-page__title">' + esc(serviceName(s)) + '</div>' +
       '<div class="doc-page__rows">' +
-        '<div class="doc-page__row"><span class="doc-page__key">Заявитель</span><span class="doc-page__val">' + esc(a.applicant.name) + '</span></div>' +
-        '<div class="doc-page__row"><span class="doc-page__key">Заявление</span><span class="doc-page__val">' + esc(a.number) + '</span></div>' +
-        '<div class="doc-page__row"><span class="doc-page__key">Дата</span><span class="doc-page__val">' + esc(fmtDate(now())) + '</span></div>' +
-        '<div class="doc-page__row"><span class="doc-page__key">Решение</span><span class="doc-page__val">Положительное</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_applicant')) + '</span><span class="doc-page__val">' + esc(a.applicant.name) + '</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_application')) + '</span><span class="doc-page__val">' + esc(a.number) + '</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_date')) + '</span><span class="doc-page__val">' + esc(fmtDate(now())) + '</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_decision')) + '</span><span class="doc-page__val">' + esc(t('document_positive')) + '</span></div>' +
       '</div>' +
-      '<div class="doc-page__sign">' + ic('i-sign','icon--16') + ' Подписано ЭЦП · ' + esc(a.decision && a.decision.by ? a.decision.by : D.ME.name) + '</div>' +
+      '<div class="doc-page__sign">' + ic('i-sign','icon--16') + ' ' + esc(t('document_esigned')) + ' · ' + esc(a.decision && a.decision.by ? a.decision.by : D.ME.name) + '</div>' +
     '</div></div></div>';
   }
 
@@ -854,12 +915,12 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function slaCaption(a) {
     var rem = a.dueAt - now();
     if (rem <= 0) return '<b style="color:var(--red-ink)">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
-    return esc(t('sla_left')) + ' <b>' + fmtDur(rem) + '</b> · до ' + esc(fmtDateTime(a.dueAt));
+    return esc(t('sla_left')) + ' <b>' + fmtDur(rem) + '</b> · ' + esc(t('until')) + ' ' + esc(fmtDateTime(a.dueAt));
   }
   function payLabel(a) {
     var p = a.pay || { status: 'Не требуется' };
     var map = { 'Оплачено': 'pill--active', 'Не требуется': 'pill--draft', 'Ожидает оплаты': 'pill--wait', 'Возвращена': 'pill--denied' };
-    var txt = p.amount ? p.status + ' · ' + money(p.amount) : p.status;
+    var txt = p.amount ? payStatusLabel(p.status) + ' · ' + money(p.amount) : payStatusLabel(p.status);
     return '<span class="pill ' + (map[p.status] || 'pill--draft') + '">' + esc(txt) + '</span>';
   }
   function defRow(k, vHtml) {
@@ -879,7 +940,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       var n = svcCounts[k] || 0; if (!n || D.SERVICE[k].critical) return;   // критичные — только «четыре глаза», по одному
       anySvc = true;
       h += '<button class="chip ' + (S.batchSvc === k ? '' : 'chip--locked') + '" data-act="batch-svc" data-svc="' + k + '">' +
-        ic(D.SERVICE[k].icon,'icon--16') + esc(D.SERVICE[k].name) + ' · ' + n + '</button>';
+        ic(D.SERVICE[k].icon,'icon--16') + esc(serviceName(D.SERVICE[k])) + ' · ' + n + '</button>';
     });
     h += '</div>';
     h += '<div class="banner banner--info" style="margin-bottom:var(--s-5)">' + ic('i-shield','icon--20') +
@@ -894,7 +955,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var list = mineActive().filter(function (a) { return a.svc === S.batchSvc; });
     var selIds = list.filter(function (a) { return S.sel[a.id]; });
     h += '<div class="queue"><div class="q-head">' +
-      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all-batch" ' + (selIds.length === list.length && list.length ? 'checked' : '') + ' aria-label="Выбрать все"></span>' +
+      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all-batch" ' + (selIds.length === list.length && list.length ? 'checked' : '') + ' aria-label="' + esc(t('select_all')) + '"></span>' +
       '<span>' + esc(t('col_num')) + '</span><span>' + esc(t('col_service')) + '</span><span>' + esc(t('col_applicant')) +
       '</span><span>' + esc(t('col_submitted')) + '</span><span>' + esc(t('col_status')) + '</span><span>' + esc(t('col_sla')) + '</span></div><div class="q-list">';
     list.forEach(function (a) { h += rowQueue(a); });
@@ -919,10 +980,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     rows.sort(function (x, y) { return y.r.at - x.r.at; });
     var body = rows.map(function (x) {
       var pend = x.r.status === 'pending';
-      return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(x.r.type + ', ' + x.a.number) + '" style="cursor:pointer">' +
+      return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '" style="cursor:pointer">' +
         '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
-        '<span class="interop-item__body"><span class="interop-item__title">' + esc(x.r.type) + '</span>' +
-        '<span class="interop-item__meta">' + esc(x.r.agency) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
+        '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(x.r.type)) + '</span>' +
+        '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
         (pend ? '<span class="spin"></span>' : '<span class="pill pill--active"><span class="dot"></span>' + esc(t('ij_received')) + '</span>') + '</div>';
     }).join('');
     return '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('ij_title')) + '</h1>' +
@@ -941,7 +1002,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       statTile('i-inbox', 428, t('rep_total'), '') +
       statTile('i-check', '94%', t('rep_ontime'), 'ok') +
       statTile('i-clock', breachN, t('rep_breach'), breachN ? 'alert' : 'ok') +
-      statTile('i-history', '2.4 дн', t('rep_avg'), '') +
+      statTile('i-history', S.lang === 'tg' ? '2,4 рӯз' : '2,4 дн', t('rep_avg'), '') +
       '</div>';
     h += '<div class="panel"><h3 class="h3 panel__title">' + esc(t('rep_spec')) + '</h3><div class="report-table">' +
       '<div class="report-row report-row--head"><span>' + esc(t('rep_spec')) + '</span><span>' + esc(t('rep_col_total')) + '</span>' +
@@ -989,19 +1050,31 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function overlayEl() { return document.getElementById('overlay'); }
 
   function openModal(html, cls) {
-    S._modalTrigger = document.activeElement;
+    var previousController = S._modalController;
+    if (!previousController) S._modalTrigger = document.activeElement;
+    else previousController.close();
     overlayEl().innerHTML = '<div class="overlay" data-act="modal-backdrop"><div class="modal ' + (cls || '') +
       '" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">' + html + '</div></div>';
     var mod = overlayEl().querySelector('.modal');
     var back = overlayEl().querySelector('.overlay');
-    S._modalController = window.EKHDialog?.openExistingDialog(back, { initialFocus:'input:not([type=hidden]),select,textarea,button', trigger:S._modalTrigger }) || null;
+    var controller = window.EKHDialog?.openExistingDialog(back, {
+      initialFocus:'input:not([type=hidden]),select,textarea,button',
+      trigger:S._modalTrigger,
+      onClosed:function () { back.remove(); }
+    }) || null;
+    S._modalController = controller;
     if (!S._modalController) { var focusable = mod.querySelector('input:not([type=hidden]),select,textarea,button'); (focusable || mod).focus(); }
   }
   function closeModal() {
     S.modal = null;
-    if (S._modalController) { S._modalController.close(); S._modalController = null; }
-    overlayEl().innerHTML = '';
-    if (S._modalTrigger && document.body.contains(S._modalTrigger)) { try { S._modalTrigger.focus(); } catch (e) {} }
+    var controller = S._modalController;
+    var back = overlayEl().querySelector('.overlay');
+    S._modalController = null;
+    if (controller) controller.close();
+    else {
+      back?.remove();
+      if (S._modalTrigger && document.body.contains(S._modalTrigger)) { try { S._modalTrigger.focus(); } catch (e) {} }
+    }
     S._modalTrigger = null;
   }
   function trapFocus(container, e) {
@@ -1018,8 +1091,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* — запрос сведений (Smart Bridge) — */
   function modalRequest(a) {
     S.modal = { type: 'request', appId: a.id };
-    var types = D.INFO_TYPES.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('');
-    var ags = D.SOURCE_AGENCIES.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('');
+    var types = D.INFO_TYPES.map(function (x, index) { return '<option value="' + index + '">' + esc(localValue(x)) + '</option>'; }).join('');
+    var ags = D.SOURCE_AGENCIES.map(function (x, index) { return '<option value="' + index + '">' + esc(localValue(x)) + '</option>'; }).join('');
     openModal(
       '<h3 class="h3 modal__title" id="modal-title">' + esc(t('rm_title')) + '</h3>' +
       '<div class="modal__section">' +
@@ -1039,7 +1112,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '<div class="modal__body small">' + esc(a.number) + ' · ' + esc(a.applicant.name) + '</div>' +
       '<div class="modal__section mt-4"><div class="field"><label class="field__label" for="ret-reason">' + esc(t('ret_reason')) + '</label>' +
         '<textarea class="field__input" id="ret-reason" placeholder="' + esc(t('ret_reason_ph')) + '" aria-describedby="ret-err"></textarea>' +
-        '<div class="field__error" id="ret-err" role="alert" hidden>Укажите, что нужно уточнить.</div></div></div>' +
+        '<div class="field__error" id="ret-err" role="alert" hidden>' + esc(t('ret_required')) + '</div></div></div>' +
       '<div class="modal__foot"><button class="btn btn--ghost" data-act="modal-cancel">' + esc(t('cancel')) + '</button>' +
         '<button class="btn btn--primary" data-act="ret-send">' + ic('i-arrow-ur','icon--20') + esc(t('ret_send')) + '</button></div>',
       'modal--return');
@@ -1063,9 +1136,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<h3 class="h3 modal__title" id="modal-title">' + esc(t('dm_foureyes_step')) + '</h3>' +
         '<div class="banner banner--warn">' + ic('i-shield','icon--20') + '<span class="banner__text">' + esc(t('dm_foureyes')) + '</span></div>' +
         '<div class="modal__section mt-4">' +
-          '<div class="def"><div class="def__row"><span class="def__key">Заявление</span><span class="def__val">' + esc(a.number) + '</span></div>' +
-          '<div class="def__row"><span class="def__key">Решение</span><span class="def__val">' + decPill + '</span></div>' +
-          '<div class="def__row"><span class="def__key">Первый специалист</span><span class="def__val">' + esc(D.ME.name) + '</span></div></div>' +
+          '<div class="def"><div class="def__row"><span class="def__key">' + esc(t('document_application')) + '</span><span class="def__val">' + esc(a.number) + '</span></div>' +
+          '<div class="def__row"><span class="def__key">' + esc(t('document_decision')) + '</span><span class="def__val">' + decPill + '</span></div>' +
+          '<div class="def__row"><span class="def__key">' + esc(t('first_specialist')) + '</span><span class="def__val">' + esc(D.ME.name) + '</span></div></div>' +
           '<div class="field mt-2"><label class="field__label" for="dm-second">' + esc(t('dm_second')) + '</label><div class="field__wrap"><select class="field__input" id="dm-second">' + opts + '</select><span class="field__affix">' + ic('i-chev-d','icon--16') + '</span></div></div>' +
         '</div>' +
         '<div class="modal__foot"><button class="btn btn--ghost" data-act="dm-back">' + esc(t('login_back')) + '</button>' +
@@ -1078,7 +1151,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var primaryLabel = s.critical ? t('dm_send_second') : (denyChecked ? t('dm_deny') : t('dm_confirm'));
     openModal(
       '<h3 class="h3 modal__title" id="modal-title">' + esc(t('dm_title')) + '</h3>' +
-      '<div class="modal__body small">' + esc(a.number) + ' · ' + esc(s.name) + '</div>' +
+      '<div class="modal__body small">' + esc(a.number) + ' · ' + esc(serviceName(s)) + '</div>' +
       '<div class="modal__section mt-4" role="radiogroup" aria-label="' + esc(t('dm_title')) + '">' +
         '<label class="radio-card' + (approveChecked ? ' is-checked' : '') + '">' +
           '<input type="radio" name="dm" class="radio__input" value="approve" ' + (approveChecked ? 'checked' : '') + '>' +
@@ -1089,7 +1162,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '</div>' +
       '<div class="modal__section mt-4"><div class="field"><label class="field__label" for="dm-reason">' + esc(t('dm_reason')) + '</label>' +
         '<textarea class="field__input" id="dm-reason" placeholder="' + esc(t('dm_reason_ph')) + '" aria-describedby="dm-err">' + esc(m.reason || '') + '</textarea>' +
-        '<div class="field__error" id="dm-err" role="alert" hidden>Обоснование обязательно.</div></div></div>' +
+        '<div class="field__error" id="dm-err" role="alert" hidden>' + esc(t('dm_reason_required')) + '</div></div></div>' +
       (s.critical ? '<div class="banner banner--warn mt-4">' + ic('i-shield','icon--20') + '<span class="banner__text">' + esc(t('dm_foureyes')) + '</span></div>' : '') +
       '<div class="modal__foot"><button class="btn btn--ghost" data-act="modal-cancel">' + esc(t('cancel')) + '</button>' +
         '<button class="btn ' + (denyChecked ? 'btn--danger' : 'btn--primary') + '" data-act="dm-primary">' + esc(primaryLabel) + '</button></div>',
@@ -1102,10 +1175,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var a0 = appById(ids[0]), s = svc(a0);
     openModal(
       '<h3 class="h3 modal__title" id="modal-title">' + esc(t('batch_decide')) + ' ' + ids.length + '</h3>' +
-      '<div class="modal__body small">' + esc(s.name) + ' · ' + ids.length + ' заявл.</div>' +
-      '<div class="banner banner--info mt-4">' + ic('i-info','icon--20') + '<span class="banner__text">Одинаковое положительное решение будет применено ко всем выбранным заявлениям. Каждое действие фиксируется в аудите отдельно.</span></div>' +
+      '<div class="modal__body small">' + esc(serviceName(s)) + ' · ' + ids.length + ' ' + esc(t('applications_short')) + '</div>' +
+      '<div class="banner banner--info mt-4">' + ic('i-info','icon--20') + '<span class="banner__text">' + esc(t('batch_confirm_hint')) + '</span></div>' +
       '<div class="modal__section mt-4"><div class="field"><label class="field__label" for="batch-reason">' + esc(t('dm_reason')) + '</label>' +
-        '<textarea class="field__input" id="batch-reason" placeholder="' + esc(t('dm_reason_ph')) + '">Сведения предоставлены в полном объёме; основания для отказа отсутствуют.</textarea></div></div>' +
+        '<textarea class="field__input" id="batch-reason" placeholder="' + esc(t('dm_reason_ph')) + '">' + esc(t('batch_reason_default')) + '</textarea></div></div>' +
       '<div class="modal__foot"><button class="btn btn--ghost" data-act="modal-cancel">' + esc(t('cancel')) + '</button>' +
         '<button class="btn btn--primary" data-act="batch-confirm">' + ic('i-check','icon--20') + esc(t('dm_confirm')) + '</button></div>',
       'modal--batch');
@@ -1114,15 +1187,85 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   /* Тосты / поповеры                                                   */
   /* ================================================================== */
+  var toastRecords = [];
+  var toastRegion = null;
+  var toastRegionHovered = false;
+
+  function motionMs(element, token) {
+    var value = getComputedStyle(element).getPropertyValue(token).trim();
+    if (!value) return 0;
+    return value.endsWith('ms') ? parseFloat(value) || 0 : (parseFloat(value) || 0) * 1000;
+  }
+  function pauseToast(record) {
+    if (!record.timer) return;
+    clearTimeout(record.timer);
+    record.timer = null;
+    record.remaining = Math.max(0, record.remaining - (Date.now() - record.startedAt));
+  }
+  function dismissToast(record) {
+    if (!record || record.closing) return;
+    record.closing = true;
+    pauseToast(record);
+    record.toast.classList.remove('is-in');
+    record.toast.classList.add('is-out');
+    record.slot.classList.add('is-out');
+    var duration = motionMs(record.slot, '--t-exit');
+    var done = false;
+    var finish = function () {
+      if (done) return;
+      done = true;
+      record.slot.removeEventListener('transitionend', onEnd);
+      clearTimeout(fallback);
+      record.slot.remove();
+      toastRecords = toastRecords.filter(function (item) { return item !== record; });
+    };
+    var onEnd = function (event) { if (event.target === record.slot) finish(); };
+    var fallback = setTimeout(finish, duration + 50);
+    if (duration) record.slot.addEventListener('transitionend', onEnd); else finish();
+  }
+  function resumeToast(record) {
+    if (record.closing || record.timer || !record.slot.isConnected) return;
+    if (record.remaining <= 0) { dismissToast(record); return; }
+    record.startedAt = Date.now();
+    record.timer = setTimeout(function () { record.timer = null; record.remaining = 0; dismissToast(record); }, record.remaining);
+  }
+  function syncToastTimers() {
+    toastRecords = toastRecords.filter(function (record) { return record.slot.isConnected; });
+    var paused = document.hidden || toastRegionHovered;
+    toastRecords.forEach(function (record) { if (paused) pauseToast(record); else resumeToast(record); });
+  }
+  function bindToastRegion(box) {
+    if (toastRegion === box) return;
+    toastRegion = box;
+    toastRegionHovered = false;
+    box.addEventListener('pointerenter', function () { toastRegionHovered = true; syncToastTimers(); });
+    box.addEventListener('pointerleave', function () { toastRegionHovered = false; syncToastTimers(); });
+  }
+
   function toast(msg, kind) {
     var box = document.getElementById('toasts'); if (!box) return;
+    bindToastRegion(box);
+    var slot = document.createElement('div');
+    slot.className = 'toast-slot';
+    var inner = document.createElement('div');
+    inner.className = 'toast-slot__inner';
     var el = document.createElement('div');
     el.className = 'toast' + (kind ? ' toast--' + kind : '');
     el.setAttribute('role', 'status');
     var icon = kind === 'success' ? 'i-check' : kind === 'error' ? 'i-x' : kind === 'warn' ? 'i-info' : 'i-info';
-    el.innerHTML = ic(icon, 'icon--20') + '<span class="grow">' + esc(msg) + '</span>';
-    box.appendChild(el);
-    setTimeout(function () { el.style.transition = 'opacity .3s'; el.style.opacity = '0'; setTimeout(function () { el.remove(); }, 320); }, 3600);
+    el.innerHTML = ic(icon, 'icon--20') + '<span class="grow">' + esc(msg) + '</span>' +
+      '<button class="toast__close" type="button" aria-label="' + esc(t('close_notification')) + '">' + ic('i-x','icon--16') + '</button>';
+    inner.appendChild(el); slot.appendChild(inner); box.appendChild(slot);
+    var record = { slot:slot, toast:el, remaining:3600, startedAt:0, timer:null, closing:false };
+    toastRecords.push(record);
+    el.querySelector('.toast__close').addEventListener('click', function () { dismissToast(record); });
+    requestAnimationFrame(function () { if (el.isConnected) el.classList.add('is-in'); });
+    syncToastTimers();
+  }
+
+  function revealPop() {
+    var pop = document.getElementById('pop');
+    requestAnimationFrame(function () { if (pop?.isConnected) pop.classList.add('is-open'); });
   }
 
   function openNotif() {
@@ -1130,26 +1273,28 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var items = S.notifs.slice().sort(function (x, y) { return y.at - x.at; }).map(function (n) {
       return '<button class="notif notif--' + n.kind + '" data-act="notif-go" data-id="' + esc(n.appId) + '" data-nid="' + esc(n.id) + '">' +
         '<span class="notif__ico">' + ic(n.kind === 'breach' ? 'i-clock' : n.kind === 'warn' ? 'i-info' : 'i-check','') + '</span>' +
-        '<span class="notif__body"><span class="notif__t"><b>' + esc(n.title) + '</b> — ' + esc(n.text) + '</span>' +
+        '<span class="notif__body"><span class="notif__t"><b>' + esc(localValue(n.title)) + '</b> — ' + esc(localValue(n.text)) + '</span>' +
         '<span class="notif__time">' + fmtAgo(n.at) + '</span></span></button>';
     }).join('');
     var nt = document.querySelector('[data-act="notif-open"]'); if (nt) nt.setAttribute('aria-expanded', 'true');
     overlayEl().insertAdjacentHTML('beforeend',
-      '<div class="popover notif-pop" id="pop" role="dialog" aria-label="Уведомления">' +
-        '<div class="notif-pop__head"><b>Уведомления</b><button class="btn btn--ghost btn--s" data-act="notif-read">Прочитать все</button></div>' +
-        '<div class="notif-list">' + (items || '<div class="empty" style="padding:var(--s-8)">' + ic('i-bell','icon--48') + '<div class="empty__title">Нет уведомлений</div></div>') + '</div></div>');
+      '<div class="popover notif-pop" id="pop" role="dialog" aria-label="' + esc(t('notifications')) + '">' +
+        '<div class="notif-pop__head"><b>' + esc(t('notifications')) + '</b><button class="btn btn--ghost btn--s" data-act="notif-read">' + esc(t('notifications_read_all')) + '</button></div>' +
+        '<div class="notif-list">' + (items || '<div class="empty" style="padding:var(--s-8)">' + ic('i-bell','icon--48') + '<div class="empty__title">' + esc(t('notifications_empty')) + '</div></div>') + '</div></div>');
+    revealPop();
   }
   function openUser() {
     S.pop = 'user';
     var ut = document.querySelector('[data-act="user-open"]'); if (ut) ut.setAttribute('aria-expanded', 'true');
     overlayEl().insertAdjacentHTML('beforeend',
       '<div class="popover menu user-pop" id="pop" role="menu">' +
-        '<div class="menu__head"><b>' + esc(D.ME.name) + '</b><span class="small">' + esc(D.ME.role) + ' · ' + esc(D.ME.agency) + '</span></div>' +
+        '<div class="menu__head"><b>' + esc(D.ME.name) + '</b><span class="small">' + esc(roleName()) + ' · ' + esc(agencyName()) + '</span></div>' +
         '<hr class="rule">' +
         '<button class="menu__item" data-act="lock">' + ic('i-lock','icon--20') + '<span class="grow">' + esc(t('lock')) + '</span></button>' +
         '<button class="menu__item" data-act="reset">' + ic('i-refresh','icon--20') + '<span class="grow">' + esc(t('reset_demo')) + '</span></button>' +
         '<button class="menu__item" data-act="logout">' + ic('i-out','icon--20') + '<span class="grow">' + esc(t('end_shift')) + '</span></button>' +
       '</div>');
+    revealPop();
   }
   function closePop() {
     S.pop = null; var p = document.getElementById('pop'); if (p) p.remove();
@@ -1164,10 +1309,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
   function doRequest() {
     var a = appById(S.modal.appId);
-    var type = document.getElementById('rm-type').value, agency = document.getElementById('rm-agency').value;
+    var type = D.INFO_TYPES[Number(document.getElementById('rm-type').value)];
+    var agency = D.SOURCE_AGENCIES[Number(document.getElementById('rm-agency').value)];
     a.interop.push({ type: type, agency: agency, status: 'pending', at: now(), value: '' });
     if (ACTIVE[a.status]) a.status = 'info_requested';
-    addHistory(a, 'Межвед. сервис', 'Отправлен запрос «' + type + '» в: ' + agency, 'info_requested');
+    addHistory(a, {ru:'Межвед. сервис',tg:'Хизмати байниидоравӣ'}, {
+      ru:'Отправлен запрос «' + type.ru + '» в: ' + agency.ru,
+      tg:'Дархости «' + type.tg + '» ба ' + agency.tg + ' фиристода шуд'
+    }, 'info_requested');
     persist(); closeModal(); toast(t('t_requested'), 'success');
     if (S.view === 'card') renderMain(); refreshChrome();
     // имитация ответа ведомства
@@ -1175,10 +1324,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     setTimeout(function () {
       var app = appById(id); if (!app || !app.interop[ln]) return;
       app.interop[ln].status = 'received'; app.interop[ln].at = now();
-      app.interop[ln].value = 'Сведения предоставлены';
+      app.interop[ln].value = { ru:'Сведения предоставлены', tg:'Маълумот пешниҳод шуд' };
       if (app.status === 'info_requested') app.status = 'processing';
-      addHistory(app, 'Smart Bridge', 'Получен ответ: ' + app.interop[ln].type, 'processing');
-      S.notifs.unshift({ id: 'n' + now(), kind: 'info', appId: id, title: 'Получен ответ ведомства', text: app.interop[ln].type + ' · ' + app.number, at: now(), unread: true });
+      addHistory(app, 'Smart Bridge', {
+        ru:'Получен ответ: ' + app.interop[ln].type.ru,
+        tg:'Ҷавоб гирифта шуд: ' + app.interop[ln].type.tg
+      }, 'processing');
+      S.notifs.unshift({ id: 'n' + now(), kind: 'info', appId: id, title: {ru:'Получен ответ ведомства',tg:'Ҷавоби идора гирифта шуд'}, text: {ru:app.interop[ln].type.ru + ' · ' + app.number,tg:app.interop[ln].type.tg + ' · ' + app.number}, at: now(), unread: true });
       persist(); toast(t('t_received'), 'success');
       if (S.view === 'card' && S.cardId === id) renderMain();
       refreshChrome();
@@ -1191,7 +1343,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var reason = rt.value.trim();
     if (!reason) { document.getElementById('ret-err').hidden = false; rt.setAttribute('aria-invalid', 'true'); rt.focus(); return; }
     a.status = 'clarify';
-    addHistory(a, D.ME.name, 'Возвращено на уточнение: ' + reason, 'clarify');
+    addHistory(a, D.ME.name, {ru:'Возвращено на уточнение: ' + reason,tg:'Барои аниқкунӣ баргардонида шуд: ' + reason}, 'clarify');
     persist(); closeModal(); toast(t('t_returned'), 'success');
     S.view = 'queue'; renderMain(); refreshChrome();
   }
@@ -1199,10 +1351,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function finalizeApprove(a, reason, second) {
     a.decision = { type: 'approve', reason: reason, by: D.ME.name, second: second || null };
     a.status = 'decided';
-    addHistory(a, D.ME.name, 'Принято положительное решение', 'decided');
-    if (second) addHistory(a, second, 'Подтверждено вторым специалистом («четыре глаза»)', 'decided');
+    addHistory(a, D.ME.name, {ru:'Принято положительное решение',tg:'Қарори мусбат қабул шуд'}, 'decided');
+    if (second) addHistory(a, second, {ru:'Подтверждено вторым специалистом («четыре глаза»)',tg:'Мутахассиси дуюм тасдиқ кард («чор чашм»)'}, 'decided');
     a.status = 'done';
-    addHistory(a, 'Система', 'Результат сформирован, подписан ЭЦП и выдан заявителю', 'done');
+    addHistory(a, {ru:'Система',tg:'Система'}, {ru:'Результат сформирован, подписан ЭЦП и выдан заявителю',tg:'Натиҷа таҳия, бо ИРА имзо ва ба аризадиҳанда дода шуд'}, 'done');
     delete S.sel[a.id];
     persist(); closeModal(); toast(t('t_done'), 'success');
     S.view = 'card'; S.cardId = a.id; S.cardTab = 'history'; renderMain(); refreshChrome();
@@ -1210,9 +1362,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function finalizeDeny(a, reason, second) {
     a.decision = { type: 'deny', reason: reason, by: D.ME.name, second: second || null };
     a.status = 'denied';
-    addHistory(a, D.ME.name, 'Оформлен мотивированный отказ: ' + reason, 'denied');
-    if (second) addHistory(a, second, 'Отказ подтверждён вторым специалистом («четыре глаза»)', 'denied');
-    if (a.pay && a.pay.status === 'Оплачено') { a.pay.status = 'Возвращена'; addHistory(a, 'Сервис платежей', 'Инициирован возврат пошлины (Saga)', 'denied'); }
+    addHistory(a, D.ME.name, {ru:'Оформлен мотивированный отказ: ' + reason,tg:'Радди асоснок таҳия шуд: ' + reason}, 'denied');
+    if (second) addHistory(a, second, {ru:'Отказ подтверждён вторым специалистом («четыре глаза»)',tg:'Радро мутахассиси дуюм тасдиқ кард («чор чашм»)'}, 'denied');
+    if (a.pay && a.pay.status === 'Оплачено') { a.pay.status = 'Возвращена'; addHistory(a, {ru:'Сервис платежей',tg:'Хизмати пардохт'}, {ru:'Инициирован возврат пошлины (Saga)',tg:'Баргардонидани боҷ оғоз шуд (Saga)'}, 'denied'); }
     delete S.sel[a.id];
     persist(); closeModal(); toast(t('t_denied'), 'warn');
     S.view = 'card'; S.cardId = a.id; S.cardTab = 'history'; renderMain(); refreshChrome();
@@ -1243,9 +1395,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       var a = appById(id);
       if (!a || !ACTIVE[a.status] || svc(a).critical) return;   // защита: критичные/неактивные не одобряем пакетно
       a.decision = { type: 'approve', reason: reason, by: D.ME.name };
-      addHistory(a, D.ME.name, 'Пакетное положительное решение', 'decided');
+      addHistory(a, D.ME.name, {ru:'Пакетное положительное решение',tg:'Қарори мусбати гурӯҳӣ'}, 'decided');
       a.status = 'done';
-      addHistory(a, 'Система', 'Результат подписан ЭЦП и выдан', 'done');
+      addHistory(a, {ru:'Система',tg:'Система'}, {ru:'Результат подписан ЭЦП и выдан',tg:'Натиҷа бо ИРА имзо ва дода шуд'}, 'done');
     });
     S.sel = {}; persist(); closeModal(); toast(t('t_batch_done') + ' (' + ids.length + ')', 'success');
     renderMain(); refreshChrome();
@@ -1272,11 +1424,31 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   function closest(el, sel) { while (el && el !== document) { if (el.matches && el.matches(sel)) return el; el = el.parentNode; } return null; }
 
+  function closeFilterMenu() {
+    if (!S.filterOpen) return;
+    S.filterOpen = null;
+    document.querySelectorAll('.filter-select').forEach(function (el) { el.classList.remove('is-open'); });
+    document.querySelectorAll('.filter-select__trigger').forEach(function (el) { el.setAttribute('aria-expanded', 'false'); });
+    document.querySelectorAll('.filter-select__menu').forEach(function (el) { el.hidden = true; });
+  }
+  function setFilterMenu(name, open) {
+    closeFilterMenu();
+    if (!open) return;
+    S.filterOpen = name;
+    var root = document.querySelector('.filter-select--' + name);
+    if (!root) return;
+    root.classList.add('is-open');
+    root.querySelector('.filter-select__trigger').setAttribute('aria-expanded', 'true');
+    root.querySelector('.filter-select__menu').hidden = false;
+  }
+
   document.addEventListener('click', function (e) {
     var tgt = closest(e.target, '[data-act]');
-    if (!tgt) { if (S.pop) closePop(); return; }
+    if (!tgt) { if (S.pop) closePop(); closeFilterMenu(); return; }
     var act = tgt.getAttribute('data-act');
     var id = tgt.getAttribute('data-id');
+
+    if (S.filterOpen && act !== 'filter-toggle' && act !== 'filter-option') closeFilterMenu();
 
     // не закрывать поповер при клике внутри него
     if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'user-open') closePop();
@@ -1309,6 +1481,16 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       case 'nav': e.preventDefault(); go(tgt.getAttribute('data-view')); return;
       case 'nav-toggle': document.getElementById('app').classList.toggle('nav-open'); return;
       case 'nav-close': document.getElementById('app').classList.remove('nav-open'); return;
+
+      case 'filter-toggle': {
+        var filterName = tgt.getAttribute('data-filter-name');
+        setFilterMenu(filterName, S.filterOpen !== filterName); return;
+      }
+      case 'filter-option': {
+        var optionFilter = tgt.getAttribute('data-filter-name');
+        S.filters[optionFilter] = tgt.getAttribute('data-val');
+        S.filterOpen = null; renderMain(); return;
+      }
 
       case 'form-create':
         S._lowCodeBusy = true; dispatchLowCode('RESET'); S._lowCodeBusy = false;
@@ -1416,7 +1598,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       case 'lang': S.lang = S.lang === 'ru' ? 'tg' : 'ru'; localStorage.setItem('ekh.preferences.lang', S.lang); document.documentElement.lang = S.lang; renderApp(); return;
       case 'theme': toggleTheme(); return;
       case 'lock': doLock(); return;
-      case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast('Демо-данные восстановлены', 'success'); return;
+      case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast(t('reset_done'), 'success'); return;
       case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); renderLogin(); return;
       case 'unlock': S.locked = false; document.getElementById('lock-root').remove(); document.getElementById('app').classList.remove('is-blurred'); return;
       case 'noop': return;
@@ -1534,8 +1716,33 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
   // Esc закрывает слои; ↑/↓ навигация по очереди опущена ради простоты
   document.addEventListener('keydown', function (e) {
+    var filterTrigger = closest(e.target, '.filter-select__trigger');
+    var filterOption = closest(e.target, '.filter-select__option');
+    if (filterTrigger && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      var triggerName = filterTrigger.getAttribute('data-filter-name');
+      setFilterMenu(triggerName, true);
+      var triggerOptions = [].slice.call(document.querySelectorAll('.filter-select--' + triggerName + ' .filter-select__option'));
+      var selectedOption = triggerOptions.filter(function (el) { return el.getAttribute('aria-selected') === 'true'; })[0];
+      (selectedOption || triggerOptions[e.key === 'ArrowDown' ? 0 : triggerOptions.length - 1])?.focus();
+      return;
+    }
+    if (filterOption && ['ArrowDown','ArrowUp','Home','End'].indexOf(e.key) >= 0) {
+      e.preventDefault();
+      var filterOptions = [].slice.call(filterOption.parentNode.querySelectorAll('.filter-select__option'));
+      var optionIndex = filterOptions.indexOf(filterOption);
+      if (e.key === 'Home') optionIndex = 0;
+      else if (e.key === 'End') optionIndex = filterOptions.length - 1;
+      else optionIndex = (optionIndex + (e.key === 'ArrowDown' ? 1 : -1) + filterOptions.length) % filterOptions.length;
+      filterOptions[optionIndex].focus(); return;
+    }
     if (e.key === 'Escape') {
-      if (S.modal) closeModal(); else if (S.pop) closePop();
+      if (S.filterOpen) {
+        var openFilterName = S.filterOpen;
+        closeFilterMenu();
+        document.querySelector('.filter-select--' + openFilterName + ' .filter-select__trigger')?.focus();
+      }
+      else if (S.modal) closeModal(); else if (S.pop) closePop();
       else if (document.getElementById('app')) document.getElementById('app').classList.remove('nav-open');
       return;
     }
@@ -1605,10 +1812,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var app = document.getElementById('app'); if (app) app.classList.add('is-blurred');
     var lock = document.createElement('div'); lock.id = 'lock-root';
     lock.innerHTML = '<div class="s-locked"><div class="panel s-locked__card">' + ic('i-lock','icon--48') +
-      '<h2 class="h2">Рабочее место заблокировано</h2>' +
-      '<p class="small">' + esc(D.ME.name) + ' · ' + esc(D.ME.agency) + '</p>' +
-      '<input class="field__input" name="password" type="password" autocomplete="current-password" aria-label="Пароль">' +
-      '<button class="btn btn--primary" data-act="unlock">Разблокировать</button></div></div>';
+      '<h2 class="h2">' + esc(t('locked_title')) + '</h2>' +
+      '<p class="small">' + esc(D.ME.name) + ' · ' + esc(agencyName()) + '</p>' +
+      '<input class="field__input" name="password" type="password" autocomplete="current-password" aria-label="' + esc(t('login_pass')) + '">' +
+      '<button class="btn btn--primary" data-act="unlock">' + esc(t('unlock')) + '</button></div></div>';
     document.getElementById('root').appendChild(lock);
     toast(t('t_locked'), 'success');
   }
@@ -1616,20 +1823,21 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   /* Запуск                                                             */
   /* ================================================================== */
-  function startApp() { S.view = 'queue'; renderApp(); }
+  function startApp() { S.view = 'queue'; S.statIntroPending = true; renderApp(); }
 
   function boot() {
     document.documentElement.setAttribute('data-theme', S.theme);
     document.documentElement.lang = S.lang;
     loadData();
+    document.addEventListener('visibilitychange', syncToastTimers);
     // авто-разрешение изначально «висящего» межвед-запроса (a4) — демонстрация
     setTimeout(function () {
       var a = appById('a4'); if (!a) return;
       var p = (a.interop || []).filter(function (r) { return r.status === 'pending'; })[0];
       if (!p) return;
-      p.status = 'received'; p.at = now(); p.value = 'Сведения из ЕГРЮЛ предоставлены';
-      a.status = 'processing'; addHistory(a, 'Smart Bridge', 'Получен ответ ЕГРЮЛ', 'processing');
-      S.notifs.unshift({ id: 'n' + now(), kind: 'info', appId: 'a4', title: 'Получен ответ ведомства', text: 'Выписка из ЕГРЮЛ · ' + a.number, at: now(), unread: true });
+      p.status = 'received'; p.at = now(); p.value = {ru:'Сведения из ЕГРЮЛ предоставлены',tg:'Маълумот аз ФЯШҲ пешниҳод шуд'};
+      a.status = 'processing'; addHistory(a, 'Smart Bridge', {ru:'Получен ответ ЕГРЮЛ',tg:'Ҷавоби ФЯШҲ гирифта шуд'}, 'processing');
+      S.notifs.unshift({ id: 'n' + now(), kind: 'info', appId: 'a4', title:{ru:'Получен ответ ведомства',tg:'Ҷавоби идора гирифта шуд'}, text:{ru:'Выписка из ЕГРЮЛ · ' + a.number,tg:'Иқтибос аз ФЯШҲ · ' + a.number}, at: now(), unread: true });
       persist();
       if (S.authed && (S.view === 'card' && S.cardId === 'a4' || S.view === 'interop' || S.view === 'queue')) renderMain();
       if (S.authed) { refreshChrome(); toast(t('t_received'), 'success'); }
