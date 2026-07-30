@@ -203,9 +203,9 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   expect(ministryTypeScale.division).toBeLessThan(ministryTypeScale.name);
   expect(ministryTypeScale.name - ministryTypeScale.division).toBe(1);
   expect(ministryTypeScale.title).toBe(24);
-  expect(ministryTypeScale.nameSpacing).toBe(0);
-  expect(ministryTypeScale.divisionSpacing).toBe(0);
-  expect(ministryTypeScale.titleSpacing).toBe(0);
+  expect(ministryTypeScale.nameSpacing).toBeCloseTo(ministryTypeScale.name * -0.01, 2);
+  expect(ministryTypeScale.divisionSpacing).toBeCloseTo(ministryTypeScale.division * -0.01, 2);
+  expect(ministryTypeScale.titleSpacing).toBeCloseTo(ministryTypeScale.title * -0.01, 2);
   const alertValueColor = await page.locator('.stat--alert .stat__v').evaluate((value) => ({
     value: getComputedStyle(value).color,
     defaultText: getComputedStyle(document.body).color,

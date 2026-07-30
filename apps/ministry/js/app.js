@@ -703,11 +703,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></span>' +
       '<span class="q-num">' + esc(a.number) + '</span>' +
       '<span class="q-service"><span class="stack" style="min-width:0"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
-        '<span class="q-service__cat">' + esc(serviceCategory(s)) + (a.audience === 'guest' || s.audience === 'guest' ? ' · <span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') + (s.critical ? ' · <span class="q-flag">' + ic('i-shield','icon--16') + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
+        '<span class="q-service__cat">' + esc(serviceCategory(s)) + (s.critical ? ' · <span class="q-flag">' + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
       '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
       '<span class="q-date">' + esc(fmtDate(a.submittedAt)) + '</span>' +
-      '<span class="q-status"><span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span>' + esc(statusLabel(a.status)) + '</span></span>' +
+      '<span class="q-status"><span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span><span class="q-status__label">' + esc(statusLabel(a.status)) + '</span></span></span>' +
       '<span class="q-sla"><span class="sla sla--' + st + '" data-sla data-due="' + a.dueAt + '" title="' + esc(slaWord(st)) + '" aria-label="' + esc(slaWord(st)) + '"><span class="dot"></span>' +
         '<svg class="icon icon--16 sla__ico" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg>' +
         '<span class="sla__time">' + fmtDur(a.dueAt - now()) + '</span></span></span>' +
