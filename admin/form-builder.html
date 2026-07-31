@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="tg" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<title>eKhizmat · Муҳаррири шакл</title>
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/design-system/global.css">
+<link rel="stylesheet" href="/apps/admin/app.css">
+</head>
+<body class="form-editor" data-platform="admin">
+
+<div class="bp-bar" data-dev-only data-prototype>
+  <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
+  <label for="bpnav">Экран</label>
+  <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
+  <div class="bp-right"><button class="icon-btn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button></div>
+</div>
+
+<header class="form-editor-top">
+  <a class="back" href="forms.html"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span id="formBackLabel">Шаклҳо</span></a>
+  <span class="bld-divider" aria-hidden="true"></span>
+  <div class="form-editor-title">
+    <span class="tile t-blue" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+    <div><b id="formEditorName">Шакли нав</b><span id="formEditorCode">FORM-NEW</span></div>
+  </div>
+  <span class="form-version-badge form-version-badge--draft" id="formEditorStatus">v1 · Сиёҳнавис</span>
+  <span class="spacer"></span>
+  <div class="form-editor-actions" id="formEditorActions"></div>
+  <div class="hdr-acts"><button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button></div>
+</header>
+
+<main class="form-builder-shell">
+  <aside class="form-version-panel">
+    <div class="form-panel-heading">
+      <div><span id="versionsEyebrow">Таърих</span><h2 id="versionsTitle">Нусхаҳои шакл</h2></div>
+      <span class="metachip" id="versionCount">1</span>
+    </div>
+    <p class="form-version-help" id="versionsHelp">Сиёҳнависро озодона тағйир диҳед. Хизматҳо танҳо нусхаи нашршударо истифода мебаранд.</p>
+    <div class="form-version-list" id="formVersionList"></div>
+  </aside>
+
+  <section class="form-editor-canvas">
+    <div class="form-editor-intro">
+      <span class="forms-eyebrow"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg><span id="editorEyebrow">Муҳаррири мустақили шакл</span></span>
+      <h1 id="editorTitle">Сохтани шакл</h1>
+      <p id="editorLead">Ном ва майдонҳоро дар ин ҷо идора кунед. Пайваст кардани шакл ба хизмат қадами алоҳида аст.</p>
+    </div>
+
+    <section class="panel form-details-panel">
+      <div class="panel-h"><div><h2 id="detailsTitle">Маълумоти шакл</h2><p id="detailsLead">Ин ном дар китобхона ва ҳангоми интихоби шакл нишон дода мешавад.</p></div></div>
+      <div class="form-details-grid">
+        <div class="field"><label for="formNameTg" id="formNameTgLabel">Ном ба тоҷикӣ</label><input class="input" id="formNameTg" autocomplete="off"></div>
+        <div class="field"><label for="formNameRu" id="formNameRuLabel">Ном ба русӣ</label><input class="input" id="formNameRu" autocomplete="off"></div>
+        <div class="field form-details-grid__wide"><label for="formDescription" id="formDescriptionLabel">Тавсифи кӯтоҳ</label><input class="input" id="formDescription" autocomplete="off"></div>
+      </div>
+    </section>
+
+    <section class="form-fields-section">
+      <div class="form-section-heading">
+        <div><h2 id="fieldsTitle">Майдонҳои шакл</h2><p id="fieldsLead">Тартиб ва талаботи майдонҳо дар худи шакл нигоҳ дошта мешаванд.</p></div>
+        <button class="btn btn-sec" id="addFormField" type="button" data-open="formFieldPalette"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg><span id="addFieldLabel">Илова кардани майдон</span></button>
+      </div>
+      <div class="independent-fields" id="independentFields"></div>
+    </section>
+  </section>
+
+  <aside class="form-live-preview">
+    <div class="form-preview-heading"><div><span id="previewEyebrow">Пешнамоиш</span><h2 id="previewTitle">Чашми шаҳрванд</h2></div><span class="live-dot"><i></i><span id="previewLive">зинда</span></span></div>
+    <div class="form-preview-card">
+      <div class="form-preview-brand"><svg><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b></div>
+      <h3 id="previewFormName"></h3>
+      <p id="previewFormDescription"></p>
+      <div id="independentPreviewFields"></div>
+      <button class="btn btn-pri btn-block" type="button" disabled id="previewContinue">Идома</button>
+    </div>
+  </aside>
+</main>
+
+<div class="overlay" id="formFieldPalette" role="dialog" aria-modal="true" aria-labelledby="formPaletteTitle">
+  <div class="modal wide left form-palette-modal">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="/design-system/assets/icons.svg#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><div><h2 id="formPaletteTitle">Навъи майдонро интихоб кунед</h2><p id="formPaletteLead">Майдон ба охири шакл илова мешавад.</p></div></div>
+    <div class="form-palette-grid" id="formPaletteGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="publishFormModal" role="dialog" aria-modal="true" aria-labelledby="publishFormTitle">
+  <div class="modal left">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="/design-system/assets/icons.svg#i-x"/></svg></button>
+    <div class="mhd"><span class="mic" style="background:var(--green-tint);color:var(--green)"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"/></svg></span><div><h2 id="publishFormTitle">Нашри ин нусха?</h2><p id="publishFormLead">Нусхаи зиндаи ҳозира бойгонӣ мешавад. Хизматҳои нав метавонанд ин нусхаро интихоб кунанд.</p></div></div>
+    <div class="form-publish-summary" id="formPublishSummary"></div>
+    <button class="btn btn-pri btn-block" id="confirmFormPublish" type="button">Нашри нусха</button>
+    <button class="btn btn-ghost btn-block" data-close id="cancelFormPublish">Бекор</button>
+  </div>
+</div>
+
+<script type="module" src="/apps/admin/js/builder.js"></script>
+<script type="module" src="/apps/admin/js/forms.js"></script>
+<script type="module" src="/design-system/js/app-shell.js"></script>
+</body>
+</html>

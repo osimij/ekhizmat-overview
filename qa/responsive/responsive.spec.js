@@ -5,6 +5,8 @@ const cases = [
   { name: 'citizen', route: '/citizen/', sizes: [[320, 800], [360, 800], [390, 844], [768, 1024], [1024, 900], [1440, 1000]], noOverflow: true },
   { name: 'admin dashboard', route: '/admin/', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
   { name: 'admin services', route: '/admin/services.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
+  { name: 'admin forms', route: '/admin/forms.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
+  { name: 'admin form builder', route: '/admin/form-builder.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
   { name: 'admin new service', route: '/admin/new-service.html', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },
   { name: 'admin builder', route: '/admin/builder.html', sizes: [[390, 844], [768, 900], [1024, 900], [1280, 900], [1440, 900], [1920, 1080]], noOverflow: true },
   { name: 'admin review', route: '/admin/review.html', sizes: [[390, 844], [768, 900], [1280, 900], [1440, 900]], noOverflow: true },

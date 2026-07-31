@@ -45,7 +45,9 @@ var PAGES=[
   ["index.html",         "◆ Ҳама экранҳои конструктор",      "◆ Все экраны конструктора"],
   ["services.html",      "Конструктор · феҳристи хизматҳо",  "Конструктор · реестр услуг"],
   ["new-service.html",   "Конструктор · хизмати нав",        "Конструктор · новая услуга"],
-  ["builder.html",       "Конструктор · таҳрири шакл",       "Конструктор · редактор формы"],
+  ["builder.html",       "Конструктор · раванди хизмат",     "Конструктор · процесс услуги"],
+  ["forms.html",         "Китобхона · шаклҳо",               "Библиотека · формы"],
+  ["form-builder.html",  "Китобхона · муҳаррири шакл",       "Библиотека · редактор формы"],
   ["review.html",        "Конструктор · санҷиш ва нашр",      "Конструктор · проверка и публикация"]
 ];
 function navLang(){ var l="tg"; try{ l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('ekh.preferences.lang')||'tg'; }catch(e){} return l; }
@@ -282,23 +284,22 @@ document.addEventListener("click", function(e){
   var t=e.target.closest("[data-toast]"); if(t) toast(t.getAttribute("data-toast"));
 });
 
-/* ---------- builder-console rail (service registry + new service) ----------
-   Mirrors the admin rail, but scoped to the constructor: registry, new service,
-   and reusable form templates. Foot = the admin's identity card. */
+/* ---------- builder-console rail (services + independent form library) ---------- */
 var BLD_NAV = [
   ["__label","Конструктор"],
+  ["overview",  "Лавҳаи идора",     "i-star8"],
   ["services",  "Хизматрасониҳо", "i-cat-cert", "612"],
   ["new",       "Хизмати нав",    "i-plus"],
   ["review",    "Санҷиш ва нашр", "i-check", "1"],
   ["__label","Кутубхона"],
-  ["templates", "Қолабҳои шакл",  "i-doc"]
+  ["forms",     "Шаклҳо",         "i-doc", "4"]
 ];
-var BLD_HREF = { services:"services.html", "new":"new-service.html", review:"review.html", templates:"services.html#templates" };
+var BLD_HREF = { overview:"index.html", services:"services.html", "new":"new-service.html", review:"review.html", forms:"forms.html" };
 /* collapsible-rail state: icon-only when collapsed, persisted across pages */
 var RAIL_KEY='ekh.admin.rail';
 /* tiny standalone translator (the toggle is data-no-i18n, so its labels are set
    here in the active language rather than by the DOM sweep/observer) */
-function railTr(s){ try{ var l=localStorage.getItem('ekh.preferences.lang'); var D=window.BP_DICT; if(l&&l!=='tg'&&D&&D[l]&&D[l][s]) return D[l][s]; }catch(e){} return s; }
+function railTr(s){ try{ var l=navLang(); var D=window.BP_DICT; if(l&&l!=='tg'&&D&&D[l]&&D[l][s]) return D[l][s]; }catch(e){} return s; }
 function railIsCollapsed(){ try{ return localStorage.getItem(RAIL_KEY)==="1"; }catch(e){ return false; } }
 function railApply(c){
   document.documentElement.classList.toggle("rail-collapsed", !!c);
@@ -324,8 +325,8 @@ $$("[data-bld-rail]").forEach(function(rail){
   h += '<div class="spacer"></div>';
   h += '<a class="adm-me" href="#" onclick="return false" title="Аброр Каримов · Маъмури платформа"><span class="av">АК</span><span class="nm"><b>Аброр Каримов</b><span>Маъмури платформа</span></span></a>';
   rail.innerHTML = h;
-  /* the collapse handle lives OUTSIDE the rail (sibling in .adm) so it can float
-     independently at the viewport centre, unclipped by the rail's overflow */
+  /* Keep the collapse control in the stable top bar. It remains in the same
+     task-level chrome on every screen and is never confused with page content. */
   var adm = rail.closest(".adm");
   if(adm && !adm.querySelector("[data-rail-toggle]")){
     var btn=document.createElement("button");
@@ -334,7 +335,9 @@ $$("[data-bld-rail]").forEach(function(rail){
     btn.setAttribute("aria-controls", rail.id);
     btn.setAttribute("aria-label","Ҷамъ кардани панел");
     btn.innerHTML='<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-l"/></svg>';
-    adm.appendChild(btn);
+    var top=adm.querySelector(".adm-top");
+    if(top) top.insertBefore(btn, top.firstChild);
+    else adm.appendChild(btn);
   }
 });
 if($$("[data-bld-rail]").length){
@@ -440,12 +443,14 @@ window.bpSetLang=function(lang){
   try{ localStorage.setItem(I18N_KEY,lang); }catch(e){}
   i18nReflect(lang); i18nApply(lang); i18nObserve(lang); navSetLang(lang);
   if($$("[data-bld-rail]").length) railApply(railIsCollapsed());  /* refresh data-no-i18n rail toggle labels — only where a rail exists */
+  document.dispatchEvent(new CustomEvent("bp:langchange",{detail:{lang:lang}}));
 };
 function i18nInit(){
   var l='tg'; try{ l=new URLSearchParams(location.search).get('lang')||localStorage.getItem(I18N_KEY)||'tg'; }catch(e){}
   if(l==="en" && !(DICT.en)) l="tg";
   i18nReflect(l); navSetLang(l);
   if(l!=="tg"){ i18nApply(l); i18nObserve(l); }
+  document.dispatchEvent(new CustomEvent("bp:langchange",{detail:{lang:l}}));
 }
 /* run after page inline scripts (which populate dynamic content) have executed */
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", i18nInit); else i18nInit();

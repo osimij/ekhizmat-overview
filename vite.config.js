@@ -9,6 +9,8 @@ const pages = {
   ministry: 'ministry/index.html',
   admin: 'admin/index.html',
   adminServices: 'admin/services.html',
+  adminForms: 'admin/forms.html',
+  adminFormBuilder: 'admin/form-builder.html',
   adminNewService: 'admin/new-service.html',
   adminBuilder: 'admin/builder.html',
   adminReview: 'admin/review.html',

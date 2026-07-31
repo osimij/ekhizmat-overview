@@ -11,6 +11,8 @@ const requiredRoutes = [
   '/ministry/',
   '/admin/',
   '/admin/services.html',
+  '/admin/forms.html',
+  '/admin/form-builder.html',
   '/admin/new-service.html',
   '/admin/builder.html',
   '/admin/review.html',

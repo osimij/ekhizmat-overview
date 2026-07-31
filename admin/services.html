@@ -45,12 +45,12 @@
       <!-- registry KPIs — the two status cards double as filter shortcuts -->
       <div class="reg-stats">
         <button class="stat" type="button" data-st-go="done" aria-pressed="false"><div class="k"><span class="si" style="background:var(--green-tint);color:var(--green)"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>Фаъол</div><div class="big">604</div></button>
-        <button class="stat" type="button" data-st-go="warn" aria-pressed="false"><div class="k"><span class="si" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>Сиёҳнавис</div><div class="big">8</div></button>
+        <button class="stat" type="button" data-st-go="warn" aria-pressed="false"><div class="k"><span class="si" style="background:var(--amber-tint);color:var(--amber)"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>Сиёҳнавис</div><div class="big" id="draftServiceCount">8</div></button>
         <div class="stat"><div class="k"><span class="si" style="background:var(--h-slate-bg);color:var(--h-slate-fg)"><svg><use href="/design-system/assets/icons.svg#i-building"/></svg></span>Идораҳо</div><div class="big">14</div></div>
         <div class="stat"><div class="k"><span class="si" style="background:var(--h-blue-bg);color:var(--h-blue-fg)"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span>Нав ин моҳ</div><div class="big">12</div><div class="delta up">+3 нисбат ба моҳи гузашта</div></div>
       </div>
 
-      <section class="panel">
+      <section class="panel" id="serviceRegistry">
         <div class="panel-h" style="gap:var(--s-3)">
           <h3 style="flex:1">Феҳристи хизматҳо</h3>
           <div class="seg" id="stFilter" role="radiogroup" aria-label="Филтр аз рӯи ҳолат" style="margin:0">
@@ -60,6 +60,8 @@
             <label><input type="radio" name="fst" data-st="guest"><span>Меҳмон</span></label>
           </div>
         </div>
+
+        <div class="created-service-rows" id="createdServiceRows" aria-live="polite"></div>
 
         <a class="svc-row" href="builder.html" data-audience="person guest">
           <span class="tile t-teal sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
@@ -117,20 +119,6 @@
         </div>
       </section>
 
-      <!-- form-template library (rail → #templates) -->
-      <section class="panel" id="templates" style="margin-top:var(--s-5)">
-        <div class="panel-h"><h3>Қолабҳои шакл</h3><a href="new-service.html">Сохтан аз қолаб ↗</a></div>
-        <div style="padding:0 var(--s-5) var(--s-5)">
-          <p class="muted small" style="margin:0 0 var(--s-4)">Қолабҳои омодаи такроршаванда — асоси хизмати нав. Қадамҳои стандартиро доранд, шумо танҳо майдонҳоро мутобиқ мекунед.</p>
-          <div class="tpl-grid">
-            <a class="opt" href="new-service.html"><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома / справка</b><p>тасдиқ → мақсад → расондан · аксаран ройгон</p></span><span class="metachip">142 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-blue" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Ариза бо ҳуҷҷат</b><p>боргузорӣ → мақсад → пардохт → баррасӣ</p></span><span class="metachip">88 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-rings"/></svg></span><span class="tt"><b>Бақайдгирӣ бо сана</b><p>интихоби сана/вақт → толор → пардохт</p></span><span class="metachip">31 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-indigo" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span><span class="tt"><b>Хизмати шахси ҳуқуқӣ</b><p>интихоби ташкилот → ваколат → пардохт</p></span><span class="metachip">57 хизмат</span></a>
-            <a class="opt" href="new-service.html"><span class="tile t-steel sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-user"/></svg></span><span class="tt"><b>Guest-ready · дархости кӯтоҳ</b><p>2–4 майдони бехатар → ризоият → рақами demo</p></span><span class="audience-badge audience-badge--guest">Меҳмон</span></a>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </div>
@@ -148,13 +136,12 @@
   var $=function(s,r){return (r||document).querySelector(s);};
   var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
   var search=$("#svcSearch"), seg=$("#stFilter"), empty=$("#regEmpty");
-  var rows=$$(".svc-row");
   var state={q:"", st:"all"};
 
   function rowStatus(r){ var p=r.querySelector(".pill-st"); if(!p) return ""; return p.classList.contains("done")?"done":(p.classList.contains("warn")?"warn":""); }
   function apply(){
     var q=state.q.trim().toLowerCase(), shown=0;
-    rows.forEach(function(r){
+    $$(".svc-row").forEach(function(r){
       var okSt = state.st==="all" || (state.st==="guest" ? (r.getAttribute("data-audience")||"").split(/\s+/).indexOf("guest")>=0 : rowStatus(r)===state.st);
       var okQ  = !q || r.textContent.toLowerCase().indexOf(q)>=0;
       var ok=okSt&&okQ; r.hidden=!ok; if(ok) shown++;
@@ -177,8 +164,10 @@
       var panel=$(".panel"); if(panel) panel.scrollIntoView({behavior:"smooth", block:"start"});
     });
   });
+  window.addEventListener("ekh:servicedraftsrendered",apply);
   apply();
 })();
 </script>
+<script type="module" src="/apps/admin/js/service-drafts.js"></script>
 </body>
 </html>

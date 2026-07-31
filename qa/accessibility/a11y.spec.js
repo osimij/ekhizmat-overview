@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const pages = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/services.html', '/admin/review.html', '/design-system/styleguide.html'];
+const pages = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/services.html', '/admin/forms.html', '/admin/form-builder.html', '/admin/review.html', '/design-system/styleguide.html'];
 for (const theme of ['light', 'dark']) {
   for (const route of pages) {
     test(`${route} ${theme} has no serious accessibility violations`, async ({ page }) => {

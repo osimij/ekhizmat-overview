@@ -35,12 +35,12 @@
     </div>
 
     <div class="adm-body">
-      <div class="adm-h wz-h"><h1>Хизмати нав</h1><p>Аз қаердан оғоз мекунем, баъд маълумоти асосӣ — сипас конструктор кушода мешавад</p></div>
+      <div class="adm-h wz-h"><h1>Хизмати нав</h1><p>Аз қаердан оғоз мекунем, баъд маълумоти асосӣ — сипас захира ё сохтани шакл</p></div>
 
       <div class="wz" data-flow id="wz">
         <nav class="wz-steps" aria-label="Қадамҳо">
           <div class="wz-step active"><span class="n">1</span><div><b>Усул</b></div></div>
-          <div class="wz-step"><span class="n">2</span><div><b>Асос</b></div></div>
+          <div class="wz-step" id="basisStep"><span class="n">2</span><div><b>Асос</b></div></div>
           <div class="wz-step"><span class="n">3</span><div><b>Маълумот</b></div></div>
           <div class="wz-step"><span class="n">4</span><div><b>Тайёр</b></div></div>
         </nav>
@@ -50,10 +50,30 @@
           <section data-step="1">
             <h2>Аз қаер оғоз кунем?</h2>
             <p class="lead">Аз сафед бунёд кунед, ё аз қолаб/хизмати мавҷуд, ки зудтар аст — қадамҳои стандартӣ аллакай омода мешаванд.</p>
-            <label class="opt"><input type="radio" name="method"><span class="tile t-slate sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><span class="tt"><b>Аз сафед</b><p>раванди холӣ — ҳама чизро худатон месозед.</p></span></label>
-            <label class="opt"><input type="radio" name="method" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span><span class="meta"><span class="pill-st review">тавсия</span></span></label>
-            <label class="opt"><input type="radio" name="method"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-refresh"/></svg></span><span class="tt"><b>Нусха аз хизмати мавҷуд</b><p>хизмати монандро нусхабардорӣ ва тағйир диҳед.</p></span></label>
-            <div class="j-acts"><button class="btn btn-pri btn-lg" data-next>Идома</button></div>
+            <label class="opt"><input type="radio" name="method" value="blank"><span class="tile t-slate sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><span class="tt"><b>Аз сафед</b><p>раванди холӣ — ҳама чизро худатон месозед.</p></span></label>
+            <label class="opt"><input type="radio" name="method" value="template" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span><span class="meta"><span class="pill-st review">тавсия</span></span></label>
+            <label class="opt"><input type="radio" name="method" value="copy"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-refresh"/></svg></span><span class="tt"><b>Нусха аз хизмати мавҷуд</b><p>хизмати монандро нусхабардорӣ ва тағйир диҳед.</p></span></label>
+
+            <div class="copy-picker" id="copyPicker" hidden>
+              <div class="copy-picker__head">
+                <div><h3>Хизматро барои нусхабардорӣ интихоб кунед</h3><p>Ҳамаи хизматҳои мавҷуд нишон дода шудаанд. Аз рӯи ном, идора ё рамз ҷустуҷӯ кунед.</p></div>
+                <span class="metachip" id="copyCount">8 хизмат</span>
+              </div>
+              <label class="copy-search" for="copySearch"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input class="input" id="copySearch" type="search" autocomplete="off" placeholder="Ҷустуҷӯи хизмат, идора ё рамз…" aria-label="Ҷустуҷӯи хизмати мавҷуд"></label>
+              <div class="copy-services" id="copyServices" role="radiogroup" aria-label="Хизматҳои мавҷуд">
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-FAM-01" data-name-tg="Маълумотнома — ҳайати оила" data-name-ru="Справка — состав семьи"><span class="tile t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span class="tt"><b>Маълумотнома — ҳайати оила</b><span>САҲШ · SVC-FAM-01</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-TAX-04" data-name-tg="Маълумотнома — қарзи андоз" data-name-ru="Справка — налоговая задолженность"><span class="tile t-violet"><svg><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span><span class="tt"><b>Маълумотнома — қарзи андоз</b><span>Кумитаи андоз · SVC-TAX-04</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-ARC-02" data-name-tg="Нусхаи дубораи шаҳодатнома" data-name-ru="Дубликат свидетельства"><span class="tile t-amber sh-r"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span class="tt"><b>Нусхаи дубораи шаҳодатнома</b><span>САҲШ · SVC-ARC-02</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-MAR-01" data-name-tg="Ариза ба қайди никоҳ" data-name-ru="Заявление на регистрацию брака"><span class="tile t-violet sh-l"><svg><use href="/design-system/assets/icons.svg#i-rings"/></svg></span><span class="tt"><b>Ариза ба қайди никоҳ</b><span>САҲШ · SVC-MAR-01</span></span><span class="pill-st warn">сиёҳнавис</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-BIZ-03" data-name-tg="Сабти соҳибкори инфиродӣ" data-name-ru="Регистрация ИП"><span class="tile t-indigo"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span><span class="tt"><b>Сабти соҳибкори инфиродӣ</b><span>Кумитаи андоз · SVC-BIZ-03</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-LND-02" data-name-tg="Маълумотнома аз феҳристи замин" data-name-ru="Справка из земельного реестра"><span class="tile t-cyan sh-c"><svg><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></span><span class="tt"><b>Маълумотнома аз феҳристи замин</b><span>Кумитаи замин · SVC-LND-02</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-PAS-07" data-name-tg="Иваз кардани шиноснома (синну сол)" data-name-ru="Замена паспорта (по возрасту)"><span class="tile t-steel sh-r"><svg><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg></span><span class="tt"><b>Иваз кардани шиноснома (синну сол)</b><span>ВКД · SVC-PAS-07</span></span><span class="pill-st done">фаъол</span></label>
+                <label class="copy-service"><input type="radio" name="copyService" value="SVC-BRT-01" data-name-tg="Бақайдгирии таваллуд" data-name-ru="Регистрация рождения"><span class="tile t-rose sh-l"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span><span class="tt"><b>Бақайдгирии таваллуд</b><span>САҲШ · SVC-BRT-01</span></span><span class="pill-st warn">сиёҳнавис</span></label>
+              </div>
+              <div class="copy-empty" id="copyEmpty" hidden><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><b>Ҳеҷ хизмат ёфт нашуд</b><p>Дархости ҷустуҷӯро тағйир диҳед.</p></div>
+            </div>
+
+            <div class="j-acts"><button class="btn btn-pri btn-lg" id="methodNext" data-next>Идома</button></div>
           </section>
 
           <!-- 2 template / base -->
@@ -77,10 +97,30 @@
               <div class="field"><label for="ntg">Номи хизмат (тоҷикӣ)</label><input class="input" id="ntg" placeholder="Масалан: Маълумотнома дар бораи…" value="Маълумотнома дар бораи маҳалли истиқомат"></div>
               <div class="field"><label for="nru">Номи хизмат (русӣ)</label><input class="input" id="nru" placeholder="Справка о…" value="Справка о месте жительства"></div>
             </div>
-            <div class="field"><label for="org">Идораи масъул</label><div class="select"><select id="org"><option>САҲШ — сабти асноди ҳолати шаҳрвандӣ</option><option>Кумитаи андоз</option><option>ВКД — хадамоти шиносномавӣ</option><option>Кумитаи замин ва геодезия</option><option>Вазорати меҳнат</option></select></div></div>
+            <div class="field"><label for="org">Идораи масъул</label><div class="select"><select id="org"><option value="sahsh">САҲШ — сабти асноди ҳолати шаҳрвандӣ</option><option value="tax">Кумитаи андоз</option><option value="passport">ВКД — хадамоти шиносномавӣ</option><option value="land">Кумитаи замин ва геодезия</option><option value="labor">Вазорати меҳнат</option></select></div></div>
 
-            <div class="field"><label>Категория ва ранг</label>
-              <div class="chips-row" data-select data-select-out="#rvCat" style="gap:8px;flex-wrap:wrap">
+            <div class="field"><label for="serviceCategory">Категорияи хизмат</label>
+              <div class="select"><select id="serviceCategory" name="category">
+                <option value="docs">Ҳуҷҷатҳо ва шиноснома</option>
+                <option value="family">Оила ва фарзандон</option>
+                <option value="edu">Маориф</option>
+                <option value="health">Тандурустӣ</option>
+                <option value="transport">Нақлиёт ва ронандагӣ</option>
+                <option value="land">Замин ва манзил</option>
+                <option value="tax">Андоз ва ҷарима</option>
+                <option value="justice">Адлия ва нотариат</option>
+                <option value="certs" selected>Маълумотномаҳо</option>
+                <option value="culture">Фарҳанг, варзиш, сайёҳӣ</option>
+                <option value="gov">Идораҳо</option>
+                <option value="license">Литсензия ва иҷозатнома</option>
+                <option value="accred">Ҳуҷҷатҳо ва аккредитатсия</option>
+                <option value="other">Дигар хизматҳо</option>
+              </select></div>
+              <p class="help">Хизмат дар ҳамин бахши феҳристи шаҳрвандон намоиш меёбад.</p>
+            </div>
+
+            <div class="field"><label>Нишона ва ранг</label>
+              <div class="chips-row" data-select style="gap:8px;flex-wrap:wrap">
                 <button class="tile t-teal sh-r" type="button" data-val="Маълумотнома" aria-pressed="true" style="width:40px;height:40px" aria-label="Маълумотнома"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></button>
                 <button class="tile t-violet" type="button" data-val="Андоз" aria-pressed="false" style="width:40px;height:40px" aria-label="Андоз"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></button>
                 <button class="tile t-blue" type="button" data-val="Ҳуҷҷат" aria-pressed="false" style="width:40px;height:40px" aria-label="Ҳуҷҷат"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></button>
@@ -90,7 +130,7 @@
                 <button class="tile t-indigo" type="button" data-val="Соҳибкорӣ" aria-pressed="false" style="width:40px;height:40px" aria-label="Соҳибкорӣ"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-biz"/></svg></button>
                 <button class="tile t-amber sh-r" type="button" data-val="Дигар" aria-pressed="false" style="width:40px;height:40px" aria-label="Дигар"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-cat-other"/></svg></button>
               </div>
-              <p class="help">Ранг ва нишона дар феҳрист ва кортҳои шаҳрванд истифода мешаванд.</p>
+              <p class="help">Нишона ва ранг дар рӯйхати хизматҳо ва кортҳои шаҳрванд истифода мешаванд.</p>
             </div>
 
             <div class="fld-grid">
@@ -119,20 +159,21 @@
           <!-- 4 review → open builder -->
           <section data-step="4" hidden>
             <h2>Тайёр барои сохтан</h2>
-            <p class="lead">Ҳамаашро санҷед. Сипас конструктор бо ин асос кушода мешавад — раванд ва майдонҳоро таҳрир мекунед.</p>
+            <p class="lead">Ҳамаашро санҷед. Хизматро ҳамчун сиёҳнавис захира кунед ё барои он шакли дархост созед.</p>
             <div class="review">
               <div class="rv"><span class="k">Ном</span><span class="v" id="rvName">Маълумотнома дар бораи маҳалли истиқомат</span></div>
               <div class="rv"><span class="k">Асос (қолаб)</span><span class="v" id="rvBase">Маълумотнома / справка</span></div>
-              <div class="rv"><span class="k">Категория</span><span class="v" id="rvCat">Маълумотнома</span></div>
+              <div class="rv"><span class="k">Категория</span><span class="v" id="rvCat">Маълумотномаҳо</span></div>
               <div class="rv"><span class="k">Барои кӣ</span><span class="v" id="rvAudience"><span class="audience-badge audience-badge--person">Шахси воқеӣ</span> <span class="audience-badge audience-badge--guest">Меҳмон</span></span></div>
               <div class="rv"><span class="k">Идора</span><span class="v">САҲШ</span></div>
               <div class="rv"><span class="k">Нарх</span><span class="v ok" id="rvCost">ройгон</span></div>
-              <div class="rv"><span class="k">Раванди стандартӣ</span><span class="v">тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат</span></div>
+              <div class="rv"><span class="k">Раванди стандартӣ</span><span class="v" id="rvProcess">тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат</span></div>
             </div>
             <div class="note-info" style="margin-top:var(--s-4)"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg><p>Имзои электронӣ, автозахира ва пайгирии шаффоф ба ҳамаи хизматҳо худкор илова мешаванд — онҳоро сохтан лозим нест.</p></div>
             <div class="j-acts">
-              <button class="btn btn-sec" data-back>Бозгашт</button>
-              <a class="btn btn-pri btn-lg" href="builder.html"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg>Кушодани конструктор</a>
+              <button class="btn btn-sec btn-lg" data-back>Бозгашт</button>
+              <button class="btn btn-sec btn-lg" id="saveServiceDraft" type="button"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>Захира ҳамчун сиёҳнавис</button>
+              <a class="btn btn-pri btn-lg" id="createServiceForm" href="form-builder.html?new=1"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg>Сохтани шакл</a>
             </div>
           </section>
         </div>
@@ -143,11 +184,74 @@
 
 <script type="module" src="/apps/admin/js/builder.js"></script>
 <script type="module" src="/apps/admin/js/lowcode.js"></script>
+<script type="module" src="/apps/admin/js/service-drafts.js"></script>
 <script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
-/* minimal page wiring: cost toggle + reflect a couple values into the review */
+/* Creation-path wiring, copy-service search, and review synchronization. */
 (function(){
   var $=function(s){return document.querySelector(s);};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+  var methodNext=$('#methodNext'), basisStep=$('#basisStep'), copyPicker=$('#copyPicker');
+  var metaBack=$('[data-step="3"] [data-back]'), createForm=$('#createServiceForm');
+  var selectedCopy=null, runtimeLang=null;
+  function activeLang(){
+    if(runtimeLang) return runtimeLang;
+    try{return new URLSearchParams(location.search).get('lang')||localStorage.getItem('ekh.preferences.lang')||'tg';}catch(e){return 'tg';}
+  }
+  function setAttr(el,name,on,value){ if(on) el.setAttribute(name,value==null?'':value); else el.removeAttribute(name); }
+  function syncName(){
+    var value=activeLang()==='ru' ? $('#nru').value : $('#ntg').value;
+    $('#rvName').textContent=value||(activeLang()==='ru'?'Услуга без названия':'Хизмати беном');
+  }
+  function setNames(tg,ru){ $('#ntg').value=tg; $('#nru').value=ru; syncName(); }
+  function setFormHref(source,service){
+    var q=new URLSearchParams();q.set('new','1');q.set('source',source);q.set('lang',activeLang());q.set('theme',document.documentElement.dataset.theme||'light');
+    if(service) q.set('service',service);
+    if($('#serviceCategory')) q.set('category',$('#serviceCategory').value);
+    createForm.href='form-builder.html?'+q.toString();
+  }
+  function configureMethod(preserveNames){
+    var method=($('[name="method"]:checked')||{}).value||'template';
+    var usesTemplate=method==='template';
+    $('#sla').value=activeLang()==='ru'?'1 рабочий день':'1 рӯзи корӣ';
+    copyPicker.hidden=method!=='copy';
+    basisStep.hidden=!usesTemplate;
+    $$('.wz-step .n').forEach(function(n,i){ n.textContent=usesTemplate?String(i+1):String(i===0?1:i); });
+
+    setAttr(methodNext,'data-next',usesTemplate);
+    setAttr(methodNext,'data-goto',!usesTemplate,'3');
+    setAttr(metaBack,'data-back',usesTemplate);
+    setAttr(metaBack,'data-goto',!usesTemplate,'1');
+    methodNext.disabled=method==='copy'&&!selectedCopy;
+
+    if(method==='blank'){
+      $('#rvBase').textContent='Аз сафед';
+      $('#rvProcess').textContent='Раванди холӣ — қадамҳои тайёр нестанд.';
+      setFormHref('blank');
+      if(!preserveNames) setNames('',''); else syncName();
+    }else if(method==='copy'){
+      $('#rvBase').textContent=selectedCopy?selectedCopy.getAttribute('data-name-tg'):'Хизмат интихоб нашудааст';
+      $('#rvProcess').textContent='Нусхаи пурраи раванди хизмати интихобшуда';
+      setFormHref('copy',selectedCopy&&selectedCopy.value);
+      if(selectedCopy&&!preserveNames) setNames('Нусха — '+selectedCopy.getAttribute('data-name-tg'),'Копия — '+selectedCopy.getAttribute('data-name-ru'));
+      else syncName();
+    }else{
+      $('#rvProcess').textContent='тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат';
+      setFormHref('template');
+      if(!preserveNames) setNames('Маълумотнома дар бораи маҳалли истиқомат','Справка о месте жительства');
+      else syncName();
+    }
+  }
+
+  $$('[name="method"]').forEach(function(r){r.addEventListener('change',function(){configureMethod(false);});});
+  $$('[name="copyService"]').forEach(function(r){r.addEventListener('change',function(){selectedCopy=this;configureMethod(false);});});
+  var copySearch=$('#copySearch'), copyEmpty=$('#copyEmpty'), copyCount=$('#copyCount');
+  copySearch.addEventListener('input',function(){
+    var q=this.value.trim().toLowerCase(), shown=0;
+    $$('.copy-service',$('#copyServices')).forEach(function(row){var visible=!q||row.textContent.toLowerCase().indexOf(q)>=0;row.hidden=!visible;if(visible)shown++;});
+    copyEmpty.hidden=shown!==0;
+    copyCount.textContent=shown+(activeLang()==='ru'?' услуг':' хизмат');
+  });
   function syncCost(){
     var paid = $('#costSeg input[value="paid"]').checked;
     $('#amountField').hidden = !paid;
@@ -157,13 +261,30 @@
   }
   document.querySelectorAll('#costSeg input').forEach(function(r){ r.addEventListener('change', syncCost); });
   var amt=$('#amt'); if(amt) amt.addEventListener('input', syncCost);
-  var ntg=$('#ntg'); if(ntg) ntg.addEventListener('input', function(){ $('#rvName').textContent=this.value||'Хизмати беном'; });
+  $('#ntg').addEventListener('input',syncName);
+  $('#nru').addEventListener('input',syncName);
+  function syncCategory(){
+    var category=$('#serviceCategory'), selected=category.options[category.selectedIndex];
+    $('#rvCat').textContent=selected?selected.textContent:'';
+    var href=new URL(createForm.href,location.href);
+    href.searchParams.set('category',category.value);
+    createForm.href=href.pathname.split('/').pop()+'?'+href.searchParams.toString();
+  }
+  $('#serviceCategory').addEventListener('change',syncCategory);
   function syncAudience(){
     var labels={person:'Шахси воқеӣ',business:'Шахси ҳуқуқӣ',guest:'Меҳмон'};
     var out=Array.from(document.querySelectorAll('[name="audience"]:checked')).map(function(i){var a=i.getAttribute('data-lc-audience');return '<span class="audience-badge audience-badge--'+a+'">'+labels[a]+'</span>';});
     $('#rvAudience').innerHTML=out.join(' ');
   }
   document.querySelectorAll('[name="audience"]').forEach(function(i){i.addEventListener('change',syncAudience);});
+  document.addEventListener('bp:langchange',function(e){
+    runtimeLang=e.detail&&e.detail.lang||runtimeLang;
+    configureMethod(true);
+    syncCategory();
+    copySearch.dispatchEvent(new Event('input'));
+  });
+  configureMethod(false);
+  syncCategory();
   syncAudience();
   syncCost();
 })();

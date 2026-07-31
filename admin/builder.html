@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
-<title>eKhizmat · Конструктор — Таҳрири шакл</title>
+<title>eKhizmat · Конструктор — Раванди хизмат</title>
 <script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/design-system/global.css">
@@ -57,7 +57,7 @@
         <span class="tt"><b>Тасдиқи маълумот</b><span>аз феҳристҳо · «як бор»</span></span>      </button>
       <button class="stg" role="tab" data-tab="fields" aria-selected="true" tabindex="0">
         <span class="stg-ic t-blue"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
-        <span class="tt"><b>Майдонҳои нав</b><span>чизи нав барои давлат</span></span>
+        <span class="tt"><b>Шакли дархост</b><span>аз китобхонаи шаклҳо</span></span>
         <span class="stg-n" id="stgFieldsCount">2</span>
       </button>
       <button class="stg" role="tab" data-tab="delivery" aria-selected="false" tabindex="-1">
@@ -123,15 +123,23 @@
       </div>
     </div>
 
-    <!-- FIELDS — the form composer (the star) -->
+    <!-- FORM REFERENCE — forms are built and versioned in their own library -->
     <div class="edit-pane" role="tabpanel" data-panel="fields">
-      <div class="eh"><span class="kick"><svg style="width:13px;height:13px"><use href="/design-system/assets/icons.svg#i-edit"/></svg>Қадами 2 · чашми шаҳрванд</span>
-        <h1>Майдонҳои нав</h1>
-        <p>Танҳо чизҳое, ки давлат ҳоло намедонад. Аз палитра навъи майдон илова кунед — дарҳол дар пешнамоиши тарафи рост пайдо мешавад.</p>
+      <div class="eh"><span class="kick"><svg style="width:13px;height:13px"><use href="/design-system/assets/icons.svg#i-doc"/></svg>Қадами 2 · чашми шаҳрванд</span>
+        <h1>Шакли дархост</h1>
+        <p>Шаклҳо аз хизмат ҷудо идора мешаванд. Барои ин хизмат як нусхаи нашршударо интихоб кунед — сиёҳнависҳо ба хизмати зинда таъсир намерасонанд.</p>
       </div>
-      <div class="fb-list" id="fbList" aria-label="Майдонҳои шакл"></div>
-      <button class="btn btn-sec" id="addField" type="button" data-open="paletteModal" style="margin-top:var(--s-4)"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg>Илова кардани майдон</button>
-      <div class="note-info" style="margin-top:var(--s-5)"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg><p>Камтар беҳтар: ҳар майдони нав вақти шаҳрвандро мегирад. Дар сафари «таваллуди кӯдак» танҳо як майдони ҳақиқатан нав буд — номи кӯдак.</p></div>
+      <section class="service-form-binding" aria-labelledby="serviceFormHeading">
+        <div class="service-form-binding__head"><div><span>Шакли пайвастшуда</span><h2 id="serviceFormHeading">Нусхаи нашршуда</h2></div><span class="service-form-safe"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg><span>пайвасти бехатар</span></span></div>
+        <div id="serviceFormSelection"></div>
+        <div class="service-form-actions"><button class="btn btn-pri" type="button" data-open="serviceFormPicker"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg><span>Интихоби шакл</span></button><a class="btn btn-sec" id="openAttachedForm" href="forms.html"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"/></svg><span>Кушодани шакл</span></a></div>
+      </section>
+      <section class="service-form-readonly">
+        <div class="service-form-readonly__head"><div><h2>Майдонҳои ин нусха</h2><p>Пешнамоиши танҳо-хондан. Барои тағйир додан нусхаи нави шакл созед.</p></div><span class="metachip" id="serviceFormFieldCount">0 майдон</span></div>
+        <div id="serviceFormReadonlyFields"></div>
+      </section>
+      <div class="note-info" style="margin-top:var(--s-5)"><svg><use href="/design-system/assets/icons.svg#i-info"/></svg><p>Хизмат ба нусхаи дақиқ пайваст аст. Ҳатто агар сиёҳнависи нав сохта шавад, ин хизмат то интихоби огоҳонаи нусхаи дигар тағйир намеёбад.</p></div>
+      <div hidden aria-hidden="true"><div class="fb-list" id="fbList"></div><button id="addField" type="button" data-open="paletteModal"></button></div>
     </div>
 
     <!-- delivery & payment -->
@@ -521,6 +529,18 @@
   </aside>
 </div>
 
+<!-- ============ published form picker ============ -->
+<div class="overlay" id="serviceFormPicker" role="dialog" aria-modal="true" aria-labelledby="serviceFormPickerTitle">
+  <div class="modal wide left service-form-picker">
+    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="/design-system/assets/icons.svg#i-x"/></svg></button>
+    <div class="mhd"><span class="mic"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><div><h2 id="serviceFormPickerTitle">Интихоби шакл аз китобхона</h2><p>Танҳо нусхаҳои нашршуда ва зинда барои пайваст кардан дастрасанд.</p></div></div>
+    <label class="copy-search" for="serviceFormSearch"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input class="input" id="serviceFormSearch" type="search" autocomplete="off" placeholder="Ҷустуҷӯи шакл, идора ё рамз…"></label>
+    <div class="service-form-picker__list" id="serviceFormPickerList"></div>
+    <div class="reg-empty" id="serviceFormPickerEmpty" hidden><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><b>Ягон шакли нашршуда ёфт нашуд</b><p>Дар китобхонаи шаклҳо нусхаро нашр кунед.</p></div>
+    <div class="service-form-picker__foot"><a class="btn btn-ghost" href="forms.html"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg><span>Китобхонаи шаклҳо</span></a><button class="btn btn-pri" id="confirmServiceForm" type="button" disabled>Пайваст кардани шакл</button></div>
+  </div>
+</div>
+
 <!-- ============ field-type palette ============ -->
 <div class="overlay" id="paletteModal" role="dialog" aria-modal="true" aria-labelledby="palH">
   <div class="modal wide left">
@@ -563,6 +583,7 @@
 
 <script type="module" src="/apps/admin/js/builder.js"></script>
 <script type="module" src="/apps/admin/js/lowcode.js"></script>
+<script type="module" src="/apps/admin/js/service-form-binding.js"></script>
 <script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
 /* ===================== builder — form/field composer state =====================
@@ -576,6 +597,25 @@
   var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
   /* translate a composed string at source (the i18n sweep only matches whole text nodes) */
   var tr=function(s){ try{ var l=localStorage.getItem('ekh.preferences.lang'), D=window.BP_DICT; if(l&&l!=='tg'&&D&&D[l]&&D[l][s]) return D[l][s]; }catch(e){} return s; };
+  var buildQuery=new URLSearchParams(location.search), buildSource=buildQuery.get('source')||'existing';
+  var buildLang=buildQuery.get('lang');
+  try{buildLang=buildLang||localStorage.getItem('ekh.preferences.lang')||'tg';}catch(e){buildLang=buildLang||'tg';}
+  var copyNames={
+    'SVC-FAM-01':['Маълумотнома — ҳайати оила','Справка — состав семьи'],
+    'SVC-TAX-04':['Маълумотнома — қарзи андоз','Справка — налоговая задолженность'],
+    'SVC-ARC-02':['Нусхаи дубораи шаҳодатнома','Дубликат свидетельства'],
+    'SVC-MAR-01':['Ариза ба қайди никоҳ','Заявление на регистрацию брака'],
+    'SVC-BIZ-03':['Сабти соҳибкори инфиродӣ','Регистрация ИП'],
+    'SVC-LND-02':['Маълумотнома аз феҳристи замин','Справка из земельного реестра'],
+    'SVC-PAS-07':['Иваз кардани шиноснома (синну сол)','Замена паспорта (по возрасту)'],
+    'SVC-BRT-01':['Бақайдгирии таваллуд','Регистрация рождения']
+  };
+  if(buildSource==='blank'){
+    $('#svcName').value=buildLang==='ru'?'Новая услуга':'Хизмати нав';
+  }else if(buildSource==='copy'){
+    var copyName=copyNames[buildQuery.get('service')]||copyNames['SVC-FAM-01'];
+    $('#svcName').value=(buildLang==='ru'?'Копия — ':'Нусха — ')+copyName[buildLang==='ru'?1:0];
+  }
 
   var FTYPES={
     text:    {label:"Матн",              icon:"i-edit",     ph:"Ҷавоби кӯтоҳ"},
@@ -616,7 +656,7 @@
   }
 
   /* seed = the worked "family certificate" step-2 (matches apply.html) */
-  var fields=[
+  var fields=buildSource==='blank'?[]:[
     {id:uid(), type:"select", label:"Мақсади маълумотнома", req:true, help:"то ҳуҷҷат дуруст таҳия шавад", opts:["Барои бонк (қарз/суратҳисоб)","Барои мактаб ё боғча","Барои субсидия","Барои суд","Дигар"], src:""},
     {id:uid(), type:"text", label:"Ташкилоти қабулкунанда", req:false, help:"ихтиёрӣ — ба кадом ташкилот пешниҳод мешавад", opts:[], src:""}
   ];

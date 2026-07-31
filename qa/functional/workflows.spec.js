@@ -1,14 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-async function expectSameActionHeight(page, selector) {
+async function expectSameActionHeight(page, selector, count=2) {
   const group = page.locator(selector);
   const buttons = group.locator('.btn:visible');
-  await expect(buttons).toHaveCount(2);
+  await expect(buttons).toHaveCount(count);
   const before = await buttons.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
-  expect(Math.abs(before[0] - before[1])).toBeLessThanOrEqual(1);
+  expect(Math.max(...before)-Math.min(...before)).toBeLessThanOrEqual(1);
   await buttons.last().hover();
   const hovered = await buttons.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
-  expect(Math.abs(hovered[0] - hovered[1])).toBeLessThanOrEqual(1);
+  expect(Math.max(...hovered)-Math.min(...hovered)).toBeLessThanOrEqual(1);
 }
 
 test('Citizen category, profile, wallet, QR and logout flow', async ({ page }) => {
@@ -519,15 +519,16 @@ test('Admin new-service audience and full review / approval / publish workflow',
   for (let step = 2; step <= 4; step += 1) {
     await page.locator('[data-step]:not([hidden]) [data-next]').click();
     await expect(page.locator(`[data-step="${step}"]`)).toBeVisible();
-    await expectSameActionHeight(page, `[data-step="${step}"] .j-acts`);
+    await expectSameActionHeight(page, `[data-step="${step}"] .j-acts`,step===4?3:2);
   }
-  await page.locator('[data-step="4"] a[href="builder.html"]').click();
-  await expect(page).toHaveURL(/builder\.html/);
+  await page.locator('#createServiceForm').click();
+  await expect(page).toHaveURL(/form-builder\.html/);
+  await expect(page.locator('#formNameTg')).toHaveValue('Маълумотнома дар бораи маҳалли истиқомат');
 
-  const before = await page.locator('.fb-item').count();
-  await page.locator('#addField').click();
-  await page.locator('#paletteModal [data-add="text"]').click();
-  await expect(page.locator('.fb-item')).toHaveCount(before + 1);
+  await page.goto('/admin/builder.html?lang=tg&theme=light');
+
+  await expect(page.locator('#serviceFormSelection')).toBeVisible();
+  await expect(page.locator('#serviceFormSelection')).toContainText('v2');
   await expect(page.locator('#publishBtn')).toBeDisabled();
   await page.locator('#approveBtn').click();
   await expect(page.locator('#lowCodeActionOverlay')).toBeVisible();

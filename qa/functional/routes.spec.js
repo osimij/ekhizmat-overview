@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/new-service.html', '/admin/builder.html', '/admin/review.html', '/design-system/styleguide.html'];
+const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/forms.html', '/admin/form-builder.html', '/admin/new-service.html', '/admin/builder.html', '/admin/review.html', '/design-system/styleguide.html'];
 
 for (const route of routes) {
   test(`${route} loads without page errors`, async ({ page }) => {
@@ -193,8 +193,9 @@ test('admin registry to builder route remains intact', async ({ page }) => {
   await expect(page).toHaveURL(/new-service\.html/);
   await page.goto('/admin/builder.html');
   await expect(page.locator('.bld-work')).toBeVisible();
-  await page.locator('#addField').click();
-  await expect(page.locator('#paletteModal')).toHaveClass(/is-open/);
+  await expect(page.locator('#serviceFormSelection')).toBeVisible();
+  await page.locator('[data-open="serviceFormPicker"]').click();
+  await expect(page.locator('#serviceFormPicker')).toBeVisible();
 });
 
 test('ministry and TSON boot their operational gates', async ({ page }) => {
