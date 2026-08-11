@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 
-const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/forms.html', '/admin/form-builder.html', '/admin/new-service.html', '/admin/builder.html', '/admin/review.html', '/design-system/styleguide.html'];
+const routes = ['/', '/citizen/', '/mobile/', '/tson/', '/ministry/', '/admin/', '/admin/services.html', '/admin/forms.html', '/admin/form-builder.html', '/admin/new-service.html', '/admin/builder.html', '/admin/review.html', '/design-system/styleguide.html'];
 
 for (const route of routes) {
   test(`${route} loads without page errors`, async ({ page }) => {
@@ -86,7 +86,7 @@ test('citizen category cards keep identical dimensions', async ({ page }) => {
 });
 
 test('every platform renders with the bundled Google Sans font', async ({ page }) => {
-  const routes = ['/', '/citizen/', '/tson/', '/ministry/', '/admin/', '/design-system/styleguide.html'];
+  const routes = ['/', '/citizen/', '/mobile/', '/tson/', '/ministry/', '/admin/', '/design-system/styleguide.html'];
   for (const route of routes) {
     await page.goto(`${route}?present=1&theme=light&lang=tg`);
     await page.evaluate(() => document.fonts.ready);

@@ -13,6 +13,7 @@ const localChromiumCandidates = [
 ].filter(Boolean);
 
 const localChromium = localChromiumCandidates.find((candidate) => existsSync(candidate));
+const previewPort = Number(process.env.PLAYWRIGHT_PORT || 4173);
 
 export default defineConfig({
   testDir: './qa',
@@ -23,7 +24,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {
-    baseURL: 'http://127.0.0.1:4173',
+    baseURL: `http://127.0.0.1:${previewPort}`,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     reducedMotion: 'reduce',
@@ -38,8 +39,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run build && npm run preview -- --port 4173',
-    url: 'http://127.0.0.1:4173',
+    command: `npm run build && npm run preview -- --port ${previewPort}`,
+    url: `http://127.0.0.1:${previewPort}`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

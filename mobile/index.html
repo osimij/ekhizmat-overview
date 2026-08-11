@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Интерактивная концепция мобильного приложения eKhizmat для граждан.">
+  <title>eKhizmat Mobile — интерактивная концепция</title>
+  <script>try{const q=new URLSearchParams(location.search),t=q.get('theme')||localStorage.getItem('ekh.preferences.theme');if(t==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
+  <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="/design-system/assets/fonts/GoogleSans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/design-system/global.css">
+  <link rel="stylesheet" href="/apps/mobile/app.css">
+</head>
+<body data-platform="mobile">
+  <a class="skip" href="#mobileContent" data-copy="skip">Перейти к содержанию приложения</a>
+
+  <main class="prototype-page">
+    <aside class="concept-panel" aria-labelledby="conceptTitle">
+      <a class="concept-brand" href="/">
+        <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg>
+        <span>eKhizmat</span>
+      </a>
+      <h1 id="conceptTitle">Госуслуги, спроектированные для телефона</h1>
+      <p class="concept-lead">Не уменьшенная копия портала, а спокойный мобильный помощник: показывает, что важно сейчас, хранит документы и ведёт по одному понятному шагу.</p>
+
+      <div class="concept-principles" aria-label="Принципы концепции">
+        <div><span>01</span><p><strong>Сначала важное</strong>Активное заявление и ожидающее действие видны сразу.</p></div>
+        <div><span>02</span><p><strong>Одна задача за раз</strong>Сложная услуга превращается в короткие последовательные шаги.</p></div>
+        <div><span>03</span><p><strong>Документы всегда рядом</strong>Цифровой кошелёк — самостоятельный раздел, а не пункт в меню.</p></div>
+      </div>
+
+      <div class="concept-jump" aria-labelledby="jumpTitle">
+        <span class="concept-label" id="jumpTitle">Попробуйте экраны</span>
+        <div class="concept-jump-grid">
+          <button type="button" data-preview-screen="home" aria-pressed="true">Главная</button>
+          <button type="button" data-preview-screen="services" aria-pressed="false">Услуги</button>
+          <button type="button" data-preview-screen="applications" aria-pressed="false">Заявления</button>
+          <button type="button" data-preview-screen="wallet" aria-pressed="false">Документы</button>
+        </div>
+      </div>
+
+      <div class="concept-actions">
+        <a class="concept-open" href="/mobile/?mode=app">Открыть как приложение <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></a>
+      </div>
+    </aside>
+
+    <section class="device-stage" aria-label="Интерактивный прототип мобильного приложения">
+      <div class="device-frame">
+        <div class="device-speaker" aria-hidden="true"></div>
+        <div class="mobile-app" id="mobileApp">
+          <div class="mobile-scroll" id="mobileContent" tabindex="-1">
+            <section class="m-screen" id="screen-home" data-screen="home" aria-labelledby="homeTitle">
+              <header class="home-header">
+                <div>
+                  <span class="eyebrow" data-copy="greeting">Доброе утро</span>
+                  <h2 id="homeTitle" data-copy="hello">Фируза</h2>
+                </div>
+                <div class="header-actions">
+                  <button class="round-button" type="button" data-open-notifications aria-label="Уведомления">
+                    <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-bell"></use></svg><span class="notification-dot"></span>
+                  </button>
+                  <button class="avatar-button" type="button" data-nav="profile" aria-label="Профиль">Ф</button>
+                </div>
+              </header>
+
+              <button class="mobile-search" type="button" data-nav="services" data-focus-search>
+                <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg>
+                <span data-copy="searchPlaceholder">Какая услуга вам нужна?</span>
+              </button>
+
+              <section class="priority-card" aria-labelledby="priorityTitle">
+                <div class="priority-topline">
+                  <span class="status-chip"><span class="status-pulse"></span><span data-copy="inReview">На рассмотрении</span></span>
+                  <span class="priority-time" data-copy="updatedToday">Обновлено сегодня</span>
+                </div>
+                <div class="priority-copy">
+                  <span class="priority-icon t-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span>
+                  <div><span class="eyebrow" data-copy="continueLabel">Продолжить</span><h3 data-copy="birthTitle">Свидетельство о рождении — Зарина</h3></div>
+                </div>
+                <div class="progress-track" role="progressbar" aria-label="Готово на 60 процентов" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"><span style="width:60%"></span></div>
+                <div class="priority-meta"><span data-copy="stepProgress">Шаг 3 из 5 · проверка ЗАГС</span><strong data-copy="twoDays">до 2 дней</strong></div>
+                <button class="primary-button" type="button" data-open-application="birth"><span data-copy="trackApplication">Следить за заявлением</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              </section>
+
+              <section class="mobile-section" aria-labelledby="quickTitle">
+                <div class="section-heading"><h3 id="quickTitle" data-copy="quickTitle">Часто нужно</h3><button type="button" data-nav="services" data-copy="allServices">Все услуги</button></div>
+                <div class="quick-grid">
+                  <button type="button" data-service="passport"><span class="quick-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span><span data-copy="passport">Паспорт</span></button>
+                  <button type="button" data-service="fines"><span class="quick-icon t-violet"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-tax"></use></svg></span><span data-copy="fines">Штрафы</span></button>
+                  <button type="button" data-service="cert"><span class="quick-icon t-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-cert"></use></svg></span><span data-copy="certificates">Справки</span></button>
+                  <button type="button" data-service="doctor"><span class="quick-icon t-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-health"></use></svg></span><span data-copy="doctor">Врач</span></button>
+                </div>
+              </section>
+
+              <section class="mobile-section" aria-labelledby="attentionTitle">
+                <div class="section-heading"><h3 id="attentionTitle" data-copy="attention">Требует внимания</h3></div>
+                <button class="attention-card" type="button" data-service="vehicle-tax">
+                  <span class="attention-icon t-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-money"></use></svg></span>
+                  <span class="attention-copy"><strong data-copy="vehicleTax">Транспортный налог</strong><span data-copy="discountUntil">Скидка 20% до 1 июля</span></span>
+                  <span class="attention-sum">86,40 <small data-copy="somoni">сом.</small></span>
+                  <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
+                </button>
+              </section>
+
+              <section class="mobile-section mobile-section--last" aria-labelledby="momentsTitle">
+                <div class="section-heading"><h3 id="momentsTitle" data-copy="moments">Жизненные ситуации</h3><button type="button" data-nav="services" data-copy="showAll">Смотреть все</button></div>
+                <div class="moment-scroll">
+                  <button type="button" data-service="birth"><span class="moment-art t-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span><strong data-copy="newChild">Родился ребёнок</strong><span data-copy="fiveMinFree">5 минут · бесплатно</span></button>
+                  <button type="button" data-service="move"><span class="moment-art t-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-move"></use></svg></span><strong data-copy="moving">Переезжаю</strong><span data-copy="twelveMin">12 минут</span></button>
+                  <button type="button" data-service="job"><span class="moment-art t-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-job"></use></svg></span><strong data-copy="newJob">Ищу работу</strong><span data-copy="eightMinFree">8 минут · бесплатно</span></button>
+                </div>
+              </section>
+            </section>
+
+            <section class="m-screen" id="screen-services" data-screen="services" aria-labelledby="servicesTitle" hidden>
+              <header class="screen-header">
+                <div><span class="eyebrow" data-copy="catalog">Каталог</span><h2 id="servicesTitle" data-copy="services">Услуги</h2></div>
+                <button class="round-button" type="button" data-open-notifications aria-label="Уведомления"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-bell"></use></svg><span class="notification-dot"></span></button>
+              </header>
+              <label class="search-field">
+                <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg>
+                <span class="sr-only" data-copy="searchServices">Поиск услуг</span>
+                <input id="serviceSearch" type="search" autocomplete="off" data-copy-placeholder="searchServices" placeholder="Поиск услуг">
+                <button type="button" id="clearSearch" aria-label="Очистить поиск" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"></use></svg></button>
+              </label>
+              <div class="filter-row" role="group" aria-label="Категории услуг">
+                <button type="button" data-category="all" aria-pressed="true" data-copy="all">Все</button>
+                <button type="button" data-category="documents" aria-pressed="false" data-copy="documents">Документы</button>
+                <button type="button" data-category="family" aria-pressed="false" data-copy="family">Семья</button>
+                <button type="button" data-category="transport" aria-pressed="false" data-copy="transport">Транспорт</button>
+                <button type="button" data-category="health" aria-pressed="false" data-copy="health">Здоровье</button>
+              </div>
+              <p class="result-count" id="serviceResultCount">8 услуг</p>
+              <div class="service-list" id="serviceList"></div>
+              <div class="empty-state" id="serviceEmpty" hidden>
+                <span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg></span>
+                <h3 data-copy="nothingFound">Ничего не найдено</h3>
+                <p data-copy="tryAnother">Попробуйте другое слово или выберите категорию.</p>
+              </div>
+            </section>
+
+            <section class="m-screen" id="screen-applications" data-screen="applications" aria-labelledby="applicationsTitle" hidden>
+              <header class="screen-header">
+                <div><span class="eyebrow" data-copy="yourRequests">Ваши обращения</span><h2 id="applicationsTitle" data-copy="applications">Заявления</h2></div>
+                <button class="round-button" type="button" data-nav="services" aria-label="Новая услуга"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-plus"></use></svg></button>
+              </header>
+              <div class="segmented" role="group" aria-label="Фильтр заявлений">
+                <button type="button" data-app-filter="active" aria-pressed="true" data-copy="active">Активные <span>2</span></button>
+                <button type="button" data-app-filter="done" aria-pressed="false" data-copy="completed">Завершённые</button>
+              </div>
+              <div class="application-list" id="applicationList">
+                <button class="application-card" type="button" data-app-status="active" data-open-application="birth">
+                  <span class="application-icon t-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span>
+                  <span class="application-copy"><span class="status-label" data-copy="inReview">На рассмотрении</span><strong data-copy="birthTitle">Свидетельство о рождении — Зарина</strong><span>№ТҶ-2026-184302 · <span data-copy="updatedTwoHours">обновлено 2 ч назад</span></span></span>
+                  <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
+                </button>
+                <button class="application-card" type="button" data-app-status="active" data-open-application="passport">
+                  <span class="application-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span>
+                  <span class="application-copy"><span class="status-label status-label--action" data-copy="needAction">Нужно ваше действие</span><strong data-copy="passportRenewal">Замена паспорта</strong><span>№ТҶ-2026-183917 · <span data-copy="today">сегодня</span></span></span>
+                  <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
+                </button>
+                <button class="application-card" type="button" data-app-status="done" data-open-application="business" hidden>
+                  <span class="application-icon t-indigo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"></use></svg></span>
+                  <span class="application-copy"><span class="status-label status-label--done" data-copy="ready">Готово</span><strong data-copy="businessRegistration">Регистрация ИП</strong><span>№ТҶ-2026-179908 · 4 июня</span></span>
+                  <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
+                </button>
+              </div>
+            </section>
+
+            <section class="m-screen" id="screen-wallet" data-screen="wallet" aria-labelledby="walletTitle" hidden>
+              <header class="screen-header">
+                <div><span class="eyebrow" data-copy="digitalWallet">Цифровой кошелёк</span><h2 id="walletTitle" data-copy="documents">Документы</h2></div>
+                <button class="round-button" type="button" data-show-qr="identity" aria-label="Показать QR-код"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-qr"></use></svg></button>
+              </header>
+              <div class="security-note"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-shield"></use></svg><span data-copy="walletSecurity">Данные защищены. QR-код действует только 10 минут.</span></div>
+              <div class="document-stack">
+                <button class="document-card document-card--passport" type="button" data-document="passport">
+                  <span class="document-pattern" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-girih-tile"></use></svg></span>
+                  <span class="document-mark"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg><span>eKhizmat</span></span>
+                  <span class="document-kind" data-copy="citizenPassport">Паспорт гражданина</span>
+                  <strong>Фируза Раҳимова</strong>
+                  <span class="document-number">A 04290133</span>
+                  <span class="document-foot"><span data-copy="validUntil">Действителен до 14.10.2026</span><span class="verified"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg><span data-copy="verified">Проверен</span></span></span>
+                </button>
+                <button class="document-card document-card--tax" type="button" data-document="tax">
+                  <span class="document-pattern" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-girih-tile"></use></svg></span>
+                  <span class="document-mark"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg><span>eKhizmat</span></span>
+                  <span class="document-kind" data-copy="taxNumber">Идентификационный номер</span>
+                  <strong>Фируза Раҳимова</strong>
+                  <span class="document-number">6404 1893 0021</span>
+                  <span class="document-foot"><span data-copy="unlimited">Бессрочно</span><span class="verified"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg><span data-copy="verified">Проверен</span></span></span>
+                </button>
+              </div>
+              <button class="add-document" type="button" data-toast-copy="documentRequest"><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-plus"></use></svg></span><span><strong data-copy="addDocument">Добавить документ</strong><small data-copy="fromRegistry">Из государственного реестра</small></span><svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+            </section>
+
+            <section class="m-screen" id="screen-profile" data-screen="profile" aria-labelledby="profileTitle" hidden>
+              <header class="screen-header"><div><span class="eyebrow">eKhizmat ID</span><h2 id="profileTitle" data-copy="profile">Профиль</h2></div></header>
+              <section class="profile-card">
+                <span class="profile-avatar">Ф</span>
+                <div><h3>Фируза Раҳимова</h3><p data-copy="identityVerified">Личность подтверждена</p></div>
+                <span class="verified-badge"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span>
+              </section>
+              <section class="settings-group" aria-labelledby="settingsAccount">
+                <h3 id="settingsAccount" data-copy="account">Аккаунт</h3>
+                <button type="button" data-toast-copy="personalData"><span class="setting-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"></use></svg></span><span><strong data-copy="personalData">Личные данные</strong><small data-copy="personalDataSub">Телефон, адрес, контакты</small></span><svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+                <button type="button" data-toast-copy="security"><span class="setting-icon t-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-lock"></use></svg></span><span><strong data-copy="security">Безопасность</strong><small data-copy="securitySub">Face ID и вход в два шага</small></span><span class="setting-value" data-copy="on">Вкл.</span></button>
+                <button type="button" data-toast-copy="family"><span class="setting-icon t-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-family"></use></svg></span><span><strong data-copy="family">Семья</strong><small data-copy="familySub">2 связанных профиля</small></span><svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              </section>
+              <section class="settings-group" aria-labelledby="settingsApp">
+                <h3 id="settingsApp" data-copy="applicationSettings">Приложение</h3>
+                <button type="button" id="languageToggle"><span class="setting-icon t-violet"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"></use></svg></span><span><strong data-copy="language">Язык</strong><small data-copy="languageSub">Язык интерфейса</small></span><span class="setting-value" id="currentLanguage">Русский</span></button>
+                <button type="button" id="themeToggle"><span class="setting-icon t-amber"><svg class="theme-moon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-moon"></use></svg><svg class="theme-sun" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sun"></use></svg></span><span><strong data-copy="darkTheme">Тёмная тема</strong><small data-copy="themeSub">Подстраивается под устройство</small></span><span class="switch-control" role="switch" aria-checked="false"><span></span></span></button>
+                <button type="button" data-toast-copy="accessibility"><span class="setting-icon t-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-eye"></use></svg></span><span><strong data-copy="accessibility">Доступность</strong><small data-copy="accessibilitySub">Текст, контраст и движение</small></span><svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              </section>
+              <button class="sign-out-button" type="button" data-toast-copy="signedOut"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-out"></use></svg><span data-copy="signOut">Выйти</span></button>
+              <p class="app-version">eKhizmat mobile · concept 1.0</p>
+            </section>
+
+            <section class="m-screen m-screen--detail" id="screen-application-detail" data-screen="application-detail" aria-labelledby="applicationDetailTitle" hidden>
+              <header class="detail-header"><button class="round-button" type="button" data-back aria-label="Назад"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-l"></use></svg></button><span data-copy="application">Заявление</span><button class="round-button" type="button" data-toast-copy="help" aria-label="Помощь"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chat"></use></svg></button></header>
+              <div class="detail-hero">
+                <span class="application-icon t-rose" id="applicationDetailIcon"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span>
+                <span class="status-chip"><span class="status-pulse"></span><span id="applicationDetailStatus" data-copy="inReview">На рассмотрении</span></span>
+                <h2 id="applicationDetailTitle" data-copy="birthTitle">Свидетельство о рождении — Зарина</h2>
+                <p id="applicationDetailNumber">№ТҶ-2026-184302</p>
+              </div>
+              <section class="timeline-card" aria-labelledby="timelineTitle">
+                <div class="section-heading"><h3 id="timelineTitle" data-copy="whatHappens">Что происходит</h3><span data-copy="twoDays">до 2 дней</span></div>
+                <ol class="timeline" id="applicationTimeline">
+                  <li class="is-done"><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span><div><strong data-copy="applicationSent">Заявление отправлено</strong><small data-copy="juneTen">10 июня · 10:24</small></div></li>
+                  <li class="is-done"><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span><div><strong data-copy="dataVerified">Данные подтверждены</strong><small data-copy="automatically">Автоматически</small></div></li>
+                  <li class="is-current"><span>3</span><div><strong data-copy="zagReview">Проверка в ЗАГС</strong><small data-copy="sinDistrict">Район Сино · ожидаем до 13 июня</small></div></li>
+                  <li><span>4</span><div><strong data-copy="documentsIssue">Выпуск документов</strong><small data-copy="afterReview">После проверки</small></div></li>
+                  <li><span>5</span><div><strong data-copy="readyWallet">Готово в кошельке</strong><small data-copy="pushWhenReady">Сообщим push-уведомлением</small></div></li>
+                </ol>
+              </section>
+              <section class="detail-info-card"><div><span data-copy="agency">Ведомство</span><strong data-copy="zagSin">ЗАГС района Сино</strong></div><div><span data-copy="result">Результат</span><strong data-copy="threeDocuments">3 цифровых документа</strong></div></section>
+              <button class="secondary-button" type="button" data-toast-copy="supportMessage"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chat"></use></svg><span data-copy="askQuestion">Задать вопрос</span></button>
+            </section>
+
+            <section class="m-screen m-screen--detail" id="screen-service-flow" data-screen="service-flow" aria-labelledby="flowTitle" hidden>
+              <header class="detail-header"><button class="round-button" type="button" data-back aria-label="Назад"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-l"></use></svg></button><span data-copy="newApplication">Новая услуга</span><button class="round-button" type="button" data-close-flow aria-label="Закрыть"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"></use></svg></button></header>
+              <div class="flow-progress"><span id="flowProgressLabel">Шаг 1 из 3</span><span class="flow-progress-track"><span id="flowProgressBar" style="width:33.333%"></span></span></div>
+              <div class="flow-step" id="flowStep1">
+                <span class="flow-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span>
+                <h2 id="flowTitle" data-copy="passportRenewal">Замена паспорта</h2>
+                <p data-copy="passportIntro">Мы уже нашли ваши данные. Проверьте их перед отправкой — вводить всё заново не нужно.</p>
+                <div class="known-data"><span data-copy="applicant">Заявитель</span><strong>Фируза Раҳимова</strong><small>Паспорт A 04290133 · до 14.10.2026</small></div>
+                <button class="primary-button flow-next" type="button" data-flow-next><span data-copy="continue">Продолжить</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              </div>
+              <div class="flow-step" id="flowStep2" hidden>
+                <span class="eyebrow" data-copy="deliveryQuestion">Получение документа</span>
+                <h2 data-copy="whereReceive">Где вам удобно получить новый паспорт?</h2>
+                <p data-copy="chooseOne">Выберите один вариант. Его можно изменить до отправки.</p>
+                <div class="choice-list" role="radiogroup" aria-label="Место получения">
+                  <label><input type="radio" name="delivery" value="center" checked><span><strong data-copy="serviceCenter">Центр обслуживания</strong><small data-copy="rudakiAddress">проспект Рудаки, 64 · 1,2 км</small></span><span class="radio-mark"></span></label>
+                  <label><input type="radio" name="delivery" value="home"><span><strong data-copy="homeDelivery">Доставка домой</strong><small data-copy="deliveryFee">2–3 дня · 20 сомони</small></span><span class="radio-mark"></span></label>
+                </div>
+                <button class="primary-button flow-next" type="button" data-flow-next><span data-copy="continue">Продолжить</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              </div>
+              <div class="flow-step" id="flowStep3" hidden>
+                <span class="eyebrow" data-copy="beforeSending">Перед отправкой</span>
+                <h2 data-copy="checkApplication">Проверьте заявление</h2>
+                <p data-copy="checkIntro">Короткое резюме помогает заметить ошибку до отправки.</p>
+                <div class="review-list"><div><span data-copy="service">Услуга</span><strong data-copy="passportRenewal">Замена паспорта</strong></div><div><span data-copy="applicant">Заявитель</span><strong>Фируза Раҳимова</strong></div><div><span data-copy="receiving">Получение</span><strong id="deliverySummary" data-copy="serviceCenter">Центр обслуживания</strong></div><div><span data-copy="fee">Стоимость</span><strong>250 сомони</strong></div></div>
+                <label class="consent-check"><input type="checkbox" id="flowConsent"><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span><span data-copy="consent">Подтверждаю, что данные верны</span></label>
+                <button class="primary-button" id="submitApplication" type="button" disabled><span data-copy="sendApplication">Отправить заявление</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sign"></use></svg></button>
+              </div>
+              <div class="flow-step flow-success" id="flowSuccess" hidden>
+                <span class="success-mark"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span>
+                <h2 data-copy="applicationAccepted">Заявление принято</h2>
+                <p data-copy="statusNotifications">Мы будем сообщать о каждом важном изменении статуса.</p>
+                <div class="success-number"><span data-copy="applicationNumber">Номер заявления</span><strong>№ТҶ-2026-184551</strong></div>
+                <button class="primary-button" type="button" data-nav="applications"><span data-copy="goApplications">К заявлениям</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+                <button class="text-button" type="button" data-nav="home" data-copy="goHome">На главную</button>
+              </div>
+            </section>
+          </div>
+
+          <nav class="bottom-nav" aria-label="Основная навигация">
+            <button type="button" data-nav="home" aria-current="page"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg><span data-copy="home">Главная</span></button>
+            <button type="button" data-nav="services"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg><span data-copy="services">Услуги</span></button>
+            <button type="button" data-nav="applications"><span class="nav-icon-wrap"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-inbox"></use></svg><span class="nav-badge">2</span></span><span data-copy="applications">Заявления</span></button>
+            <button type="button" data-nav="wallet"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-wallet"></use></svg><span data-copy="documents">Документы</span></button>
+            <button type="button" data-nav="profile"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"></use></svg><span data-copy="profile">Профиль</span></button>
+          </nav>
+
+          <div class="sheet-overlay" id="sheetOverlay" hidden></div>
+          <section class="bottom-sheet" id="serviceSheet" role="dialog" aria-modal="true" aria-labelledby="serviceSheetTitle" hidden>
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <button class="sheet-close" type="button" data-close-sheet aria-label="Закрыть"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"></use></svg></button>
+            <span class="sheet-icon t-blue" id="serviceSheetIcon"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span>
+            <span class="eyebrow" id="serviceSheetAgency">МВД Республики Таджикистан</span>
+            <h2 id="serviceSheetTitle">Замена паспорта</h2>
+            <p id="serviceSheetDescription">Подайте заявление и выберите удобное место получения нового документа.</p>
+            <div class="service-facts"><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"></use></svg><span><small data-copy="takes">Займёт</small><strong id="serviceSheetTime">8 минут</strong></span></span><span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-money"></use></svg><span><small data-copy="cost">Стоимость</small><strong id="serviceSheetCost">250 сомони</strong></span></span></div>
+            <div class="sheet-info"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"></use></svg><span data-copy="autoData">Паспортные данные заполним автоматически из государственных реестров.</span></div>
+            <button class="primary-button" type="button" id="startService"><span data-copy="startService">Начать услугу</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+          </section>
+
+          <section class="bottom-sheet notification-sheet" id="notificationSheet" role="dialog" aria-modal="true" aria-labelledby="notificationTitle" hidden>
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-heading"><div><span class="eyebrow" data-copy="updates">Обновления</span><h2 id="notificationTitle" data-copy="notifications">Уведомления</h2></div><button class="sheet-close sheet-close--inline" type="button" data-close-sheet aria-label="Закрыть"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"></use></svg></button></div>
+            <div class="notification-list">
+              <button type="button" data-close-sheet data-open-application="birth"><span class="notification-icon t-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span><span><strong data-copy="birthAccepted">Заявление принято в работу</strong><small data-copy="birthAcceptedSub">ЗАГС района Сино · 2 часа назад</small></span><span class="unread-dot"></span></button>
+              <button type="button" data-close-sheet data-service="passport"><span class="notification-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span><span><strong data-copy="passportExpires">Срок паспорта истекает</strong><small data-copy="passportExpiresSub">Через 2 месяца · можно заменить сейчас</small></span><span class="unread-dot"></span></button>
+              <button type="button" data-close-sheet data-service="vehicle-tax"><span class="notification-icon t-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-money"></use></svg></span><span><strong data-copy="taxDiscount">Скидка на транспортный налог</strong><small data-copy="taxDiscountSub">20% при оплате до 1 июля</small></span></button>
+            </div>
+          </section>
+
+          <section class="center-modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle" hidden>
+            <button class="modal-close" type="button" data-close-qr aria-label="Закрыть"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"></use></svg></button>
+            <span class="modal-icon"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-shield"></use></svg></span>
+            <h2 id="qrTitle" data-copy="shareDocument">Показать документ</h2>
+            <p data-copy="qrIntro">Проверяющий увидит только этот документ. Код обновится через 10 минут.</p>
+            <div class="qr-code" aria-label="Демонстрационный QR-код"><svg id="qrGraphic" viewBox="0 0 29 29" shape-rendering="crispEdges"></svg></div>
+            <strong class="qr-timer">09:58</strong>
+            <button class="secondary-button" type="button" data-close-qr data-copy="done">Готово</button>
+          </section>
+
+          <div class="toast mobile-toast" id="mobileToast" role="status" aria-live="polite"></div>
+        </div>
+      </div>
+      <p class="device-caption">Web-прототип · 390 × 844</p>
+    </section>
+  </main>
+
+  <script type="module" src="/apps/mobile/app.js"></script>
+</body>
+</html>

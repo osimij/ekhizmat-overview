@@ -35,6 +35,17 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .platform-arrow { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--field); color: var(--ink-2); }
 .platform-arrow svg { width: 17px; height: 17px; }
 .platform-card:hover .platform-arrow { background: var(--action); color: var(--on-blue); }
+.mobile-concept-card { position: relative; display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 18px; margin-top: 16px; padding: 22px 24px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-xl); background: linear-gradient(110deg, var(--blue-tint), color-mix(in srgb, var(--panel) 90%, transparent)); color: var(--ink); transition: border-color var(--t-fast), transform var(--t-fast), background var(--t-fast); }
+.mobile-concept-card::after { content: ''; position: absolute; right: 18%; bottom: -100px; width: 220px; height: 180px; border-radius: 50%; background: var(--h-violet-bg); opacity: .55; }
+.mobile-concept-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--action) 45%, var(--line)); }
+.mobile-concept-card:active { transform: none; }
+.mobile-concept-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 18px; background: var(--action); color: var(--on-blue); }
+.mobile-concept-icon svg { width: 28px; height: 28px; }
+.mobile-concept-copy { position: relative; z-index: 1; display: grid; gap: 4px; }
+.mobile-concept-copy strong { font-size: var(--fs-20); }
+.mobile-concept-copy > span:last-child { max-width: 650px; color: var(--ink-2); font-size: var(--fs-14); line-height: 1.45; }
+.mobile-concept-cta { position: relative; z-index: 1; display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 0 15px; border-radius: var(--r-pill); background: var(--panel); color: var(--blue-ink); font-size: var(--fs-13); font-weight: 680; white-space: nowrap; }
+.mobile-concept-cta svg { width: 15px; height: 15px; }
 .materials { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
 .materials h2 { font-size: var(--fs-17); }
 .materials div { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; }
@@ -46,6 +57,9 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
   .platform-card { min-height: 164px; padding: 24px; grid-template-columns: 52px 1fr; gap: 16px; }
   .platform-icon { width: 52px; height: 52px; border-radius: 16px; }
   .platform-arrow { display: none; }
+  .mobile-concept-card { grid-template-columns: 52px 1fr; padding: 20px; }
+  .mobile-concept-cta { grid-column: 2; justify-self: start; }
+  .mobile-concept-icon { width: 52px; height: 52px; border-radius: 16px; }
 }
 @media (max-width: 420px) {
   .launch-control span { display: none; }
@@ -56,4 +70,8 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
   .platform-icon { width: 44px; height: 44px; border-radius: 14px; }
   .platform-icon svg { width: 23px; height: 23px; }
   .platform-copy strong { font-size: 20px; }
+  .mobile-concept-card { grid-template-columns: 44px 1fr; }
+  .mobile-concept-icon { width: 44px; height: 44px; border-radius: 14px; }
+  .mobile-concept-icon svg { width: 22px; height: 22px; }
+  .mobile-concept-cta { grid-column: 1 / -1; }
 }

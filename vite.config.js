@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const pages = {
   launcher: 'index.html',
   citizen: 'citizen/index.html',
+  mobile: 'mobile/index.html',
   tson: 'tson/index.html',
   ministry: 'ministry/index.html',
   admin: 'admin/index.html',

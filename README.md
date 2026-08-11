@@ -3,6 +3,7 @@
 This repository presents the four eKhizmat experiences as one project:
 
 - `/citizen/` — Citizen Portal
+- `/mobile/` — interactive Citizen mobile-app concept (web prototype)
 - `/tson/` — ЦОН Operator workstation
 - `/ministry/` — Ministry Specialist workspace
 - `/admin/` — Service Administrator
