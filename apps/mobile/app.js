@@ -118,9 +118,8 @@ function renderServices() {
   $('#serviceList').innerHTML = filtered.map(service => {
     const name = language === 'tg' ? service.tg : service.ru;
     const agency = language === 'tg' ? service.agencyTg : service.agencyRu;
-    const time = language === 'tg' ? service.timeTg : service.timeRu;
     const cost = language === 'tg' ? service.costTg : service.costRu;
-    return `<button class="service-row" type="button" data-service="${service.id}"><span class="quick-icon ${service.tone}">${icon(service.icon)}</span><span class="service-row-copy"><strong>${name}</strong><span>${agency}</span><span class="service-meta"><span>${cost}</span><span>${time}</span></span></span>${icon('i-chev-r')}</button>`;
+    return `<button class="service-row" type="button" data-service="${service.id}"><span class="quick-icon ${service.tone}">${icon(service.icon)}</span><span class="service-row-copy"><strong>${name}</strong><span>${agency}</span><span class="service-meta"><span>${cost}</span></span></span>${icon('i-chev-r')}</button>`;
   }).join('');
   $('#serviceResultCount').textContent = language === 'tg' ? `${filtered.length} хизмат` : `${filtered.length} ${filtered.length === 1 ? 'услуга' : filtered.length < 5 ? 'услуги' : 'услуг'}`;
   $('#serviceEmpty').hidden = filtered.length > 0;

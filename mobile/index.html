@@ -8,6 +8,7 @@
   <script>try{const q=new URLSearchParams(location.search),t=q.get('theme')||localStorage.getItem('ekh.preferences.theme');if(t==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
   <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
   <link rel="preload" href="/design-system/assets/fonts/GoogleSans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="https://use.hugeicons.com/font/icons.css">
   <link rel="stylesheet" href="/design-system/global.css">
   <link rel="stylesheet" href="/apps/mobile/app.css">
 </head>
@@ -52,12 +53,11 @@
             <section class="m-screen" id="screen-home" data-screen="home" aria-labelledby="homeTitle">
               <header class="home-header">
                 <div>
-                  <span class="eyebrow" data-copy="greeting">Доброе утро</span>
                   <h2 id="homeTitle" data-copy="hello">Фируза</h2>
                 </div>
                 <div class="header-actions">
                   <button class="round-button" type="button" data-open-notifications aria-label="Уведомления">
-                    <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-bell"></use></svg><span class="notification-dot"></span>
+                    <i class="hgi-stroke hgi-notification-02" aria-hidden="true"></i><span class="notification-dot"></span>
                   </button>
                   <button class="avatar-button" type="button" data-nav="profile" aria-label="Профиль">Ф</button>
                 </div>
@@ -114,8 +114,8 @@
 
             <section class="m-screen" id="screen-services" data-screen="services" aria-labelledby="servicesTitle" hidden>
               <header class="screen-header">
-                <div><span class="eyebrow" data-copy="catalog">Каталог</span><h2 id="servicesTitle" data-copy="services">Услуги</h2></div>
-                <button class="round-button" type="button" data-open-notifications aria-label="Уведомления"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-bell"></use></svg><span class="notification-dot"></span></button>
+                <div><h2 id="servicesTitle" data-copy="services">Услуги</h2></div>
+                <button class="round-button" type="button" data-open-notifications aria-label="Уведомления"><i class="hgi-stroke hgi-notification-02" aria-hidden="true"></i><span class="notification-dot"></span></button>
               </header>
               <label class="search-field">
                 <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg>
@@ -141,7 +141,7 @@
 
             <section class="m-screen" id="screen-applications" data-screen="applications" aria-labelledby="applicationsTitle" hidden>
               <header class="screen-header">
-                <div><span class="eyebrow" data-copy="yourRequests">Ваши обращения</span><h2 id="applicationsTitle" data-copy="applications">Заявления</h2></div>
+                <div><h2 id="applicationsTitle" data-copy="applications">Заявления</h2></div>
                 <button class="round-button" type="button" data-nav="services" aria-label="Новая услуга"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-plus"></use></svg></button>
               </header>
               <div class="segmented" role="group" aria-label="Фильтр заявлений">
@@ -169,7 +169,7 @@
 
             <section class="m-screen" id="screen-wallet" data-screen="wallet" aria-labelledby="walletTitle" hidden>
               <header class="screen-header">
-                <div><span class="eyebrow" data-copy="digitalWallet">Цифровой кошелёк</span><h2 id="walletTitle" data-copy="documents">Документы</h2></div>
+                <div><h2 id="walletTitle" data-copy="documents">Документы</h2></div>
                 <button class="round-button" type="button" data-show-qr="identity" aria-label="Показать QR-код"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-qr"></use></svg></button>
               </header>
               <div class="security-note"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-shield"></use></svg><span data-copy="walletSecurity">Данные защищены. QR-код действует только 10 минут.</span></div>
@@ -195,7 +195,7 @@
             </section>
 
             <section class="m-screen" id="screen-profile" data-screen="profile" aria-labelledby="profileTitle" hidden>
-              <header class="screen-header"><div><span class="eyebrow">eKhizmat ID</span><h2 id="profileTitle" data-copy="profile">Профиль</h2></div></header>
+              <header class="screen-header"><div><h2 id="profileTitle" data-copy="profile">Профиль</h2></div></header>
               <section class="profile-card">
                 <span class="profile-avatar">Ф</span>
                 <div><h3>Фируза Раҳимова</h3><p data-copy="identityVerified">Личность подтверждена</p></div>
