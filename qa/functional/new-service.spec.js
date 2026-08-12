@@ -3,6 +3,34 @@ import { test, expect } from '@playwright/test';
 test('Admin new-service keeps blank and copy paths distinct in Russian', async ({ page }) => {
   await page.goto('/admin/new-service.html?lang=ru&theme=light');
 
+  const headerSpacing=await page.locator('.wz-h').evaluate(header=>{
+    const title=header.querySelector('h1').getBoundingClientRect();
+    const subtitle=header.querySelector('p').getBoundingClientRect();
+    return subtitle.top-title.bottom;
+  });
+  expect(headerSpacing).toBeLessThanOrEqual(8);
+
+  const firstStepPolish=await page.locator('[data-step="1"]').evaluate(step=>{
+    const title=step.querySelector('h2');
+    const lead=step.querySelector('.lead');
+    const option=step.querySelector('.opt');
+    const radio=option.querySelector('input[type="radio"]');
+    const titleBox=title.getBoundingClientRect();
+    const leadBox=lead.getBoundingClientRect();
+    const optionBox=option.getBoundingClientRect();
+    const radioBox=radio.getBoundingClientRect();
+    return {
+      titleWeight:Number.parseFloat(getComputedStyle(title).fontWeight),
+      titleLeadGap:leadBox.top-titleBox.bottom,
+      radioCenterDelta:Math.abs((radioBox.top+radioBox.height/2)-(optionBox.top+optionBox.height/2)),
+      radioBorder:getComputedStyle(radio).borderTopColor
+    };
+  });
+  expect(firstStepPolish.titleWeight).toBeLessThanOrEqual(550);
+  expect(firstStepPolish.titleLeadGap).toBeLessThanOrEqual(4);
+  expect(firstStepPolish.radioCenterDelta).toBeLessThanOrEqual(1);
+  expect(firstStepPolish.radioBorder).toBe('rgb(201, 202, 206)');
+
   await page.locator('[name="method"][value="blank"]').check();
   await expect(page.locator('#basisStep')).toBeHidden();
   await page.locator('#methodNext').click();
@@ -56,6 +84,12 @@ test('Admin can assign a new service to a catalogue category', async ({ page }) 
   await page.locator('[data-step="3"] [data-next]').click();
   await expect(page.locator('#rvCat')).toHaveText('Земля и недвижимость');
   await expect(page.locator('#createServiceForm')).toHaveAttribute('href', /category=land/);
+
+  const headingLeft=await page.locator('[data-step="4"] h2').evaluate(element=>element.getBoundingClientRect().left);
+  const labelLeft=await page.locator('.review--creation-summary .k').first().evaluate(element=>element.getBoundingClientRect().left);
+  const backLeft=await page.locator('.j-acts--split [data-back]').evaluate(element=>element.getBoundingClientRect().left);
+  expect(Math.abs(labelLeft-headingLeft)).toBeLessThanOrEqual(1);
+  expect(Math.abs(backLeft-headingLeft)).toBeLessThanOrEqual(1);
 });
 
 test('Admin can save the new service as a draft and see its status in the registry', async ({ page }) => {

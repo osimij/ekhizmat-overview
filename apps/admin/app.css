@@ -384,6 +384,7 @@ a.ft-c:hover{color:var(--ink)}
 .rv .k{color:var(--ink-3); font-size:var(--fs-14)}
 .rv .v{font-weight:600; text-align:right}
 .rv .v.ok{color:var(--green)}
+.review--creation-summary .rv{padding-left:0}
 .consent{display:flex; gap:var(--s-3); align-items:flex-start; padding:var(--s-4); background:var(--blue-tint); border-radius:var(--r-m); cursor:pointer; font-size:var(--fs-14)}
 .consent input{width:19px; height:19px; accent-color:var(--blue); margin-top:1px; flex:none}
 
@@ -1504,12 +1505,13 @@ body.shot .bp-bar{display:none}
 .tpl-grid .opt{background:var(--field-on-panel)}
 /* wizard: the form panel hugs its content instead of stretching into empty space */
 @media(min-width:981px){
-  .wz,.wz-h{display:grid; grid-template-columns:220px minmax(0,760px); gap:var(--s-8); justify-content:center}
+  .wz,.wz-h{display:grid; grid-template-columns:220px minmax(0,760px); column-gap:var(--s-8); justify-content:center}
   .wz-h > *{grid-column:1 / -1}
 }
 .wz-body section{max-width:none}
 .wz .j-acts{justify-content:flex-end}
 .wz .j-acts .btn{flex:0 0 auto}
+.wz .j-acts--split > [data-back]{margin-right:auto}
 .wz-body [data-step="2"] .opt .tt{min-width:0;flex:1}
 .wz-body [data-step="2"] .opt > .metachip{flex:none;align-self:center;margin-left:auto}
 @media(max-width:560px){
@@ -1537,6 +1539,7 @@ body.shot .bp-bar{display:none}
   .wz-body [data-step="2"] .opt > .metachip{justify-self:end}
   .wz .j-acts{flex-direction:column-reverse}
   .wz .j-acts .btn{width:100%}
+  .wz .j-acts--split > [data-back]{margin-right:0}
 }
 /* builder toast clears the add-field button row */
 .bld .toast{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
@@ -1673,9 +1676,23 @@ body[data-platform="admin"] :is(.adm-body,.bld-work){font-variant-numeric:tabula
 .wz-step{min-height:44px;align-items:center}
 .wz-step .n{font-weight:550}
 .wz-step b{font-weight:550}
-.wz-body h2{font-size:var(--fs-20);font-weight:600}
+.wz-body h2{font-size:var(--fs-20);font-weight:550;margin-bottom:var(--s-1)}
+.wz-body section > .lead{margin:0 0 var(--s-4)}
 .opt{border-radius:var(--r-m);padding:var(--s-3) var(--s-4)}
 .opt .tt b{font-weight:550}
+.wz-body [data-step="1"] .opt{align-items:center;min-height:64px;margin-bottom:var(--s-2)}
+.wz-body [data-step="1"] .opt:last-of-type{margin-bottom:0}
+.wz-body [data-step="1"] .opt > input[type="radio"]{
+  -webkit-appearance:none;appearance:none;display:grid;place-items:center;
+  width:20px;height:20px;margin:0;border:1.5px solid var(--control-line);border-radius:50%;
+  background:var(--panel);cursor:pointer;
+}
+.wz-body [data-step="1"] .opt > input[type="radio"]:checked{
+  border:2px solid var(--blue);
+  background:radial-gradient(circle,var(--blue) 0 5px,transparent 5.5px);
+}
+.wz-body [data-step="1"] .opt > input[type="radio"]:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wz-body [data-step="1"] .j-acts{margin-top:var(--s-6)}
 
 /* Focused builder */
 .bld-top{min-height:60px;padding:var(--s-2) var(--s-4)}
