@@ -58,7 +58,7 @@
         <button class="icon-btn" id="bellBtn" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
           <svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span class="dot"></span>
         </button>
-        <button class="avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман">Ф</button>
+        <button class="avatar profile-avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden></button>
         <button class="guest-avatar" id="guestAvatar" type="button" data-i18n-aria="nav.profile" aria-label="Профили ман" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg></button>
         <button class="btn btn-pri btn-sm" id="loginBtn" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
       </div>
@@ -523,7 +523,7 @@
     <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
 
     <div class="prof-head">
-      <span class="prof-ava" aria-hidden="true">Ф</span>
+      <button class="prof-ava profile-photo-trigger" id="profilePhotoTrigger" type="button" aria-label="Иваз кардани сурат" data-i18n-aria="p.photo.change"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden><span class="profile-photo-trigger__edit"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span></button>
       <div>
         <h1>
           <span>Фируза Раҳимова</span>
@@ -543,6 +543,7 @@
         <button class="pn" data-pane="data" aria-current="true"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg><span data-i18n="p.nav.data">Маълумоти ман</span></button>
         <button class="pn" data-pane="docs" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg><span data-i18n="nav.wallet">Ҳамёни ҳуҷҷатҳо</span></button>
         <button class="pn" data-pane="apps" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="nav.apps">Аризаҳои ман</span></button>
+        <button class="pn" data-pane="payments" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-card"/></svg><span data-i18n="pay.list.title">Пардохтҳои ман</span></button>
         <button class="pn" data-pane="contact" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span data-i18n="p.nav.contact">Тамос ва огоҳиҳо</span></button>
         <button class="pn" data-pane="family" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-cat-family"/></svg><span data-i18n="p.nav.family">Оила</span></button>
         <button class="pn" data-pane="sec" aria-current="false"><svg><use href="/design-system/assets/icons.svg#i-lock"/></svg><span data-i18n="p.nav.sec">Амният</span></button>
@@ -559,6 +560,8 @@
             <p data-i18n="p.warn.pass">Мӯҳлати шиноснома 14 октябр ба охир мерасад. Ҳоло нав кунед - бе навбат.</p>
             <button class="btn btn-sec btn-sm" data-toast="toast.demo" data-i18n="card.pass.cta">Нав кардан - 8 дақиқа</button>
           </div>
+
+          <div id="underReviewRoot"></div>
 
           <div class="plist">
             <div class="pr">
@@ -621,63 +624,73 @@
           </div>
 
           <div class="docs" id="docGrid">
-            <article class="doc" data-owner="me">
+            <article class="doc" data-owner="me" data-doc-id="passport">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <button class="doc-open" type="button" data-i18n-aria="d.pass.k" aria-label="Шиноснома"></button>
+              <button class="doc-qr" type="button" data-qr="d.pass.k" data-i18n-aria="d.pass.qr" aria-label="QR-коди шиноснома"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
               <span class="kind" data-i18n="d.pass.k">Шиноснома</span>
               <h3>Фируза Раҳимова</h3>
               <p class="num">Т 4018236</p>
               <div class="foot">
                 <span class="exp warn" data-i18n="d.pass.e">то 14.10.2026 - вақти нав кардан</span>
-                <button class="share" data-qr="d.pass.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
               </div>
             </article>
 
-            <article class="doc earth" data-owner="kids" id="docBirth" hidden>
+            <article class="doc earth" data-owner="kids" data-doc-id="birth" id="docBirth" hidden>
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <button class="doc-open" type="button" data-i18n-aria="d.birth.k" aria-label="Шаҳодатномаи таваллуд"></button>
+              <button class="doc-qr" type="button" data-qr="d.birth.k" data-i18n-aria="d.birth.qr" aria-label="QR-коди шаҳодатномаи таваллуд"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
               <span class="badge-new" data-i18n="badge.new">нав</span>
               <span class="kind" data-i18n="d.birth.k">Шаҳодатномаи таваллуд</span>
               <h3 id="docBirthName">Зарина Раҳимова</h3>
               <p class="num">СТ 0931184</p>
               <div class="foot">
                 <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
-                <button class="share" data-qr="d.birth.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
               </div>
             </article>
 
-            <article class="doc ink" data-owner="me">
+            <article class="doc ink" data-owner="me" data-doc-id="tax">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <button class="doc-open" type="button" data-i18n-aria="d.inn.k" aria-label="Рақами андозсупоранда"></button>
+              <button class="doc-qr" type="button" data-qr="d.inn.k" data-i18n-aria="d.inn.qr" aria-label="QR-коди рақами андозсупоранда"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
               <span class="kind" data-i18n="d.inn.k">Рақами андозсупоранда</span>
               <h3>Фируза Раҳимова</h3>
               <p class="num">6404 1893 0021</p>
               <div class="foot">
                 <span class="exp" data-i18n="d.birth.e">бемӯҳлат</span>
-                <button class="share" data-qr="d.inn.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
               </div>
             </article>
 
-            <article class="doc" data-owner="me">
+            <article class="doc" data-owner="me" data-doc-id="driver">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <button class="doc-open" type="button" data-i18n-aria="d.drv.k" aria-label="Шаҳодатномаи ронандагӣ"></button>
+              <button class="doc-qr" type="button" data-qr="d.drv.k" data-i18n-aria="d.drv.qr" aria-label="QR-коди шаҳодатномаи ронандагӣ"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
               <span class="kind" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span>
               <h3>Фируза Раҳимова</h3>
               <p class="num">AB 552901 - категорияи B</p>
               <div class="foot">
                 <span class="exp" data-i18n="d.drv.e">то 03.2029</span>
-                <button class="share" data-qr="d.drv.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
               </div>
             </article>
 
-            <article class="doc earth" data-owner="me" id="docTemp" hidden>
+            <article class="doc earth" data-owner="me" data-doc-id="temporary" id="docTemp" hidden>
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
+              <button class="doc-open" type="button" data-i18n-aria="d.temp.k" aria-label="Шиносномаи муваққатӣ"></button>
+              <button class="doc-qr" type="button" data-qr="d.temp.k" data-i18n-aria="d.temp.qr" aria-label="QR-коди шиносномаи муваққатӣ"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
               <span class="badge-new" data-i18n="badge.new">нав</span>
               <span class="kind" data-i18n="d.temp.k">Шиносномаи муваққатӣ</span>
               <h3>Фируза Раҳимова</h3>
               <p class="num">ВМ 110476</p>
               <div class="foot">
                 <span class="exp" data-i18n="d.temp.e">30 рӯз эътибор дорад</span>
-                <button class="share" data-qr="d.temp.k"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg><span data-i18n="btn.share">Мубодила</span></button>
               </div>
             </article>
           </div>
+
+          <section class="received-documents" aria-labelledby="receivedDocsH">
+            <div class="pane-heading"><div><h2 id="receivedDocsH" data-i18n="w.files.title">Ҳуҷҷатҳо ва маълумотномаҳои гирифташуда</h2><p class="lead-s" data-i18n="w.files.lead">Натиҷаҳои хизматҳо барои кушодан ва боргирӣ.</p></div></div>
+            <div id="receivedFilesRoot"></div>
+          </section>
 
           <p class="wallet-empty" id="walletEmpty" hidden>
             <span data-i18n="w.empty">Ҳоло ҳуҷҷати падару модар пайваст нашудааст. Онҳоро даъват кунед - ҳуҷҷатҳояшонро бо иҷозаташон идора мекунед.</span><br><br>
@@ -687,6 +700,10 @@
 
         <section class="pane" id="pane-apps" hidden data-i18n-aria="nav.apps" aria-label="Аризаҳои ман">
           <div id="applicationsRoot"></div>
+        </section>
+
+        <section class="pane" id="pane-payments" hidden data-i18n-aria="pay.list.title" aria-label="Пардохтҳои ман">
+          <div id="paymentsRoot"></div>
         </section>
 
         <section class="pane" id="pane-contact" hidden data-i18n-aria="p.nav.contact" aria-label="Тамос ва огоҳиҳо">
@@ -881,6 +898,39 @@
     </div>
   </div>
 </footer>
+
+<!-- document / received-file preview -->
+<div class="overlay" id="documentDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="documentDetailH">
+  <div class="modal document-detail-modal">
+    <div id="documentDetailRoot"></div>
+    <button class="btn btn-ghost btn-block" id="documentDetailClose" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<!-- electronic payment receipt -->
+<div class="overlay" id="receiptOverlay" role="dialog" aria-modal="true" aria-labelledby="receiptH">
+  <div class="modal receipt-modal">
+    <div id="receiptRoot"></div>
+    <button class="btn btn-pri btn-block" id="receiptDownload"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-download"/></svg><span data-i18n="pay.receipt.download">PDF-ро боргирӣ кардан</span></button>
+    <button class="btn btn-ghost btn-block" id="receiptClose" data-i18n="btn.close">Пӯшидан</button>
+  </div>
+</div>
+
+<!-- session-only profile photo -->
+<div class="overlay" id="profilePhotoOverlay" role="dialog" aria-modal="true" aria-labelledby="profilePhotoH">
+  <form class="modal profile-photo-modal" id="profilePhotoForm" novalidate>
+    <h3 id="profilePhotoH" data-i18n="p.photo.title">Сурати профил</h3>
+    <p class="sub" data-i18n="p.photo.demo">Намоиш: сурат дар сервер нигоҳ дошта намешавад.</p>
+    <div class="profile-photo-preview" id="profilePhotoPreview"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden></div>
+    <label class="btn btn-sec profile-photo-pick" for="profilePhotoInput"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-upload"/></svg><span data-i18n="p.photo.choose">Сурат интихоб кунед</span></label>
+    <input id="profilePhotoInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+    <p class="field-help" data-i18n="p.photo.help">JPG, PNG ё WebP · то 5 МБ</p>
+    <p class="field-error" id="profilePhotoError" role="alert" hidden></p>
+    <button class="btn btn-pri btn-block" id="profilePhotoSave" type="submit" data-i18n="p.photo.save" disabled>Нигоҳ доштан</button>
+    <button class="btn btn-ghost btn-block" id="profilePhotoRemove" type="button" data-i18n="p.photo.remove">Суратро нест кардан</button>
+    <button class="btn btn-ghost btn-block" id="profilePhotoCancel" type="button" data-i18n="btn.close">Пӯшидан</button>
+  </form>
+</div>
 
 <!-- QR modal -->
 <div class="overlay" id="qrOverlay" role="dialog" aria-modal="true" aria-labelledby="qrH">

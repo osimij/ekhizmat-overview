@@ -201,7 +201,12 @@ tg: {
   "toast.fix":"Қабул шуд - дар давоми 1 рӯзи корӣ ҷавоб медиҳем",
   "toast.saved":"Сабт шуд",
   "toast.out":"Дастгоҳ хориҷ карда шуд",
-  "toast.revoked":"Розигӣ бозхонд шуд - Алиф Бонк дигар дастрасӣ надорад"
+  "toast.revoked":"Розигӣ бозхонд шуд - Алиф Бонк дигар дастрасӣ надорад",
+  "d.pass.qr":"QR-коди шиноснома","d.birth.qr":"QR-коди шаҳодатномаи таваллуд","d.inn.qr":"QR-коди рақами андозсупоранда","d.drv.qr":"QR-коди шаҳодатномаи ронандагӣ","d.temp.qr":"QR-коди шиносномаи муваққатӣ",
+  "d.detail.front":"Пеш","d.detail.back":"Пушт","d.detail.issuedBy":"Додааст","d.detail.issuedAt":"Санаи дода шудан","d.detail.validUntil":"Эътибор дорад","d.detail.verified":"Тасдиқ шуд","d.detail.pdf":"PDF-ро боргирӣ кардан","d.detail.share":"Мубодила","d.detail.qr":"Нишон додани QR",
+  "w.files.title":"Ҳуҷҷатҳо ва маълумотномаҳои гирифташуда","w.files.lead":"Натиҷаҳои хизматҳо барои кушодан ва боргирӣ.","w.files.empty":"Ҳоло ҳуҷҷати гирифташуда нест — онҳо пас аз анҷоми хизмат пайдо мешаванд.","w.files.download":"Боргирӣ","w.files.open":"Кушодан",
+  "pay.list.title":"Пардохтҳои ман","pay.receipt.download":"PDF-ро боргирӣ кардан",
+  "p.photo.change":"Иваз кардани сурат","p.photo.title":"Сурати профил","p.photo.demo":"Намоиш: сурат дар сервер нигоҳ дошта намешавад.","p.photo.choose":"Сурат интихоб кунед","p.photo.help":"JPG, PNG ё WebP · то 5 МБ","p.photo.save":"Нигоҳ доштан","p.photo.remove":"Суратро нест кардан","p.photo.type":"Файли JPG, PNG ё WebP интихоб кунед.","p.photo.size":"Ҳаҷми сурат набояд аз 5 МБ зиёд бошад."
 },
 ru: {
   "a11y.skip":"Перейти к основному содержимому",
@@ -404,7 +409,12 @@ ru: {
   "toast.fix":"Принято - ответим в течение рабочего дня",
   "toast.saved":"Сохранено",
   "toast.out":"Устройство отключено",
-  "toast.revoked":"Согласие отозвано - у Алиф Банка больше нет доступа"
+  "toast.revoked":"Согласие отозвано - у Алиф Банка больше нет доступа",
+  "d.pass.qr":"QR-код паспорта","d.birth.qr":"QR-код свидетельства о рождении","d.inn.qr":"QR-код ИНН","d.drv.qr":"QR-код водительского удостоверения","d.temp.qr":"QR-код временного паспорта",
+  "d.detail.front":"Лицевая сторона","d.detail.back":"Оборотная сторона","d.detail.issuedBy":"Кем выдан","d.detail.issuedAt":"Дата выдачи","d.detail.validUntil":"Действителен до","d.detail.verified":"Подтверждено","d.detail.pdf":"Скачать PDF","d.detail.share":"Поделиться","d.detail.qr":"Показать QR",
+  "w.files.title":"Полученные документы и справки","w.files.lead":"Результаты услуг для просмотра и скачивания.","w.files.empty":"Полученных документов пока нет — они появятся после завершения услуг.","w.files.download":"Скачать","w.files.open":"Открыть",
+  "pay.list.title":"Мои платежи","pay.receipt.download":"Скачать PDF",
+  "p.photo.change":"Изменить фото","p.photo.title":"Фото профиля","p.photo.demo":"Демо: фото не сохраняется на сервере.","p.photo.choose":"Выбрать фото","p.photo.help":"JPG, PNG или WebP · до 5 МБ","p.photo.save":"Сохранить","p.photo.remove":"Удалить фото","p.photo.type":"Выберите файл JPG, PNG или WebP.","p.photo.size":"Размер фото не должен превышать 5 МБ."
 },
 en: {
   "a11y.skip":"Skip to main content",
@@ -607,7 +617,12 @@ en: {
   "toast.fix":"Received - we will reply within one working day",
   "toast.saved":"Saved",
   "toast.out":"Device signed out",
-  "toast.revoked":"Consent revoked - Alif Bank no longer has access"
+  "toast.revoked":"Consent revoked - Alif Bank no longer has access",
+  "d.pass.qr":"Passport QR code","d.birth.qr":"Birth certificate QR code","d.inn.qr":"Tax ID QR code","d.drv.qr":"Driving licence QR code","d.temp.qr":"Temporary passport QR code",
+  "d.detail.front":"Front","d.detail.back":"Back","d.detail.issuedBy":"Issued by","d.detail.issuedAt":"Issue date","d.detail.validUntil":"Valid until","d.detail.verified":"Verified","d.detail.pdf":"Download PDF","d.detail.share":"Share","d.detail.qr":"Show QR",
+  "w.files.title":"Received documents and certificates","w.files.lead":"Service results available to open and download.","w.files.empty":"No received documents yet — they appear after services are completed.","w.files.download":"Download","w.files.open":"Open",
+  "pay.list.title":"My payments","pay.receipt.download":"Download PDF",
+  "p.photo.change":"Change photo","p.photo.title":"Profile photo","p.photo.demo":"Demo: the photo is not stored on a server.","p.photo.choose":"Choose photo","p.photo.help":"JPG, PNG or WebP · up to 5 MB","p.photo.save":"Save","p.photo.remove":"Remove photo","p.photo.type":"Choose a JPG, PNG, or WebP file.","p.photo.size":"The photo must be no larger than 5 MB."
 }
 };
 export { I18N };

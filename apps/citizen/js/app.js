@@ -353,6 +353,8 @@ document.addEventListener("click", e => {
   if (back){ jstep(Number(back.dataset.jback)); return; }
   const qrBtn = e.target.closest("[data-qr]");
   if (qrBtn){ openQr(qrBtn.dataset.qr); return; }
+  const docCard = e.target.closest("#docGrid .doc");
+  if (docCard){ openDocumentDetail(docCard.dataset.docId); return; }
   const chip = e.target.closest(".filters .chip");
   if (chip){ applyFilter(chip.dataset.own); return; }
   if (!e.target.closest("#searchWrap")) closeSearch();
@@ -401,6 +403,7 @@ submitAll.addEventListener("click", () => {
   const dB = $("#docBirth");
   delete dB.dataset.locked;
   $("#docBirthName").textContent = childFullName();
+  expansion?.completeBabyJourney(childFullName());
   jstep(4);
 });
 
@@ -416,7 +419,8 @@ function applyFilter(own){
     d.hidden = !show;
     if (show) visible++;
   });
-  $("#walletEmpty").hidden = visible > 0;
+  const visibleFiles = expansion?.setOwner(own) || 0;
+  $("#walletEmpty").hidden = visible > 0 || visibleFiles > 0;
 }
 
 /* ---------- emergency ---------- */
@@ -448,6 +452,46 @@ $("#revokeBtn").addEventListener("click", () => {
   toast("toast.revoked");
 });
 
+/* ---------- session-only profile photo ---------- */
+const photoOverlay=$("#profilePhotoOverlay"),photoInput=$("#profilePhotoInput"),photoError=$("#profilePhotoError"),photoSave=$("#profilePhotoSave");
+let activePhotoUrl=null,pendingPhotoUrl=null,photoDialog=null;
+function paintAvatar(root,url){const img=$(".avatar-image",root),fallback=$(".avatar-fallback",root);if(!img||!fallback)return;img.hidden=!url;fallback.hidden=Boolean(url);if(url)img.src=url;else img.removeAttribute('src');}
+function paintAllAvatars(url){$$('.profile-avatar,.profile-photo-trigger,#profilePhotoPreview').forEach(root=>paintAvatar(root,url));}
+function closePhoto(){if(pendingPhotoUrl&&pendingPhotoUrl!==activePhotoUrl)URL.revokeObjectURL(pendingPhotoUrl);pendingPhotoUrl=null;if(photoDialog){photoDialog.close();photoDialog=null;}else{photoOverlay.classList.remove('open');$("#profilePhotoTrigger").focus();}}
+function openPhoto(){photoInput.value='';photoError.hidden=true;photoSave.disabled=true;pendingPhotoUrl=null;paintAvatar($("#profilePhotoPreview"),activePhotoUrl);$("#profilePhotoRemove").disabled=!activePhotoUrl;photoDialog=window.EKHDialog?.openExistingDialog(photoOverlay,{initialFocus:'#profilePhotoCancel',trigger:$("#profilePhotoTrigger")})||null;if(!photoDialog){photoOverlay.classList.add('open');$("#profilePhotoCancel").focus();}}
+$("#profilePhotoTrigger").addEventListener('click',openPhoto);
+photoInput.addEventListener('change',()=>{const file=photoInput.files?.[0];photoError.hidden=true;photoSave.disabled=true;if(pendingPhotoUrl&&pendingPhotoUrl!==activePhotoUrl)URL.revokeObjectURL(pendingPhotoUrl);pendingPhotoUrl=null;if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)){photoError.textContent=t('p.photo.type');photoError.hidden=false;return;}if(file.size>5*1024*1024){photoError.textContent=t('p.photo.size');photoError.hidden=false;return;}pendingPhotoUrl=URL.createObjectURL(file);paintAvatar($("#profilePhotoPreview"),pendingPhotoUrl);photoSave.disabled=false;});
+$("#profilePhotoForm").addEventListener('submit',e=>{e.preventDefault();if(!pendingPhotoUrl)return;if(activePhotoUrl)URL.revokeObjectURL(activePhotoUrl);activePhotoUrl=pendingPhotoUrl;pendingPhotoUrl=null;paintAllAvatars(activePhotoUrl);closePhoto();});
+$("#profilePhotoRemove").addEventListener('click',()=>{if(activePhotoUrl)URL.revokeObjectURL(activePhotoUrl);activePhotoUrl=null;paintAllAvatars(null);closePhoto();});
+$("#profilePhotoCancel").addEventListener('click',closePhoto);
+photoOverlay.addEventListener('click',e=>{if(e.target===photoOverlay)closePhoto();});
+
+/* ---------- document detail viewer ---------- */
+const documentOverlay=$("#documentDetailOverlay"),documentRoot=$("#documentDetailRoot");
+const DOCUMENTS={
+  passport:{titleKey:'d.pass.k',number:'Т 4018236',issuedBy:{tg:'ВКД Ҷумҳурии Тоҷикистон',ru:'МВД Республики Таджикистан',en:'Ministry of Internal Affairs'},issuedAt:'14.10.2016',validUntil:'14.10.2026',sourceKey:'p.src.mvd',pages:['front','back']},
+  birth:{titleKey:'d.birth.k',number:'СТ 0931184',issuedBy:{tg:'САҲШ-и ноҳияи Сино',ru:'ЗАГС района Сино',en:'Sino Civil Registry'},issuedAt:'12.08.2026',validUntil:'—',sourceKey:'p.src.zags',pages:['front']},
+  tax:{titleKey:'d.inn.k',number:'6404 1893 0021',issuedBy:{tg:'Кумитаи андоз',ru:'Налоговый комитет',en:'Tax Committee'},issuedAt:'19.03.2012',validUntil:'—',sourceKey:'p.src.tax',pages:['front']},
+  driver:{titleKey:'d.drv.k',number:'AB 552901',issuedBy:{tg:'БДА',ru:'ГАИ',en:'Traffic Police'},issuedAt:'03.03.2019',validUntil:'03.03.2029',sourceKey:'p.src.bdd',pages:['front']},
+  temporary:{titleKey:'d.temp.k',number:'ВМ 110476',issuedBy:{tg:'ВКД Ҷумҳурии Тоҷикистон',ru:'МВД Республики Таджикистан',en:'Ministry of Internal Affairs'},issuedAt:'12.08.2026',validUntil:'11.09.2026',sourceKey:'p.src.mvd',pages:['front']}
+};
+let detailDialog=null,detailLastFocus=null,currentDocument=null;
+function documentPage(doc,side){
+  return `<figure class="document-page"><span class="document-page__side">${t(side==='back'?'d.detail.back':'d.detail.front')}</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg><div><small>eKhizmat · TJ</small><strong>${t(doc.titleKey)}</strong><span>Фируза Раҳимова</span><b>${doc.number}</b></div></figure>`;
+}
+function openDocumentDetail(id,received){
+  const doc=received?{titleKey:'d.birth.k',rawTitle:received.title,number:received.format,issuedBy:{tg:received.meta,ru:received.meta,en:received.meta},issuedAt:'12.08.2026',validUntil:'—',sourceKey:'p.src.zags',pages:['front'],file:received}:DOCUMENTS[id];
+  if(!doc)return;currentDocument=doc;detailLastFocus=document.activeElement;
+  const title=doc.rawTitle||t(doc.titleKey),issuer=doc.issuedBy[lang]||doc.issuedBy.ru;
+  documentRoot.innerHTML=`<div class="document-detail-head"><div><span class="eyebrow">eKhizmat Wallet</span><h3 id="documentDetailH">${title}</h3><p>${doc.number}</p></div><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>${t('d.detail.verified')} · ${t(doc.sourceKey)}</span></div><div class="document-viewer ${doc.pages.length>1?'document-viewer--two':''}">${doc.pages.map(side=>documentPage(doc,side)).join('')}</div><div class="document-meta"><div><span>${t('d.detail.issuedBy')}</span><strong>${issuer}</strong></div><div><span>${t('d.detail.issuedAt')}</span><strong>${doc.issuedAt}</strong></div><div><span>${t('d.detail.validUntil')}</span><strong>${doc.validUntil}</strong></div></div><div class="document-actions"><button class="btn btn-sec" data-detail-qr="${doc.titleKey}"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg>${t('d.detail.qr')}</button><button class="btn btn-sec" data-detail-download><svg><use href="/design-system/assets/icons.svg#i-download"/></svg>${t('d.detail.pdf')}</button><button class="btn btn-ghost" data-detail-share="${doc.titleKey}">${t('d.detail.share')}</button></div>`;
+  detailDialog=window.EKHDialog?.openExistingDialog(documentOverlay,{initialFocus:'#documentDetailClose',trigger:detailLastFocus})||null;
+  if(!detailDialog){documentOverlay.classList.add('open');$("#documentDetailClose").focus();}
+}
+function closeDocumentDetail(){if(detailDialog){detailDialog.close();detailDialog=null;}else{documentOverlay.classList.remove('open');detailLastFocus?.focus();}}
+function downloadDemoPdf(name,lines){const blob=new Blob([lines.join('\n')],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${name.replace(/[^a-zA-Z0-9_-]+/g,'-')||'document'}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$("#documentDetailClose").addEventListener('click',closeDocumentDetail);
+documentOverlay.addEventListener('click',e=>{if(e.target===documentOverlay)closeDocumentDetail();const qr=e.target.closest('[data-detail-qr],[data-detail-share]');if(qr){const key=qr.dataset.detailQr||qr.dataset.detailShare;closeDocumentDetail();openQr(key,detailLastFocus);}if(e.target.closest('[data-detail-download]')&&currentDocument)downloadDemoPdf(currentDocument.number,[currentDocument.rawTitle||t(currentDocument.titleKey),currentDocument.number,currentDocument.issuedAt]);});
+
 /* ---------- QR modal ---------- */
 const qrOverlay = $("#qrOverlay"), qrSvg = $("#qrSvg");
 let lastFocus = null;
@@ -457,8 +501,7 @@ function seeded(str){
   for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
   return function(){ h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) / 4294967296); };
 }
-function openQr(key){
-  $("#qrDocName").textContent = t(key);
+function renderQr(svg,key){
   const N = 29, rnd = seeded(key), m = [];
   for (let y = 0; y < N; y++){ m[y] = []; for (let x = 0; x < N; x++) m[y][x] = 0; }
   function finder(fx, fy){
@@ -484,8 +527,12 @@ function openQr(key){
   for (let y = 0; y < N; y++)
     for (let x = 0; x < N; x++)
       if (m[y][x] === 1) rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="currentColor"/>';
-  qrSvg.innerHTML = rects;
-  lastFocus = document.activeElement;
+  svg.innerHTML = rects;
+}
+function openQr(key,trigger){
+  $("#qrDocName").textContent = t(key);
+  renderQr(qrSvg,key);
+  lastFocus = trigger || document.activeElement;
   qrDialog = window.EKHDialog?.openExistingDialog(qrOverlay, { initialFocus:'#qrClose', trigger:lastFocus }) || null;
   if (!qrDialog) { qrOverlay.classList.add('open'); $('#qrClose').focus(); }
 }
@@ -646,7 +693,9 @@ expansion = initCitizenExpansion({
   getAuthed:() => authed,
   openLogin,
   go,
-  toastText
+  toastText,
+  renderQr,
+  openReceivedFile:file=>openDocumentDetail(file.id,file)
 });
 applyAuth();
 applyLang();

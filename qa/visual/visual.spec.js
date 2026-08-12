@@ -73,3 +73,44 @@ test('Low Code review workspace reference', async ({ page }) => {
   await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
   await expect(page).toHaveScreenshot('admin-lowcode-review-light-ru.png', { fullPage: true, animations: 'disabled' });
 });
+
+test('August feedback citizen payments and document detail references', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/citizen/?present=1&theme=light&lang=ru');
+  await page.evaluate(() => localStorage.setItem('ekh.citizen.auth','1'));
+  await page.reload();
+  await page.locator('.avatar').click();
+  await page.locator('[data-pane="payments"]').click();
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(page).toHaveScreenshot('citizen-payments-desktop-light-ru.png', { fullPage: true, animations: 'disabled', maxDiffPixelRatio: 0.001 });
+  await page.locator('[data-pane="docs"]').click();
+  await page.locator('[data-doc-id="passport"] .doc-open').click();
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(page).toHaveScreenshot('citizen-document-detail-desktop-light-ru.png', { animations: 'disabled', maxDiffPixelRatio: 0.001 });
+});
+
+test('August feedback admin dashboard reference', async ({ page }) => {
+  await page.setViewportSize({ width: 1536, height: 1000 });
+  await page.goto('/admin/?present=1&theme=light&lang=ru');
+  await expect(page.locator('[data-metric-status]')).toHaveCount(6);
+  await expect(page).toHaveScreenshot('admin-business-dashboard-light-ru.png', { fullPage: true, animations: 'disabled', maxDiffPixelRatio: 0.001 });
+});
+
+test('August feedback dark/Tajik references', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/citizen/?present=1&theme=dark&lang=tg');
+  await page.evaluate(() => localStorage.setItem('ekh.citizen.auth','1'));
+  await page.reload();
+  await page.locator('.avatar').click();
+  await page.locator('[data-pane="payments"]').click();
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect(page).toHaveScreenshot('citizen-payments-desktop-dark-tg.png', { fullPage: true, animations: 'disabled', maxDiffPixelRatio: 0.001 });
+  await page.locator('[data-pane="docs"]').click();
+  await page.locator('[data-doc-id="passport"] .doc-open').click();
+  await expect(page).toHaveScreenshot('citizen-document-detail-desktop-dark-tg.png', { animations: 'disabled', maxDiffPixelRatio: 0.001 });
+
+  await page.setViewportSize({ width: 1536, height: 1000 });
+  await page.goto('/admin/?present=1&theme=dark&lang=tg');
+  await expect(page.locator('[data-metric-status]')).toHaveCount(6);
+  await expect(page).toHaveScreenshot('admin-business-dashboard-dark-tg.png', { fullPage: true, animations: 'disabled', maxDiffPixelRatio: 0.001 });
+});
