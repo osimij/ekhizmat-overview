@@ -112,7 +112,7 @@ function registryRow(draft){
     <span class="tile ${esc(style[0])}" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#${esc(style[1])}"/></svg></span>
     <span class="nm"><b>${esc(name)}</b><span class="k">${esc(agency[l]||agency.tg)}${audience?' · '+esc(audience):''} · ${esc(draft.code)}</span></span>
     <span class="cols"><span><b>0</b> ${esc(c.fields)}</span><span>${esc(price)}</span><span>${esc(c.updated)}</span></span>
-    <span class="pill-st warn">${esc(c.draft)}</span>
+    <span class="status-icon status-icon--warning" role="img" aria-label="${esc(c.draft)}" title="${esc(c.draft)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
   </a>`;
 }
 

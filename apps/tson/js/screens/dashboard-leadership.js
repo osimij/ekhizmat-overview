@@ -1,4 +1,4 @@
-import { h, mount, icon } from '../ui.js';
+import { h, mount, icon, statusIcon } from '../ui.js';
 import { getLang } from '../i18n.js';
 import { TSON_DASHBOARD } from '../mock/data.js';
 import { setCenterContext, setRole, ROLE } from '../role.js';
@@ -92,6 +92,6 @@ export function renderDashboardLeadership(host) {
       h('td', {}, h('b', {}, row.name), h('small', { class:'ink-faint' }, row.region)),
       h('td', { class:'tnum' }, String(row.visits)), h('td', { class:'tnum' }, row.sla),
       h('td', { class:'tnum' }, row.wait), h('td', { class:'tnum' }, row.load),
-      h('td', {}, h('span', { class:`status-pill status-pill--${tone}` }, x[row.status])));
+      h('td', {}, statusIcon(tone, x[row.status])));
   }
 }

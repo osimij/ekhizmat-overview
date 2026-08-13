@@ -28,8 +28,10 @@ export function createPlatformSwitcher(current) {
   button.className = 'ekh-platforms__button';
   button.setAttribute('aria-expanded', 'false');
   button.setAttribute('aria-haspopup', 'menu');
-  button.setAttribute('aria-label', lang === 'ru' ? 'Платформы' : 'Платформаҳо');
-  button.innerHTML = `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-dots"></use></svg><span>${lang === 'ru' ? 'Платформы' : 'Платформаҳо'}</span>`;
+  const label = lang === 'ru' ? 'Платформы' : 'Платформаҳо';
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.innerHTML = `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-dots"></use></svg>`;
   const menu = document.createElement('div');
   menu.className = 'ekh-platforms__menu';
   menu.setAttribute('role', 'menu');

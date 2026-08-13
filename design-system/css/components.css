@@ -162,8 +162,8 @@ button.chip[aria-pressed="true"] b{color:var(--bg)}
 }
 .dd-hl.move{transition:opacity .15s var(--ease), top .15s var(--ease), height .15s var(--ease)}
 .dd-label{
-  padding:6px 10px 5px; font-size:10px; font-weight:var(--weight-medium);
-  letter-spacing:0; text-transform:uppercase; color:var(--ink-3);
+  padding:6px 10px 5px; font-size:var(--fs-12); font-weight:var(--weight-medium);
+  letter-spacing:0; text-transform:none; color:var(--ink-3);
 }
 .dd-menu button{
   position:relative; display:flex; align-items:center; justify-content:space-between;
@@ -295,6 +295,16 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .status-pill--warning { background:var(--amber-tint); color:var(--amber); }
 .status-pill--danger { background:var(--red-tint); color:var(--red-ink); }
 .status-pill--info { background:var(--blue-tint); color:var(--blue-ink); }
+
+/* Compact status vocabulary — the Hugeicons glyph carries the visual state;
+   title and aria-label retain its explicit name without consuming table space. */
+.status-icon { display:inline-grid; place-items:center; flex:0 0 28px; width:28px; height:28px; border-radius:50%; background:var(--field); color:var(--ink-2); }
+.status-icon svg { width:16px; height:16px; }
+.status-icon--success { background:var(--green-tint); color:var(--green); }
+.status-icon--warning { background:var(--amber-tint); color:var(--amber); }
+.status-icon--danger { background:var(--red-tint); color:var(--red-ink); }
+.status-icon--info { background:var(--blue-tint); color:var(--blue-ink); }
+.status-icon--neutral { background:var(--field); color:var(--ink-3); }
 
 @media (prefers-reduced-motion: reduce) {
   .btn:not([disabled]):active { transform:none; }

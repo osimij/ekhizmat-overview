@@ -29,7 +29,7 @@
   <div class="bld-name">
     <span class="tile t-teal sh-r" style="width:30px;height:30px"><svg style="width:16px;height:16px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
     <input id="svcName" value="Маълумотнома — ҳайати оила" aria-label="Номи хизмат" spellcheck="false">
-    <span class="pill-st warn" id="svcStatus">сиёҳнавис</span>
+    <span class="status-icon status-icon--warning" id="svcStatus" role="img" aria-label="Сиёҳнавис" title="Сиёҳнавис"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
   </div>
   <span class="spacer"></span>
   <button class="btn btn-ghost btn-sm bld-prev-toggle" id="prevToggle" type="button" aria-expanded="false" aria-controls="bldPrev"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg>Пешнамоиш</button>
@@ -352,10 +352,10 @@
         <table class="tbl">
           <thead><tr><th>Нусха</th><th>Тағйирот</th><th>Муаллиф</th><th>Сана</th><th>Ҳолат</th><th></th></tr></thead>
           <tbody>
-            <tr><td data-l="Нусха"><b>v1.3</b></td><td data-l="Тағйирот">Илова: майдони «мақсад»; DMN нав</td><td data-l="Муаллиф">Аброр Каримов</td><td data-l="Сана" class="tnum">3 рӯз пеш</td><td data-l="Ҳолат"><span class="pill-st done">фаъол</span></td><td class="act"><button class="rowact" type="button" aria-label="Дидан"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg></button></td></tr>
-            <tr><td data-l="Нусха"><b>v1.2</b></td><td data-l="Тағйирот">Ислоҳи матни ризоият</td><td data-l="Муаллиф">Аброр Каримов</td><td data-l="Сана" class="tnum">2 ҳафта пеш</td><td data-l="Ҳолат"><span class="pill-st muted">бойгонӣ</span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.2" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
-            <tr><td data-l="Нусха"><b>v1.1</b></td><td data-l="Тағйирот">SLA 1 рӯз → 4 соат</td><td data-l="Муаллиф">Заррина С.</td><td data-l="Сана" class="tnum">1 моҳ пеш</td><td data-l="Ҳолат"><span class="pill-st muted">бойгонӣ</span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.1" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
-            <tr><td data-l="Нусха"><b>v1.0</b></td><td data-l="Тағйирот">Нашри аввал</td><td data-l="Муаллиф">Заррина С.</td><td data-l="Сана" class="tnum">3 моҳ пеш</td><td data-l="Ҳолат"><span class="pill-st muted">бойгонӣ</span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.0" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
+            <tr><td data-l="Нусха"><b>v1.3</b></td><td data-l="Тағйирот">Илова: майдони «мақсад»; DMN нав</td><td data-l="Муаллиф">Аброр Каримов</td><td data-l="Сана" class="tnum">3 рӯз пеш</td><td data-l="Ҳолат"><span class="status-icon status-icon--success" role="img" aria-label="фаъол" title="фаъол"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span></td><td class="act"><button class="rowact" type="button" aria-label="Дидан"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg></button></td></tr>
+            <tr><td data-l="Нусха"><b>v1.2</b></td><td data-l="Тағйирот">Ислоҳи матни ризоият</td><td data-l="Муаллиф">Аброр Каримов</td><td data-l="Сана" class="tnum">2 ҳафта пеш</td><td data-l="Ҳолат"><span class="status-icon status-icon--neutral" role="img" aria-label="бойгонӣ" title="бойгонӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-history"/></svg></span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.2" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
+            <tr><td data-l="Нусха"><b>v1.1</b></td><td data-l="Тағйирот">SLA 1 рӯз → 4 соат</td><td data-l="Муаллиф">Заррина С.</td><td data-l="Сана" class="tnum">1 моҳ пеш</td><td data-l="Ҳолат"><span class="status-icon status-icon--neutral" role="img" aria-label="бойгонӣ" title="бойгонӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-history"/></svg></span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.1" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
+            <tr><td data-l="Нусха"><b>v1.0</b></td><td data-l="Тағйирот">Нашри аввал</td><td data-l="Муаллиф">Заррина С.</td><td data-l="Сана" class="tnum">3 моҳ пеш</td><td data-l="Ҳолат"><span class="status-icon status-icon--neutral" role="img" aria-label="бойгонӣ" title="бойгонӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-history"/></svg></span></td><td class="act"><button class="rowact" type="button" data-rollback="v1.0" aria-label="Бозгашт"><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg></button></td></tr>
           </tbody>
         </table>
       </div>
@@ -513,7 +513,7 @@
           <div class="edit-pane" data-panel="route" hidden>
             <div class="pv-frame"><div class="pv-head"><svg class="mark"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>Ҳолати ариза</b><span class="av">Ф</span></div>
               <div class="pv-body">
-                <div class="eta"><div><div class="k">Вақти баррасӣ</div><div class="big">1 рӯз 4 соат</div></div><div class="sep"></div><div class="tt"><span class="pill-st review">дар навбат</span><p class="help" style="margin-top:6px">3 нафар дар пеш · САҲШ-и н. Сино</p></div></div>
+                <div class="eta"><div><div class="k">Вақти баррасӣ</div><div class="big">1 рӯз 4 соат</div></div><div class="sep"></div><div class="tt"><span class="status-icon status-icon--info" role="img" aria-label="дар навбат" title="дар навбат"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg></span><p class="help" style="margin-top:6px">3 нафар дар пеш · САҲШ-и н. Сино</p></div></div>
               </div></div>
           </div>
           <div class="edit-pane" data-panel="issue" hidden>
@@ -911,7 +911,7 @@
   $("#pubDo").addEventListener("click", function(){
     if(window.EKHDialog) window.EKHDialog.closeExistingDialog($("#publishModal"));
     else $("#publishModal").classList.remove("open");
-    status.className="pill-st done"; status.textContent="фаъол";
+    status.className="status-icon status-icon--success"; status.setAttribute("aria-label","Фаъол"); status.title="Фаъол"; status.innerHTML='<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg>';
     window.bpToast&&window.bpToast("Хизмат нашр шуд — дар портал фаъол аст");
   });
 
@@ -1071,7 +1071,7 @@
   if(approveBtn) approveBtn.addEventListener("click", function(){
     if(approved){ window.bpToast&&window.bpToast("Аллакай ба созиш фиристода шудааст"); return; }
     approved=true;
-    status.className="pill-st approve"; status.textContent="дар созиш";
+    status.className="status-icon status-icon--info"; status.setAttribute("role","img"); status.setAttribute("aria-label","дар созиш"); status.title="дар созиш"; status.innerHTML='<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-users"/></svg>';
     window.bpToast&&window.bpToast("Ба мувофиқа фиристода шуд · тасдиқи нақши дуюм");
   });
 

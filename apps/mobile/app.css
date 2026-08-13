@@ -85,8 +85,8 @@ button { touch-action: manipulation; }
 [data-theme='dark'] .priority-card { background: var(--raised); color: var(--ink); }
 .priority-topline, .priority-meta, .priority-copy, .section-heading, .attention-card, .document-foot { display: flex; align-items: center; }
 .priority-topline { justify-content: space-between; gap: 12px; }
-.status-chip { display: inline-flex; min-height: 26px; align-items: center; gap: 7px; padding: 0 9px; border-radius: var(--r-pill); background: var(--green-tint); color: var(--green); font-size: 11px; font-weight: var(--weight-medium); letter-spacing: 0; }
-.status-pulse { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.mobile-app .status-icon { flex: 0 0 26px; width: 26px; height: 26px; }
+.mobile-app .status-icon svg { width: 14px; height: 14px; }
 .priority-time { color: var(--ink-3); font-size: 11px; }
 .priority-card .priority-time { color: var(--control-line); }
 [data-theme='dark'] .priority-card .priority-time { color: var(--ink-3); }
@@ -180,9 +180,7 @@ button { touch-action: manipulation; }
 .application-copy { min-width: 0; display: grid; gap: 4px; }
 .application-copy strong { font-size: var(--fs-14); line-height: 1.25; }
 .application-copy > span:last-child { color: var(--ink-3); font-size: 10px; }
-.status-label { color: var(--green); font-size: 11px; font-weight: var(--weight-medium); letter-spacing: 0; }
-.status-label--action { color: var(--amber); }
-.status-label--done { color: var(--blue-ink); }
+.application-copy .status-icon { margin-bottom: 2px; }
 
 .security-note { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; border-radius: var(--r-m); background: var(--green-tint); color: var(--green); font-size: 11px; line-height: 1.4; }
 .security-note svg { width: 17px; height: 17px; flex: none; }

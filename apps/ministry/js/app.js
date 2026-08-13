@@ -97,6 +97,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function statusInfo(key) { return D.STATUS[key] || { ru: key, tg: key, pill: 'pill--draft' }; }
   function statusLabel(key) { var s = statusInfo(key); return s[S.lang] || s.ru; }
+  function statusIcon(tone, label, iconName) {
+    return '<span class="status-icon status-icon--' + tone + '" role="img" aria-label="' + esc(label) + '" title="' + esc(label) + '">' + ic(iconName || (tone === 'success' ? 'i-check' : tone === 'warning' ? 'i-clock' : tone === 'danger' ? 'i-x' : tone === 'info' ? 'i-info' : 'i-dots'), '') + '</span>';
+  }
+  function appStatusIcon(key) {
+    var tone = ({ draft:'neutral', submitted:'info', awaiting_pay:'warning', processing:'warning', info_requested:'warning', clarify:'warning', decided:'success', done:'success', denied:'danger', withdrawn:'neutral' })[key] || 'neutral';
+    var iconName = ({ draft:'i-edit', submitted:'i-clock', awaiting_pay:'i-clock', processing:'i-clock', info_requested:'i-info', clarify:'i-edit', decided:'i-check', done:'i-check', denied:'i-x', withdrawn:'i-history' })[key];
+    return statusIcon(tone, statusLabel(key), iconName);
+  }
   function svc(app) { return D.SERVICE[app.svc]; }
   function lc() { return getLowCodeState(); }
   function localValue(value, fallback) {
@@ -111,6 +119,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function priorityLabel(value) { return value === 'Высокий' ? t('priority_high') : t('priority_normal'); }
   function payStatusLabel(value) {
     return ({ 'Оплачено':t('pay_paid'), 'Не требуется':t('pay_none'), 'Ожидает оплаты':t('pay_wait'), 'Возвращена':t('pay_ret') })[value] || value;
+  }
+  function payStatusIcon(value) {
+    var tone = ({ 'Оплачено':'success', 'Не требуется':'neutral', 'Ожидает оплаты':'warning', 'Возвращена':'danger' })[value] || 'neutral';
+    var iconName = ({ 'Оплачено':'i-check', 'Не требуется':'i-dash', 'Ожидает оплаты':'i-clock', 'Возвращена':'i-refresh' })[value];
+    return statusIcon(tone, payStatusLabel(value), iconName);
   }
   var DATA_LABEL_TG = {
     'Полное наименование':'Номи пурра',
@@ -149,6 +162,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function lowCodeStatusTone(status) {
     return ({ draft:'draft', stage:'stage', in_review:'review', changes_requested:'changes', resubmitted:'review', approved:'approved', rejected:'rejected', published:'published' })[status] || 'draft';
+  }
+  function lowCodeStatusIcon(status) {
+    var tone = ({ draft:'neutral', stage:'info', in_review:'info', changes_requested:'warning', resubmitted:'info', approved:'success', rejected:'danger', published:'success' })[status] || 'neutral';
+    var iconName = ({ draft:'i-edit', stage:'i-clock', in_review:'i-clock', changes_requested:'i-edit', resubmitted:'i-refresh', approved:'i-check', rejected:'i-x', published:'i-check' })[status];
+    return statusIcon(tone, lowCodeStatusLabel(status), iconName);
   }
 
   /* ------------------------------------------------------------------ */
@@ -429,7 +447,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       h += '<button class="form-row" type="button" data-act="' + openAct + '" data-id="' + esc(form.id) + '">' +
         '<span class="form-row__icon ' + esc(form.tone) + '">' + ic(form.icon,'') + '</span>' +
         '<span class="form-row__main"><b>' + esc(form.name) + '</b><span>' + esc(t('form_version')) + ' ' + esc(form.version) + ' · ' + esc(form.meta) + '</span><span class="form-row__audiences">' + formAudienceBadges(form.audience) + '</span></span>' +
-        '<span class="form-status form-status--' + lowCodeStatusTone(form.status) + '">' + esc(lowCodeStatusLabel(form.status)) + '</span>' +
+        '<span class="form-status form-status--' + lowCodeStatusTone(form.status) + '">' + lowCodeStatusIcon(form.status) + '</span>' +
         ic('i-chev-r','icon--16') + '</button>';
     });
     h += '</div></div>';
@@ -569,9 +587,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var sendLabel = state.status === 'changes_requested' ? t('form_resubmit') : t('form_send');
 
     return '<div class="form-builder-view">' +
-      '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><span class="mfb-service-icon">' + ic('i-cat-justice','icon--16') + '</span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + esc(lowCodeStatusLabel(status)) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
+      '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><span class="mfb-service-icon">' + ic('i-cat-justice','icon--16') + '</span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
       (editable ? '<div class="mfb-actions"><button class="btn btn--secondary btn--s" type="button" data-act="form-save">' + ic('i-check','icon--16') + esc(t('form_save_short')) + '</button><button class="btn btn--primary btn--s" type="button" data-act="form-send" ' + (canSend ? '' : 'disabled') + '>' + ic('i-users','icon--16') + esc(sendLabel) + '</button></div>' : '') + '</header>' +
-      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + esc(lowCodeStatusLabel(status)) + '</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span><span>' + ic('i-edit','icon--14') + esc(t('forms_role')) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><div class="mfb-meta__comments">' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></div></div>' +
+      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span><span>' + ic('i-edit','icon--14') + esc(t('forms_role')) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><div class="mfb-meta__comments">' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></div></div>' +
       (!editable ? '<div class="banner banner--info form-lock-note">' + ic('i-lock','icon--20') + '<span class="banner__text">' + esc(t(S.formReadOnly ? 'form_readonly_sub' : 'form_locked_review')) + '</span></div>' : '') +
       (comments ? '<div class="mfb-comments banner banner--info">' + ic('i-chat','icon--20') + '<div><b>' + esc(t('form_comments')) + '</b><div class="form-comments">' + comments + '</div></div></div>' : '') +
       '<div class="form-builder-grid mfb-work">' + formPipeline(draft, editable) + formEditorPane(draft, editable) + formPreview(draft, title) + '</div>' +
@@ -737,7 +755,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
       '<span class="q-date">' + esc(fmtDate(a.submittedAt)) + '</span>' +
-      '<span class="q-status"><span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span><span class="q-status__label">' + esc(statusLabel(a.status)) + '</span></span></span>' +
+      '<span class="q-status">' + appStatusIcon(a.status) + '</span>' +
       '<span class="q-sla"><span class="sla sla--' + st + '" data-sla data-due="' + a.dueAt + '" title="' + esc(slaWord(st)) + '" aria-label="' + esc(slaWord(st)) + '"><span class="dot"></span>' +
         '<svg class="icon icon--16 sla__ico" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg>' +
         '<span class="sla__time">' + fmtDur(a.dueAt - now()) + '</span></span></span>' +
@@ -775,7 +793,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       slaPanel +
       '<div class="panel">' +
         '<div class="def">' +
-          defRow(t('col_status'), '<span class="pill ' + statusInfo(a.status).pill + '"><span class="dot"></span>' + esc(statusLabel(a.status)) + '</span>') +
+          defRow(t('col_status'), appStatusIcon(a.status)) +
           (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
           defRow(t('priority'), esc(priorityLabel(a.priority))) +
           defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
@@ -851,7 +869,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       return '<div class="doc-row"><span class="doc-row__ico">' + ic('i-doc','') + '</span>' +
         '<span class="doc-row__body"><span class="doc-row__name">' + esc(d.name) + '</span>' +
         '<span class="doc-row__meta">' + d.pages + ' ' + esc(t('pages_short')) + ' · ' + esc(d.checked ? t('checked') : t('unchecked')) + '</span></span>' +
-        (d.checked ? '<span class="pill pill--active"><span class="dot"></span>' + esc(t('checked')) + '</span>' : '<span class="pill pill--wait"><span class="dot"></span>' + esc(t('unchecked')) + '</span>') +
+        (d.checked ? statusIcon('success', t('checked'), 'i-check') : statusIcon('warning', t('unchecked'), 'i-clock')) +
         '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
     }).join('');
     return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
@@ -868,7 +886,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
           '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(r.type)) + '</span>' +
           '<span class="interop-item__meta">' + esc(localValue(r.agency)) + ' · ' + (pend ? esc(t('ij_pending')) : (esc(localValue(r.value)) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
-          (pend ? '<span class="spin"></span>' : '<span class="pill pill--active"><span class="dot"></span>' + esc(t('ij_received')) + '</span>') +
+          (pend ? '<span class="spin"></span>' : statusIcon('success', t('ij_received'), 'i-check')) +
         '</div>';
       }).join('');
     }
@@ -949,9 +967,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function payLabel(a) {
     var p = a.pay || { status: 'Не требуется' };
-    var map = { 'Оплачено': 'pill--active', 'Не требуется': 'pill--draft', 'Ожидает оплаты': 'pill--wait', 'Возвращена': 'pill--denied' };
-    var txt = p.amount ? payStatusLabel(p.status) + ' · ' + money(p.amount) : payStatusLabel(p.status);
-    return '<span class="pill ' + (map[p.status] || 'pill--draft') + '">' + esc(txt) + '</span>';
+    return '<span class="payment-status">' + payStatusIcon(p.status) + (p.amount ? '<span>' + esc(money(p.amount)) + '</span>' : '') + '</span>';
   }
   function defRow(k, vHtml) {
     return '<div class="def__row"><span class="def__key">' + esc(k) + '</span><span class="def__val">' + vHtml + '</span></div>';
@@ -1014,7 +1030,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
         '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(x.r.type)) + '</span>' +
         '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
-        (pend ? '<span class="spin"></span>' : '<span class="pill pill--active"><span class="dot"></span>' + esc(t('ij_received')) + '</span>') + '</div>';
+        (pend ? '<span class="spin"></span>' : statusIcon('success', t('ij_received'), 'i-check')) + '</div>';
     }).join('');
     return '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('ij_title')) + '</h1>' +
       '<div class="view__sub">' + esc(t('ij_sub')) + '</div></div></div>' +
@@ -1160,8 +1176,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       var opts = D.COLLEAGUES.map(function (c) { return '<option>' + esc(c.name) + '</option>'; }).join('');
       var isDeny = m.choice === 'deny';
       var decPill = isDeny
-        ? '<span class="pill pill--denied">' + esc(t('dm_deny')) + '</span>'
-        : '<span class="pill pill--active"><span class="dot"></span>' + esc(t('dm_approve')) + '</span>';
+        ? statusIcon('danger', t('dm_deny'), 'i-x')
+        : statusIcon('success', t('dm_approve'), 'i-check');
       openModal(
         '<h3 class="h3 modal__title" id="modal-title">' + esc(t('dm_foureyes_step')) + '</h3>' +
         '<div class="banner banner--warn">' + ic('i-shield','icon--20') + '<span class="banner__text">' + esc(t('dm_foureyes')) + '</span></div>' +

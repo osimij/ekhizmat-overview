@@ -1,4 +1,4 @@
-import { h, mount, icon, modal } from '../ui.js';
+import { h, mount, icon, modal, statusIcon } from '../ui.js';
 import { getLang } from '../i18n.js';
 import { TSON_DASHBOARD } from '../mock/data.js';
 import { getCenterContext } from '../role.js';
@@ -108,7 +108,7 @@ export function renderDashboardCenter(host) {
       h('thead', {}, h('tr', {}, ...['window', 'operator', 'state', 'served', 'details'].map(key => h('th', {}, x[key])))),
       h('tbody', {}, ...rows.map(row => h('tr', {},
         h('td', { class:'tnum' }, String(row.no)), h('td', {}, row.operator),
-        h('td', {}, h('span', { class:`status-pill status-pill--${statusTone[row.status]}` }, x[row.status])),
+        h('td', {}, statusIcon(statusTone[row.status], x[row.status], { iconName:row.status==='break'?'clock':row.status==='closed'?'x':'check' })),
         h('td', { class:'tnum' }, String(row.served)),
         h('td', {}, h('button', { class:'btn btn--ghost btn--s', onClick:() => operatorDetail(row, x) }, x.details)))))));
   }

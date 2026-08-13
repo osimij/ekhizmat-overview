@@ -9,7 +9,7 @@
    Поэтому автофокус здесь не украшение, а часть счёта, а ↑↓/Enter обязаны
    работать без единого клика.
    ============================================================ */
-import { h, mount, icon, openLayer, closeLayer, toast } from '../ui.js';
+import { h, mount, icon, openLayer, closeLayer, toast, statusIcon } from '../ui.js';
 import { t, plural, errText, getLang } from '../i18n.js';
 import { dispatch, getState, patchSession, STEP } from '../store.js';
 import { catalog } from '../mock/api.js';
@@ -262,7 +262,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
         matchedSynonym(svc, q)),
       svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость') : null,
       svc.unavailable
-        ? h('span', { class: 'pill pill--wait' }, icon('info', { size: 16 }), svc.unavailable)
+        ? statusIcon('warning', svc.unavailable, { iconName:'info' })
         : icon('chev-r', { size: 20, cls: 'ink-faint' }));
 
     return el;

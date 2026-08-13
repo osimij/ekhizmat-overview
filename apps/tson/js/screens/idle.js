@@ -6,7 +6,7 @@
    ничего о людях — только статистика смены оператора и номера заявлений,
    маскированные до последних цифр (§6/S1).
    ============================================================ */
-import { h, mount, icon, mmss, modal } from '../ui.js';
+import { h, mount, icon, mmss, modal, statusIcon } from '../ui.js';
 import { t } from '../i18n.js';
 import { dispatch, getState } from '../store.js';
 import { shift } from '../mock/api.js';
@@ -68,8 +68,7 @@ export function renderIdle(host) {
               h('div', { class: 'def__row' },
                 // Только номер — ни ФИО, ни ИНН. Это и есть «без имён граждан!».
                 h('span', { class: 'def__val def__val--tnum grow' }, `№ ${r.no}`),
-                h('span', { class: 'pill pill--active' },
-                  icon('check', { size: 16 }), t('idle.issuedMark')))))
+                statusIcon('success', t('idle.issuedMark')))))
           : h('p', { class: 'small ink-faint' }, t('idle.noRecent'))));
   }
 }

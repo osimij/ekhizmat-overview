@@ -27,6 +27,7 @@ const theme=()=>document.documentElement.dataset.theme||'light';
 const pageContext=()=>`lang=${encodeURIComponent(currentLang)}&theme=${encodeURIComponent(theme())}`;
 const statusText=status=>status==='draft'?c().statusDraft:status==='published'?c().statusPublished:c().statusArchived;
 const statusTone=status=>status==='draft'?'draft':status==='published'?'published':'archived';
+const statusIcon=status=>{const tone=status==='published'?'success':status==='draft'?'warning':'neutral';const icon=status==='published'?'i-check':status==='draft'?'i-edit':'i-history';const text=statusText(status);return `<span class="status-icon status-icon--${tone}" role="img" aria-label="${esc(text)}" title="${esc(text)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${icon}"/></svg></span>`;};
 const toast=message=>window.bpToast?window.bpToast(message):null;
 
 function setText(id,value){ const element=$('#'+id); if(element) element.textContent=value; }
@@ -34,7 +35,7 @@ function setPlaceholder(id,value){ const element=$('#'+id); if(element) element.
 
 function versionPills(form){
   return form.versions.slice().sort((a,b)=>b.number-a.number).map(version=>
-    `<span class="form-mini-version form-mini-version--${statusTone(version.status)}"><b>v${version.number}</b><span>${esc(statusText(version.status))}</span></span>`
+    `<span class="form-mini-version form-mini-version--${statusTone(version.status)}"><b>v${version.number}</b>${statusIcon(version.status)}</span>`
   ).join('');
 }
 
@@ -162,8 +163,8 @@ function renderVersionList(){
   const versions=editor.isNew?[editor.version]:editor.form.versions.slice().sort((a,b)=>b.number-a.number);
   root.innerHTML=versions.map(version=>{
     const selected=Number(version.number)===Number(editor.version.number);
-    const note=version.status==='draft'?c().draftVersion:version.status==='published'?c().liveVersion:c().archivedVersion;
-    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-line"><i></i></span><span class="form-version-item__copy"><span><b>v${version.number}</b><em>${esc(statusText(version.status))}</em></span><small>${esc(label(version.updated)||'')}</small><small>${esc(label(version.note)||note)}</small></span>${selected?'<svg class="form-version-check"><use href="/design-system/assets/icons.svg#i-check"/></svg>':''}</button>`;
+    const updated=label(version.updated)||'';
+    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-item__copy"><b>v${version.number}</b>${updated?`<small>${esc(updated)}</small>`:''}</span><span class="form-version-item__icon">${statusIcon(version.status)}</span></button>`;
   }).join('');
   setText('versionCount',String(versions.length));
 }
@@ -182,7 +183,7 @@ function renderEditorChrome(){
   if(ru){ru.value=editor.draft.name?.ru||'';ru.disabled=!editorEditable();}
   if(desc){desc.value=label(editor.draft.description)||editor.draft.description?.tg||'';desc.disabled=!editorEditable();}
   setText('formEditorName',activeName()); setText('formEditorCode',editor.form?.code||c().newCode);
-  const status=$('#formEditorStatus'); if(status){status.className=`form-version-badge form-version-badge--${statusTone(editor.version.status)}`;status.textContent=`v${editor.version.number} · ${statusText(editor.version.status)}`;}
+  const status=$('#formEditorStatus'); if(status) status.textContent=`[v${editor.version.number}]`;
   const add=$('#addFormField'); if(add) add.hidden=!editorEditable();
   const palette=$('#formPaletteGrid'); if(palette) palette.innerHTML=FIELD_TYPES.map(type=>`<button class="form-type-option" type="button" data-form-add="${type}"><span><svg><use href="/design-system/assets/icons.svg#${typeIcon(type)}"/></svg></span><b>${esc(typeCopy(type))}</b></button>`).join('');
   renderVersionList(); renderEditorActions(); renderEditorFields(); renderEditorPreview();

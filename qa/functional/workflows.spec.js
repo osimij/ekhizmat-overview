@@ -203,9 +203,9 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   expect(ministryTypeScale.division).toBeLessThan(ministryTypeScale.name);
   expect(ministryTypeScale.name - ministryTypeScale.division).toBe(1);
   expect(ministryTypeScale.title).toBe(24);
-  expect(ministryTypeScale.nameSpacing).toBeCloseTo(ministryTypeScale.name * -0.01, 2);
-  expect(ministryTypeScale.divisionSpacing).toBeCloseTo(ministryTypeScale.division * -0.01, 2);
-  expect(ministryTypeScale.titleSpacing).toBeCloseTo(ministryTypeScale.title * -0.01, 2);
+  expect(ministryTypeScale.nameSpacing).toBe(0);
+  expect(ministryTypeScale.divisionSpacing).toBe(0);
+  expect(ministryTypeScale.titleSpacing).toBe(0);
   const alertValueColor = await page.locator('.stat--alert .stat__v').evaluate((value) => ({
     value: getComputedStyle(value).color,
     defaultText: getComputedStyle(document.body).color,
@@ -346,16 +346,16 @@ test('Ministry workers can create a form and hand it to the shared review queue'
   await expect(page.locator('.mfb-editor')).toContainText('Ответственное подразделение');
   await page.locator('.mfb-step[data-id="fields"]').click();
   await page.locator('[data-act="form-save"]').click();
-  await expect(page.locator('.form-builder-head .form-status')).toContainText('На stage');
+  await expect(page.locator('.form-builder-head .form-status .status-icon')).toHaveAttribute('aria-label', 'На stage');
   await page.locator('[data-act="form-send"]').click();
-  await expect(page.locator('.form-builder-head .form-status')).toContainText('На проверке');
+  await expect(page.locator('.form-builder-head .form-status .status-icon')).toHaveAttribute('aria-label', 'На проверке');
   await expect(page.locator('.form-lock-note')).toBeVisible();
   await expect(page.locator('[data-act="form-send"]')).toHaveCount(0);
 
   await page.goto('/admin/review.html?lang=ru&theme=light');
   await page.locator('[data-lc-role]').selectOption('reviewer');
   await expect(page.locator('#lowCodeReview .lc-service-card h2')).toHaveText('Онлайн-регистрация общественного объединения');
-  await expect(page.locator('#lowCodeReview .review-badge')).toContainText('На проверке');
+  await expect(page.locator('#lowCodeReview .status-icon[aria-label="На проверке"]')).toBeVisible();
 });
 
 test('TSON MFA reaches the shift dashboard and exposes operational start', async ({ page }) => {
@@ -543,24 +543,24 @@ test('Admin new-service audience and full review / approval / publish workflow',
   await page.locator('[data-lc-action="ADD_COMMENT"]').click();
   await expect(page.locator('.comment')).toHaveCount(1);
   await page.locator('[data-lc-action="REQUEST_CHANGES"]').click();
-  await expect(page.locator('.review-badge--changes')).toBeVisible();
+  await expect(page.locator('.status-icon[aria-label="На доработке"]')).toBeVisible();
 
   await page.locator('[data-lc-role]').selectOption('agency-author');
   await page.locator('[data-lc-action="REPLY"]').click();
   await page.locator('[data-lc-action="RESUBMIT"]').click();
-  await expect(page.locator('.review-badge--review')).toBeVisible();
+  await expect(page.locator('.status-icon[aria-label="Повторная проверка"]')).toBeVisible();
   await expect(page.getByText('0.5', { exact: true }).first()).toBeVisible();
 
   await page.locator('[data-lc-role]').selectOption('reviewer');
   await page.locator('[data-lc-action="APPROVE"]').click();
-  await expect(page.locator('.review-badge--approved')).toBeVisible();
+  await expect(page.locator('.status-icon[aria-label="Подтверждено"]')).toBeVisible();
   await expect(page.getByText(/Demo reviewer · 14:36/)).toBeVisible();
   await page.locator('[data-lc-role]').selectOption('agency-author');
   await expect(page.locator('[data-lc-action="PUBLISH"]')).toBeDisabled();
   await page.locator('[data-lc-role]').selectOption('portal-admin');
   await page.locator('[data-lc-action="PUBLISH"]').click();
   await page.locator('[data-lc-confirm="PUBLISH"]').click();
-  await expect(page.locator('.review-badge--published')).toBeVisible();
+  await expect(page.locator('.status-icon[aria-label="Опубликовано"]')).toBeVisible();
   await page.locator('[data-lc-action="RESET"]').click();
-  await expect(page.locator('.review-badge--draft')).toBeVisible();
+  await expect(page.locator('.status-icon[aria-label="Черновик"]')).toBeVisible();
 });

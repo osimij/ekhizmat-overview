@@ -172,7 +172,7 @@ export function renderResult(host) {
           h('span', {}, t('doc.org')),
           h('span', { class: 'spacer' }),
           h('span', { class: 'tnum' }, app.no)),
-        h('h3', { class: 'doc-page__title' }, svc.name.toUpperCase()),
+        h('h3', { class: 'doc-page__title' }, svc.name),
         h('div', { class: 'doc-page__rows' },
           // Профиль есть у всех 12 услуг, но офлайн (§7) может оставить срез
           // пустым — лист печатаем без значения, а не падаем на .replace.

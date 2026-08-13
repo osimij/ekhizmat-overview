@@ -3,6 +3,10 @@ import { applyPreferences, getLang, getTheme, setLang, toggleTheme } from '/desi
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const icon = name => `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${name}"></use></svg>`;
+const RU_STATUS = { inReview:'На рассмотрении', needAction:'Нужно ваше действие', ready:'Готово', sent:'Отправлено' };
+const statusIconMarkup = (tone, label, iconName) => `<span class="status-icon status-icon--${tone}" role="img" aria-label="${label}" title="${label}">${icon(iconName || (tone==='success'?'i-check':tone==='warning'?'i-edit':tone==='info'?'i-clock':'i-dots'))}</span>`;
+const statusCopy = key => language === 'tg' ? (tg[key] || RU_STATUS[key] || key) : (RU_STATUS[key] || key);
+const setStatusIcon = (element, tone, label, iconName) => { if (!element) return; element.className=`status-icon status-icon--${tone}`; element.setAttribute('role','img'); element.setAttribute('aria-label',label); element.title=label; element.innerHTML=icon(iconName || (tone==='success'?'i-check':tone==='warning'?'i-edit':tone==='info'?'i-clock':'i-dots')); };
 
 const originalCopy = new Map();
 $$('[data-copy]').forEach(element => {
@@ -75,6 +79,12 @@ function renderCopy() {
     element.placeholder = language === 'tg' ? (tg[element.dataset.copyPlaceholder] || originalPlaceholders.get(element)) : originalPlaceholders.get(element);
   });
   $('#currentLanguage').textContent = language === 'tg' ? 'Тоҷикӣ' : 'Русский';
+  $$('[data-status-copy]').forEach(element => {
+    const key=element.dataset.statusCopy;
+    const tone=element.dataset.statusTone || 'info';
+    const iconName=element.dataset.statusIcon;
+    setStatusIcon(element,tone,statusCopy(key),iconName);
+  });
   $('.concept-open').href = `/mobile/?mode=app&theme=${getTheme()}&lang=${language}`;
   document.title = language === 'tg' ? 'eKhizmat Mobile — консепсияи интерактивӣ' : 'eKhizmat Mobile — интерактивная концепция';
   renderServices();
@@ -179,7 +189,7 @@ function renderApplicationDetail(id) {
   const detail = applicationDetails[id] || applicationDetails.birth;
   $('#applicationDetailIcon').className = `application-icon ${detail.tone}`;
   $('#applicationDetailIcon').innerHTML = icon(detail.icon);
-  $('#applicationDetailStatus').textContent = language === 'tg' ? detail.statusTg : detail.statusRu;
+  setStatusIcon($('#applicationDetailStatus'),id === 'passport' ? 'warning' : 'success',language === 'tg' ? detail.statusTg : detail.statusRu,id === 'passport' ? 'i-edit' : 'i-check');
   $('#applicationDetailTitle').textContent = language === 'tg' ? detail.titleTg : detail.titleRu;
   $('#applicationDetailNumber').textContent = detail.number;
   const agency = id === 'passport'
@@ -194,8 +204,6 @@ function renderApplicationDetail(id) {
       : translate('threeDocuments');
   $('.detail-info-card strong').textContent = agency;
   $$('.detail-info-card strong')[1].textContent = result;
-  $('#applicationDetailStatus').closest('.status-chip').style.setProperty('background', id === 'passport' ? 'var(--amber-tint)' : 'var(--green-tint)');
-  $('#applicationDetailStatus').closest('.status-chip').style.setProperty('color', id === 'passport' ? 'var(--amber)' : 'var(--green)');
   const steps = language === 'tg' ? detail.stepsTg : detail.stepsRu;
   $('#applicationTimeline').innerHTML = steps.map((step, index) => {
     const state = index < detail.current ? 'is-done' : index === detail.current ? 'is-current' : '';
@@ -242,7 +250,7 @@ function submitFlow() {
     card.className = 'application-card';
     card.dataset.appStatus = 'active';
     card.dataset.openApplication = 'passport';
-    card.innerHTML = `<span class="application-icon t-blue">${icon('i-cat-passport')}</span><span class="application-copy"><span class="status-label">${language === 'tg' ? 'Фиристода шуд' : 'Отправлено'}</span><strong>${translate('passportRenewal')}</strong><span>№ТҶ-2026-184551 · ${translate('today')}</span></span>${icon('i-chev-r')}`;
+    card.innerHTML = `<span class="application-icon t-blue">${icon('i-cat-passport')}</span><span class="application-copy">${statusIconMarkup('info',statusCopy('sent'),'i-clock')}<strong>${translate('passportRenewal')}</strong><span>№ТҶ-2026-184551 · ${translate('today')}</span></span>${icon('i-chev-r')}`;
     $('#applicationList').prepend(card);
   }
 }

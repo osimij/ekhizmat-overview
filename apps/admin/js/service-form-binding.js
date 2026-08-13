@@ -17,6 +17,7 @@ const c=()=>COPY[currentLang]||COPY.tg;
 const label=value=>localized(value,currentLang);
 const statusText=status=>status==='published'?c().published:status==='archived'?c().archived:c().draft;
 const statusTone=status=>status==='published'?'published':status==='archived'?'archived':'draft';
+const statusIcon=status=>{const tone=status==='published'?'success':status==='draft'?'warning':'neutral';const icon=status==='published'?'i-check':status==='draft'?'i-edit':'i-history';const text=statusText(status);return `<span class="status-icon status-icon--${tone}" role="img" aria-label="${esc(text)}" title="${esc(text)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${icon}"/></svg></span>`;};
 
 function referenceData(){
   let reference=getServiceFormReference(),form=getForm(reference.formId),version=getVersion(form,reference.version);
@@ -43,7 +44,7 @@ function renderSelected(){
   const currentLive=liveVersion(form),hasUpdate=currentLive&&currentLive.number!==version.number;
   root.innerHTML=`<article class="attached-form-card">
     <span class="attached-form-card__icon"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-    <div class="attached-form-card__copy"><span>${esc(form.code)} · ${esc(label(form.owner))}</span><h3>${esc(label(form.name))}</h3><p>${esc(label(form.description))}</p><div><span class="form-version-badge form-version-badge--${statusTone(version.status)}">v${version.number} · ${esc(statusText(version.status))}</span><span class="metachip">${version.fields.length} ${esc(c().fields)}</span></div></div>
+    <div class="attached-form-card__copy"><span>${esc(form.code)} · ${esc(label(form.owner))}</span><h3>${esc(label(form.name))}</h3><p>${esc(label(form.description))}</p><div><span class="form-version-badge form-version-badge--${statusTone(version.status)}">v${version.number}${statusIcon(version.status)}</span><span class="metachip">${version.fields.length} ${esc(c().fields)}</span></div></div>
     ${hasUpdate?`<div class="attached-form-update"><span><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg>${esc(c().available)} · v${currentLive.number}</span><small>${esc(c().upgrade)}</small></div>`:`<span class="attached-form-pin"><svg><use href="/design-system/assets/icons.svg#i-pin"/></svg>${esc(c().pinned)} · v${version.number}</span>`}
   </article>`;
   const link=$('#openAttachedForm'); if(link){link.href=`form-builder.html?id=${encodeURIComponent(form.id)}&version=${version.number}`;const text=$('span',link);if(text)text.textContent=c().open;}
@@ -61,7 +62,7 @@ function renderPicker(){
   const items=publishedForms().filter(({form})=>[label(form.name),label(form.description),label(form.owner),form.code].join(' ').toLowerCase().includes(query));
   root.innerHTML=items.map(({form,version})=>{
     const checked=(pending&&pending.formId===form.id&&Number(pending.version)===version.number)||(!pending&&current.formId===form.id&&Number(current.version)===version.number);
-    return `<label class="service-form-option"><input type="radio" name="serviceFormChoice" value="${esc(form.id)}" data-version="${version.number}" ${checked?'checked':''}><span class="service-form-option__icon"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="service-form-option__copy"><b>${esc(label(form.name))}</b><span>${esc(form.code)} · ${esc(label(form.owner))}</span><small>${esc(label(form.description))}</small></span><span class="form-version-badge form-version-badge--published">v${version.number} · ${esc(c().published)}</span></label>`;
+    return `<label class="service-form-option"><input type="radio" name="serviceFormChoice" value="${esc(form.id)}" data-version="${version.number}" ${checked?'checked':''}><span class="service-form-option__icon"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="service-form-option__copy"><b>${esc(label(form.name))}</b><span>${esc(form.code)} · ${esc(label(form.owner))}</span><small>${esc(label(form.description))}</small></span><span class="form-version-badge form-version-badge--published">v${version.number}${statusIcon('published')}</span></label>`;
   }).join('');
   const empty=$('#serviceFormPickerEmpty'); if(empty) empty.hidden=items.length!==0;
   const confirm=$('#confirmServiceForm'); if(confirm) confirm.disabled=!pending;

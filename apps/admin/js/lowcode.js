@@ -1,134 +1,379 @@
-const STORAGE_KEY = 'ekh.demo.lowcode';
+const STORAGE_KEY = 'ekh.demo.lowcode.v2';
+const PRIMARY_SERVICE_ID = 'ngo-registration';
+
+const MAIN_AUDIT = [
+  { type:'created', at:'12.08.2026 · 10:18', title:{ru:'Услуга создана',tg:'Хизмат сохта шуд'}, text:{ru:'Фаррух Ниёзов создал черновик услуги',tg:'Фаррух Ниёзов сиёҳнависи хизматро сохт'} },
+  { type:'edited', at:'12.08.2026 · 16:05', title:{ru:'Настроены поля и маршрут',tg:'Майдонҳо ва масир танзим шуданд'}, text:{ru:'Добавлены 6 полей, сроки и уведомления',tg:'6 майдон, муҳлат ва огоҳиҳо илова шуданд'} },
+  { type:'submitted', at:'13.08.2026 · 09:42', title:{ru:'Отправлено на рассмотрение',tg:'Ба баррасӣ фиристода шуд'}, text:{ru:'Версия 1.0 передана Service Approver',tg:'Версияи 1.0 ба Service Approver супурда шуд'} },
+];
+
 const DEFAULT_STATE = {
-  role:'agency-author', serviceVersion:'0.4', audience:['person','guest'],
-  status:'draft', comments:[], changedSections:['Audience','Form fields','Notifications'],
+  role:'reviewer',
+  serviceVersion:'1.0',
+  audience:['person','guest'],
+  status:'in_review',
+  comments:[],
+  changedSections:['Описание','Поля заявления','Маршрут','Уведомления'],
   serviceName:{ru:'Регистрация некоммерческой организации',tg:'Бақайдгирии ташкилоти ғайритиҷоратӣ'},
   agencyName:{ru:'Министерство юстиции',tg:'Вазорати адлия'},
   formFields:[
     {id:'org-name',label:{ru:'Название организации',tg:'Номи ташкилот'},type:'text',required:true},
+    {id:'legal-form',label:{ru:'Организационно-правовая форма',tg:'Шакли ташкилию ҳуқуқӣ'},type:'select',required:true},
     {id:'contact',label:{ru:'Контактное лицо',tg:'Шахси тамос'},type:'text',required:true},
+    {id:'phone',label:{ru:'Номер телефона',tg:'Рақами телефон'},type:'text',required:true},
+    {id:'charter',label:{ru:'Устав организации',tg:'Оинномаи ташкилот'},type:'file',required:true},
+    {id:'address',label:{ru:'Юридический адрес',tg:'Суроғаи ҳуқуқӣ'},type:'text',required:true},
   ],
-  review:null, publishedAt:null,
+  review:null,
+  publishedAt:null,
+  audit:MAIN_AUDIT,
+  queueStates:{},
+};
+
+const INITIAL_QUEUE_STATES = {
+  'land-extract':{
+    status:'resubmitted', version:'1.2', review:null, publishedAt:null,
+    comments:[
+      {id:'land-c1',author:'reviewer',body:{ru:'Укажите источник данных и срок актуальности выписки.',tg:'Манбаи маълумот ва муҳлати эътибори иқтибосро нишон диҳед.'},anchor:{ru:'Результат услуги',tg:'Натиҷаи хизмат'},at:'12.08 · 11:16'},
+      {id:'land-c2',author:'agency-author',body:{ru:'Источник и срок добавлены в описание результата.',tg:'Манбаъ ва муҳлат ба тавсифи натиҷа илова шуданд.'},anchor:{ru:'Результат услуги',tg:'Натиҷаи хизмат'},at:'13.08 · 08:54',reply:true},
+    ],
+    audit:[
+      {type:'created',at:'08.08.2026 · 09:12',title:{ru:'Услуга создана',tg:'Хизмат сохта шуд'},text:{ru:'Мехринисо Саидова создала черновик',tg:'Меҳринисо Саидова сиёҳнависро сохт'}},
+      {type:'submitted',at:'11.08.2026 · 15:30',title:{ru:'Версия 1.1 отправлена на проверку',tg:'Версияи 1.1 ба санҷиш фиристода шуд'},text:{ru:'Все обязательные поля заполнены',tg:'Ҳамаи майдонҳои ҳатмӣ пур шуданд'}},
+      {type:'changes',at:'12.08.2026 · 11:16',title:{ru:'Запрошена доработка',tg:'Такмил дархост шуд'},text:{ru:'Комментарий к результату услуги',tg:'Шарҳ ба натиҷаи хизмат'}},
+      {type:'resubmitted',at:'13.08.2026 · 08:55',title:{ru:'Версия 1.2 отправлена повторно',tg:'Версияи 1.2 такроран фиристода шуд'},text:{ru:'Автор внёс исправления',tg:'Муаллиф ислоҳот ворид кард'}},
+    ],
+  },
+  'construction-permit':{
+    status:'approved', version:'2.1', publishedAt:null,
+    review:{by:'Зарина Хакимова',at:'13.08.2026 · 10:05'},
+    comments:[
+      {id:'permit-c1',author:'reviewer',body:{ru:'Исправлена формулировка основания для отказа.',tg:'Ибораи асос барои рад ислоҳ шуд.'},anchor:{ru:'Условия отказа',tg:'Шартҳои рад'},at:'12.08 · 14:08'},
+    ],
+    audit:[
+      {type:'created',at:'03.08.2026 · 13:40',title:{ru:'Услуга создана',tg:'Хизмат сохта шуд'},text:{ru:'Далер Шарипов создал новую версию действующей услуги',tg:'Далер Шарипов версияи нави хизмати амалкунандаро сохт'}},
+      {type:'submitted',at:'11.08.2026 · 09:20',title:{ru:'Версия 2.0 отправлена на проверку',tg:'Версияи 2.0 ба санҷиш фиристода шуд'},text:{ru:'Изменены маршрут и перечень документов',tg:'Масир ва рӯйхати ҳуҷҷатҳо тағйир ёфт'}},
+      {type:'changes',at:'12.08.2026 · 14:08',title:{ru:'Запрошена доработка',tg:'Такмил дархост шуд'},text:{ru:'Уточнить условия отказа',tg:'Шартҳои радро дақиқ кардан'}},
+      {type:'resubmitted',at:'13.08.2026 · 09:18',title:{ru:'Версия 2.1 отправлена повторно',tg:'Версияи 2.1 такроран фиристода шуд'},text:{ru:'Замечание исправлено автором',tg:'Эзоҳ аз ҷониби муаллиф ислоҳ шуд'}},
+      {type:'approved',at:'13.08.2026 · 10:05',title:{ru:'Услуга подтверждена',tg:'Хизмат тасдиқ шуд'},text:{ru:'Service Approver: Зарина Хакимова',tg:'Service Approver: Зарина Ҳакимова'}},
+    ],
+  },
+  'family-certificate':{
+    status:'published', version:'3.0', publishedAt:'12.08.2026 · 17:30',
+    review:{by:'Зарина Хакимова',at:'12.08.2026 · 16:52'}, comments:[],
+    audit:[
+      {type:'created',at:'05.08.2026 · 10:10',title:{ru:'Версия 3.0 создана',tg:'Версияи 3.0 сохта шуд'},text:{ru:'Нилуфар Каримова обновила описание и форму',tg:'Нилуфар Каримова тавсиф ва шаклро нав кард'}},
+      {type:'submitted',at:'11.08.2026 · 13:44',title:{ru:'Отправлено на проверку',tg:'Ба санҷиш фиристода шуд'},text:{ru:'Версия 3.0',tg:'Версияи 3.0'}},
+      {type:'approved',at:'12.08.2026 · 16:52',title:{ru:'Услуга подтверждена',tg:'Хизмат тасдиқ шуд'},text:{ru:'Проверка завершена без замечаний',tg:'Санҷиш бе эзоҳ анҷом ёфт'}},
+      {type:'published',at:'12.08.2026 · 17:30',title:{ru:'Услуга опубликована',tg:'Хизмат нашр шуд'},text:{ru:'Service Publisher: Комрон Алиев',tg:'Service Publisher: Комрон Алиев'}},
+    ],
+  },
 };
 
 const TRANSITIONS = {
-  draft:{ SAVE_STAGE:'stage', SEND_REVIEW:'in_review' },
-  stage:{ SAVE_STAGE:'stage', SEND_REVIEW:'in_review' },
-  in_review:{ REQUEST_CHANGES:'changes_requested', REJECT:'rejected', APPROVE:'approved' },
-  changes_requested:{ SAVE_STAGE:'changes_requested', RESUBMIT:'resubmitted' },
-  resubmitted:{ REQUEST_CHANGES:'changes_requested', REJECT:'rejected', APPROVE:'approved' },
-  approved:{ PUBLISH:'published' },
-  rejected:{ SAVE_STAGE:'stage' },
+  draft:{SAVE_STAGE:'stage',SEND_REVIEW:'in_review'},
+  stage:{SAVE_STAGE:'stage',SEND_REVIEW:'in_review'},
+  in_review:{REQUEST_CHANGES:'changes_requested',APPROVE:'approved'},
+  changes_requested:{SAVE_STAGE:'changes_requested',RESUBMIT:'resubmitted'},
+  resubmitted:{REQUEST_CHANGES:'changes_requested',APPROVE:'approved'},
+  approved:{PUBLISH:'published'},
   published:{},
 };
 
 const COPY = {
-  ru:{ author:'Автор ведомства', reviewer:'Ревьюер', admin:'Администратор портала', role:'Демо-роль', draft:'Черновик', stage:'На stage', in_review:'На проверке', changes_requested:'Требуются изменения', resubmitted:'Повторная проверка', approved:'Одобрено', rejected:'Отклонено', published:'Опубликовано', service:'Регистрация некоммерческой организации', stageEnv:'Stage', version:'Версия', audiences:'Аудитории', person:'ФЛ', business:'ЮЛ', guest:'Гость', guestReady:'Guest-preview включён', history:'Версия и история', comments:'Комментарии', noComments:'Комментариев пока нет.', reviewQueue:'Очередь проверки', newTab:'Новые', repeatTab:'Повторно', approvedTab:'Одобрено', rejectedTab:'Отклонено', agency:'Министерство юстиции', changed:'Изменённые разделы', checklist:'Чек-лист автора', check1:'Названия на русском и таджикском', check2:'Безопасные поля и понятные подсказки', check3:'Guest-preview проверен на stage', send:'Отправить на проверку', resubmit:'Отправить повторно', save:'Сохранить на stage', publish:'Опубликовать', publishHint:'Публикация доступна после проверки только администратору портала', addComment:'Добавить комментарий', request:'Запросить изменения', reject:'Отклонить', approve:'Одобрить', commentPlaceholder:'Комментарий с привязкой к полю или шагу', prepared:'Уточните формат номера документа', fieldAnchor:'Поле «Номер документа»', preview:'Preview формы', formTitle:'Регистрация НКО', docNumber:'Номер документа', docHelp:'Серия и номер через пробел', topic:'Тема обращения', submit:'Продолжить', metadata:'Метаданные', action:'Доступное действие', updated:'изменено сегодня, 14:20', sla:'SLA проверки: 1 рабочий день', reset:'Сбросить demo', openBuilder:'Открыть конструктор', summary:'Сводка перед отправкой', note:'Комментарий ревьюеру (необязательно)', cancel:'Отмена', confirm:'Подтвердить отправку', publishSummary:'Подтверждение публикации', confirmPublish:'Опубликовать версию', sentToast:'Услуга отправлена на проверку', changesToast:'Изменения запрошены', approvedToast:'Версия одобрена', publishedToast:'Демо-услуга опубликована', commentToast:'Комментарий добавлен', readonly:'На проверке: редактирование временно недоступно.', authorCannot:'Автор ведомства не может публиковать услугу.', adminBlocked:'Сначала версия должна получить статус «Одобрено».', reviewerOnly:'Действие доступно ревьюеру.', reply:'Ответ автора', resolution:'Формат уточнён: серия и номер разделены пробелом.', queueEmpty:'В этой вкладке сейчас нет других услуг.', demoData:'Демо-данные', filterAgency:'Ведомство', filterAudience:'Аудитория', filterDate:'Дата изменения', any:'Все', seven:'7 дней', thirty:'30 дней', reviewSummary:'Итог проверки' },
-  tg:{ author:'Муаллифи идора', reviewer:'Баррасӣкунанда', admin:'Маъмури портал', role:'Нақши намоишӣ', draft:'Сиёҳнавис', stage:'Дар stage', in_review:'Дар санҷиш', changes_requested:'Тағйирот лозим', resubmitted:'Санҷиши такрорӣ', approved:'Тасдиқ шуд', rejected:'Рад шуд', published:'Нашр шуд', service:'Бақайдгирии ташкилоти ғайритиҷоратӣ', stageEnv:'Stage', version:'Версия', audiences:'Аудиторияҳо', person:'Шахси воқеӣ', business:'Шахси ҳуқуқӣ', guest:'Меҳмон', guestReady:'Пешнамоиши меҳмон фаъол аст', history:'Версия ва таърих', comments:'Шарҳҳо', noComments:'Ҳоло шарҳ нест.', reviewQueue:'Навбати санҷиш', newTab:'Нав', repeatTab:'Такрорӣ', approvedTab:'Тасдиқшуда', rejectedTab:'Радшуда', agency:'Вазорати адлия', changed:'Қисмҳои тағйирёфта', checklist:'Рӯйхати санҷиши муаллиф', check1:'Номҳо ба тоҷикӣ ва русӣ', check2:'Майдонҳои бехатар ва роҳнамои равшан', check3:'Пешнамоиши меҳмон дар stage санҷида шуд', send:'Ба санҷиш фиристодан', resubmit:'Такроран фиристодан', save:'Дар stage захира кардан', publish:'Нашр кардан', publishHint:'Нашр танҳо баъд аз санҷиш ба маъмури портал дастрас аст', addComment:'Илова кардани шарҳ', request:'Дархости тағйирот', reject:'Рад кардан', approve:'Тасдиқ кардан', commentPlaceholder:'Шарҳ ба майдон ё қадам', prepared:'Формати рақами ҳуҷҷатро дақиқ кунед', fieldAnchor:'Майдони «Рақами ҳуҷҷат»', preview:'Пешнамоиши шакл', formTitle:'Бақайдгирии ТҒТ', docNumber:'Рақами ҳуҷҷат', docHelp:'Силсила ва рақам бо фосила', topic:'Мавзӯи муроҷиат', submit:'Идома', metadata:'Маълумот', action:'Амали дастрас', updated:'имрӯз, 14:20 тағйир ёфт', sla:'SLA-и санҷиш: 1 рӯзи корӣ', reset:'Demo-ро аз нав оғоз кардан', openBuilder:'Кушодани конструктор', summary:'Ҷамъбаст пеш аз фиристодан', note:'Шарҳ ба баррасӣкунанда (ихтиёрӣ)', cancel:'Бекор', confirm:'Тасдиқи фиристодан', publishSummary:'Тасдиқи нашр', confirmPublish:'Нашри версия', sentToast:'Хизмат ба санҷиш фиристода шуд', changesToast:'Тағйирот дархост шуд', approvedToast:'Версия тасдиқ шуд', publishedToast:'Хизмати намоишӣ нашр шуд', commentToast:'Шарҳ илова шуд', readonly:'Дар санҷиш: таҳрир муваққатан баста аст.', authorCannot:'Муаллифи идора хизматро нашр карда наметавонад.', adminBlocked:'Аввал версия бояд мақоми «Тасдиқ шуд» гирад.', reviewerOnly:'Ин амал ба баррасӣкунанда дастрас аст.', reply:'Ҷавоби муаллиф', resolution:'Формат дақиқ шуд: силсила ва рақам бо фосила.', queueEmpty:'Дар ин бахш ҳоло хизмати дигар нест.', demoData:'Маълумоти намоишӣ', filterAgency:'Идора', filterAudience:'Аудитория', filterDate:'Санаи тағйир', any:'Ҳама', seven:'7 рӯз', thirty:'30 рӯз', reviewSummary:'Натиҷаи санҷиш' },
+  ru:{
+    author:'Автор услуги',reviewer:'Service Approver',admin:'Service Publisher',role:'Роль в процессе',draft:'Черновик',stage:'На stage',in_review:'На рассмотрении',changes_requested:'На доработке',resubmitted:'Повторная проверка',approved:'Подтверждено',published:'Опубликовано',
+    stageEnv:'Stage',version:'Версия',audiences:'Получатели',person:'Физическое лицо',business:'Юридическое лицо',guest:'Без авторизации',history:'Версия и история',comments:'Комментарии',noComments:'Комментариев пока нет.',reviewQueue:'Проверка и публикация',reviewLead:'Проверяйте готовые услуги, возвращайте замечания автору и публикуйте подтверждённые версии.',
+    approverInbox:'На проверке',repeatTab:'Повторно',completedTab:'Подтверждённые',readyTab:'К публикации',publishedTab:'Опубликованные',allTab:'Весь цикл',changesTab:'На доработке',
+    queueTitle:'Услуги в работе',queueHint:'Откройте строку, чтобы увидеть полный вид услуги и доступные действия.',search:'Поиск по услуге, автору или коду…',filterAgency:'Ведомство',any:'Все ведомства',serviceColumn:'Услуга',createdBy:'Создал услугу',submittedAt:'Дата и время',status:'Статус',openService:'Открыть услугу',found:n=>`${n} ${n===1?'услуга':'услуги'}`,
+    emptyTitle:'В этом разделе пока нет услуг',emptyBody:'Измените фильтр или выберите другую вкладку.',backToList:'Назад к списку',serviceOverview:'Общий вид готовой услуги',serviceOverviewHint:'Так услуга выглядит перед публикацией: описание, условия, поля и маршрут.',description:'Описание услуги',agency:'Ведомство',serviceCode:'Код услуги',delivery:'Срок оказания',price:'Стоимость',free:'Бесплатно',days3:'До 3 рабочих дней',days5:'До 5 рабочих дней',days7:'До 7 рабочих дней',
+    applicationForm:'Форма заявления',required:'Обязательное поле',route:'Маршрут обработки',route1:'Приём и автоматическая проверка заявления',route2:'Проверка документов ответственным сотрудником',route3:'Формирование результата и уведомление заявителя',notifications:'Уведомления',notificationText:'SMS и уведомление в личном кабинете при каждом изменении статуса.',
+    metadata:'Сведения о версии',changed:'Что изменено',checklist:'Готовность к проверке',check1:'Названия заполнены на русском и таджикском',check2:'Обязательные поля и подсказки настроены',check3:'Маршрут, сроки и уведомления заполнены',action:'Текущий этап',addComment:'Добавить комментарий',commentAdded:'Комментарий добавлен',commentPlaceholder:'Опишите, что именно нужно исправить…',commentAnchor:'Раздел услуги',general:'Общее замечание',request:'Вернуть на доработку',approve:'Подтвердить',publish:'Опубликовать',resubmit:'Отправить повторно',reply:'Ответить на замечание',needsComment:'Добавьте комментарий: автору должно быть понятно, что исправить.',
+    timeline:'История создания и изменений',timelineHint:'Service Publisher видит весь путь этой версии.',reviewSummary:'Результат проверки',approvedBy:'Подтвердил',publishedBy:'Опубликовал',notAvailable:'Действие станет доступно на следующем этапе.',openBuilder:'Открыть в конструкторе',reset:'Сбросить демо',
+    publishTitle:'Публикация услуги',publishLead:'После публикации эта версия станет доступна гражданам. Текущая опубликованная версия будет сохранена в истории.',publishConfirm:'Опубликовать версию',cancel:'Отмена',publishedToast:'Услуга опубликована',approvedToast:'Услуга подтверждена и передана Service Publisher',changesToast:'Услуга возвращена автору на доработку',sentToast:'Исправленная версия отправлена повторно',
+    authorCannot:'Автор не может подтверждать или публиковать услугу.',publisherHint:'Откройте подтверждённую услугу, изучите весь цикл изменений и опубликуйте версию.',approverHint:'Откройте услугу, проверьте полный вид и подтвердите её или верните автору с комментарием.',authorHint:'Здесь видны услуги, которые нужно исправить и отправить повторно.',
+  },
+  tg:{
+    author:'Муаллифи хизмат',reviewer:'Service Approver',admin:'Service Publisher',role:'Нақш дар раванд',draft:'Сиёҳнавис',stage:'Дар stage',in_review:'Дар баррасӣ',changes_requested:'Барои такмил',resubmitted:'Санҷиши такрорӣ',approved:'Тасдиқшуда',published:'Нашршуда',
+    stageEnv:'Stage',version:'Версия',audiences:'Гирандагон',person:'Шахси воқеӣ',business:'Шахси ҳуқуқӣ',guest:'Бе воридшавӣ',history:'Версия ва таърих',comments:'Шарҳҳо',noComments:'Ҳоло шарҳ нест.',reviewQueue:'Санҷиш ва нашр',reviewLead:'Хизматҳои тайёрро санҷед, эзоҳҳоро ба муаллиф баргардонед ва версияҳои тасдиқшударо нашр кунед.',
+    approverInbox:'Дар санҷиш',repeatTab:'Такрорӣ',completedTab:'Тасдиқшуда',readyTab:'Барои нашр',publishedTab:'Нашршуда',allTab:'Тамоми раванд',changesTab:'Барои такмил',
+    queueTitle:'Хизматҳо дар кор',queueHint:'Барои дидани намуди пурра ва амалҳои дастрас сатрро кушоед.',search:'Ҷустуҷӯ аз рӯи хизмат, муаллиф ё рамз…',filterAgency:'Идора',any:'Ҳамаи идораҳо',serviceColumn:'Хизмат',createdBy:'Хизматро сохт',submittedAt:'Сана ва вақт',status:'Ҳолат',openService:'Кушодани хизмат',found:n=>`${n} хизмат`,
+    emptyTitle:'Дар ин бахш ҳоло хизмат нест',emptyBody:'Филтрро иваз кунед ё бахши дигарро интихоб намоед.',backToList:'Бозгашт ба рӯйхат',serviceOverview:'Намуди умумии хизмати тайёр',serviceOverviewHint:'Хизмат пеш аз нашр чунин менамояд: тавсиф, шартҳо, майдонҳо ва масир.',description:'Тавсифи хизмат',agency:'Идора',serviceCode:'Рамзи хизмат',delivery:'Муҳлати хизмат',price:'Арзиш',free:'Ройгон',days3:'То 3 рӯзи корӣ',days5:'То 5 рӯзи корӣ',days7:'То 7 рӯзи корӣ',
+    applicationForm:'Шакли дархост',required:'Майдони ҳатмӣ',route:'Масири коркард',route1:'Қабул ва санҷиши худкори дархост',route2:'Санҷиши ҳуҷҷатҳо аз ҷониби корманди масъул',route3:'Омода кардани натиҷа ва огоҳ кардани дархосткунанда',notifications:'Огоҳиҳо',notificationText:'SMS ва огоҳӣ дар кабинети шахсӣ ҳангоми ҳар тағйири ҳолат.',
+    metadata:'Маълумоти версия',changed:'Чӣ тағйир ёфт',checklist:'Омодагӣ ба санҷиш',check1:'Номҳо ба тоҷикӣ ва русӣ пур шудаанд',check2:'Майдонҳои ҳатмӣ ва роҳнамо танзим шудаанд',check3:'Масир, муҳлат ва огоҳиҳо пур шудаанд',action:'Марҳилаи ҷорӣ',addComment:'Илова кардани шарҳ',commentAdded:'Шарҳ илова шуд',commentPlaceholder:'Дақиқ нависед, ки чӣ бояд ислоҳ шавад…',commentAnchor:'Қисми хизмат',general:'Эзоҳи умумӣ',request:'Барои такмил баргардондан',approve:'Тасдиқ кардан',publish:'Нашр кардан',resubmit:'Такроран фиристодан',reply:'Ҷавоб ба эзоҳ',needsComment:'Шарҳ илова кунед: муаллиф бояд фаҳмад, ки чӣ ислоҳ шавад.',
+    timeline:'Таърихи сохтан ва тағйирот',timelineHint:'Service Publisher тамоми роҳи ин версияро мебинад.',reviewSummary:'Натиҷаи санҷиш',approvedBy:'Тасдиқ кард',publishedBy:'Нашр кард',notAvailable:'Амал дар марҳилаи навбатӣ дастрас мешавад.',openBuilder:'Дар конструктор кушодан',reset:'Аз нав оғоз кардани демо',
+    publishTitle:'Нашри хизмат',publishLead:'Пас аз нашр ин версия ба шаҳрвандон дастрас мешавад. Версияи ҷории нашршуда дар таърих мемонад.',publishConfirm:'Нашри версия',cancel:'Бекор',publishedToast:'Хизмат нашр шуд',approvedToast:'Хизмат тасдиқ ва ба Service Publisher супурда шуд',changesToast:'Хизмат барои такмил ба муаллиф баргардонида шуд',sentToast:'Версияи ислоҳшуда такроран фиристода шуд',
+    authorCannot:'Муаллиф хизматро тасдиқ ё нашр карда наметавонад.',publisherHint:'Хизмати тасдиқшударо кушоед, тамоми тағйиротро бинед ва версияро нашр кунед.',approverHint:'Хизматро кушоед, намуди пурраро санҷед ва тасдиқ кунед ё бо шарҳ ба муаллиф баргардонед.',authorHint:'Дар ин ҷо хизматҳое ҳастанд, ки бояд ислоҳ ва такроран фиристода шаванд.',
+  },
 };
+
+const SERVICE_RECORDS = [
+  {
+    id:PRIMARY_SERVICE_ID,
+    name:{ru:'Регистрация некоммерческой организации',tg:'Бақайдгирии ташкилоти ғайритиҷоратӣ'},
+    agency:{ru:'Министерство юстиции',tg:'Вазорати адлия'}, creator:'Фаррух Ниёзов', createdAt:'12.08.2026 · 10:18', submittedAt:'13.08.2026 · 09:42', code:'SVC-JUS-014', delivery:'days5', price:'free', audience:['person','guest'],
+    description:{ru:'Государственная регистрация общественных объединений и других некоммерческих организаций с получением электронного свидетельства.',tg:'Бақайдгирии давлатии иттиҳодияҳои ҷамъиятӣ ва дигар ташкилотҳои ғайритиҷоратӣ бо гирифтани шаҳодатномаи электронӣ.'},
+    changed:{ru:['Описание','Поля заявления','Маршрут','Уведомления'],tg:['Тавсиф','Майдонҳои дархост','Масир','Огоҳиҳо']},
+  },
+  {
+    id:'land-extract',name:{ru:'Выписка из реестра земельных участков',tg:'Иқтибос аз феҳристи қитъаҳои замин'},agency:{ru:'Комитет по землеустройству',tg:'Кумитаи заминсозӣ'},creator:'Мехринисо Саидова',createdAt:'08.08.2026 · 09:12',submittedAt:'13.08.2026 · 08:55',code:'SVC-LND-021',delivery:'days3',price:'free',audience:['person','business'],
+    description:{ru:'Получение электронной выписки о зарегистрированном земельном участке и его правообладателе.',tg:'Гирифтани иқтибоси электронӣ дар бораи қитъаи замини бақайдгирифташуда ва соҳиби ҳуқуқ.'},changed:{ru:['Результат услуги','Источник данных'],tg:['Натиҷаи хизмат','Манбаи маълумот']},
+    fields:[{label:{ru:'Кадастровый номер',tg:'Рақами кадастрӣ'},type:'text'},{label:{ru:'Цель получения выписки',tg:'Мақсади гирифтани иқтибос'},type:'select'},{label:{ru:'Документ заявителя',tg:'Ҳуҷҷати дархосткунанда'},type:'file'}],
+  },
+  {
+    id:'construction-permit',name:{ru:'Разрешение на строительство',tg:'Иҷозат барои сохтмон'},agency:{ru:'Комитет архитектуры и строительства',tg:'Кумитаи меъморӣ ва сохтмон'},creator:'Далер Шарипов',createdAt:'03.08.2026 · 13:40',submittedAt:'13.08.2026 · 09:18',code:'SVC-ARC-008',delivery:'days7',price:{ru:'120 сомони',tg:'120 сомонӣ'},audience:['person','business'],
+    description:{ru:'Подача заявления и документов для получения разрешения на строительство объекта.',tg:'Пешниҳоди ариза ва ҳуҷҷатҳо барои гирифтани иҷозати сохтмони иншоот.'},changed:{ru:['Маршрут','Документы','Условия отказа'],tg:['Масир','Ҳуҷҷатҳо','Шартҳои рад']},
+    fields:[{label:{ru:'Адрес объекта',tg:'Суроғаи иншоот'},type:'text'},{label:{ru:'Кадастровый номер',tg:'Рақами кадастрӣ'},type:'text'},{label:{ru:'Проектная документация',tg:'Ҳуҷҷатҳои лоиҳавӣ'},type:'file'},{label:{ru:'Правоустанавливающий документ',tg:'Ҳуҷҷати тасдиқкунандаи ҳуқуқ'},type:'file'}],
+  },
+  {
+    id:'family-certificate',name:{ru:'Справка о составе семьи',tg:'Маълумотнома дар бораи ҳайати оила'},agency:{ru:'Органы ЗАГС',tg:'Мақомоти САҲШ'},creator:'Нилуфар Каримова',createdAt:'05.08.2026 · 10:10',submittedAt:'11.08.2026 · 13:44',code:'SVC-FAM-001',delivery:'days3',price:'free',audience:['person','guest'],
+    description:{ru:'Получение электронной справки о зарегистрированном составе семьи.',tg:'Гирифтани маълумотномаи электронӣ дар бораи ҳайати бақайдгирифташудаи оила.'},changed:{ru:['Описание','Форма заявления'],tg:['Тавсиф','Шакли дархост']},
+    fields:[{label:{ru:'ПИН заявителя',tg:'РМА-и дархосткунанда'},type:'text'},{label:{ru:'Адрес регистрации',tg:'Суроғаи бақайдгирӣ'},type:'text'}],
+  },
+];
 
 let state = load();
 const listeners = new Set();
 const lang = () => { try { return new URLSearchParams(location.search).get('lang') || localStorage.getItem('ekh.preferences.lang') || 'tg'; } catch(e) { return 'tg'; } };
 const c = () => COPY[lang()] || COPY.tg;
-const localized = (value, fallback) => typeof value === 'string' ? value : value?.[lang()] || value?.ru || fallback;
-const serviceLabel = () => localized(state.serviceName, c().service);
-const agencyLabel = () => localized(state.agencyName, c().agency);
-function load(){ try { return { ...DEFAULT_STATE, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }; } catch(e) { return { ...DEFAULT_STATE }; } }
+const localized = (value, fallback='') => typeof value === 'string' ? value : value?.[lang()] || value?.ru || fallback;
+const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
+
+function clone(value){ return JSON.parse(JSON.stringify(value)); }
+function load(){
+  try {
+    const stored=JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return {
+      ...DEFAULT_STATE,
+      ...stored,
+      audience:Array.isArray(stored.audience)?stored.audience:[...DEFAULT_STATE.audience],
+      audit:Array.isArray(stored.audit)?stored.audit:clone(MAIN_AUDIT),
+      queueStates:{...clone(INITIAL_QUEUE_STATES),...(stored.queueStates||{})},
+    };
+  } catch(e) {
+    return {...DEFAULT_STATE,audience:[...DEFAULT_STATE.audience],audit:clone(MAIN_AUDIT),queueStates:clone(INITIAL_QUEUE_STATES)};
+  }
+}
 function persist(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
-function notify(){ listeners.forEach(fn => fn(state)); window.dispatchEvent(new CustomEvent('ekh:lowcode',{detail:state})); }
-window.addEventListener('storage', event => { if(event.key === STORAGE_KEY){ state = load(); notify(); } });
+function notify(){ listeners.forEach(fn=>fn(state)); window.dispatchEvent(new CustomEvent('ekh:lowcode',{detail:state})); }
+function toast(message){ window.bpToast?.(message); }
+window.addEventListener('storage',event=>{ if(event.key===STORAGE_KEY){state=load();notify();} });
 
 export function getLowCodeState(){ return state; }
-export function subscribeLowCode(fn){ listeners.add(fn); return () => listeners.delete(fn); }
-export function dispatchLowCode(event, payload={}){
-  if(event === 'RESET'){ state = { ...DEFAULT_STATE, audience:[...DEFAULT_STATE.audience], comments:[] }; persist(); notify(); return state; }
-  if(event === 'SET_ROLE'){ state = { ...state, role:payload.role }; persist(); notify(); return state; }
-  if(event === 'UPDATE_SERVICE'){
-    state = {
-      ...state,
-      serviceName:{ ...(state.serviceName || DEFAULT_STATE.serviceName), ...(payload.serviceName || {}) },
-      formFields:Array.isArray(payload.formFields) ? payload.formFields : (state.formFields || DEFAULT_STATE.formFields),
-    };
-    persist(); notify(); return state;
+export function subscribeLowCode(fn){ listeners.add(fn); return ()=>listeners.delete(fn); }
+
+function recordById(id){ return SERVICE_RECORDS.find(record=>record.id===id); }
+function workflowFor(id){
+  if(id===PRIMARY_SERVICE_ID) return {status:state.status,version:String(state.serviceVersion),comments:state.comments||[],review:state.review,publishedAt:state.publishedAt,audit:state.audit||[]};
+  return state.queueStates[id] || clone(INITIAL_QUEUE_STATES[id]);
+}
+function commitWorkflow(id,workflow){
+  if(id===PRIMARY_SERVICE_ID){
+    state={...state,status:workflow.status,serviceVersion:workflow.version,comments:workflow.comments||[],review:workflow.review||null,publishedAt:workflow.publishedAt||null,audit:workflow.audit||[]};
+  } else {
+    state={...state,queueStates:{...state.queueStates,[id]:workflow}};
   }
-  if(event === 'SET_AUDIENCE'){
-    const audience = state.audience.includes(payload.value) ? state.audience.filter(x => x !== payload.value) : [...state.audience,payload.value];
-    if(audience.length) state = { ...state, audience };
-    persist(); notify(); return state;
-  }
-  if(event === 'ADD_COMMENT'){
-    const body = String(payload.body || '').trim(); if(!body) return state;
-    state = { ...state, comments:[...state.comments,{id:`c-${Date.now()}`,author:state.role,body,anchor:payload.anchor || c().fieldAnchor,at:'14:24',reply:false}] };
-    persist(); notify(); return state;
-  }
-  if(event === 'REPLY'){
-    state = { ...state, comments:[...state.comments,{id:`c-${Date.now()}`,author:'agency-author',body:c().resolution,anchor:c().fieldAnchor,at:'14:31',reply:true}] };
-    persist(); notify(); return state;
-  }
-  const next = TRANSITIONS[state.status]?.[event];
-  if(!next) return state;
-  state = { ...state, status:next };
-  if(event === 'RESUBMIT') state.serviceVersion = (Number(state.serviceVersion) + 0.1).toFixed(1);
-  if(event === 'APPROVE') state.review = {by:'Demo reviewer',at:'14:36'};
-  if(event === 'PUBLISH') state.publishedAt = '14:40';
-  persist(); notify(); return state;
+  persist();notify();
+}
+function timeNow(){ return new Intl.DateTimeFormat(lang()==='ru'?'ru-RU':'tg-TJ',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(',',' ·'); }
+function eventCopy(type){
+  const ru={changes:['Возвращено на доработку','Service Approver оставил замечания'],approved:['Услуга подтверждена','Версия передана Service Publisher'],published:['Услуга опубликована','Версия доступна гражданам'],resubmitted:['Отправлено повторно','Автор внёс исправления']};
+  const tg={changes:['Барои такмил баргардонида шуд','Service Approver эзоҳ гузошт'],approved:['Хизмат тасдиқ шуд','Версия ба Service Publisher супурда шуд'],published:['Хизмат нашр шуд','Версия ба шаҳрвандон дастрас аст'],resubmitted:['Такроран фиристода шуд','Муаллиф ислоҳот ворид кард']};
+  const pair=(lang()==='ru'?ru:tg)[type]||[type,'']; return {title:pair[0],text:pair[1]};
 }
 
-function statusTone(status){ return ({draft:'draft',stage:'stage',in_review:'review',changes_requested:'changes',resubmitted:'review',approved:'approved',rejected:'rejected',published:'published'})[status]; }
-function statusBadge(){ const x=c(); return `<span class="review-badge review-badge--${statusTone(state.status)}">${x[state.status]}</span>`; }
-function audienceBadges(){ const x=c(); return state.audience.map(a=>`<span class="audience-badge audience-badge--${a==='guest'?'guest':a==='business'?'business':'person'}">${x[a]}</span>`).join(''); }
-function roleSelect(){ const x=c(); return `<label class="lc-role"><span>${x.role}</span><select class="input" data-lc-role><option value="agency-author" ${state.role==='agency-author'?'selected':''}>${x.author}</option><option value="reviewer" ${state.role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${state.role==='portal-admin'?'selected':''}>${x.admin}</option></select></label>`; }
-function toast(message){ window.bpToast ? window.bpToast(message) : null; }
+export function dispatchLowCode(event,payload={}){
+  if(event==='RESET'){
+    state={...DEFAULT_STATE,audience:[...DEFAULT_STATE.audience],comments:[],audit:clone(MAIN_AUDIT),queueStates:clone(INITIAL_QUEUE_STATES)};
+    persist();notify();return state;
+  }
+  if(event==='SET_ROLE'){state={...state,role:payload.role};persist();notify();return state;}
+  if(event==='UPDATE_SERVICE'){
+    state={...state,serviceName:{...(state.serviceName||DEFAULT_STATE.serviceName),...(payload.serviceName||{})},formFields:Array.isArray(payload.formFields)?payload.formFields:(state.formFields||DEFAULT_STATE.formFields)};
+    persist();notify();return state;
+  }
+  if(event==='SET_AUDIENCE'){
+    const audience=state.audience.includes(payload.value)?state.audience.filter(value=>value!==payload.value):[...state.audience,payload.value];
+    if(audience.length)state={...state,audience};persist();notify();return state;
+  }
+
+  const serviceId=payload.serviceId||PRIMARY_SERVICE_ID;
+  const workflow={...workflowFor(serviceId),comments:[...(workflowFor(serviceId).comments||[])],audit:[...(workflowFor(serviceId).audit||[])]};
+  if(event==='ADD_COMMENT'){
+    const body=String(payload.body||'').trim(); if(!body)return state;
+    workflow.comments.push({id:`c-${Date.now()}`,author:state.role,body,anchor:payload.anchor||c().general,at:timeNow(),reply:state.role==='agency-author'});
+    commitWorkflow(serviceId,workflow);return state;
+  }
+  if(event==='REPLY'){
+    const body=String(payload.body||'').trim(); if(!body)return state;
+    workflow.comments.push({id:`c-${Date.now()}`,author:'agency-author',body,anchor:payload.anchor||c().general,at:timeNow(),reply:true});
+  }
+  const next=TRANSITIONS[workflow.status]?.[event];
+  if(next){
+    workflow.status=next;
+    const type=event==='REQUEST_CHANGES'?'changes':event==='APPROVE'?'approved':event==='PUBLISH'?'published':event==='RESUBMIT'?'resubmitted':'';
+    if(type){const copy=eventCopy(type);workflow.audit.push({type,at:timeNow(),title:copy.title,text:copy.text});}
+    if(event==='RESUBMIT')workflow.version=(Number(workflow.version)+0.1).toFixed(1);
+    if(event==='APPROVE')workflow.review={by:'Зарина Хакимова',at:timeNow()};
+    if(event==='PUBLISH')workflow.publishedAt=timeNow();
+  }
+  commitWorkflow(serviceId,workflow);return state;
+}
+
+function serviceLabel(){ return localized(state.serviceName,c().service); }
+function agencyLabel(){ return localized(state.agencyName,c().agency); }
+function statusTone(status){ return ({draft:'draft',stage:'stage',in_review:'review',changes_requested:'changes',resubmitted:'review',approved:'approved',published:'published'})[status]||'draft'; }
+function statusIconName(status){ return ({draft:'i-edit',stage:'i-clock',in_review:'i-clock',changes_requested:'i-edit',resubmitted:'i-refresh',approved:'i-check',published:'i-check'})[status]||'i-dots'; }
+function statusBadge(status=state.status){ const label=c()[status]||status,tone=statusTone(status);const iconTone=({draft:'neutral',stage:'info',review:'info',changes:'warning',approved:'success',published:'success'})[tone]||'neutral';return `<span class="status-icon status-icon--${iconTone}" role="img" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${statusIconName(status)}"/></svg></span>`; }
+function audienceBadges(audiences=state.audience){ const x=c();return audiences.map(a=>`<span class="audience-badge audience-badge--${a==='guest'?'guest':a==='business'?'business':'person'}">${escapeHtml(x[a])}</span>`).join(''); }
+function roleSelect(){
+  const x=c();
+  return `<label class="lc-role"><span>${x.role}</span><select class="input" data-lc-role><option value="reviewer" ${state.role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${state.role==='portal-admin'?'selected':''}>${x.admin}</option><option value="agency-author" ${state.role==='agency-author'?'selected':''}>${x.author}</option></select></label>`;
+}
+function fieldTypeIcon(type){ return type==='file'?'i-doc':type==='select'?'i-chev-d':'i-check'; }
+function recordFields(record){
+  if(record.id===PRIMARY_SERVICE_ID)return (state.formFields||[]).map(field=>({...field,label:field.label||{ru:'Поле',tg:'Майдон'}}));
+  return record.fields||[];
+}
+
+function commentsMarkup(record){
+  const x=c(),workflow=workflowFor(record.id);
+  if(!workflow.comments?.length)return `<div class="lc-comment-empty"><svg><use href="/design-system/assets/icons.svg#i-chat"/></svg><p>${x.noComments}</p></div>`;
+  return `<div class="comment-thread">${workflow.comments.map(comment=>`<article class="comment ${comment.reply?'comment--reply':''}"><div class="comment__meta"><b>${comment.author==='reviewer'?x.reviewer:comment.author==='portal-admin'?x.admin:x.author}</b><span>${escapeHtml(comment.at)}</span></div><span class="comment__anchor">${escapeHtml(localized(comment.anchor,x.general))}</span><p>${escapeHtml(localized(comment.body))}</p></article>`).join('')}</div>`;
+}
+function timelineMarkup(record){
+  const x=c(),workflow=workflowFor(record.id);
+  return `<section class="panel lc-history-panel"><div class="lc-section-heading"><div><span class="eyebrow">Workflow</span><h3>${x.timeline}</h3><p>${x.timelineHint}</p></div><span class="metachip">${workflow.audit?.length||0}</span></div><ol class="lc-timeline">${(workflow.audit||[]).slice().reverse().map((event,index)=>`<li class="lc-timeline__item lc-timeline__item--${escapeHtml(event.type||'edited')} ${index===0?'is-current':''}"><span class="lc-timeline__dot"><svg><use href="/design-system/assets/icons.svg#${event.type==='published'?'i-arrow-ur':event.type==='approved'?'i-check':'i-clock'}"/></svg></span><div><time>${escapeHtml(event.at)}</time><b>${escapeHtml(localized(event.title))}</b><p>${escapeHtml(localized(event.text))}</p></div></li>`).join('')}</ol></section>`;
+}
 
 function renderBuilder(){
-  const root=document.querySelector('#lowCodeBuilder'); if(!root)return; const x=c();
-  root.innerHTML=`<div class="lc-builder-main"><div class="lc-builder-meta"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}<span class="metachip">${x.version} ${state.serviceVersion}</span></div>${roleSelect()}<a class="btn btn-sec btn-sm" href="review.html">${x.reviewQueue}</a></div><div class="lc-builder-panels"><section><h3>${x.audiences}</h3><div class="audience-selector">${['person','business','guest'].map(a=>`<label><input type="checkbox" data-lc-audience="${a}" ${state.audience.includes(a)?'checked':''}><span>${x[a]}</span></label>`).join('')}</div><div class="lc-guest-preview" ${state.audience.includes('guest')?'':'hidden'}><span class="audience-badge audience-badge--guest">${x.guest}</span><b>${x.guestReady}</b></div></section><section><h3>${x.history}</h3><p>${x.version} ${state.serviceVersion} · ${x.updated}</p><p class="lc-readonly" ${['in_review','resubmitted'].includes(state.status)?'':'hidden'}>${x.readonly}</p></section><section><h3>${x.comments} <span class="metachip">${state.comments.length}</span></h3>${commentsMarkup(true)}</section></div>`;
-  const status=document.querySelector('#svcStatus'); if(status){status.className=`pill-st ${statusTone(state.status)}`;status.textContent=x[state.status];}
-  const send=document.querySelector('#approveBtn'); if(send){send.innerHTML=`<svg><use href="/design-system/assets/icons.svg#i-users"/></svg>${state.status==='changes_requested'?x.resubmit:x.send}`;send.disabled=state.role!=='agency-author'||!['draft','stage','changes_requested'].includes(state.status);}
-  const publish=document.querySelector('#publishBtn'); if(publish){publish.removeAttribute('data-open');publish.disabled=!(state.role==='portal-admin'&&state.status==='approved');publish.title=state.role==='agency-author'?x.authorCannot:state.status!=='approved'?x.adminBlocked:'';}
+  const root=document.querySelector('#lowCodeBuilder');if(!root)return;const x=c();
+  root.innerHTML=`<div class="lc-builder-main"><div class="lc-builder-meta"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}<span class="metachip">${x.version} ${escapeHtml(state.serviceVersion)}</span></div>${roleSelect()}<a class="btn btn-sec btn-sm" href="review.html">${x.reviewQueue}</a></div><div class="lc-builder-panels"><section><h3>${x.audiences}</h3><div class="audience-selector">${['person','business','guest'].map(a=>`<label><input type="checkbox" data-lc-audience="${a}" ${state.audience.includes(a)?'checked':''}><span>${x[a]}</span></label>`).join('')}</div></section><section><h3>${x.history}</h3><p>${x.version} ${escapeHtml(state.serviceVersion)} · ${escapeHtml(MAIN_AUDIT[MAIN_AUDIT.length-1].at)}</p></section><section><h3>${x.comments} <span class="metachip">${state.comments.length}</span></h3>${commentsMarkup(recordById(PRIMARY_SERVICE_ID))}</section></div>`;
+  const status=document.querySelector('#svcStatus');if(status){const label=x[state.status]||state.status,tone=({draft:'neutral',stage:'info',review:'info',changes:'warning',approved:'success',published:'success'})[statusTone(state.status)]||'neutral';status.className=`status-icon status-icon--${tone}`;status.setAttribute('aria-label',label);status.title=label;status.innerHTML=`<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${statusIconName(state.status)}"/></svg>`;}
+  const send=document.querySelector('#approveBtn');if(send){send.textContent=state.status==='changes_requested'?x.resubmit:x.approverInbox;send.disabled=state.role!=='agency-author'||!['draft','stage','changes_requested'].includes(state.status);}
+  const publish=document.querySelector('#publishBtn');if(publish){publish.disabled=!(state.role==='portal-admin'&&state.status==='approved');}
 }
 
 function renderRegistry(){
-  const root=document.querySelector('#lowCodeRegistry'); if(!root)return; const x=c();
-  root.innerHTML=`<div class="lc-registry-toolbar">${roleSelect()}<div class="lc-registry-summary"><span><b>3</b> ${x.draft.toLowerCase()}</span><span><b>1</b> ${x.in_review.toLowerCase()}</span><span><b>1</b> ${x.changes_requested.toLowerCase()}</span><span><b>2</b> ${x.published.toLowerCase()}</span></div></div><article class="lc-service-card"><div><div class="lc-card-badges"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}${audienceBadges()}${state.comments.length?`<span class="metachip">${state.comments.length} · ${x.comments}</span>`:''}</div><h2>${serviceLabel()}</h2><p>${agencyLabel()} · ${x.version} ${state.serviceVersion} · ${x.updated}</p></div><a class="btn btn-pri" href="${state.status==='draft'||state.status==='stage'||state.status==='changes_requested'?'builder.html':'review.html'}">${state.status==='draft'||state.status==='stage'||state.status==='changes_requested'?x.openBuilder:x.reviewQueue}</a></article>`;
+  const root=document.querySelector('#lowCodeRegistry');if(!root)return;const x=c();
+  root.innerHTML=`<div class="lc-registry-toolbar">${roleSelect()}<div class="lc-registry-summary"><span><b>4</b> ${x.approverInbox.toLowerCase()}</span><span><b>2</b> ${x.readyTab.toLowerCase()}</span><span><b>596</b> ${x.published.toLowerCase()}</span></div></div><article class="lc-service-card"><div><div class="lc-card-badges"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}${audienceBadges()}</div><h2>${escapeHtml(serviceLabel())}</h2><p>${escapeHtml(agencyLabel())} · ${x.version} ${escapeHtml(state.serviceVersion)} · ${escapeHtml(recordById(PRIMARY_SERVICE_ID).submittedAt)}</p></div><a class="btn btn-pri" href="${['draft','stage','changes_requested'].includes(state.status)?'builder.html':'review.html'}">${['draft','stage','changes_requested'].includes(state.status)?x.openBuilder:x.openService}</a></article>`;
 }
 
-function commentsMarkup(compact=false){ const x=c(); if(!state.comments.length)return `<p class="muted small">${x.noComments}</p>`;return `<div class="comment-thread">${state.comments.map(m=>`<article class="comment"><div class="comment__meta"><b>${m.author==='reviewer'?x.reviewer:x.author}</b><span>${m.at}</span></div><span class="comment__anchor">${m.anchor}</span><p>${m.body}</p></article>`).join('')}</div>`; }
+let reviewTab='review';
+let reviewView='list';
+let selectedServiceId=null;
+let reviewQuery='';
+let reviewAgency='all';
 
-function queueMatches(tab){ return tab==='new'&&['draft','stage','in_review','changes_requested'].includes(state.status)||tab==='repeat'&&state.status==='resubmitted'||tab==='approved'&&['approved','published'].includes(state.status)||tab==='rejected'&&state.status==='rejected'; }
-let reviewTab='new';
-const reviewFilters={agency:'all',audience:'all',date:'7d'};
+function tabsForRole(){
+  const x=c();
+  if(state.role==='portal-admin')return [{id:'ready',label:x.readyTab,statuses:['approved']},{id:'published',label:x.publishedTab,statuses:['published']},{id:'all',label:x.allTab,statuses:null}];
+  if(state.role==='agency-author')return [{id:'changes',label:x.changesTab,statuses:['changes_requested']},{id:'all',label:x.allTab,statuses:null}];
+  return [{id:'review',label:x.approverInbox,statuses:['in_review']},{id:'repeat',label:x.repeatTab,statuses:['resubmitted']},{id:'completed',label:x.completedTab,statuses:['approved']}];
+}
+function defaultTabForRole(){ return state.role==='portal-admin'?'ready':state.role==='agency-author'?'changes':'review'; }
+function roleHint(){ const x=c();return state.role==='portal-admin'?x.publisherHint:state.role==='agency-author'?x.authorHint:x.approverHint; }
+function visibleRecords(){
+  const tab=tabsForRole().find(item=>item.id===reviewTab)||tabsForRole()[0];
+  const query=reviewQuery.trim().toLowerCase();
+  return SERVICE_RECORDS.filter(record=>{
+    const workflow=workflowFor(record.id);
+    const statusMatch=!tab.statuses||tab.statuses.includes(workflow.status);
+    const agencyMatch=reviewAgency==='all'||record.id===reviewAgency;
+    const haystack=[localized(record.name),localized(record.agency),record.creator,record.code].join(' ').toLowerCase();
+    return statusMatch&&agencyMatch&&(!query||haystack.includes(query));
+  });
+}
+
+function queueMarkup(){
+  const x=c(),records=visibleRecords();
+  const agencies=SERVICE_RECORDS.map(record=>`<option value="${record.id}" ${reviewAgency===record.id?'selected':''}>${escapeHtml(localized(record.agency))}</option>`).join('');
+  return `<section class="panel lc-queue-panel"><div class="lc-queue-toolbar"><div><h2>${x.queueTitle}</h2></div><span class="lc-result-count">${x.found(records.length)}</span></div><div class="lc-review-filters"><label class="lc-search-field"><span class="input lc-search-input"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input type="search" data-lc-search value="${escapeHtml(reviewQuery)}" placeholder="${x.search}" aria-label="${x.search}"></span></label><label><select class="input" data-lc-filter="agency" aria-label="${x.filterAgency}"><option value="all">${x.any}</option>${agencies}</select></label></div>${records.length?`<div class="lc-queue-table" role="table" aria-label="${x.queueTitle}"><div class="lc-queue-table__head" role="row"><span role="columnheader">${x.serviceColumn}</span><span role="columnheader">${x.createdBy}</span><span role="columnheader">${x.submittedAt}</span><span role="columnheader">${x.version}</span><span role="columnheader">${x.status}</span><span aria-hidden="true"></span></div><div class="lc-queue-table__body">${records.map(queueRowMarkup).join('')}</div></div>`:`<div class="empty-state lc-queue-empty"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><h2>${x.emptyTitle}</h2><p>${x.emptyBody}</p></div>`}</section>`;
+}
+function queueRowMarkup(record){
+  const x=c(),workflow=workflowFor(record.id);
+  return `<button class="lc-queue-row" type="button" data-lc-service="${record.id}" role="row" aria-label="${x.openService}: ${escapeHtml(localized(record.name))}"><span class="lc-queue-service" role="cell"><span class="lc-queue-icon"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span><span><b>${escapeHtml(localized(record.name))}</b><small>${escapeHtml(localized(record.agency))} · ${escapeHtml(record.code)}</small></span></span><span class="lc-queue-person" role="cell"><span><b>${escapeHtml(record.creator)}</b><small>${escapeHtml(record.createdAt)}</small></span></span><time role="cell">${escapeHtml(record.submittedAt)}</time><span class="lc-version" role="cell">v${escapeHtml(workflow.version)}</span><span role="cell">${statusBadge(workflow.status)}</span><svg class="lc-row-arrow" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></button>`;
+}
+
+function serviceOverviewMarkup(record){
+  const x=c(),fields=recordFields(record);
+  return `<section class="panel lc-service-overview"><div class="lc-overview-banner"><div><span class="eyebrow">${x.serviceOverview}</span><h2>${escapeHtml(localized(record.name))}</h2><p>${escapeHtml(localized(record.description))}</p></div><span class="lc-overview-mark"><svg><use href="/design-system/assets/icons.svg#i-logo"/></svg></span></div><div class="lc-facts"><div><span>${x.agency}</span><b>${escapeHtml(localized(record.agency))}</b></div><div><span>${x.serviceCode}</span><b>${escapeHtml(record.code)}</b></div><div><span>${x.delivery}</span><b>${escapeHtml(x[record.delivery])}</b></div><div><span>${x.price}</span><b>${escapeHtml(record.price==='free'?x.free:localized(record.price))}</b></div></div><div class="lc-overview-section"><div class="lc-section-heading"><div><span class="eyebrow">01</span><h3>${x.applicationForm}</h3></div><span class="metachip">${fields.length}</span></div><div class="lc-form-preview">${fields.map((field,index)=>`<div class="lc-preview-field"><span class="lc-preview-field__number">${String(index+1).padStart(2,'0')}</span><span class="lc-preview-field__icon"><svg><use href="/design-system/assets/icons.svg#${fieldTypeIcon(field.type)}"/></svg></span><span><b>${escapeHtml(localized(field.label))}</b><small>${x.required}</small></span></div>`).join('')}</div></div><div class="lc-overview-section"><div class="lc-section-heading"><div><span class="eyebrow">02</span><h3>${x.route}</h3></div></div><ol class="lc-route"><li><span>1</span><p>${x.route1}</p></li><li><span>2</span><p>${x.route2}</p></li><li><span>3</span><p>${x.route3}</p></li></ol></div><div class="lc-overview-section lc-notification"><span class="lc-notification__icon"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg></span><div><h3>${x.notifications}</h3><p>${x.notificationText}</p></div></div></section>`;
+}
+
+function detailSidebar(record){
+  const x=c(),workflow=workflowFor(record.id),canReview=state.role==='reviewer'&&['in_review','resubmitted'].includes(workflow.status),canResubmit=state.role==='agency-author'&&workflow.status==='changes_requested';
+  const anchors=[x.general,x.description,x.applicationForm,x.route,x.notifications];
+  return `<aside class="lc-review-side"><section class="panel lc-version-panel"><div class="lc-section-heading"><div><span class="eyebrow">${x.metadata}</span><h3>v${escapeHtml(workflow.version)}</h3></div>${statusBadge(workflow.status)}</div><dl class="lc-metadata"><div><dt>${x.createdBy}</dt><dd>${escapeHtml(record.creator)}</dd></div><div><dt>${x.submittedAt}</dt><dd>${escapeHtml(record.submittedAt)}</dd></div><div><dt>${x.audiences}</dt><dd>${audienceBadges(record.audience)}</dd></div><div><dt>${x.changed}</dt><dd>${record.changed[lang()]?.map(value=>`<span class="lc-change-chip">${escapeHtml(value)}</span>`).join('')||''}</dd></div>${workflow.review?`<div><dt>${x.approvedBy}</dt><dd>${escapeHtml(workflow.review.by)}<small>${escapeHtml(workflow.review.at)}</small></dd></div>`:''}${workflow.publishedAt?`<div><dt>${x.publishedBy}</dt><dd>Комрон Алиев<small>${escapeHtml(workflow.publishedAt)}</small></dd></div>`:''}</dl></section><section class="panel lc-comments-panel"><div class="lc-section-heading"><div><span class="eyebrow">Review</span><h3>${x.comments}</h3></div><span class="metachip">${workflow.comments?.length||0}</span></div>${commentsMarkup(record)}${canReview||canResubmit?`<div class="lc-comment-compose"><label><span>${x.commentAnchor}</span><select class="input" id="lcCommentAnchor">${anchors.map(anchor=>`<option>${anchor}</option>`).join('')}</select></label><label><span>${canResubmit?x.reply:x.addComment}</span><textarea class="input" id="lcComment" placeholder="${x.commentPlaceholder}"></textarea></label><button class="btn btn-sec btn-sm" data-lc-action="ADD_COMMENT">${canResubmit?x.reply:x.addComment}</button></div>`:''}</section>${state.role==='reviewer'?`<section class="panel lc-check-panel"><h3>${x.checklist}</h3><ul class="lc-checks"><li><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>${x.check1}</li><li><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>${x.check2}</li><li><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>${x.check3}</li></ul></section>`:''}</aside>`;
+}
+
+function actionBar(record){
+  const x=c(),workflow=workflowFor(record.id),canReview=state.role==='reviewer'&&['in_review','resubmitted'].includes(workflow.status),canPublish=state.role==='portal-admin'&&workflow.status==='approved',canResubmit=state.role==='agency-author'&&workflow.status==='changes_requested';
+  return `<footer class="lc-actionbar"><span>${x.action}: <b>${x[workflow.status]}</b></span><div>${canReview?`<button class="btn btn-sec" data-lc-action="REQUEST_CHANGES">${x.request}</button><button class="btn btn-pri" data-lc-action="APPROVE"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>${x.approve}</button>`:''}${canPublish?`<button class="btn btn-pri" data-lc-action="PUBLISH"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"/></svg>${x.publish}</button>`:''}${canResubmit?`<button class="btn btn-pri" data-lc-action="RESUBMIT">${x.resubmit}</button>`:''}${!canReview&&!canPublish&&!canResubmit?`<span class="lc-action-note">${x.notAvailable}</span>`:''}</div></footer>`;
+}
+function detailMarkup(record){
+  const x=c();
+  return `<button class="btn btn-ghost lc-back" type="button" data-lc-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg>${x.backToList}</button><article class="lc-detail-head"><div class="lc-detail-head__meta">${statusBadge(workflowFor(record.id).status)}<span class="metachip">v${escapeHtml(workflowFor(record.id).version)}</span></div><h1>${escapeHtml(localized(record.name))}</h1><p>${x.serviceOverviewHint}</p></article><div class="lc-review-grid">${serviceOverviewMarkup(record)}${detailSidebar(record)}</div>${timelineMarkup(record)}${actionBar(record)}`;
+}
+
 function renderReview(){
-  const root=document.querySelector('#lowCodeReview'); if(!root)return; const x=c(); const visible=queueMatches(reviewTab)&&(reviewFilters.audience==='all'||state.audience.includes(reviewFilters.audience));
-  root.innerHTML=`<header class="lc-review-head"><div><span class="eyebrow">Low Code · Review</span><span class="demo-data-badge">${x.demoData}</span><h1>${x.reviewQueue}</h1><p>${x.sla}</p></div>${roleSelect()}</header><div class="lc-review-tabs" role="tablist">${[['new',x.newTab],['repeat',x.repeatTab],['approved',x.approvedTab],['rejected',x.rejectedTab]].map(([id,label])=>`<button class="tab" type="button" role="tab" data-lc-tab="${id}" aria-selected="${reviewTab===id}" tabindex="${reviewTab===id?'0':'-1'}">${label}</button>`).join('')}</div><div class="lc-review-filters"><label><span>${x.filterAgency}</span><select class="input" data-lc-filter="agency"><option value="all">${x.any}</option><option value="land" ${reviewFilters.agency==='land'?'selected':''}>${agencyLabel()}</option></select></label><label><span>${x.filterAudience}</span><select class="input" data-lc-filter="audience"><option value="all">${x.any}</option>${['person','business','guest'].map(a=>`<option value="${a}" ${reviewFilters.audience===a?'selected':''}>${x[a]}</option>`).join('')}</select></label><label><span>${x.filterDate}</span><select class="input" data-lc-filter="date"><option value="7d">${x.seven}</option><option value="30d" ${reviewFilters.date==='30d'?'selected':''}>${x.thirty}</option></select></label></div>${visible?reviewWorkspace(x):`<div class="empty-state panel"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><h2>${x.queueEmpty}</h2><button class="btn btn-sec" data-lc-action="RESET">${x.reset}</button></div>`}`;
+  const root=document.querySelector('#lowCodeReview');if(!root)return;const x=c();
+  const tabs=tabsForRole();if(!tabs.some(tab=>tab.id===reviewTab))reviewTab=defaultTabForRole();
+  const selected=selectedServiceId&&recordById(selectedServiceId);
+  root.innerHTML=`<header class="lc-review-head"><div><span class="eyebrow">Service governance</span><h1>${x.reviewQueue}</h1><p>${x.reviewLead}</p></div>${roleSelect()}</header>${reviewView==='list'?`<div class="lc-review-context"><span class="lc-context-icon"><svg><use href="/design-system/assets/icons.svg#${state.role==='portal-admin'?'i-arrow-ur':state.role==='agency-author'?'i-edit':'i-check'}"/></svg></span><p>${roleHint()}</p></div><div class="lc-review-tabs" role="tablist">${tabs.map(tab=>`<button class="tab" type="button" role="tab" data-lc-tab="${tab.id}" aria-selected="${reviewTab===tab.id}" tabindex="${reviewTab===tab.id?'0':'-1'}">${tab.label}</button>`).join('')}</div>${queueMarkup()}`:(selected?detailMarkup(selected):queueMarkup())}`;
 }
 
-function reviewWorkspace(x){
-  const canReview=state.role==='reviewer'&&['in_review','resubmitted'].includes(state.status),canPublish=state.role==='portal-admin'&&state.status==='approved',canResubmit=state.role==='agency-author'&&state.status==='changes_requested';
-  return `<article class="lc-service-card"><div><div class="lc-card-badges"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}${audienceBadges()}</div><h2>${serviceLabel()}</h2><p>${agencyLabel()} · ${x.version} ${state.serviceVersion} · ${x.updated}</p></div><a class="btn btn-sec" href="builder.html">${x.openBuilder}</a></article><div class="lc-review-grid"><section class="panel lc-preview"><div class="panel-h"><h3>${x.preview}</h3><div class="audience-selector lc-preview-switch">${state.audience.map(a=>`<button class="chip" type="button">${x[a]}</button>`).join('')}</div></div><div class="lc-preview-form"><span class="audience-badge audience-badge--guest">${x.guest}</span><h2>${serviceLabel()}</h2><label>${x.docNumber}<input class="input" value="A 12 345 678" readonly><small>${x.docHelp}</small></label><label>${x.topic}<select class="input" disabled><option>${serviceLabel()}</option></select></label><button class="btn btn-pri" disabled>${x.submit}</button></div></section><aside class="lc-review-side"><section class="panel"><h3>${x.metadata}</h3><dl class="lc-metadata"><div><dt>${x.version}</dt><dd>${state.serviceVersion}</dd></div><div><dt>${x.audiences}</dt><dd>${audienceBadges()}</dd></div><div><dt>${x.changed}</dt><dd>${state.changedSections.join(' · ')}</dd></div>${state.review?`<div><dt>${x.reviewSummary}</dt><dd>${state.review.by} · ${state.review.at}</dd></div>`:''}</dl></section><section class="panel"><h3>${x.checklist}</h3><ul class="lc-checks"><li>✓ ${x.check1}</li><li>✓ ${x.check2}</li><li>✓ ${x.check3}</li></ul></section><section class="panel"><h3>${x.comments} <span class="metachip">${state.comments.length}</span></h3>${commentsMarkup()}${state.role==='reviewer'?`<textarea class="input" id="lcComment" placeholder="${x.commentPlaceholder}">${state.comments.length?'':x.prepared}</textarea><button class="btn btn-sec btn-sm" data-lc-action="ADD_COMMENT">${x.addComment}</button>`:''}${canResubmit?`<button class="btn btn-sec btn-sm" data-lc-action="REPLY">${x.reply}</button>`:''}</section></aside></div><footer class="lc-actionbar"><span>${x.action}: ${x[state.status]}</span><div>${canReview?`<button class="btn btn-sec" data-lc-action="REQUEST_CHANGES">${x.request}</button><button class="btn btn-danger" data-lc-action="REJECT">${x.reject}</button><button class="btn btn-pri" data-lc-action="APPROVE">${x.approve}</button>`:''}${canResubmit?`<button class="btn btn-pri" data-lc-action="RESUBMIT">${x.resubmit}</button>`:''}<button class="btn btn-pri" data-lc-action="PUBLISH" ${canPublish?'':`disabled title="${state.role==='agency-author'?x.authorCannot:x.adminBlocked}"`}>${x.publish}</button><button class="btn btn-ghost" data-lc-action="RESET">${x.reset}</button></div></footer>`;
+function openPublishSummary(record){
+  const x=c(),workflow=workflowFor(record.id),id='lowCodeActionOverlay';document.querySelector(`#${id}`)?.remove();
+  const overlay=document.createElement('div');overlay.className='overlay';overlay.id=id;overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','publishServiceTitle');
+  overlay.innerHTML=`<div class="modal wide left lc-publish-modal"><span class="mic"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"/></svg></span><h2 id="publishServiceTitle">${x.publishTitle}</h2><p>${x.publishLead}</p><div class="lc-publish-summary"><div><span>${x.serviceColumn}</span><b>${escapeHtml(localized(record.name))}</b></div><div><span>${x.version}</span><b>v${escapeHtml(workflow.version)}</b></div><div><span>${x.approvedBy}</span><b>${escapeHtml(workflow.review?.by||'Service Approver')}</b></div><div><span>${x.history}</span><b>${workflow.audit?.length||0}</b></div></div><button class="btn btn-pri btn-block" data-lc-confirm="PUBLISH" data-lc-confirm-service="${record.id}">${x.publishConfirm}</button><button class="btn btn-ghost btn-block" data-close>${x.cancel}</button></div>`;
+  document.body.append(overlay);window.bpOpen?.(id);
 }
 
-function openSummary(kind){
-  const x=c(),id='lowCodeActionOverlay';document.querySelector(`#${id}`)?.remove();const overlay=document.createElement('div');overlay.className='overlay';overlay.id=id;overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');
-  const publish=kind==='PUBLISH';overlay.innerHTML=`<div class="modal wide left"><h2>${publish?x.publishSummary:x.summary}</h2><div class="review"><div class="rv"><span class="k">${x.service}</span><span class="v">${serviceLabel()}</span></div><div class="rv"><span class="k">${x.version}</span><span class="v">${state.serviceVersion}</span></div><div class="rv"><span class="k">${x.audiences}</span><span class="v">${audienceBadges()}</span></div><div class="rv"><span class="k">${x.changed}</span><span class="v">${state.changedSections.join(' · ')}</span></div></div>${publish?'':`<div class="field"><label for="lcSubmitNote">${x.note}</label><textarea class="input" id="lcSubmitNote"></textarea></div>`}<button class="btn btn-pri btn-block" data-lc-confirm="${kind}">${publish?x.confirmPublish:x.confirm}</button><button class="btn btn-ghost btn-block" data-close>${x.cancel}</button></div>`;document.body.append(overlay);window.bpOpen?.(id);
+function handleAction(action){
+  const x=c(),record=recordById(selectedServiceId||PRIMARY_SERVICE_ID);if(!record)return;
+  const body=document.querySelector('#lcComment')?.value.trim()||'';
+  const anchor=document.querySelector('#lcCommentAnchor')?.value||x.general;
+  if(action==='ADD_COMMENT'){if(!body){toast(x.needsComment);return;}dispatchLowCode('ADD_COMMENT',{serviceId:record.id,body,anchor});toast(x.commentAdded);return;}
+  if(action==='REQUEST_CHANGES'){
+    const workflow=workflowFor(record.id);
+    const hasReviewerComment=workflow.comments?.some(comment=>comment.author==='reviewer');
+    if(!body&&!hasReviewerComment){toast(x.needsComment);document.querySelector('#lcComment')?.focus();return;}
+    if(body)dispatchLowCode('ADD_COMMENT',{serviceId:record.id,body,anchor});
+    dispatchLowCode('REQUEST_CHANGES',{serviceId:record.id});toast(x.changesToast);return;
+  }
+  if(action==='APPROVE'){dispatchLowCode('APPROVE',{serviceId:record.id});toast(x.approvedToast);return;}
+  if(action==='PUBLISH'){openPublishSummary(record);return;}
+  if(action==='RESUBMIT'){
+    if(body)dispatchLowCode('ADD_COMMENT',{serviceId:record.id,body,anchor});
+    dispatchLowCode('RESUBMIT',{serviceId:record.id});toast(x.sentToast);return;
+  }
 }
 
 function bind(){
-  document.addEventListener('change',e=>{const role=e.target.closest('[data-lc-role]');if(role){dispatchLowCode('SET_ROLE',{role:role.value});return;}const filter=e.target.closest('[data-lc-filter]');if(filter){reviewFilters[filter.dataset.lcFilter]=filter.value;renderReview();return;}const audience=e.target.closest('[data-lc-audience]');if(audience)dispatchLowCode('SET_AUDIENCE',{value:audience.dataset.lcAudience});});
-  document.addEventListener('keydown',e=>{const tab=e.target.closest('[data-lc-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;const tabs=[...document.querySelectorAll('[data-lc-tab]')];let index=tabs.indexOf(tab);if(e.key==='Home')index=0;else if(e.key==='End')index=tabs.length-1;else index=(index+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;e.preventDefault();tabs[index].click();document.querySelector(`[data-lc-tab="${reviewTab}"]`)?.focus();});
-  document.addEventListener('click',e=>{
-    const tab=e.target.closest('[data-lc-tab]');if(tab){reviewTab=tab.dataset.lcTab;renderReview();return;}
-    const confirm=e.target.closest('[data-lc-confirm]');if(confirm){const ev=confirm.dataset.lcConfirm;if(ev==='RESUBMIT')reviewTab='repeat';if(ev==='SEND_REVIEW')reviewTab='new';const overlay=document.querySelector('#lowCodeActionOverlay');window.EKHDialog?.closeExistingDialog(overlay);dispatchLowCode(ev);overlay?.remove();toast(ev==='PUBLISH'?c().publishedToast:c().sentToast);return;}
-    const action=e.target.closest('[data-lc-action]');if(action){handleAction(action.dataset.lcAction);return;}
+  document.addEventListener('change',event=>{
+    const role=event.target.closest('[data-lc-role]');
+    if(role){reviewTab=role.value==='portal-admin'?'ready':role.value==='agency-author'?'changes':'review';reviewView='list';selectedServiceId=null;dispatchLowCode('SET_ROLE',{role:role.value});return;}
+    const filter=event.target.closest('[data-lc-filter]');if(filter){reviewAgency=filter.value;renderReview();return;}
+    const audience=event.target.closest('[data-lc-audience]');if(audience)dispatchLowCode('SET_AUDIENCE',{value:audience.dataset.lcAudience});
+  });
+  document.addEventListener('input',event=>{if(event.target.matches('[data-lc-search]')){reviewQuery=event.target.value;renderReview();document.querySelector('[data-lc-search]')?.focus();}});
+  document.addEventListener('keydown',event=>{
+    const tab=event.target.closest('[data-lc-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    const tabs=[...document.querySelectorAll('[data-lc-tab]')];let index=tabs.indexOf(tab);if(event.key==='Home')index=0;else if(event.key==='End')index=tabs.length-1;else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;event.preventDefault();tabs[index].click();
+  });
+  document.addEventListener('click',event=>{
+    const tab=event.target.closest('[data-lc-tab]');if(tab){reviewTab=tab.dataset.lcTab;renderReview();return;}
+    const service=event.target.closest('[data-lc-service]');if(service){selectedServiceId=service.dataset.lcService;reviewView='detail';renderReview();window.scrollTo({top:0,behavior:'smooth'});return;}
+    if(event.target.closest('[data-lc-back]')){reviewView='list';selectedServiceId=null;renderReview();return;}
+    const confirm=event.target.closest('[data-lc-confirm]');if(confirm){const serviceId=confirm.dataset.lcConfirmService||PRIMARY_SERVICE_ID;dispatchLowCode(confirm.dataset.lcConfirm,{serviceId});document.querySelector('#lowCodeActionOverlay')?.remove();toast(c().publishedToast);return;}
+    const action=event.target.closest('[data-lc-action]');if(action){handleAction(action.dataset.lcAction);return;}
   },true);
-  const save=document.querySelector('#saveBtn');save?.addEventListener('click',e=>{e.stopImmediatePropagation();dispatchLowCode('SAVE_STAGE');toast(c().save);},true);
-  const send=document.querySelector('#approveBtn');send?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();if(state.role!=='agency-author')return;openSummary(state.status==='changes_requested'?'RESUBMIT':'SEND_REVIEW');},true);
-  const publish=document.querySelector('#publishBtn');publish?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();if(state.role==='portal-admin'&&state.status==='approved')openSummary('PUBLISH');},true);
+  document.querySelector('#saveBtn')?.addEventListener('click',event=>{event.stopImmediatePropagation();dispatchLowCode('SAVE_STAGE');},true);
+  document.querySelector('#approveBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();if(state.role==='agency-author')dispatchLowCode(state.status==='changes_requested'?'RESUBMIT':'SEND_REVIEW');},true);
+  document.querySelector('#publishBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();if(state.role==='portal-admin'&&state.status==='approved')openPublishSummary(recordById(PRIMARY_SERVICE_ID));},true);
 }
-function handleAction(action){const x=c();if(action==='ADD_COMMENT'){dispatchLowCode(action,{body:document.querySelector('#lcComment')?.value,anchor:x.fieldAnchor});toast(x.commentToast);return;}if(action==='PUBLISH'){if(state.role==='portal-admin'&&state.status==='approved')openSummary('PUBLISH');return;}if(action==='APPROVE')reviewTab='approved';if(action==='REJECT')reviewTab='rejected';if(action==='RESUBMIT')reviewTab='repeat';if(action==='RESET')reviewTab='new';dispatchLowCode(action);toast(action==='REQUEST_CHANGES'?x.changesToast:action==='APPROVE'?x.approvedToast:action==='RESET'?x.reset:x.sentToast);}
-function renderAll(){renderBuilder();renderRegistry();renderReview();}
 
+function renderAll(){renderBuilder();renderRegistry();renderReview();}
 bind();subscribeLowCode(renderAll);renderAll();
 const originalSetLang=window.bpSetLang;
 if(originalSetLang)window.bpSetLang=function(next){originalSetLang(next);renderAll();};

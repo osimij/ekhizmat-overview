@@ -108,7 +108,7 @@ test('Admin can save the new service as a draft and see its status in the regist
   const created=page.locator('[data-created-service]');
   await expect(created).toHaveCount(1);
   await expect(created).toContainText('Тестовая услуга');
-  await expect(created.locator('.pill-st')).toHaveText('черновик');
+  await expect(created.locator('.status-icon')).toHaveAttribute('aria-label', 'черновик');
   await expect(page.locator('#draftServiceCount')).toHaveText('9');
 });
 

@@ -96,7 +96,7 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
   expect(ministry.inputFontSize).toBe(16);
   expect(ministry.loginLabelFontSize).toBe(16);
   expect(ministry.loginLabelFontWeight).toBe('500');
-  expect(Number.parseFloat(ministry.loginLabelLetterSpacing)).toBeCloseTo(-0.16, 2);
+  expect(Number.parseFloat(ministry.loginLabelLetterSpacing)).toBe(0);
   expect(ministry.usernameLabelTransform).not.toBe(ministry.passwordLabelTransform);
   expect(ministry.loginLabelTextTransform).toBe('none');
   expect(ministry.legendText).toContain('Доступ по усиленной аутентификации (МФА).');

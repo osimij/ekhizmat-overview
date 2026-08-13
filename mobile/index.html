@@ -69,7 +69,7 @@
 
               <section class="priority-card" aria-labelledby="priorityTitle">
                 <div class="priority-topline">
-                  <span class="status-chip"><span class="status-pulse"></span><span data-copy="inReview">На рассмотрении</span></span>
+                  <span class="status-icon status-icon--info" data-status-copy="inReview" data-status-tone="info" data-status-icon="i-clock" role="img" aria-label="На рассмотрении" title="На рассмотрении"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"></use></svg></span>
                   <span class="priority-time" data-copy="updatedToday">Обновлено сегодня</span>
                 </div>
                 <div class="priority-copy">
@@ -150,17 +150,17 @@
               <div class="application-list" id="applicationList">
                 <button class="application-card" type="button" data-app-status="active" data-open-application="birth">
                   <span class="application-icon t-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span>
-                  <span class="application-copy"><span class="status-label" data-copy="inReview">На рассмотрении</span><strong data-copy="birthTitle">Свидетельство о рождении — Зарина</strong><span>№ТҶ-2026-184302 · <span data-copy="updatedTwoHours">обновлено 2 ч назад</span></span></span>
+                  <span class="application-copy"><span class="status-icon status-icon--info" data-status-copy="inReview" data-status-tone="info" data-status-icon="i-clock" role="img" aria-label="На рассмотрении" title="На рассмотрении"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"></use></svg></span><strong data-copy="birthTitle">Свидетельство о рождении — Зарина</strong><span>№ТҶ-2026-184302 · <span data-copy="updatedTwoHours">обновлено 2 ч назад</span></span></span>
                   <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
                 </button>
                 <button class="application-card" type="button" data-app-status="active" data-open-application="passport">
                   <span class="application-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"></use></svg></span>
-                  <span class="application-copy"><span class="status-label status-label--action" data-copy="needAction">Нужно ваше действие</span><strong data-copy="passportRenewal">Замена паспорта</strong><span>№ТҶ-2026-183917 · <span data-copy="today">сегодня</span></span></span>
+                  <span class="application-copy"><span class="status-icon status-icon--warning" data-status-copy="needAction" data-status-tone="warning" data-status-icon="i-edit" role="img" aria-label="Нужно ваше действие" title="Нужно ваше действие"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"></use></svg></span><strong data-copy="passportRenewal">Замена паспорта</strong><span>№ТҶ-2026-183917 · <span data-copy="today">сегодня</span></span></span>
                   <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
                 </button>
                 <button class="application-card" type="button" data-app-status="done" data-open-application="business" hidden>
                   <span class="application-icon t-indigo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"></use></svg></span>
-                  <span class="application-copy"><span class="status-label status-label--done" data-copy="ready">Готово</span><strong data-copy="businessRegistration">Регистрация ИП</strong><span>№ТҶ-2026-179908 · 4 июня</span></span>
+                  <span class="application-copy"><span class="status-icon status-icon--success" data-status-copy="ready" data-status-tone="success" data-status-icon="i-check" role="img" aria-label="Готово" title="Готово"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"></use></svg></span><strong data-copy="businessRegistration">Регистрация ИП</strong><span>№ТҶ-2026-179908 · 4 июня</span></span>
                   <svg class="chevron" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
                 </button>
               </div>
@@ -220,7 +220,7 @@
               <header class="detail-header"><button class="round-button" type="button" data-back aria-label="Назад"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-l"></use></svg></button><span data-copy="application">Заявление</span><button class="round-button" type="button" data-toast-copy="help" aria-label="Помощь"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chat"></use></svg></button></header>
               <div class="detail-hero">
                 <span class="application-icon t-rose" id="applicationDetailIcon"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"></use></svg></span>
-                <span class="status-chip"><span class="status-pulse"></span><span id="applicationDetailStatus" data-copy="inReview">На рассмотрении</span></span>
+                <span class="status-icon status-icon--info" id="applicationDetailStatus" role="img" aria-label="На рассмотрении" title="На рассмотрении"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"></use></svg></span>
                 <h2 id="applicationDetailTitle" data-copy="birthTitle">Свидетельство о рождении — Зарина</h2>
                 <p id="applicationDetailNumber">№ТҶ-2026-184302</p>
               </div>

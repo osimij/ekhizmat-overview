@@ -59,6 +59,14 @@ export function icon(name, { size = 24, label = null, cls = '' } = {}) {
   return svg;
 }
 
+/* Statuses use the shared Hugeicons sprite without repeating the label in
+   dense rows. The label remains available to assistive tech and on hover. */
+export function statusIcon(tone, label, { iconName = null } = {}) {
+  const names = { success:'check', warning:'clock', danger:'x', info:'info', neutral:'dots' };
+  return h('span', { class:`status-icon status-icon--${tone}`, role:'img', 'aria-label':label, title:label },
+    icon(iconName || names[tone] || names.neutral, { size:16 }));
+}
+
 /* ---------- тосты (§5.3) ---------- */
 export function toast(text, kind = '', ms = 4000) {
   const host = document.getElementById('toasts');
