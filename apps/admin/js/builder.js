@@ -1,4 +1,5 @@
 import './builder-i18n.js';
+import { initSidebar } from '/design-system/js/sidebar.js';
 
 /* ===================== BUILDER — interactions =====================
    Standalone engine for the eKhizmat service-builder (Конструктор) bundle.
@@ -23,15 +24,16 @@ var reduce = matchMedia("(prefers-reduced-motion: reduce)");
 document.documentElement.spellcheck = false;
 
 /* ---------- theme (shares the prototype's ekh-theme key) ---------- */
-var THEME="ekh.preferences.theme", mq=matchMedia("(prefers-color-scheme: dark)");
+var THEME="ekh.preferences.theme", mq=matchMedia("(prefers-color-scheme: dark)"), systemTheme=document.documentElement.hasAttribute("data-system-theme");
 function setTheme(){
-  var s=null; try{ s=new URLSearchParams(location.search).get('theme')||localStorage.getItem(THEME); }catch(e){}
+  var s=null; if(!systemTheme)try{ s=new URLSearchParams(location.search).get('theme')||localStorage.getItem(THEME); }catch(e){}
   document.documentElement.dataset.theme = s || (mq.matches?"dark":"light");
 }
 setTheme();
 mq.addEventListener("change", setTheme);
 document.addEventListener("click", function(e){
   var t=e.target.closest("[data-theme-toggle]"); if(!t) return;
+  if(systemTheme)return;
   var next=document.documentElement.dataset.theme==="dark"?"light":"dark";
   try{ localStorage.setItem(THEME,next); }catch(err){}
   document.documentElement.dataset.theme=next;
@@ -295,43 +297,37 @@ var BLD_NAV = [
   ["forms",     "Шаклҳо",         "i-doc", "4"]
 ];
 var BLD_HREF = { overview:"index.html", services:"services.html", "new":"new-service.html", review:"review.html", forms:"forms.html" };
-/* collapsible-rail state: icon-only when collapsed, persisted across pages */
+/* collapsible-rail state: icon-only when collapsed, persisted across pages.
+   The state class lives on <html> so each page's inline head script can
+   restore it before first paint — navigation never flashes or animates. */
 var RAIL_KEY='ekh.admin.rail';
 /* tiny standalone translator (the toggle is data-no-i18n, so its labels are set
    here in the active language rather than by the DOM sweep/observer) */
 function railTr(s){ try{ var l=navLang(); var D=window.BP_DICT; if(l&&l!=='tg'&&D&&D[l]&&D[l][s]) return D[l][s]; }catch(e){} return s; }
-function railIsCollapsed(){ try{ return localStorage.getItem(RAIL_KEY)==="1"; }catch(e){ return false; } }
-function railApply(c){
-  document.documentElement.classList.toggle("rail-collapsed", !!c);
-  $$("[data-rail-toggle]").forEach(function(b){
-    b.setAttribute("aria-expanded", String(!c));
-    var lab = railTr(c ? "Кушодани панел" : "Ҷамъ кардани панел");
-    b.setAttribute("aria-label", lab); b.title = lab;
-  });
-}
 $$("[data-bld-rail]").forEach(function(rail){
   if(!rail.id) rail.id="admRail";
   var active = rail.getAttribute("data-active");
-  var h = '<div class="rail-head">'+
-            '<a class="adm-brand" href="services.html" title="eKhizmat · Конструктор"><svg class="mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b></a>'+
+  var h = '<div class="ekh-side__head">'+
+            '<a class="ekh-side__brand" href="services.html" title="eKhizmat · Конструктор"><svg class="mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b></a>'+
           '</div>';
   BLD_NAV.forEach(function(it){
-    if (it[0]==="__label"){ h += '<div class="adm-nav-label">'+it[1]+'</div>'; return; }
+    if (it[0]==="__label"){ h += '<div class="ekh-side__label">'+it[1]+'</div>'; return; }
     var cur = it[0]===active;
-    h += '<a class="an" href="'+(BLD_HREF[it[0]]||"#")+'"'+(cur?' aria-current="true"':'')+' title="'+it[1]+'">'+
-         '<svg><use href="/design-system/assets/icons.svg#'+it[2]+'"/></svg><span>'+it[1]+'</span>'+
-         (it[3]?'<span class="cnt">'+it[3]+'</span>':'')+'</a>';
+    h += '<a class="ekh-side__item" href="'+(BLD_HREF[it[0]]||"#")+'"'+(cur?' aria-current="true"':'')+' title="'+it[1]+'">'+
+         '<svg><use href="/design-system/assets/icons.svg#'+it[2]+'"/></svg><span class="ekh-side__text">'+it[1]+'</span>'+
+         (it[3]?'<span class="ekh-side__count">'+it[3]+'</span>':'')+'</a>';
   });
-  h += '<div class="spacer"></div>';
-  h += '<a class="adm-me" href="#" onclick="return false" title="Аброр Каримов · Маъмури платформа"><span class="av">АК</span><span class="nm"><b>Аброр Каримов</b><span>Маъмури платформа</span></span></a>';
+  h += '<div class="ekh-side__spacer"></div>';
+  h += '<a class="ekh-side__user" href="#" onclick="return false" title="Аброр Каримов · Маъмури платформа"><span class="ekh-side__avatar">АК</span><span class="ekh-side__identity"><b>Аброр Каримов</b><span>Маъмури платформа</span></span></a>';
   rail.innerHTML = h;
   /* Keep the collapse control in the stable top bar. It remains in the same
      task-level chrome on every screen and is never confused with page content. */
   var adm = rail.closest(".adm");
-  if(adm && !adm.querySelector("[data-rail-toggle]")){
+  if(adm && !adm.querySelector("[data-ekh-side-toggle]")){
+    adm.classList.add("ekh-side-shell");
     var btn=document.createElement("button");
-    btn.className="rail-toggle"; btn.type="button";
-    btn.setAttribute("data-rail-toggle",""); btn.setAttribute("data-no-i18n","");
+    btn.className="ekh-side-toggle"; btn.type="button";
+    btn.setAttribute("data-ekh-side-toggle",""); btn.setAttribute("data-no-i18n","");
     btn.setAttribute("aria-controls", rail.id);
     btn.setAttribute("aria-label","Ҷамъ кардани панел");
     btn.innerHTML='<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-l"/></svg>';
@@ -340,13 +336,12 @@ $$("[data-bld-rail]").forEach(function(rail){
     else adm.appendChild(btn);
   }
 });
+var railHandle=null;
 if($$("[data-bld-rail]").length){
-  railApply(railIsCollapsed());
-  document.addEventListener("click", function(e){
-    var t=e.target.closest("[data-rail-toggle]"); if(!t) return;
-    var c=!railIsCollapsed();
-    try{ localStorage.setItem(RAIL_KEY, c?"1":"0"); }catch(err){}
-    railApply(c);
+  railHandle=initSidebar({
+    shell: document.documentElement,
+    key: RAIL_KEY,
+    labels: function(c){ return { action: railTr(c ? "Кушодани панел" : "Ҷамъ кардани панел") }; }
   });
 }
 
@@ -442,7 +437,7 @@ window.bpSetLang=function(lang){
   if(lang==="en" && !(DICT.en)) return;          /* en deferred — guard */
   try{ localStorage.setItem(I18N_KEY,lang); }catch(e){}
   i18nReflect(lang); i18nApply(lang); i18nObserve(lang); navSetLang(lang);
-  if($$("[data-bld-rail]").length) railApply(railIsCollapsed());  /* refresh data-no-i18n rail toggle labels — only where a rail exists */
+  if(railHandle) railHandle.sync();  /* refresh data-no-i18n rail toggle labels — only where a rail exists */
   document.dispatchEvent(new CustomEvent("bp:langchange",{detail:{lang:lang}}));
 };
 function i18nInit(){

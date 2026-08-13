@@ -36,8 +36,10 @@ const queryTheme = THEMES.has(query.get('theme')) ? query.get('theme') : null;
 const queryLang = LANGS.has(query.get('lang')) ? query.get('lang') : null;
 const storedTheme = migrate('theme', THEMES);
 const storedLang = migrate('lang', LANGS);
+const systemTheme = document.documentElement.hasAttribute('data-system-theme');
+const colorScheme = matchMedia('(prefers-color-scheme: dark)');
 
-let theme = queryTheme || storedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+let theme = systemTheme ? (colorScheme.matches ? 'dark' : 'light') : queryTheme || storedTheme || (colorScheme.matches ? 'dark' : 'light');
 let lang = queryLang || storedLang || document.documentElement.lang || 'tg';
 if (!LANGS.has(lang)) lang = 'tg';
 
@@ -55,6 +57,11 @@ export function getLang() { return lang; }
 export function getMode() { return document.documentElement.dataset.mode || 'product'; }
 
 export function setTheme(next, { persist = true } = {}) {
+  if (systemTheme) {
+    theme = colorScheme.matches ? 'dark' : 'light';
+    applyPreferences();
+    return;
+  }
   if (!THEMES.has(next)) return;
   theme = next;
   if (persist && !queryTheme) write(KEYS.theme, next);
@@ -80,8 +87,14 @@ export function resetPreferences() {
 
 applyPreferences();
 
+colorScheme.addEventListener('change', () => {
+  if (!systemTheme) return;
+  theme = colorScheme.matches ? 'dark' : 'light';
+  applyPreferences();
+});
+
 addEventListener('storage', event => {
-  if (event.key === KEYS.theme && THEMES.has(event.newValue)) theme = event.newValue;
+  if (!systemTheme && event.key === KEYS.theme && THEMES.has(event.newValue)) theme = event.newValue;
   if (event.key === KEYS.lang && LANGS.has(event.newValue)) lang = event.newValue;
   applyPreferences();
 });

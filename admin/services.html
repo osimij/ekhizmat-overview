@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="tg" data-theme="light">
+<html lang="tg" data-theme="light" data-system-theme>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Конструктор — Феҳристи хизматҳо</title>
-<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<script>try{document.documentElement.dataset.theme=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}catch(e){};try{if(localStorage.getItem("ekh.admin.rail")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/design-system/global.css">
 <link rel="stylesheet" href="/apps/admin/app.css">
@@ -17,27 +17,23 @@
   <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
   <label for="bpnav">Экран</label>
   <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
-  <div class="bp-right">
-    <button class="icon-btn" id="themeBtn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
-  </div>
 </div>
 
 <div class="adm">
-  <aside class="adm-rail" data-bld-rail data-active="services"></aside>
+  <aside class="ekh-side" data-bld-rail data-active="services"></aside>
   <div class="adm-main">
     <div class="adm-top">
       <span class="at-title">Хизматрасониҳо</span>
       <div class="at-search"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input id="svcSearch" type="search" autocomplete="off" aria-label="Ҷустуҷӯи хизмат, идора ё рамз" placeholder="Ҷустуҷӯи хизмат, идора ё рамз…"></div>
       <div class="at-right">
-        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
-        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
+        <div class="adm-role-slot" id="adminRoleSlot"></div>
       </div>
     </div>
 
     <div class="adm-body">
       <div class="adm-h"><div class="row">
-        <div><h1>Хизматрасониҳо</h1><p>Феҳрист ва конструктори раванд — ҳар хизматро таҳрир ё аз нав созед</p></div>
-        <a class="btn btn-pri" href="new-service.html"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg>Хизмати нав</a>
+        <div><h1 class="services-page-title">Хизматрасониҳо</h1></div>
+        <a class="btn services-create-action" href="new-service.html"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg>Хизмати нав</a>
       </div></div>
 
       <section class="lc-registry" id="lowCodeRegistry" aria-live="polite"></section>
@@ -54,22 +50,28 @@
       <section class="panel" id="serviceRegistry">
         <div class="panel-h service-registry-head">
           <h3>Феҳристи хизматҳо</h3>
-          <div class="seg" id="stFilter" role="radiogroup" aria-label="Филтр аз рӯи ҳолат" style="margin:0">
-            <label><input type="radio" name="fst" data-st="all" checked><span>Ҳама</span></label>
-            <label><input type="radio" name="fst" data-st="draft"><span>Сиёҳнавис</span></label>
-            <label><input type="radio" name="fst" data-st="in_review"><span>Дар баррасӣ</span></label>
-            <label><input type="radio" name="fst" data-st="approved"><span>Интизори нашр</span></label>
-            <label><input type="radio" name="fst" data-st="published"><span>Нашршуда</span></label>
-            <label><input type="radio" name="fst" data-st="errors"><span>Хатои танзим</span></label>
-          </div>
+          <label class="registry-status-filter" for="stFilter">
+            <span class="registry-filter-label"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-filter"/></svg>Филтр аз рӯи ҳолат</span>
+            <span class="registry-filter-field">
+              <select id="stFilter" aria-label="Филтр аз рӯи ҳолат">
+                <option value="all">Ҳама</option>
+                <option value="draft">Сиёҳнавис</option>
+                <option value="in_review">Дар баррасӣ</option>
+                <option value="approved">Интизори нашр</option>
+                <option value="published">Нашршуда</option>
+                <option value="errors">Хатои танзим</option>
+              </select>
+              <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+            </span>
+          </label>
         </div>
 
         <div class="created-service-rows" id="createdServiceRows" aria-live="polite"></div>
 
-        <a class="svc-row" href="builder.html" data-audience="person guest" data-status="published">
+        <a class="svc-row svc-row--with-audience" href="builder.html" data-audience="person guest" data-status="published">
           <span class="tile t-teal sh-r" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
-          <span class="nm"><b>Маълумотнома — ҳайати оила</b><span class="k">САҲШ · шахси воқеӣ · меҳмон · рамзи SVC-FAM-01</span><span class="audience-badge audience-badge--guest">Меҳмон</span></span>
-          <span class="cols"><span><b>5</b> майдон</span><span>ройгон</span><span>таҳрир: 3 рӯз пеш</span></span>
+          <span class="nm"><b>Маълумотнома — ҳайати оила</b><span class="k">САҲШ · шахси воқеӣ · рамзи SVC-FAM-01</span></span>
+          <span class="cols"><span class="svc-audience" title="Меҳмон"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg><span>Меҳмон</span></span><span><b>5</b> майдон</span><span>ройгон</span><span>таҳрир: 3 рӯз пеш</span></span>
           <span class="status-icon status-icon--success" role="img" aria-label="нашршуда" title="нашршуда"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         </a>
         <a class="svc-row" href="builder.html" data-status="published">
@@ -138,7 +140,7 @@
   "use strict";
   var $=function(s,r){return (r||document).querySelector(s);};
   var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
-  var search=$("#svcSearch"), seg=$("#stFilter"), empty=$("#regEmpty");
+  var search=$("#svcSearch"), statusFilter=$("#stFilter"), empty=$("#regEmpty");
   var allowed=["all","draft","in_review","approved","published","errors"];
   var requested=new URLSearchParams(location.search).get("status")||"all";
   var state={q:"", st:allowed.indexOf(requested)>=0?requested:"all"};
@@ -157,13 +159,13 @@
   function setStatus(st,replaceUrl){
     if(allowed.indexOf(st)<0)st="all";
     state.st=st;
-    var radio=seg&&seg.querySelector('input[data-st="'+st+'"]'); if(radio) radio.checked=true;
+    if(statusFilter) statusFilter.value=st;
     if(replaceUrl){var url=new URL(location.href);if(st==="all")url.searchParams.delete("status");else url.searchParams.set("status",st);history.replaceState(null,"",url);}
     apply();
   }
 
   if(search) search.addEventListener("input", function(){ state.q=this.value; apply(); });
-  if(seg) seg.addEventListener("change", function(e){ var i=e.target.closest("input[data-st]"); if(i) setStatus(i.getAttribute("data-st"),true); });
+  if(statusFilter) statusFilter.addEventListener("change", function(){ setStatus(this.value,true); });
   $$("[data-st-go]").forEach(function(b){
     b.addEventListener("click", function(){
       var v=this.getAttribute("data-st-go");

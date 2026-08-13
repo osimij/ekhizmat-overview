@@ -33,7 +33,7 @@ for (const theme of ['light', 'dark']) {
     const otp = page.locator('.otp__cell');
     for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
     await page.locator('[data-act="login-enter"]').click();
-    await page.locator('.nav-item[data-view="forms"]').click();
+    await page.locator('.ekh-side__item[data-view="forms"]').click();
     await page.locator('[data-act="form-open"]').click();
     await page.locator('.mfb-field-open').first().click();
     await page.waitForTimeout(300);

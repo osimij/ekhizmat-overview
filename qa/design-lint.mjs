@@ -40,7 +40,7 @@ for (const file of htmlFiles) {
 }
 
 const storageSources = [...await files('apps', '.js'), ...await files('design-system/js', '.js')];
-const allowedKeys = /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail))$/;
+const allowedKeys = /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail|ministry\.side))$/;
 for (const file of storageSources) {
   const source = await readFile(file, 'utf8');
   if (/<use\b[^>]*href=["']#/.test(source)) errors.push(`${file}: local icon reference; use canonical sprite`);

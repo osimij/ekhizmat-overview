@@ -195,7 +195,7 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   for (const view of ['queue', 'all', 'overdue', 'batch', 'interop', 'reports', 'forms']) {
     if (view !== 'queue') {
       await page.locator('[data-act="nav-toggle"]').click();
-      await page.locator(`.nav-item[data-view="${view}"]`).click();
+      await page.locator(`.ekh-side__item[data-view="${view}"]`).click();
     }
     await expect(page.locator('.app__main')).not.toBeEmpty();
     await expectPageFits(page);
@@ -219,7 +219,7 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   await page.keyboard.press('Escape');
 
   await page.locator('[data-act="nav-toggle"]').click();
-  await page.locator('.nav-item[data-view="queue"]').click();
+  await page.locator('.ekh-side__item[data-view="queue"]').click();
   await page.locator('.q-row').first().click();
   await expectPageFits(page);
   const request = page.locator('[data-act="act-request"]');
@@ -243,7 +243,7 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
-  await page.locator('.nav-item[data-view="forms"]').click();
+  await page.locator('.ekh-side__item[data-view="forms"]').click();
   await page.locator('[data-act="form-create"]').click();
 
   const ministry = await page.evaluate(() => ({

@@ -173,8 +173,8 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   for (let index = 0; index < 6; index += 1) await ministryOtp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
   await expect(page.locator('#app')).toBeVisible();
-  const profileRow = await page.locator('.side__foot > .row').evaluate((row) => {
-    const avatar = row.querySelector('.avatar').getBoundingClientRect();
+  const profileRow = await page.locator('.ekh-side__user').evaluate((row) => {
+    const avatar = row.querySelector('.ekh-side__avatar').getBoundingClientRect();
     const name = row.querySelector('b').getBoundingClientRect();
     return {
       display: getComputedStyle(row).display,
@@ -192,11 +192,11 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
     const size = (selector) => Number.parseFloat(getComputedStyle(document.querySelector(selector)).fontSize);
     const spacing = (selector) => Number.parseFloat(getComputedStyle(document.querySelector(selector)).letterSpacing) || 0;
     return {
-      name: size('.side__foot b'),
-      division: size('.side__division'),
+      name: size('.ekh-side__identity b'),
+      division: size('.ekh-side__identity span'),
       title: size('.view__titles .h2'),
-      nameSpacing: spacing('.side__foot b'),
-      divisionSpacing: spacing('.side__division'),
+      nameSpacing: spacing('.ekh-side__identity b'),
+      divisionSpacing: spacing('.ekh-side__identity span'),
       titleSpacing: spacing('.view__titles .h2'),
     };
   });
@@ -214,7 +214,7 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   await expect(page.locator('.q-head')).toHaveCSS('border-bottom-width', '0px');
   await expect(page.locator('.audience-badge--guest').first()).toBeVisible();
 
-  await page.locator('.nav-item[data-view="reports"]').click();
+  await page.locator('.ekh-side__item[data-view="reports"]').click();
   const reportStyle = await page.evaluate(() => {
     const bodyColor = getComputedStyle(document.body).color;
     const title = document.querySelector('.panel__title').getBoundingClientRect();
@@ -233,14 +233,14 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   expect(new Set(reportStyle.meterColors)).toEqual(new Set([reportStyle.bodyColor]));
   expect(Math.abs(reportStyle.headerLeft - reportStyle.titleLeft)).toBeLessThanOrEqual(1);
   expect(Math.abs(reportStyle.specialistLeft - reportStyle.titleLeft)).toBeLessThanOrEqual(1);
-  await page.locator('.nav-item[data-view="queue"]').click();
+  await page.locator('.ekh-side__item[data-view="queue"]').click();
 
   await page.locator('[data-act="user-open"]').click();
   await page.locator('[data-act="lock"]').click();
   await expect(page.locator('#lock-root input[name="password"]')).toHaveValue('');
   await page.locator('[data-act="unlock"]').click();
 
-  await page.locator('.nav-item[data-view="overdue"]').click();
+  await page.locator('.ekh-side__item[data-view="overdue"]').click();
   const overdueBanner = page.locator('.banner--error').first();
   await expect(overdueBanner).toBeVisible();
   const overdueColors = await overdueBanner.evaluate((element) => ({
@@ -248,7 +248,7 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
     icon: getComputedStyle(element.querySelector('.icon')).color,
   }));
   expect(overdueColors.icon).toBe(overdueColors.text);
-  await page.locator('.nav-item[data-view="queue"]').click();
+  await page.locator('.ekh-side__item[data-view="queue"]').click();
 
   await page.locator('#top-search').fill('ТҶ');
   await page.locator('#top-search').fill('');
@@ -291,7 +291,7 @@ test('Ministry Tajik mode localizes service and application details', async ({ p
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
 
-  await expect(page.locator('.side__division')).toHaveText('Раёсати бақайдгирии ТҒТ');
+  await expect(page.locator('.ekh-side__identity span')).toHaveText('Раёсати бақайдгирии ТҒТ');
   const accreditation = page.locator('.q-row[data-id="a8"]');
   await expect(accreditation).toContainText('Аккредитатсияи филиали ташкилоти хориҷӣ');
   await accreditation.click();
@@ -316,7 +316,7 @@ test('Ministry workers can create a form and hand it to the shared review queue'
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await page.locator('[data-act="login-enter"]').click();
 
-  await page.locator('.nav-item[data-view="forms"]').click();
+  await page.locator('.ekh-side__item[data-view="forms"]').click();
   await expect(page.locator('.forms-catalog')).toBeVisible();
   await expect(page.locator('.form-row')).toHaveCount(4);
   await expect(page.locator('.form-role')).toContainText('Автор ведомства');

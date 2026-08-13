@@ -23,7 +23,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     loginStep: 1,
     lang: pref('lang', 'ru'),
     theme: pref('theme', 'light'),
-    sideCollapsed: false,
+    sideCollapsed: (function () { try { return localStorage.getItem('ekh.ministry.side') === '1'; } catch (e) { return false; } })(),
     view: 'queue',
     cardId: null,
     cardTab: 'overview',
@@ -280,9 +280,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   function navItem(view, icon, label, count, alert) {
     var c = count != null && count > 0
-      ? '<span class="nav-count' + (alert ? ' nav-count--alert' : '') + '">' + count + '</span>' : '';
-    return '<button class="nav-item' + (S.view === view ? ' is-active' : '') + '" data-act="nav" data-view="' + view + '" title="' + esc(label) + '">' +
-      ic(icon) + '<span class="nav-item__label">' + esc(label) + '</span>' + c + '</button>';
+      ? '<span class="ekh-side__count' + (alert ? ' ekh-side__count--alert' : '') + '">' + count + '</span>' : '';
+    return '<button class="ekh-side__item"' + (S.view === view ? ' aria-current="true"' : '') + ' data-act="nav" data-view="' + view + '" title="' + esc(label) + '">' +
+      ic(icon) + '<span class="ekh-side__text">' + esc(label) + '</span>' + c + '</button>';
   }
 
   function renderApp() {
@@ -292,13 +292,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var navExpanded = narrowNav ? false : !S.sideCollapsed;
     var navToggleLabel = narrowNav ? t('menu') : t(S.sideCollapsed ? 'expand_sidebar' : 'collapse_sidebar');
     var shell =
-      '<div class="app' + (S.sideCollapsed ? ' side-collapsed' : '') + '" id="app">' +
+      '<div class="app ekh-side-shell' + (S.sideCollapsed ? ' side-collapsed' : '') + '" id="app">' +
         '<div class="side__backdrop" data-act="nav-close"></div>' +
 
         /* топбар */
         '<header class="topbar app__top">' +
-          '<button class="btn btn--icon btn--s nav-toggle iconbtn" data-act="nav-toggle" aria-controls="ministry-sidebar" aria-expanded="' + navExpanded + '" aria-label="' + esc(navToggleLabel) + '" title="' + esc(navToggleLabel) + '">' +
-            ic('i-chev-l','icon--20 nav-toggle__desktop-icon') + ic('i-dash','icon--20 nav-toggle__mobile-icon') + '</button>' +
+          '<button class="ekh-side-toggle nav-toggle" data-act="nav-toggle" aria-controls="ministry-sidebar" aria-expanded="' + navExpanded + '" aria-label="' + esc(navToggleLabel) + '" title="' + esc(navToggleLabel) + '">' +
+            ic('i-chev-l','nav-toggle__desktop-icon') + ic('i-dash','nav-toggle__mobile-icon') + '</button>' +
           '<a class="topbar__brand row g-2" href="#" data-act="nav" data-view="queue">' + ic('i-logo') + '<b>eKhizmat</b></a>' +
           '<div class="topbar__bind"><b>' + esc(t('app_title')) + '</b><span class="small">' + esc(agencyName()) + '</span></div>' +
           '<div class="field__wrap field__wrap--search topbar__search">' +
@@ -315,20 +315,20 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '</header>' +
 
         /* сайдбар */
-        '<aside class="app__side" id="ministry-sidebar"><nav class="side">' +
-          '<div class="side__group-label">' + esc(t('nav_group')) + '</div>' +
+        '<aside class="app__side" id="ministry-sidebar"><nav class="ekh-side">' +
+          '<div class="ekh-side__label">' + esc(t('nav_group')) + '</div>' +
           navItem('queue', 'i-inbox', t('nav_queue'), qCount, false) +
           navItem('all', 'i-history', t('nav_all'), null, false) +
           navItem('overdue', 'i-clock', t('nav_overdue'), oCount, true) +
-          '<div class="side__group-label">' + esc(t('nav_group2')) + '</div>' +
+          '<div class="ekh-side__label">' + esc(t('nav_group2')) + '</div>' +
           navItem('interop', 'i-refresh', t('nav_interop'), iCount, false) +
           navItem('reports', 'i-dash', t('nav_reports'), null, false) +
-          '<div class="side__group-label">' + esc(t('nav_group3')) + '</div>' +
+          '<div class="ekh-side__label">' + esc(t('nav_group3')) + '</div>' +
           navItem('forms', 'i-edit', t('nav_forms'), null, false) +
-          '<div class="side__spacer"></div>' +
-          '<div class="side__foot"><div class="row g-3"><span class="avatar">' + esc(D.ME.initials) + '</span>' +
-            '<div class="stack side__identity" style="min-width:0"><b class="small" style="color:var(--ink)">' + esc(D.ME.name) + '</b>' +
-            '<span class="side__division">' + esc(divisionName()) + '</span></div></div>' +
+          '<div class="ekh-side__spacer"></div>' +
+          '<div class="ekh-side__user"><span class="ekh-side__avatar">' + esc(D.ME.initials) + '</span>' +
+            '<span class="ekh-side__identity"><b>' + esc(D.ME.name) + '</b>' +
+            '<span>' + esc(divisionName()) + '</span></span>' +
           '</div>' +
         '</nav></aside>' +
 
@@ -363,6 +363,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       app.classList.toggle('nav-open');
     } else {
       S.sideCollapsed = !S.sideCollapsed;
+      try { localStorage.setItem('ekh.ministry.side', S.sideCollapsed ? '1' : '0'); } catch (e) {}
+      /* arm the width tween only for a real toggle — re-renders stay static */
+      app.classList.add('ekh-side-anim');
       app.classList.toggle('side-collapsed', S.sideCollapsed);
     }
     syncNavToggle();
@@ -391,9 +394,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     if (S.statIntroPending) S.statIntroPending = false;
     tick();                       // сразу проставить живые сроки
     // синхронизировать активную навигацию (view мог смениться на 'card')
-    document.querySelectorAll('.nav-item').forEach(function (b) {
+    document.querySelectorAll('.ekh-side__item').forEach(function (b) {
       var activeView = S.view === 'form-builder' ? 'forms' : S.view;
-      b.classList.toggle('is-active', b.getAttribute('data-view') === activeView);
+      if (b.getAttribute('data-view') === activeView) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
     });
   }
 
@@ -1458,10 +1462,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     if (host) { if (bell) bell.remove(); if (unreadNotifs()) host.insertAdjacentHTML('beforeend', '<span class="badge-dot">' + unreadNotifs() + '</span>'); }
   }
   function setNavCount(view, val, alert) {
-    var item = document.querySelector('.nav-item[data-view="' + view + '"]'); if (!item) return;
-    var c = item.querySelector('.nav-count');
+    var item = document.querySelector('.ekh-side__item[data-view="' + view + '"]'); if (!item) return;
+    var c = item.querySelector('.ekh-side__count');
     if (!val) { if (c) c.remove(); return; }
-    if (!c) { c = document.createElement('span'); c.className = 'nav-count' + (alert ? ' nav-count--alert' : ''); item.appendChild(c); }
+    if (!c) { c = document.createElement('span'); c.className = 'ekh-side__count' + (alert ? ' ekh-side__count--alert' : ''); item.appendChild(c); }
     c.textContent = val;
   }
 
@@ -1837,7 +1841,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function go(view) {
     S.view = view; S.cardId = null; S.sel = {}; closeLayers(false);
     var activeView = view === 'form-builder' ? 'forms' : view;
-    document.querySelectorAll('.nav-item').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-view') === activeView); });
+    document.querySelectorAll('.ekh-side__item').forEach(function (b) {
+      if (b.getAttribute('data-view') === activeView) b.setAttribute('aria-current', 'true');
+      else b.removeAttribute('aria-current');
+    });
     var app = document.getElementById('app'); if (app) app.classList.remove('nav-open');
     syncNavToggle();
     var main = document.getElementById('main'); if (main) main.scrollTop = 0;

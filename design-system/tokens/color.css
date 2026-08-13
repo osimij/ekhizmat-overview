@@ -4,7 +4,8 @@
   --ink-2: #5c6065;
   --ink-3: #63676d;
   --ink-faint: #63676d;
-  --bg: #fafafa;
+  --bg: #f9f9fa;
+  --bg-side: #efeff0;
   --panel: #ffffff;
   --raised: #ffffff;
   --hero-light: #e7eef5;
@@ -93,9 +94,10 @@
   --ink-2: #a8abaf;
   --ink-3: #a1a4a9;
   --ink-faint: #a1a4a9;
-  --bg: #121315;
-  --panel: #1b1c1f;
-  --raised: #222327;
+  --bg: #121213;
+  --bg-side: #09090a;
+  --panel: #1a1a1b;
+  --raised: #1a1a1b;
   --hero: var(--hero-dark);
   --field: #26272b;
   --field-on-panel: #26272b;

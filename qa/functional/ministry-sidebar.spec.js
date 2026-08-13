@@ -19,13 +19,13 @@ test('Ministry sidebar collapses into a compact icon rail with section dividers'
   const toggle = page.locator('[data-act="nav-toggle"]');
   const app = page.locator('#app');
   const side = page.locator('#ministry-sidebar');
-  const firstIcon = page.locator('.nav-item .icon').first();
+  const firstIcon = page.locator('.ekh-side__item .icon').first();
   const main = page.locator('#main');
 
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   const expanded = await page.evaluate(() => {
     const sideRect = document.querySelector('#ministry-sidebar').getBoundingClientRect();
-    const iconRect = document.querySelector('.nav-item .icon').getBoundingClientRect();
+    const iconRect = document.querySelector('.ekh-side__item .icon').getBoundingClientRect();
     return {
       sideWidth: sideRect.width,
       iconCenterX: iconRect.left + iconRect.width / 2,
@@ -36,14 +36,14 @@ test('Ministry sidebar collapses into a compact icon rail with section dividers'
   await toggle.click();
   await expect(app).toHaveClass(/side-collapsed/);
   await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.locator('.nav-item__label').first()).toHaveCSS('opacity', '0');
+  await expect(page.locator('.ekh-side__text').first()).toHaveCSS('opacity', '0');
   await expect(side).toHaveCSS('width', '66px');
-  await expect(page.locator('.side__group-label').first()).toHaveCSS('height', '17px');
+  await expect(page.locator('.ekh-side__label').first()).toHaveCSS('height', '17px');
 
   const collapsed = await page.evaluate(() => {
     const sideRect = document.querySelector('#ministry-sidebar').getBoundingClientRect();
-    const iconRect = document.querySelector('.nav-item .icon').getBoundingClientRect();
-    const avatarRect = document.querySelector('.side__foot .avatar').getBoundingClientRect();
+    const iconRect = document.querySelector('.ekh-side__item .icon').getBoundingClientRect();
+    const avatarRect = document.querySelector('.ekh-side__user .ekh-side__avatar').getBoundingClientRect();
     const toggleRect = document.querySelector('[data-act="nav-toggle"]').getBoundingClientRect();
     const mainRect = document.querySelector('#main').getBoundingClientRect();
     return {
@@ -54,7 +54,7 @@ test('Ministry sidebar collapses into a compact icon rail with section dividers'
       avatarCenterX: avatarRect.left + avatarRect.width / 2,
       toggleCenterX: toggleRect.left + toggleRect.width / 2,
       iconTop: iconRect.top,
-      dividerOpacity: getComputedStyle(document.querySelector('.side__group-label'), '::after').opacity,
+      dividerOpacity: getComputedStyle(document.querySelector('.ekh-side__label'), '::after').opacity,
       viewportWidth: window.innerWidth,
       documentWidth: document.documentElement.scrollWidth,
     };
@@ -75,7 +75,7 @@ test('Ministry sidebar collapses into a compact icon rail with section dividers'
   await expect(app).not.toHaveClass(/side-collapsed/);
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(side).toHaveCSS('width', '264px');
-  await expect(page.locator('.side__group-label').first()).toHaveCSS('height', '44px');
+  await expect(page.locator('.ekh-side__label').first()).toHaveCSS('height', '36px');
   const restoredIconTop = await firstIcon.evaluate((icon) => icon.getBoundingClientRect().top);
   expect(restoredIconTop).toBeCloseTo(expanded.iconTop, 0);
 });

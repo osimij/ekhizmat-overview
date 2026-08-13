@@ -1,0 +1,150 @@
+/* =====================================================================
+   UNIFIED SIDEBAR — .ekh-side
+   One navigation rail for every console platform (admin, ministry, ЦОН…).
+
+   Geometry contract: rail inline padding 12px + item inline padding 12px
+   + an 18px glyph puts every icon centre on a 33px axis — exactly half of
+   the 66px collapsed rail. Nothing moves horizontally while collapsing;
+   only widths tween and text fades.
+
+   Collapse contract:
+   - the shell (the grid element that owns the rail column) carries
+     `.ekh-side-shell` and swaps its rail track between var(--w-side) and
+     var(--w-side-collapsed) under a `.side-collapsed` class placed on the
+     shell itself or any ancestor (admin uses <html> so the state can be
+     applied before first paint);
+   - the width tween is armed only by `.ekh-side-anim` (added by JS on a
+     real toggle), so page loads and re-renders never animate;
+   - text fades out fast on collapse and back in on expand; group labels
+     morph into hairline dividers; items keep `title` for tooltips.
+   ===================================================================== */
+
+.ekh-side{
+  min-width:0; height:100%; overflow-y:auto; overflow-x:hidden;
+  display:flex; flex-direction:column; gap:var(--s-1);
+  padding:var(--s-3); background:var(--bg-side); border-right:1px solid var(--line);
+  scrollbar-width:thin;
+}
+
+.ekh-side__head{display:flex; align-items:center; min-height:44px}
+.ekh-side__brand{
+  display:flex; align-items:center; gap:10px; flex:1; min-width:0;
+  padding:var(--s-1) var(--s-3) var(--s-3); color:var(--ink);
+}
+.ekh-side__brand .mark{width:28px; height:28px; color:var(--blue); flex:none;
+  transition:translate var(--t-layer) var(--ease-out)}
+.ekh-side__brand b{font-size:var(--fs-16); font-weight:600; white-space:nowrap}
+
+.ekh-side__label{
+  position:relative; flex:none; block-size:36px;
+  padding:var(--s-3) var(--s-3) var(--s-1);
+  font-size:var(--fs-13); font-weight:500; color:var(--ink-3);
+  white-space:nowrap; overflow:hidden;
+  transition:block-size var(--t-layer) var(--ease-out),
+             padding var(--t-layer) var(--ease-out),
+             color calc(var(--t-fast) / 2) var(--ease-out);
+}
+.ekh-side__label::after{
+  content:""; position:absolute; top:50%; left:var(--s-2); right:var(--s-2);
+  height:1px; background:var(--line); opacity:0; transform:scaleX(.72);
+  transition:opacity var(--t-fast) var(--ease-out), transform var(--t-layer) var(--ease-out);
+}
+
+.ekh-side__item{
+  display:flex; align-items:center; gap:11px; width:100%;
+  min-height:40px; padding:var(--s-2) var(--s-3); border-radius:var(--r-s);
+  background:transparent; border:0; font:inherit; font-size:var(--fs-14); font-weight:450;
+  color:var(--ink-2); text-align:left; cursor:pointer; text-decoration:none;
+  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.ekh-side__item > svg,
+.ekh-side__item > .icon{width:18px; height:18px; color:var(--ink-3); flex:none;
+  transition:color var(--t-fast) var(--ease)}
+.ekh-side__text{
+  flex:1 1 auto; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.ekh-side__item:hover{background:var(--hover); color:var(--ink)}
+.ekh-side__item:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+.ekh-side__item[aria-current]{background:var(--blue-tint); color:var(--blue-ink); font-weight:500}
+.ekh-side__item[aria-current] > svg,
+.ekh-side__item[aria-current] > .icon{color:var(--blue-ink)}
+
+/* Console navigation stays neutral in dark mode: selection is communicated by
+   the elevated surface, not a competing blue block. This shared component is
+   used by every staff-platform sidebar. */
+[data-theme="dark"] .ekh-side__item[aria-current]{background:#232325; color:var(--ink)}
+[data-theme="dark"] .ekh-side__item[aria-current] > svg,
+[data-theme="dark"] .ekh-side__item[aria-current] > .icon{color:var(--ink-2)}
+
+/* The citizen account sidebar uses a compact, platform-specific nav rather
+   than .ekh-side, but follows the same dark-mode selection treatment. */
+[data-theme="dark"] .prof-nav .pn[aria-current="true"]{background:#232325; color:var(--ink)}
+[data-theme="dark"] .prof-nav .pn[aria-current="true"] svg{color:var(--ink-2)}
+
+.ekh-side__count{
+  flex:none; margin-left:auto; min-width:22px; height:20px; padding:0 6px;
+  display:inline-grid; place-items:center; border-radius:var(--r-pill);
+  background:var(--field); color:var(--ink-2);
+  font-size:var(--fs-12); font-weight:550; font-variant-numeric:tabular-nums;
+}
+.ekh-side__item[aria-current] .ekh-side__count{background:var(--panel); color:var(--blue-ink)}
+[data-theme="dark"] .ekh-side__item[aria-current] .ekh-side__count{background:transparent; color:var(--ink-2)}
+.ekh-side__count--alert{background:var(--red-tint); color:var(--red-ink)}
+
+.ekh-side__spacer{flex:1 1 auto; margin-top:auto}
+
+.ekh-side__user{
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-3); border-radius:var(--r-m); color:inherit; text-decoration:none;
+}
+a.ekh-side__user:hover{background:var(--hover)}
+.ekh-side__avatar{
+  width:36px; height:36px; border-radius:50%; flex:none;
+  display:grid; place-items:center; font-size:var(--fs-14); font-weight:600;
+  background:var(--h-indigo-bg); color:var(--h-indigo-fg);
+  transition:translate var(--t-layer) var(--ease-out);
+}
+.ekh-side__identity{min-width:0}
+.ekh-side__identity b{display:block; font-size:var(--fs-13); font-weight:550;
+  color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ekh-side__identity span{display:block; font-size:var(--fs-12); color:var(--ink-3);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+/* The collapse control: a quiet 40px icon button that lives in the platform's
+   top bar. The chevron flips while the rail tweens. */
+.ekh-side-toggle{
+  flex:none; width:40px; height:40px; border-radius:var(--r-s);
+  display:grid; place-items:center; background:transparent; border:0;
+  color:var(--ink-2); cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.ekh-side-toggle:hover{background:var(--hover); color:var(--ink)}
+.ekh-side-toggle:active{scale:.96}
+.ekh-side-toggle:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.ekh-side-toggle svg{width:15px; height:15px; transition:rotate var(--t-layer) var(--ease-out)}
+
+/* ---------- desktop collapse ---------- */
+@media(min-width:961px){
+  /* armed only during a real toggle — never on load or re-render */
+  .ekh-side-anim .ekh-side-shell,
+  .ekh-side-shell.ekh-side-anim{transition:grid-template-columns var(--t-layer) var(--ease-layer)}
+
+  .ekh-side__text,
+  .ekh-side__count,
+  .ekh-side__identity,
+  .ekh-side__brand b{opacity:1; transition:opacity var(--t-fast) var(--ease-out)}
+  .side-collapsed :is(.ekh-side__text, .ekh-side__count, .ekh-side__identity, .ekh-side__brand b){
+    opacity:0; pointer-events:none;
+    transition-duration:calc(var(--t-fast) / 2);
+  }
+
+  .side-collapsed .ekh-side__label{block-size:17px; padding:0 var(--s-2); color:transparent}
+  .side-collapsed .ekh-side__label::after{opacity:1; transform:scaleX(1)}
+
+  /* the brand mark and avatar slide the few px onto the shared 33px axis */
+  .side-collapsed .ekh-side__brand .mark{translate:-5px 0}
+  .side-collapsed .ekh-side__user .ekh-side__avatar{translate:-9px 0}
+
+  .side-collapsed .ekh-side-toggle svg{rotate:180deg}
+}

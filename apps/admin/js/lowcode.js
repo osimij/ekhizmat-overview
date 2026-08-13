@@ -225,10 +225,11 @@ function agencyLabel(){ return localized(state.agencyName,c().agency); }
 function statusTone(status){ return ({draft:'draft',stage:'stage',in_review:'review',changes_requested:'changes',resubmitted:'review',approved:'approved',published:'published'})[status]||'draft'; }
 function statusIconName(status){ return ({draft:'i-edit',stage:'i-clock',in_review:'i-clock',changes_requested:'i-edit',resubmitted:'i-refresh',approved:'i-check',published:'i-check'})[status]||'i-dots'; }
 function statusBadge(status=state.status){ const label=c()[status]||status,tone=statusTone(status);const iconTone=({draft:'neutral',stage:'info',review:'info',changes:'warning',approved:'success',published:'success'})[tone]||'neutral';return `<span class="status-icon status-icon--${iconTone}" role="img" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${statusIconName(status)}"/></svg></span>`; }
-function audienceBadges(audiences=state.audience){ const x=c();return audiences.map(a=>`<span class="audience-badge audience-badge--${a==='guest'?'guest':a==='business'?'business':'person'}">${escapeHtml(x[a])}</span>`).join(''); }
-function roleSelect(){
+function stageBadge(label,iconOnly=false){ return `<span class="environment-badge environment-badge--stage${iconOnly?' lc-icon-badge':''}"${iconOnly?` role="img" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}"`:''}>${iconOnly?'<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg>':escapeHtml(label)}</span>`; }
+function audienceBadges(audiences=state.audience,iconOnly=false){ const x=c(),icons={person:'i-role',business:'i-biz',guest:'i-user'};return audiences.map(a=>`<span class="audience-badge audience-badge--${a==='guest'?'guest':a==='business'?'business':'person'}${iconOnly?' lc-icon-badge':''}"${iconOnly?` role="img" aria-label="${escapeHtml(x[a])}" title="${escapeHtml(x[a])}"`:''}>${iconOnly?`<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${icons[a]||'i-user'}"/></svg>`:escapeHtml(x[a])}</span>`).join(''); }
+function roleSelect(compact=false){
   const x=c();
-  return `<label class="lc-role"><span>${x.role}</span><select class="input" data-lc-role><option value="reviewer" ${state.role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${state.role==='portal-admin'?'selected':''}>${x.admin}</option><option value="agency-author" ${state.role==='agency-author'?'selected':''}>${x.author}</option></select></label>`;
+  return `<label class="lc-role${compact?' lc-role--compact':''}"><span>${x.role}</span>${compact?'<svg class="lc-role__icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg>':''}<select class="input" data-lc-role aria-label="${escapeHtml(x.role)}"><option value="reviewer" ${state.role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${state.role==='portal-admin'?'selected':''}>${x.admin}</option><option value="agency-author" ${state.role==='agency-author'?'selected':''}>${x.author}</option></select></label>`;
 }
 function fieldTypeIcon(type){ return type==='file'?'i-doc':type==='select'?'i-chev-d':'i-check'; }
 function recordFields(record){
@@ -256,7 +257,11 @@ function renderBuilder(){
 
 function renderRegistry(){
   const root=document.querySelector('#lowCodeRegistry');if(!root)return;const x=c();
-  root.innerHTML=`<div class="lc-registry-toolbar">${roleSelect()}<div class="lc-registry-summary"><span><b>4</b> ${x.approverInbox.toLowerCase()}</span><span><b>2</b> ${x.readyTab.toLowerCase()}</span><span><b>596</b> ${x.published.toLowerCase()}</span></div></div><article class="lc-service-card"><div><div class="lc-card-badges"><span class="environment-badge environment-badge--stage">${x.stageEnv}</span>${statusBadge()}${audienceBadges()}</div><h2>${escapeHtml(serviceLabel())}</h2><p>${escapeHtml(agencyLabel())} · ${x.version} ${escapeHtml(state.serviceVersion)} · ${escapeHtml(recordById(PRIMARY_SERVICE_ID).submittedAt)}</p></div><a class="btn btn-pri" href="${['draft','stage','changes_requested'].includes(state.status)?'builder.html':'review.html'}">${['draft','stage','changes_requested'].includes(state.status)?x.openBuilder:x.openService}</a></article>`;
+  root.innerHTML=`<article class="lc-service-card"><div><div class="lc-card-badges">${stageBadge(x.stageEnv,true)}${statusBadge()}${audienceBadges(state.audience,true)}</div><h2>${escapeHtml(serviceLabel())}</h2><p>${escapeHtml(agencyLabel())} · ${x.version} ${escapeHtml(state.serviceVersion)} · ${escapeHtml(recordById(PRIMARY_SERVICE_ID).submittedAt)}</p></div><a class="btn btn-pri" href="${['draft','stage','changes_requested'].includes(state.status)?'builder.html':'review.html'}">${['draft','stage','changes_requested'].includes(state.status)?x.openBuilder:x.openService}</a></article>`;
+}
+
+function renderRoleControl(){
+  const slot=document.querySelector('#adminRoleSlot');if(slot)slot.innerHTML=roleSelect(true);
 }
 
 let reviewTab='review';
@@ -373,7 +378,7 @@ function bind(){
   document.querySelector('#publishBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();if(state.role==='portal-admin'&&state.status==='approved')openPublishSummary(recordById(PRIMARY_SERVICE_ID));},true);
 }
 
-function renderAll(){renderBuilder();renderRegistry();renderReview();}
+function renderAll(){renderRoleControl();renderBuilder();renderRegistry();renderReview();}
 bind();subscribeLowCode(renderAll);renderAll();
 const originalSetLang=window.bpSetLang;
 if(originalSetLang)window.bpSetLang=function(next){originalSetLang(next);renderAll();};

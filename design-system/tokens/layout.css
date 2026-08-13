@@ -4,6 +4,8 @@
   --content-consumer: 1120px;
   --content-workspace: 1200px;
   --h-topbar: 60px;
+  --w-side: 264px;
+  --w-side-collapsed: 66px;
   --h-sessionbar: 48px;
   --h-stepper: 44px;
   --h-btn-l: 52px;

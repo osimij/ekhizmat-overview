@@ -120,7 +120,7 @@ function renderRegistry(){
   const root=document.querySelector('#createdServiceRows');if(!root)return;
   const drafts=getServiceDrafts();root.innerHTML=drafts.map(registryRow).join('');
   const draftCount=document.querySelector('#draftServiceCount');if(draftCount)draftCount.textContent=String(8+drafts.length);
-  const railCount=document.querySelector('[data-bld-rail] .an[href="services.html"] .cnt');if(railCount)railCount.textContent=String(612+drafts.length);
+  const railCount=document.querySelector('[data-bld-rail] .ekh-side__item[href="services.html"] .ekh-side__count');if(railCount)railCount.textContent=String(612+drafts.length);
   window.dispatchEvent(new CustomEvent('ekh:servicedraftsrendered'));
   const savedId=new URLSearchParams(location.search).get('saved');
   if(savedId&&drafts.some(draft=>draft.id===savedId))window.bpToast?.(copy().saved);

@@ -41,9 +41,9 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Toggle` (On/Off) | `.sw`/`.knob` |
 | | `Toggle Row` | `.pr` |
 | | `Checkbox Row` | `.consent` |
-| 🧩 Navigation | `Rail Item` (Default/Active; Count toggle, Glyph swap) | `.adm-rail .an` |
-| | `Rail Section Label` | `.adm-nav-label` |
-| | `User Card` | `.adm-me` |
+| 🧩 Navigation | `Rail Item` (Default/Active; Count toggle, Glyph swap) | `.ekh-side__item` (shared sidebar, all platforms) |
+| | `Rail Section Label` | `.ekh-side__label` |
+| | `User Card` | `.ekh-side__user` |
 | | `Top Bar` | `.adm-top` |
 | 🧩 Stats & Metrics | `Stat Card` (Default/Danger) | `.stat`, `.metric` |
 | | `Metric Inline` | dense strips |
