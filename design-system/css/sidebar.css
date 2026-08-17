@@ -72,13 +72,13 @@
 /* Console navigation stays neutral in dark mode: selection is communicated by
    the elevated surface, not a competing blue block. This shared component is
    used by every staff-platform sidebar. */
-[data-theme="dark"] .ekh-side__item[aria-current]{background:#232325; color:var(--ink)}
+[data-theme="dark"] .ekh-side__item[aria-current]{background:var(--nav-selected); color:var(--ink)}
 [data-theme="dark"] .ekh-side__item[aria-current] > svg,
 [data-theme="dark"] .ekh-side__item[aria-current] > .icon{color:var(--ink-2)}
 
 /* The citizen account sidebar uses a compact, platform-specific nav rather
    than .ekh-side, but follows the same dark-mode selection treatment. */
-[data-theme="dark"] .prof-nav .pn[aria-current="true"]{background:#232325; color:var(--ink)}
+[data-theme="dark"] .prof-nav .pn[aria-current="true"]{background:var(--nav-selected); color:var(--ink)}
 [data-theme="dark"] .prof-nav .pn[aria-current="true"] svg{color:var(--ink-2)}
 
 .ekh-side__count{

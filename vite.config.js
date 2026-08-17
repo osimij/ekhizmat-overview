@@ -24,12 +24,10 @@ function copyStableRuntimeFiles() {
     closeBundle() {
       const assetTarget = resolve(import.meta.dirname, 'dist/design-system/assets');
       mkdirSync(assetTarget, { recursive: true });
-      for (const asset of ['icons.svg', 'status-bar.svg']) {
-        copyFileSync(
-          resolve(import.meta.dirname, 'design-system/assets', asset),
-          resolve(assetTarget, asset),
-        );
-      }
+      copyFileSync(
+        resolve(import.meta.dirname, 'design-system/assets/icons.svg'),
+        resolve(assetTarget, 'icons.svg'),
+      );
 
       const docsTarget = resolve(import.meta.dirname, 'dist/docs');
       mkdirSync(docsTarget, { recursive: true });

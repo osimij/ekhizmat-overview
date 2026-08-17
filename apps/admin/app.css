@@ -2476,15 +2476,8 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
    Scoped to [data-platform="admin"] until rolled out portal-wide.
    Source of truth: Figma «eKhizmat Admin · Component Library» → docs/admin-component-map.md.
    Changeset: neutralized grays, brighter green (+ text-safe --green-ink), compact pill
-   buttons, outlined notes. Dark values restated because body-level vars beat html-level. */
-[data-platform="admin"]{
-  --ink:#1d1d1f; --ink-2:#565656; --ink-3:#6c6c6c; --ink-faint:#6c6c6c;
-  --green:#0f9a5c; --green-ink:#0f7a4a;
-}
-[data-theme="dark"] [data-platform="admin"]{
-  --ink:#f0f0ee; --ink-2:#a8abaf; --ink-3:#a1a4a9; --ink-faint:#a1a4a9;
-  --green:#55c78f; --green-ink:#55c78f;
-}
+   buttons, outlined notes. The palette re-tune itself lives with the other raw values in
+   design-system/tokens/color.css (admin platform section). */
 
 /* compact buttons (Figma: Medium 34px / Small 30px, pill radius already in base) */
 [data-platform="admin"] .btn{min-height:34px; padding:0 16px; font-size:var(--fs-14)}
@@ -2552,7 +2545,7 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
   background:transparent;
   color:var(--ink-2);
   font-weight:500;
-  transition:background 160ms ease,color 160ms ease,transform 160ms cubic-bezier(.23,1,.32,1);
+  transition:background var(--t-exit) var(--ease),color var(--t-exit) var(--ease),transform var(--t-exit) var(--ease-out);
 }
 .services-create-action svg{width:15px;height:15px}
 @media(hover:hover) and (pointer:fine){

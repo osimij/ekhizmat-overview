@@ -136,3 +136,21 @@
   --h-cyan-bg: #132b36; --h-cyan-fg: #5fc0e8;
   --h-olive-bg: #272b14; --h-olive-fg: #b5c45c;
 }
+
+/* Admin platform re-tune (Figma «eKhizmat Admin · Component Library»):
+   neutralized grays and a brighter, text-safe green. Scoped to the platform
+   until rolled out portal-wide; dark values restated because the body-level
+   platform scope beats the html-level theme scope. */
+[data-platform='admin'] {
+  --ink: #1d1d1f; --ink-2: #565656; --ink-3: #6c6c6c; --ink-faint: #6c6c6c;
+  --green: #0f9a5c; --green-ink: #0f7a4a;
+}
+[data-theme='dark'] [data-platform='admin'] {
+  --ink: #f0f0ee; --ink-2: #a8abaf; --ink-3: #a1a4a9; --ink-faint: #a1a4a9;
+  --green: #55c78f; --green-ink: #55c78f;
+}
+
+/* Selected navigation surface: action tint in light; in dark, consoles use a
+   neutral elevated surface instead of a competing blue block (see sidebar.css). */
+:root { --nav-selected: var(--blue-tint); }
+[data-theme='dark'] { --nav-selected: #232325; }
