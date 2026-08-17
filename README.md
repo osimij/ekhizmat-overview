@@ -107,7 +107,7 @@ Playwright normally uses its installed Chromium. This project can also use the l
 - `apps/` — application-specific composition, behavior, data fixtures, translations, and artwork.
 - `citizen/`, `tson/`, `ministry/`, `admin/` — the clean public HTML entry points.
 - `qa/` — functional, privacy, responsive, visual, presentation, accessibility, contrast, and design-drift checks.
-- `docs/` — migration decisions, component inventory, demo guide, and QA evidence.
+- `docs/` — [design-guide.md](docs/design-guide.md) (the canonical UX/UI contract for all platforms), migration decisions, demo guide, and QA evidence.
 - `legacy/` — archived pre-unification sources; not built or served.
 
 The untouched starting point is recoverable from Git tag `pre-unified-2026-07-27`. The original nested `mvp2` history is also preserved in `.history/` (intentionally ignored by Git because it is a local recovery bundle).

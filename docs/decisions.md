@@ -6,13 +6,9 @@ Vite serves clean HTML routes without iframes. This preserves browser history, d
 
 ## One canonical design system
 
-Home/Citizen supplied the baseline visual language. Proven workstation and back-office primitives from ЦОН, Ministry, and Admin were added as variants. Foundation files, the Google Sans font, logo, icon sprite, dialog behavior, preferences, and platform switching exist only under `design-system/`.
+Home/Citizen supplied the baseline visual language. Proven workstation and back-office primitives from ЦОН, Ministry, and Admin were added as variants. Foundation files, the bundled Inter font, logo, icon sprite, dialog behavior, preferences, and platform switching exist only under `design-system/`.
 
-The action blue is `#0072d6` because it maintains the intended identity while meeting contrast requirements for primary labels. Hairlines, neutral panels, restrained elevation, semantic red, and category hue tiles remain the binding visual rules.
-
-## Density variants are intentional
-
-Citizen is comfortable/mobile; Ministry is compact; ЦОН is workstation-oriented; Admin is editor-oriented. ЦОН has a 1280-pixel minimum because its operational chrome and concurrent information should not collapse into a misleading consumer layout. Admin works at 768 pixels but is best demonstrated at 1280 or wider.
+The binding visual rules — action color, typography, surfaces, density variants per platform, and the polish method — live in [docs/design-guide.md](design-guide.md), the canonical design contract.
 
 ## Privacy on one shared origin
 

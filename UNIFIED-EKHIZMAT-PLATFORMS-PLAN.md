@@ -158,7 +158,7 @@ eKhizmat/
     presentation/
   docs/
     migration-map.md
-    component-inventory.md
+    design-guide.md
     demo-script.md
     decisions.md
 ```
