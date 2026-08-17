@@ -367,9 +367,9 @@ $$("[data-qr]").forEach(function(svg){ window.bpQR(svg, svg.getAttribute("data-q
 var I18N_KEY='ekh.preferences.lang';
 var DICT=(window.BP_DICT||{});
 var LANG_NAMES={tg:"ТҶ",ru:"RU",en:"EN"};
-var _txt=null, _att=null;                      /* harvested originals (lazy, once) */
+var _txt=null, _att=null, _title=null;          /* harvested originals (lazy, once) */
 function i18nHarvest(){
-  _txt=[]; _att=[];
+  _txt=[]; _att=[]; _title=document.title;
   var w=document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
     acceptNode:function(n){
       var v=n.nodeValue; if(!v||!v.trim()) return NodeFilter.FILTER_REJECT;
@@ -397,6 +397,7 @@ function i18nApply(lang){
   var d=(lang!=="tg" && DICT[lang]) ? DICT[lang] : null;
   _txt.forEach(function(r){ r[0].nodeValue = d ? i18nSwap(r[1],d) : r[1]; });
   _att.forEach(function(r){ r[0].setAttribute(r[1], d ? i18nSwap(r[2],d) : r[2]); });
+  document.title = d ? i18nSwap(_title,d) : _title;
   document.documentElement.lang = lang;
 }
 function i18nReflect(lang){

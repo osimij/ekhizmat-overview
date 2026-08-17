@@ -108,6 +108,8 @@ The most common defect in unpolished pages is everything bold at once: 11–12px
 
 **Surfaces**, in order: `--bg` (page) → `--panel` (primary container) → `--field` / `--field-on-panel` (inputs, quiet groups) → `--raised` + `--shadow-layer` (menus, dialogs). Borders are quiet separators: `--line` around groups, `--line-in` for internal hairlines. One border per semantic level — never nest bordered cards that add no meaning.
 
+**Scrollbars** are a shared foundation, never page-local: every page and nested scroll surface uses the 6px treatment in `design-system/css/foundations.css`, with a transparent track and a low-contrast thumb that becomes slightly clearer on fine-pointer hover. Do not hide or restyle scrollbars in an app stylesheet.
+
 **Semantic state colors**: green = done/valid, amber = waiting/degraded, red = error/breach/destructive, neutral = draft/inactive. State must survive without color (text, icon, position, or accessible name carries it too). Category hue tiles (`--h-*-bg/fg`) aid recognition in catalogues; remove them from dense comparison rows.
 
 **Alignment is a system**:

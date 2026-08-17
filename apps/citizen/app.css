@@ -581,8 +581,8 @@ a.ft-c:hover{color:var(--ink)}
 .pr + .pr{border-top:1px solid var(--line-in)}
 .pr.top{align-items:flex-start}
 .pr .tt{flex:1; min-width:0}
-.pr .k{display:block; font-size:var(--fs-13); color:var(--ink-3)}
-.pr .v{display:flex; align-items:center; gap:var(--s-2); font-weight:600; margin-top:1px; flex-wrap:wrap}
+.pr .k{display:block; font-size:var(--fs-13); font-weight:var(--weight-regular); color:var(--ink-3)}
+.pr .v{display:flex; align-items:center; gap:var(--s-2); font-weight:var(--weight-medium); margin-top:1px; flex-wrap:wrap}
 .pr .desc{display:block; font-size:var(--fs-14); color:var(--ink-2); margin-top:2px}
 .pr .src-tag{margin-top:5px}
 .pr .when{margin-left:auto; flex:none; font-size:var(--fs-13); color:var(--ink-3); white-space:nowrap}
@@ -756,12 +756,11 @@ a.ft-c:hover{color:var(--ink)}
   .prof-grid{grid-template-columns:minmax(0,1fr); gap:var(--s-5)}
   .prof-nav{
     position:static; flex-direction:row; gap:var(--s-1); overflow-x:auto;
-    margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5) 4px; scrollbar-width:none;
+    margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5) 4px;
     /* fade hints that the row scrolls */
     mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 36px),transparent);
     -webkit-mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 36px),transparent);
   }
-  .prof-nav::-webkit-scrollbar{display:none}
   .pn{white-space:nowrap; flex:none; background:var(--panel); border-radius:var(--r-pill); padding:9px 16px}
   .pn[aria-current="true"]{background:var(--blue-tint)}
   .pn-out{margin-top:0; margin-left:var(--s-2)} /* the nav is a row here */
@@ -785,8 +784,7 @@ a.ft-c:hover{color:var(--ink)}
   .search-btn{top:28px; width:44px; height:44px; padding:0; justify-content:center}
   .search-btn span{display:none}
   .search-btn svg{display:block}
-  .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
-  .ftabs::-webkit-scrollbar{display:none}
+  .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
   .ftab{white-space:nowrap; flex:none}
   .frow{padding:var(--s-4)}
   .pill{max-width:100%}

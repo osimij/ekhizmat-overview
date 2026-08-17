@@ -337,6 +337,163 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
   expect(published.readonlyNotice).toContain('Просмотр опубликованной версии');
 });
 
+test('Admin builder keeps both side panels visible while the page scrolls', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 520 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  await expect(page.locator('.lc-builder-main')).toBeVisible();
+
+  const initialTop = await page.locator('.bld-pipe').evaluate((element) => element.getBoundingClientRect().top);
+  await page.locator('.bld-edit').evaluate((element) => element.scrollTo(0, element.scrollHeight));
+  const layout = await page.evaluate((topBeforeScroll) => {
+    const readPanel = (selector) => {
+      const element = document.querySelector(selector);
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        top: rect.top,
+        bottom: rect.bottom,
+        position: style.position,
+        overflowY: style.overflowY,
+      };
+    };
+    return {
+      scrollY,
+      pageOverflow: document.documentElement.scrollHeight - innerHeight,
+      editorScrollTop: document.querySelector('.bld-edit').scrollTop,
+      editorScrollbarWidth: getComputedStyle(document.querySelector('.bld-edit')).scrollbarWidth,
+      topBeforeScroll,
+      pipeline: readPanel('.bld-pipe'),
+      preview: readPanel('.bld-prev'),
+    };
+  }, initialTop);
+
+  expect(layout.scrollY).toBe(0);
+  expect(layout.pageOverflow).toBeLessThanOrEqual(1);
+  expect(layout.editorScrollTop).toBeGreaterThan(0);
+  expect(layout.editorScrollbarWidth).toBe('thin');
+  for (const panel of [layout.pipeline, layout.preview]) {
+    expect(panel.position).toBe('static');
+    expect(panel.overflowY).toBe('auto');
+    expect(panel.top).toBeCloseTo(layout.topBeforeScroll, 0);
+    expect(panel.bottom).toBeLessThanOrEqual(521);
+  }
+});
+
+test('Admin builder reserves pipeline label emphasis for the selected step', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  const weights = await page.evaluate(() => {
+    const selected = document.querySelector('.bld-pipe .stg[aria-selected="true"] .tt b');
+    const unselected = document.querySelector('.bld-pipe .stg:not([aria-selected="true"]) .tt b');
+    return {
+      selected: getComputedStyle(selected).fontWeight,
+      unselected: getComputedStyle(unselected).fontWeight,
+    };
+  });
+
+  expect(weights.unselected).toBe('400');
+  expect(weights.selected).toBe('500');
+});
+
+test('Admin builder centers the phone above its quiet preview caption', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  const caption = await page.evaluate(() => {
+    const bar = document.querySelector('.pv-bar');
+    const stage = document.querySelector('.pv-stage');
+    const badge = document.querySelector('.pv-badge');
+    const badgeStyle = getComputedStyle(badge);
+    const stageRect = stage.getBoundingClientRect();
+    const phone = document.querySelector('.pv-phone');
+    const phoneRect = phone.getBoundingClientRect();
+    return {
+      barOrder: getComputedStyle(bar).order,
+      stageOrder: getComputedStyle(stage).order,
+      stageFlex: getComputedStyle(stage).flexGrow,
+      stageAlignItems: getComputedStyle(stage).alignItems,
+      phoneBezelWidth: Number.parseFloat(getComputedStyle(phone).paddingTop),
+      phoneOffsetTop: phoneRect.top - stageRect.top,
+      phoneOffsetBottom: stageRect.bottom - phoneRect.bottom,
+      badgeBackground: badgeStyle.backgroundColor,
+      dotCount: badge.querySelectorAll('.dot').length,
+    };
+  });
+
+  expect(caption.barOrder).toBe('2');
+  expect(caption.stageOrder).toBe('1');
+  expect(caption.stageFlex).toBe('1');
+  expect(caption.stageAlignItems).toBe('center');
+  expect(caption.phoneBezelWidth).toBe(9);
+  expect(Math.abs(caption.phoneOffsetTop - caption.phoneOffsetBottom)).toBeLessThanOrEqual(1);
+  expect(caption.badgeBackground).toBe('rgba(0, 0, 0, 0)');
+  expect(caption.dotCount).toBe(0);
+});
+
+test('Mobile preview actions keep touch height and give long labels a full row', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+
+  const layout = await page.evaluate(() => {
+    const actions = document.querySelector('.edit-pane:not([hidden]) .mobile-preview-actions');
+    const buttons = [...actions.querySelectorAll(':scope > .btn')];
+    const first = buttons[0].getBoundingClientRect();
+    const second = buttons[1].getBoundingClientRect();
+    buttons[1].textContent = 'Фиристодани ариза барои гирифтани маълумотнома';
+    const long = buttons[1].getBoundingClientRect();
+    const group = actions.getBoundingClientRect();
+    const groupStyle = getComputedStyle(actions);
+    return {
+      heights: buttons.map((button) => button.getBoundingClientRect().height),
+      initialSharedRow: Math.abs(first.top - second.top) <= 1,
+      longOnOwnRow: long.top > first.top,
+      longWidth: long.width,
+      availableWidth: group.width - Number.parseFloat(groupStyle.paddingLeft) - Number.parseFloat(groupStyle.paddingRight),
+      longLineHeight: buttons[1].scrollHeight,
+      longClientHeight: buttons[1].clientHeight,
+    };
+  });
+
+  expect(layout.heights.every((height) => height >= 48)).toBe(true);
+  expect(layout.initialSharedRow).toBe(true);
+  expect(layout.longOnOwnRow).toBe(true);
+  expect(layout.longWidth).toBeCloseTo(layout.availableWidth, 0);
+  expect(layout.longLineHeight).toBe(layout.longClientHeight);
+});
+
+test('Admin review keeps its tall context sidebar within the viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 700 });
+  await page.goto('/admin/review.html?lang=ru&theme=light');
+  await page.getByRole('combobox', { name: 'Роль в процессе' }).selectOption('reviewer');
+  await page.locator('.lc-queue-row').first().click();
+
+  const sidebar = page.locator('.lc-review-side');
+  await expect(sidebar).toBeVisible();
+  const reviewTop = await page.locator('.lc-review-grid').evaluate((element) =>
+    element.getBoundingClientRect().top + scrollY,
+  );
+  await page.evaluate((top) => window.scrollTo(0, top), reviewTop);
+  await expect.poll(() => page.evaluate((top) => Math.abs(scrollY - top), reviewTop)).toBeLessThanOrEqual(1);
+
+  const layout = await sidebar.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return {
+      top: rect.top,
+      bottom: rect.bottom,
+      position: style.position,
+      overflowY: style.overflowY,
+      scrollHeight: element.scrollHeight,
+      clientHeight: element.clientHeight,
+    };
+  });
+
+  expect(layout.position).toBe('sticky');
+  expect(layout.overflowY).toBe('auto');
+  expect(layout.top).toBeCloseTo(76, 0);
+  expect(layout.bottom).toBeLessThanOrEqual(685);
+  expect(layout.scrollHeight).toBeGreaterThan(layout.clientHeight);
+});
+
 test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/admin/new-service.html?lang=tg&theme=light');

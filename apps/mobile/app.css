@@ -51,8 +51,7 @@ button { touch-action: manipulation; }
 
 .mobile-app { position: relative; width: 390px; height: 844px; overflow: hidden; border-radius: 55px; background: var(--bg); color: var(--ink); isolation: isolate; }
 .mobile-app :is(.device-caption, .eyebrow, .status-chip, .priority-time, .priority-meta, .section-heading > button, .section-heading > span, .quick-grid button, .attention-copy span, .moment-scroll button > span:last-child, .result-count, .service-row-copy > span, .service-meta span, .segmented span, .application-copy > span:last-child, .status-label, .security-note, .document-mark, .document-kind, .document-foot, .add-document small, .profile-card p, .settings-group > h3, .settings-group small, .setting-value, .app-version, .detail-hero p, .timeline li > span, .timeline li small, .detail-info-card span, .flow-progress > span:first-child, .known-data span, .known-data small, .choice-list small, .review-list span, .review-list strong, .consent-check, .success-number span, .bottom-nav button, .nav-badge, .service-facts small, .service-facts strong, .sheet-info, .notification-list small, .center-modal p, .qr-timer) { letter-spacing: 0; }
-.mobile-scroll { position: absolute; inset: 50px 0 76px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: none; scroll-behavior: smooth; background: var(--bg); }
-.mobile-scroll::-webkit-scrollbar, .moment-scroll::-webkit-scrollbar, .filter-row::-webkit-scrollbar { display: none; }
+.mobile-scroll { position: absolute; inset: 50px 0 76px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; scroll-behavior: smooth; background: var(--bg); }
 .m-screen { min-height: 100%; padding: 20px 18px 36px; }
 .m-screen[hidden] { display: none; }
 .m-screen.is-entering { animation: screen-enter var(--t-step) var(--ease-out); }
@@ -147,7 +146,7 @@ button { touch-action: manipulation; }
 .moment-scroll strong { font-size: var(--fs-13); line-height: 1.25; }
 .moment-scroll button > span:last-child { margin-top: auto; color: var(--ink-3); font-size: 11px; }
 
-.filter-row { display: flex; gap: 8px; margin: 14px -18px 0; padding: 0 18px 2px; overflow-x: auto; scrollbar-width: none; }
+.filter-row { display: flex; gap: 8px; margin: 14px -18px 0; padding: 0 18px 2px; overflow-x: auto; }
 .filter-row button { flex: none; min-height: 34px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--panel); color: var(--ink-2); font-size: var(--fs-13); font-weight: var(--weight-medium); }
 .filter-row button[aria-pressed='true'] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
 .result-count { margin: 18px 0 8px; color: var(--ink-3); font-size: var(--fs-12); }

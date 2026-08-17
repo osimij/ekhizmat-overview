@@ -18,6 +18,7 @@ restyle the mapped classes below.
 | `Radius` (5 vars) | — | `--r-s` … `--r-pill` |
 | Text styles (12) | — | Inter ramp per `tokens/type.css` |
 | `Shadow/Layer` effect | — | `--shadow-layer` |
+| `Scrollbar` foundation | Rest / hover | universal 6px treatment in `design-system/css/foundations.css` |
 
 Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev Mode.
 
@@ -54,6 +55,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Checklist Row` (Ready/Attention) | `.chk-row` |
 | | `Sandbox Step` (Pending/Running/Passed) | `.sbx-step` |
 | 🧩 Content Blocks | `Panel` (Title prop + slot) | `.panel` |
+| | `Mobile Preview Actions` (paired / full-row) | `.mobile-preview-actions` |
 | | `Section Header` (kicker/lead toggles) | `.eh`, `.sec-head` |
 | | `Note` (Info/Success/Warning/Danger) | `.note-info`, `.note-warn` |
 | | `Empty State` | `.reg-empty`, `.fb-empty` |

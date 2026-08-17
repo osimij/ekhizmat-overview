@@ -18,6 +18,40 @@ for (const route of routes) {
   });
 }
 
+test('every platform and nested scroll surface uses the shared subtle scrollbar', async ({ page }) => {
+  const platformRoutes = ['/', '/citizen/', '/mobile/', '/tson/', '/ministry/', '/admin/', '/design-system/styleguide.html'];
+  for (const route of platformRoutes) {
+    await page.goto(`${route}?theme=light`);
+    const style = await page.locator('html').evaluate((element) => ({
+      width: getComputedStyle(element).scrollbarWidth,
+      color: getComputedStyle(element).scrollbarColor,
+      webkitWidth: getComputedStyle(element, '::-webkit-scrollbar').width,
+    }));
+    expect(style.width, route).toBe('thin');
+    expect(style.color, route).not.toBe('auto');
+    expect(style.webkitWidth, route).toBe('6px');
+  }
+
+  await page.goto('/mobile/?theme=light');
+  const mobileWidths = await page.locator('.mobile-scroll, .moment-scroll, .filter-row').evaluateAll((elements) =>
+    elements.map((element) => getComputedStyle(element).scrollbarWidth),
+  );
+  expect(new Set(mobileWidths)).toEqual(new Set(['thin']));
+
+  await page.goto('/admin/builder.html?theme=light');
+  const builderWidths = await page.locator('.bld-edit, .bld-pipe, .bld-prev, .pv-app').evaluateAll((elements) =>
+    elements.map((element) => getComputedStyle(element).scrollbarWidth),
+  );
+  expect(new Set(builderWidths)).toEqual(new Set(['thin']));
+
+  await page.goto('/design-system/styleguide.html?theme=light');
+  const sample = await page.locator('.sg-scroll-demo').evaluate((element) => ({
+    width: getComputedStyle(element).scrollbarWidth,
+    scrollable: element.scrollHeight > element.clientHeight,
+  }));
+  expect(sample).toEqual({ width: 'thin', scrollable: true });
+});
+
 test('launcher exposes exactly four real platform links', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('.platform-card');

@@ -2032,13 +2032,6 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 .filter-select__option.is-selected { background: var(--blue-tint); color: var(--blue-ink); font-weight: 550; }
 .filter-select__option.is-selected:hover,
 .filter-select__option.is-selected:focus-visible { background: color-mix(in srgb, var(--blue-tint) 82%, var(--blue) 18%); }
-.filter-select__menu::-webkit-scrollbar { width: 8px; }
-.filter-select__menu::-webkit-scrollbar-thumb { border: 2px solid var(--panel); border-radius: var(--r-pill); background: var(--line); }
-.filter-select__menu::-webkit-scrollbar-track { background: transparent; }
-.filter-select__menu {
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
-}
 .toolbar__spacer { flex: 1 1 auto; }
 
 /* ---- сводные плитки (метрики очереди / отчётность) ---- */
@@ -2233,10 +2226,8 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
   margin-bottom: var(--s-2);
   flex-wrap: nowrap;
   overflow-x: auto;
-  scrollbar-width: none;              /* Firefox: скрыть полосу прокрутки */
   -webkit-overflow-scrolling: touch;
 }
-.card .tabs::-webkit-scrollbar { display: none; }
 .card .tab { flex: none; white-space: nowrap; }
 .tab-badge {
   min-width: 18px; height: 18px; padding: 0 5px;
@@ -2833,8 +2824,7 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-preview-body .field__label { font-size: var(--fs-13); font-weight: 550; line-height: 1.35; letter-spacing: 0; }
 .mfb-preview-body .input { min-height: 52px; font-size: var(--fs-12); }
 .mfb-preview-body .input::placeholder { font-size: var(--fs-12); }
-.mfb-preview-actions { display: flex; gap: var(--s-2); }
-.mfb-preview-actions .btn { flex: 1; font-size: var(--fs-13); }
+.mfb-preview-actions .btn { font-size: var(--fs-13); }
 .mfb-preview-empty { padding: var(--s-6) var(--s-3); text-align: center; color: var(--ink-3); font-size: var(--fs-13); }
 .mfb-preview-upload { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); border: 1px dashed var(--line); border-radius: var(--r-m); color: var(--ink-2); }
 .mfb-preview-upload span { display: grid; }

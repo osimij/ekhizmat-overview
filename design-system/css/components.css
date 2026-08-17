@@ -48,6 +48,15 @@
 .btn:not([disabled]):active{transform:scale(.97)}
 .btn--icon:not([disabled]):active{transform:scale(.96)}
 
+/* Phone-preview actions keep a comfortable touch target. Short pairs share a
+   row; intrinsic label width moves either action to its own full row before
+   the label would wrap. */
+.mobile-preview-actions{display:flex; flex-wrap:wrap; gap:var(--s-2)}
+.mobile-preview-actions > .btn.btn{
+  flex:1 1 max-content; min-width:min(100%,max-content); min-height:calc(var(--h-btn-m) + var(--s-1));
+  padding-inline:var(--s-4); white-space:nowrap;
+}
+
 /* ============ ICON TILES ============ */
 /* every category and list row gets a tile: hue + shape vary by subject */
 .tile{

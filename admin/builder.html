@@ -420,21 +420,14 @@
   <!-- ============ COLUMN 3 — live citizen preview (device-framed) ============ -->
   <aside class="bld-prev" id="bldPrev">
     <div class="pv-bar">
-      <span class="pv-badge"><span class="dot"></span>Пешнамоиш</span>
-      <span class="pv-bar-sub" id="pvBarSub">чашми шаҳрванд · зинда</span>
+      <span class="pv-badge">Пешнамоиш</span>
     </div>
 
     <div class="pv-stage">
       <div class="pv-phone">
-        <div class="pv-status" aria-hidden="true" data-no-i18n>
-          <span class="t">9:41</span>
-          <svg class="pv-sys" width="48" height="12" viewBox="0 0 48 12" fill="currentColor">
-            <rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="1" width="3" height="11" rx="1"/>
-            <path d="M22 4.4c2.6-2.1 6.8-2.1 9.4 0M24.2 6.9c1.5-1.2 3.8-1.2 5.3 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="26.8" cy="9.4" r="1"/>
-            <rect x="35" y="2" width="10" height="8" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="36.3" y="3.3" width="6.4" height="5.4" rx="1.1"/><rect x="45.6" y="4.4" width="1.4" height="3.2" rx=".7"/>
-          </svg>
-        </div>
         <div class="pv-screen">
+          <span class="pv-island" aria-hidden="true"></span>
+          <div class="pv-app">
 
           <!-- confirm -->
           <div class="edit-pane" data-panel="confirm" hidden>
@@ -448,7 +441,7 @@
                 <div class="field"><label>Суроғаи қайд</label><span class="chip"><b>Душанбе, кӯчаи Рӯдакӣ 84</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>аз феҳристи суроғаҳо</span></div>
                 <div class="field" style="margin-bottom:0"><label>Ҳайати оила — 4 нафар</label><span class="chip"><b>Фируза, Далер, Зарина, Олима</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>аз САҲШ</span></div>
               </div>
-              <div class="pv-foot"><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
+              <div class="pv-foot mobile-preview-actions"><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
             </div>
           </div>
 
@@ -462,7 +455,7 @@
                 <p class="plead">Танҳо чизҳое, ки давлат ҳоло намедонад.</p>
                 <div id="pvFields"></div>
               </div>
-              <div class="pv-foot"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
+              <div class="pv-foot mobile-preview-actions"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
             </div>
           </div>
 
@@ -478,7 +471,7 @@
                 <div class="opt" style="cursor:default"><span class="tile t-amber sh-r" style="width:34px;height:34px"><svg style="width:17px;height:17px"><use href="/design-system/assets/icons.svg#i-building"/></svg></span><span class="tt"><b>Коғазӣ — аз марказ</b><p>гирифтани дастӣ</p></span></div>
                 <div class="note-info" id="pvPay" style="margin-top:var(--s-4)"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><p>Ин хизмат <b>ройгон</b> аст.</p></div>
               </div>
-              <div class="pv-foot"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
+              <div class="pv-foot mobile-preview-actions"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="next">Идома</button></div>
             </div>
           </div>
 
@@ -498,7 +491,7 @@
                 </div>
                 <label class="consent" style="margin-top:var(--s-4)"><input type="checkbox"><span>Тасдиқ мекунам, ки маълумот дуруст аст — ҷарима нест.</span></label>
               </div>
-              <div class="pv-foot"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="submit">Фиристодани ариза</button></div>
+              <div class="pv-foot mobile-preview-actions"><button class="btn btn-sec btn-block" type="button" data-pv="back">Бозгашт</button><button class="btn btn-pri btn-block" type="button" data-pv="submit">Фиристодани ариза</button></div>
             </div>
           </div>
 
@@ -523,6 +516,7 @@
               </div></div>
           </div>
 
+          </div><!-- /.pv-app -->
         </div>
       </div>
     </div>
@@ -610,12 +604,16 @@
     'SVC-PAS-07':['Иваз кардани шиноснома (синну сол)','Замена паспорта (по возрасту)'],
     'SVC-BRT-01':['Бақайдгирии таваллуд','Регистрация рождения']
   };
+  var svcNameSource=$('#svcName').value, rSla=$('#rSla'), rSlaSource=rSla?rSla.value:null;
   if(buildSource==='blank'){
     $('#svcName').value=buildLang==='ru'?'Новая услуга':'Хизмати нав';
   }else if(buildSource==='copy'){
     var copyName=copyNames[buildQuery.get('service')]||copyNames['SVC-FAM-01'];
     $('#svcName').value=(buildLang==='ru'?'Копия — ':'Нусха — ')+copyName[buildLang==='ru'?1:0];
   }
+  /* BP_DICT loads via a deferred module import, so it isn't ready yet at this
+     synchronous script's run time — the "existing service" name and the SLA
+     input are re-translated once bp:langchange fires (see bottom of file). */
 
   var FTYPES={
     text:    {label:"Матн",              icon:"i-edit",     ph:"Ҷавоби кӯтоҳ"},
@@ -668,17 +666,17 @@
   /* ---- editor list ---- */
   function metaHtml(f){
     var t=FTYPES[f.type];
-    var h='<span class="ftype'+(f.type==="source"?" src":"")+'">'+t.label+'</span>';
-    if(f.type==="source"){ if(f.condOn) h+='<span>· шартӣ</span>'; return h; }
-    if(f.req) h+='<span class="fb-req">ҳатмӣ</span>'; else h+='<span>ихтиёрӣ</span>';
-    if((f.type==="select"||f.type==="segment")&&f.opts.length) h+='<span>· '+f.opts.length+' вариант</span>';
-    if(f.condOn) h+='<span>· шартӣ</span>';
+    var h='<span class="ftype'+(f.type==="source"?" src":"")+'">'+tr(t.label)+'</span>';
+    if(f.type==="source"){ if(f.condOn) h+='<span>'+tr("· шартӣ")+'</span>'; return h; }
+    if(f.req) h+='<span class="fb-req">'+tr("ҳатмӣ")+'</span>'; else h+='<span>'+tr("ихтиёрӣ")+'</span>';
+    if((f.type==="select"||f.type==="segment")&&f.opts.length) h+='<span>· '+f.opts.length+' '+tr("вариант")+'</span>';
+    if(f.condOn) h+='<span>'+tr("· шартӣ")+'</span>';
     return h;
   }
   function fbMark(v){ return v ? '' : '<span class="fb"> заминавӣ</span>'; }
   function bodyHtml(f){
     /* multilingual label — тоҷикӣ / русӣ / English (ТЗ §6А.3) */
-    var h='<div class="field ml"><label>Номи майдон (барои шаҳрванд) · 3 забон</label>'+
+    var h='<div class="field ml"><label>'+tr("Номи майдон (барои шаҳрванд) · 3 забон")+'</label>'+
       '<div class="ml-tabs" role="tablist">'+
         '<button type="button" role="tab" data-ml="label" aria-selected="true">Тоҷикӣ</button>'+
         '<button type="button" role="tab" data-ml="labelRu" aria-selected="false">Русӣ<span class="fbslot">'+fbMark(f.labelRu)+'</span></button>'+
@@ -689,54 +687,54 @@
       '<div class="ml-pane" data-mlp="labelEn" hidden><input class="input" data-cfg="labelEn" value="'+esc(f.labelEn||"")+'" spellcheck="false" placeholder="Field label (eng.)"></div>'+
     '</div>';
     if(f.type==="select"||f.type==="segment"){
-      h+='<div class="field"><label>Вариантҳо — ҳар сатр як вариант</label><textarea class="input" data-cfg="opts" rows="'+(f.type==="segment"?2:3)+'" spellcheck="false">'+esc(f.opts.join("\n"))+'</textarea></div>';
+      h+='<div class="field"><label>'+tr("Вариантҳо — ҳар сатр як вариант")+'</label><textarea class="input" data-cfg="opts" rows="'+(f.type==="segment"?2:3)+'" spellcheck="false">'+esc(f.opts.join("\n"))+'</textarea></div>';
     }
     if(f.type==="source"){
-      h+='<div class="field"><label>Манбаъ (нишонаи сабз)</label><input class="input" data-cfg="src" value="'+esc(f.src)+'" spellcheck="false" placeholder="аз феҳристи …"></div>';
+      h+='<div class="field"><label>'+tr("Манбаъ (нишонаи сабз)")+'</label><input class="input" data-cfg="src" value="'+esc(f.src)+'" spellcheck="false" placeholder="'+esc(tr("аз феҳристи …"))+'"></div>';
     }
     if(f.type!=="source"&&f.type!=="consent"){
-      h+='<div class="field"><label>Матни ёрирасон <span class="opt-note">— ихтиёрӣ</span></label><input class="input" data-cfg="help" value="'+esc(f.help)+'" spellcheck="false" placeholder="тавзеҳи кӯтоҳ зери майдон"></div>';
+      h+='<div class="field"><label>Матни ёрирасон <span class="opt-note">— ихтиёрӣ</span></label><input class="input" data-cfg="help" value="'+esc(f.help)+'" spellcheck="false" placeholder="'+esc(tr("тавзеҳи кӯтоҳ зери майдон"))+'"></div>';
     }
     /* validation format + required (ТЗ §6А.3) */
     var showFmt=(f.type==="text"||f.type==="textarea"), showReq=hasReq[f.type];
     if(showFmt||showReq){
-      h+='<div class="cfg-sub">Санҷиш ва формат</div>';
+      h+='<div class="cfg-sub">'+tr("Санҷиш ва формат")+'</div>';
       if(showFmt){
-        h+='<div class="field"><label>Формати вуруд</label><div class="select"><select data-cfg="fmt">'+
-           FMT_ORDER.map(function(k){return '<option value="'+k+'"'+((f.fmt||"free")===k?" selected":"")+'>'+FMT[k]+'</option>';}).join("")+
-           '</select></div><p class="help">маска ва санҷиши худкор — ИНН, телефон, сана</p></div>';
+        h+='<div class="field"><label>'+tr("Формати вуруд")+'</label><div class="select"><select data-cfg="fmt">'+
+           FMT_ORDER.map(function(k){return '<option value="'+k+'"'+((f.fmt||"free")===k?" selected":"")+'>'+tr(FMT[k])+'</option>';}).join("")+
+           '</select></div><p class="help">'+tr("маска ва санҷиши худкор — ИНН, телефон, сана")+'</p></div>';
       }
       if(showReq){
-        h+='<label class="pr" style="cursor:pointer;padding-left:0;padding-right:0"><div class="tt"><span class="v">Майдони ҳатмӣ</span><span class="k">шаҳрванд бояд онро пур кунад</span></div><span class="sw"><input type="checkbox" data-cfg="req"'+(f.req?" checked":"")+'><span class="knob"></span></span></label>';
+        h+='<label class="pr" style="cursor:pointer;padding-left:0;padding-right:0"><div class="tt"><span class="v">'+tr("Майдони ҳатмӣ")+'</span><span class="k">'+tr("шаҳрванд бояд онро пур кунад")+'</span></div><span class="sw"><input type="checkbox" data-cfg="req"'+(f.req?" checked":"")+'><span class="knob"></span></span></label>';
       }
     }
     /* conditional logic — show/hide by another field's value (ТЗ §6А.3) */
     var others=fields.filter(function(x){return x.id!==f.id;});
-    h+='<div class="cfg-sub">Мантиқи шартӣ</div>';
+    h+='<div class="cfg-sub">'+tr("Мантиқи шартӣ")+'</div>';
     h+='<div class="cond-row">'+
-        '<div class="select"><select data-cfg="condOn"><option value="">Ҳамеша нишон дода шавад</option>'+
-          others.map(function(o){return '<option value="'+o.id+'"'+(f.condOn===o.id?" selected":"")+'>агар «'+esc(o.label)+'»</option>';}).join("")+
+        '<div class="select"><select data-cfg="condOn"><option value="">'+tr("Ҳамеша нишон дода шавад")+'</option>'+
+          others.map(function(o){return '<option value="'+o.id+'"'+(f.condOn===o.id?" selected":"")+'>'+esc(tr("агар"))+' «'+esc(tr(o.label))+'»</option>';}).join("")+
         '</select></div>'+
-        '<span class="mini-lbl" style="text-align:center">баробар</span>'+
-        '<input class="input" data-cfg="condVal" value="'+esc(f.condVal||"")+'" spellcheck="false" placeholder="қимат"'+(f.condOn?"":" disabled")+'>'+
+        '<span class="mini-lbl" style="text-align:center">'+tr("баробар")+'</span>'+
+        '<input class="input" data-cfg="condVal" value="'+esc(f.condVal||"")+'" spellcheck="false" placeholder="'+esc(tr("қимат"))+'"'+(f.condOn?"":" disabled")+'>'+
       '</div>';
     return h;
   }
   function listHtml(){
-    if(!fields.length) return '<div class="fb-empty"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg><p>Ягон майдони нав нест.<br>Аз палитра илова кунед — ё ин қадамро холӣ монед, агар ҳама чиз аз феҳрист гирифта шавад.</p></div>';
+    if(!fields.length) return '<div class="fb-empty"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg><p>'+tr("Ягон майдони нав нест.")+'<br>'+tr("Аз палитра илова кунед — ё ин қадамро холӣ монед, агар ҳама чиз аз феҳрист гирифта шавад.")+'</p></div>';
     return fields.map(function(f,i){
       var t=FTYPES[f.type];
       return '<div class="fb-item" data-id="'+f.id+'" draggable="true">'+
         '<div class="fb-head">'+
-          '<span class="fb-grip" aria-hidden="true" title="Кашед барои тартиб"></span>'+
+          '<span class="fb-grip" aria-hidden="true" title="'+esc(tr("Кашед барои тартиб"))+'"></span>'+
           '<button class="fb-open" type="button" data-act="edit" aria-expanded="false">'+
             '<span class="fb-ic"><svg><use href="/design-system/assets/icons.svg#'+t.icon+'"/></svg></span>'+
-            '<span class="fb-tt"><b>'+esc(f.label)+'</b><span class="meta">'+metaHtml(f)+'</span></span>'+
+            '<span class="fb-tt"><b>'+esc(tr(f.label))+'</b><span class="meta">'+metaHtml(f)+'</span></span>'+
           '</button>'+
           '<span class="fb-acts">'+
-            '<button class="rowact" type="button" data-act="up" aria-label="Боло"'+(i===0?" disabled":"")+'><svg style="transform:rotate(180deg)"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
-            '<button class="rowact" type="button" data-act="down" aria-label="Поён"'+(i===fields.length-1?" disabled":"")+'><svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
-            '<button class="rowact" type="button" data-act="del" aria-label="Нест кардан"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button>'+
+            '<button class="rowact" type="button" data-act="up" aria-label="'+esc(tr("Боло"))+'"'+(i===0?" disabled":"")+'><svg style="transform:rotate(180deg)"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
+            '<button class="rowact" type="button" data-act="down" aria-label="'+esc(tr("Поён"))+'"'+(i===fields.length-1?" disabled":"")+'><svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
+            '<button class="rowact" type="button" data-act="del" aria-label="'+esc(tr("Нест кардан"))+'"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button>'+
           '</span>'+
         '</div>'+
         '<div class="fb-body">'+bodyHtml(f)+'</div>'+
@@ -746,28 +744,28 @@
 
   /* ---- citizen preview ---- */
   function reqMark(f){ return f.req?' <span class="req">*</span>':''; }
-  function helpHtml(f){ return f.help?'<p class="help">'+esc(f.help)+'</p>':''; }
+  function helpHtml(f){ return f.help?'<p class="help">'+esc(tr(f.help))+'</p>':''; }
   function previewField(f){
-    var L=esc(f.label), controlId="pv-field-"+f.id;
+    var L=esc(tr(f.label)), controlId="pv-field-"+f.id;
     switch(f.type){
-      case "textarea": return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><textarea id="'+controlId+'" class="input" rows="2" placeholder="'+esc(FTYPES.textarea.ph)+'"></textarea>'+helpHtml(f)+'</div>';
-      case "select":   return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><div class="select"><select id="'+controlId+'">'+f.opts.map(function(o){return "<option>"+esc(o)+"</option>";}).join("")+'</select></div>'+helpHtml(f)+'</div>';
-      case "segment":  return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="seg" style="max-width:none">'+f.opts.slice(0,4).map(function(o,i){return '<label><input type="radio" name="pv-'+f.id+'"'+(i===0?" checked":"")+'><span>'+esc(o)+'</span></label>';}).join("")+'</div>'+helpHtml(f)+'</div>';
-      case "date":     return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="opt" style="cursor:default"><span class="tile t-violet sh-l" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-calendar"/></svg></span><div class="tt"><b>Сана интихоб нашудааст</b><p>тақвим</p></div><button class="btn btn-sec btn-sm" type="button">Интихоб</button></div>'+helpHtml(f)+'</div>';
-      case "file":     return '<div class="field"><label>'+L+reqMark(f)+'</label><button class="dropzone" type="button"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><b>Файлро интихоб кунед</b><span>PDF, JPG, PNG · то 10 МБ</span></button>'+helpHtml(f)+'</div>';
-      case "address":  return '<div class="field"><label>'+L+reqMark(f)+'</label><span class="chip"><b>Душанбе, кӯчаи Рӯдакӣ 84</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>аз феҳристи суроғаҳо</span></div>';
-      case "source":   return '<div class="field"><label>'+L+'</label><span class="chip"><b>Маълумоти намунавӣ</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>'+esc(f.src||"аз феҳрист")+'</span></div>';
+      case "textarea": return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><textarea id="'+controlId+'" class="input" rows="2" placeholder="'+esc(tr(FTYPES.textarea.ph))+'"></textarea>'+helpHtml(f)+'</div>';
+      case "select":   return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><div class="select"><select id="'+controlId+'">'+f.opts.map(function(o){return "<option>"+esc(tr(o))+"</option>";}).join("")+'</select></div>'+helpHtml(f)+'</div>';
+      case "segment":  return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="seg" style="max-width:none">'+f.opts.slice(0,4).map(function(o,i){return '<label><input type="radio" name="pv-'+f.id+'"'+(i===0?" checked":"")+'><span>'+esc(tr(o))+'</span></label>';}).join("")+'</div>'+helpHtml(f)+'</div>';
+      case "date":     return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="opt" style="cursor:default"><span class="tile t-violet sh-l" style="width:36px;height:36px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#i-calendar"/></svg></span><div class="tt"><b>'+tr("Сана интихоб нашудааст")+'</b><p>'+tr("тақвим")+'</p></div><button class="btn btn-sec btn-sm" type="button">'+tr("Интихоб")+'</button></div>'+helpHtml(f)+'</div>';
+      case "file":     return '<div class="field"><label>'+L+reqMark(f)+'</label><button class="dropzone" type="button"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><b>'+tr("Файлро интихоб кунед")+'</b><span>'+tr("PDF, JPG, PNG · то 10 МБ")+'</span></button>'+helpHtml(f)+'</div>';
+      case "address":  return '<div class="field"><label>'+L+reqMark(f)+'</label><span class="chip"><b>'+tr("Душанбе, кӯчаи Рӯдакӣ 84")+'</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>'+tr("аз феҳристи суроғаҳо")+'</span></div>';
+      case "source":   return '<div class="field"><label>'+L+'</label><span class="chip"><b>'+tr("Маълумоти намунавӣ")+'</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>'+esc(tr(f.src||"аз феҳрист"))+'</span></div>';
       case "consent":  return '<label class="consent"><input type="checkbox"><span>'+L+'</span></label>';
-      default:         return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><input id="'+controlId+'" class="input" placeholder="'+esc(FTYPES.text.ph)+'">'+helpHtml(f)+'</div>';
+      default:         return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><input id="'+controlId+'" class="input" placeholder="'+esc(tr(FTYPES.text.ph))+'">'+helpHtml(f)+'</div>';
     }
   }
   function condNote(f){
     if(!f.condOn) return "";
     var on=fields[idx(f.condOn)]; if(!on) return "";
-    return '<p class="help" style="margin-top:-10px;margin-bottom:16px;color:var(--blue-ink)">↳ шартӣ: агар «'+esc(on.label)+'» = «'+esc(f.condVal||"…")+'»</p>';
+    return '<p class="help" style="margin-top:-10px;margin-bottom:16px;color:var(--blue-ink)">↳ '+esc(tr("шартӣ"))+': '+esc(tr("агар"))+' «'+esc(tr(on.label))+'» = «'+esc(f.condVal||"…")+'»</p>';
   }
   function previewHtml(){
-    if(!fields.length) return '<div class="pv-empty">Ягон майдони нав нест — шаҳрванд рост ба расондан мегузарад.</div>';
+    if(!fields.length) return '<div class="pv-empty">'+tr("Ягон майдони нав нест — шаҳрванд рост ба расондан мегузарад.")+'</div>';
     return fields.map(function(f){ return previewField(f)+condNote(f); }).join("");
   }
 
@@ -879,9 +877,8 @@
   });
 
   /* live preview is clickable: the citizen "Идома / Бозгашт" buttons walk the
-     pipeline stages, and the front/back caption tracks the current stage */
+     pipeline stages. */
   var CITIZEN=["confirm","fields","delivery","review"];
-  var BACKSTAGE={checks:1,route:1,issue:1};
   document.addEventListener("click", function(e){
     var b=e.target.closest("[data-pv]"); if(!b) return;
     var dir=b.getAttribute("data-pv");
@@ -892,7 +889,6 @@
     var j=dir==="next"?i+1:i-1; if(j<0||j>=CITIZEN.length) return;
     var stg=$('.stg[data-tab="'+CITIZEN[j]+'"]'); if(stg) stg.click();
   });
-  var barSub=$("#pvBarSub");
   var ADMIN={rules:1,templates:1,sandbox:1,versions:1,access:1};
   var work=$(".bld-work");
   if(work) work.setAttribute("data-mode","journey");
@@ -900,12 +896,11 @@
     var tab=e.target.closest(".stg[data-tab]"); if(!tab) return;
     var key=tab.getAttribute("data-tab");
     if(work) work.setAttribute("data-mode", ADMIN[key]?"admin":"journey");
-    if(barSub) barSub.textContent = BACKSTAGE[key] ? "шаҳрванд пас аз фиристодан мебинад" : "чашми шаҳрванд · зинда";
   });
 
   /* top bar: service name → preview + status + publish */
   var nameInp=$("#svcName"), status=$("#svcStatus");
-  function syncName(){ var v=nameInp.value||"Хизмати беном"; $$(".pv-svc").forEach(function(n){ n.textContent=v; }); var pn=$("#pubName"); if(pn) pn.textContent=v; }
+  function syncName(){ var v=nameInp.value||tr("Хизмати беном"); $$(".pv-svc").forEach(function(n){ n.textContent=v; }); var pn=$("#pubName"); if(pn) pn.textContent=v; }
   nameInp.addEventListener("input", syncName); syncName();
   $("#saveBtn").addEventListener("click", function(){ window.bpToast&&window.bpToast("Сиёҳнавис захира шуд"); });
   $("#pubDo").addEventListener("click", function(){
@@ -949,11 +944,11 @@
     dmnBody.innerHTML=dmn.map(function(r,i){
       return '<tr>'+
         '<td class="rn">'+(i+1)+'</td>'+
-        '<td><input class="cin" value="'+esc(r[0])+'" data-dc="'+i+'-0" aria-label="вуруд"></td>'+
-        '<td><input class="cin" value="'+esc(r[1])+'" data-dc="'+i+'-1" aria-label="вуруд"></td>'+
-        '<td class="out"><input class="cin" value="'+esc(r[2])+'" data-dc="'+i+'-2" aria-label="натиҷа"></td>'+
-        '<td class="out"><input class="cin" value="'+esc(r[3])+'" data-dc="'+i+'-3" aria-label="натиҷа"></td>'+
-        '<td class="act"><button class="rowact" type="button" data-dmn-del="'+i+'" aria-label="Нест кардани қоида"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button></td>'+
+        '<td><input class="cin" value="'+esc(tr(r[0]))+'" data-dc="'+i+'-0" aria-label="'+esc(tr("вуруд"))+'"></td>'+
+        '<td><input class="cin" value="'+esc(tr(r[1]))+'" data-dc="'+i+'-1" aria-label="'+esc(tr("вуруд"))+'"></td>'+
+        '<td class="out"><input class="cin" value="'+esc(tr(r[2]))+'" data-dc="'+i+'-2" aria-label="'+esc(tr("натиҷа"))+'"></td>'+
+        '<td class="out"><input class="cin" value="'+esc(tr(r[3]))+'" data-dc="'+i+'-3" aria-label="'+esc(tr("натиҷа"))+'"></td>'+
+        '<td class="act"><button class="rowact" type="button" data-dmn-del="'+i+'" aria-label="'+esc(tr("Нест кардани қоида"))+'"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button></td>'+
       '</tr>';
     }).join("");
     var c=$("#stgRulesCount"); if(c) c.textContent=dmn.length;
@@ -967,7 +962,7 @@
     dmnBody.addEventListener("click", function(e){
       var d=e.target.closest("[data-dmn-del]"); if(!d) return;
       dmn.splice(+d.getAttribute("data-dmn-del"),1); dmnRender();
-      window.bpToast&&window.bpToast("Қоида нест карда шуд");
+      window.bpToast&&window.bpToast(tr("Қоида нест карда шуд"));
     });
     var da=$("#dmnAdd"); if(da) da.addEventListener("click", function(){
       dmn.push(["Шахси воқеӣ","Не","0,00","1 рӯз"]); dmnRender();
@@ -1083,7 +1078,7 @@
     return [
       {label:"Майдонҳои шакл пур", desc:"ҳадди ақал як майдони номдор", ok:fieldsOk()},
       {label:"Раванди пайваст (BPMN)", desc:"7 қадам танзим шуда", ok:true},
-      {label:"Қоидаҳо (DMN) валид", desc:dmn.length+" қоида · зиддият нест", ok:dmnValid()},
+      {label:"Қоидаҳо (DMN) валид", desc:dmn.length+" "+tr("қоида · зиддият нест"), ok:dmnValid()},
       {label:"Матн дар 3 забон", desc:"тоҷикӣ ва русӣ мавҷуд", ok:true},
       {label:"Маршрут ва SLA", desc:"идора · нақш · мӯҳлат", ok:true},
       {label:"Шаблонҳо пур", desc:"огоҳӣ ва ҳуҷҷат", ok:templatesOk()},
@@ -1091,20 +1086,35 @@
       {label:"Мувофиқа (созиш)", desc:approved?"тасдиқи нақши дуюм":"ба созиш фиристода нашуд", ok:approved}
     ];
   }
+  /* proper ru plural agreement for "N проверок/проверки/проверку" (tg has no such inflection) */
+  function ruChecksWord(n){ var m10=n%10, m100=n%100; if(m10===1&&m100!==11) return "проверку"; if(m10>=2&&m10<=4&&(m100<10||m100>=20)) return "проверки"; return "проверок"; }
   function renderChecklist(){
-    var list=checklist(), miss=list.filter(function(x){ return !x.ok; }).length;
+    var list=checklist(), miss=list.filter(function(x){ return !x.ok; }).length, ru=tr("тайёр")!=="тайёр";
     var box=$("#chkList");
     if(box) box.innerHTML=list.map(function(x){
       return '<div class="chk-row '+(x.ok?"ok":"miss")+'">'+
         '<span class="ci"><svg><use href="/design-system/assets/icons.svg#'+(x.ok?"i-check":"i-info")+'"/></svg></span>'+
-        '<span class="tt"><b>'+esc(x.label)+'</b><span>'+esc(x.desc)+'</span></span>'+
-        '<span class="rr">'+(x.ok?"тайёр":"диққат")+'</span>'+
+        '<span class="tt"><b>'+esc(tr(x.label))+'</b><span>'+esc(tr(x.desc))+'</span></span>'+
+        '<span class="rr">'+esc(tr(x.ok?"тайёр":"диққат"))+'</span>'+
       '</div>';
     }).join("");
-    var sum=$("#chkSum"); if(sum) sum.textContent=(list.length-miss)+" аз "+list.length+" санҷиш гузашт";
-    var pd=$("#pubDo"); if(pd){ pd.disabled=miss>0; pd.textContent=miss>0?("Аввал "+miss+" санҷишро анҷом диҳед"):"Нашр кардан"; }
+    var passed=list.length-miss;
+    var sum=$("#chkSum"); if(sum) sum.textContent=ru?(passed+" из "+list.length+" "+ruChecksWord(list.length)+" пройдено"):(passed+" аз "+list.length+" санҷиш гузашт");
+    var pd=$("#pubDo"); if(pd){ pd.disabled=miss>0; pd.textContent=miss>0?(ru?("Сначала выполните "+miss+" "+ruChecksWord(miss)):("Аввал "+miss+" санҷишро анҷом диҳед")):tr("Нашр кардан"); }
   }
   var publishBtn=$("#publishBtn"); if(publishBtn) publishBtn.addEventListener("click", renderChecklist);
+
+  /* BP_DICT (imported by the deferred builder.js module) isn't ready during this
+     synchronous script's initial run, so anything rendered here via tr() before
+     bp:langchange first fires still shows Tajik source. Re-apply once it's ready —
+     this also keeps everything in sync on later manual language switches. */
+  document.addEventListener("bp:langchange", function(){
+    if(buildSource!=="blank"&&buildSource!=="copy") $("#svcName").value=tr(svcNameSource);
+    if(rSla) rSla.value=tr(rSlaSource);
+    if(dmnBody) dmnRender();
+    renderAll();
+    syncName();
+  });
 })();
 </script>
 </body>

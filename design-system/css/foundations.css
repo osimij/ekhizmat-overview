@@ -18,7 +18,7 @@ h2 { font-size: var(--fs-24); font-weight: var(--weight-semibold); }
 h3 { font-size: var(--fs-17); font-weight: var(--weight-semibold); }
 .h2 { font-size: var(--fs-24); font-weight: var(--weight-semibold); }
 strong, b { font-weight: var(--weight-medium); }
-p { margin: 0; }
+p { margin: 0; font-weight: var(--weight-regular); }
 a { color: var(--blue-ink); }
 
 /* Brand marks use the brighter accessible blue supplied by each theme. */
@@ -32,6 +32,22 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--action); }
 }
 [tabindex='-1']:focus-visible { outline: none; }
 ::selection { background: var(--blue-tint); }
+
+/* One quiet scrollbar across every platform and nested scroll surface. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink) 12%, transparent) transparent;
+}
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  *:hover { scrollbar-color: color-mix(in srgb, var(--ink) 22%, transparent) transparent; }
+  *:hover::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 22%, transparent); }
+}
 
 .skip, .skip-link {
   position: fixed;
