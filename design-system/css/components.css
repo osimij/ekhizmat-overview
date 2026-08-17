@@ -64,6 +64,7 @@
   width:44px; height:44px;
   background:var(--h-gray-bg); color:var(--h-gray-fg);
   border-radius:32%; /* squircle default */
+  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .tile svg{width:22px; height:22px}
 .tile.sh-c{border-radius:50%}          /* circle */
@@ -85,6 +86,11 @@
 .t-cyan{background:var(--h-cyan-bg); color:var(--h-cyan-fg)}
 .t-olive{background:var(--h-olive-bg); color:var(--h-olive-fg)}
 .t-red{background:var(--red-tint); color:var(--red-ink)}
+/* Selected/pressed: after hue classes so category color is idle-only (builder `.stg-ic`). */
+:has(> input:checked) > .tile,
+.tile[aria-pressed="true"]{
+  background-color:var(--blue); color:var(--on-blue);
+}
 
 /* ============ FORMS ============ */
 .field{margin-bottom:var(--s-5)}
@@ -352,8 +358,9 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 @keyframes ekhSkeleton { to { background-position:-200% 0; } }
 
 .stepper { display:flex; align-items:center; gap:var(--s-2); }
-.stepper__step { display:flex; align-items:center; gap:var(--s-2); color:var(--ink-3); font-size:var(--fs-13); }
+.stepper__step { display:flex; align-items:center; gap:var(--s-2); color:var(--ink-3); font-size:var(--fs-13); white-space:nowrap; }
 .stepper__number { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--field); font-weight:var(--weight-medium); }
-.stepper__step[aria-current='step'] { color:var(--ink); }
+.stepper__step[aria-current='step'] { color:var(--ink); font-weight:var(--weight-semibold); }
 .stepper__step[aria-current='step'] .stepper__number { background:var(--action); color:var(--on-blue); }
+.stepper__step.done .stepper__number { background:var(--green-tint); color:var(--green); }
 .stepper__line { width:32px; height:1px; background:var(--line); }

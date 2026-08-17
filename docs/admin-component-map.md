@@ -35,7 +35,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Source Tag` | `.src-tag` |
 | | `Count Badge` | `.cnt`, `.stg-n` |
 | | `Var Chip` | `.var-chip` |
-| 🧩 Tiles & Avatars | `Icon Tile` (10 hues, Glyph swap) | `.tile .t-*` |
+| 🧩 Tiles & Avatars | `Icon Tile` (10 hues, Glyph swap; Selected = solid `--blue` / `--on-blue`) | `.tile .t-*`; selected via `:has(> input:checked) > .tile` or `.tile[aria-pressed="true"]` |
 | | `Avatar` (Initials prop) | `.avatar`, `.av` |
 | 🧩 Inputs | `Field` (Text/Select/Search/Textarea; Label/Value/Help props, label+help toggles) | `.field`, `.input`, `.select`, `.at-search` |
 | 🧩 Selection Controls | `Segment` + `Segmented Control` | `.seg` |
@@ -60,6 +60,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Note` (Info/Success/Warning/Danger) | `.note-info`, `.note-warn` |
 | | `Empty State` | `.reg-empty`, `.fb-empty` |
 | | `Tab` (Active/Default) | `.tab`, `.ml-tabs` |
+| | `Stepper` (Current / Done) | `.stepper`, `.stepper__step[aria-current='step']`, `.stepper__step.done` |
 | 🧩 Overlays | `Modal` (slot body, icon-only close, action pair) | `.modal` + `.mhd` |
 | | `Toast` | `.toast` |
 

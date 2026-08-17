@@ -30,28 +30,29 @@
       <span class="at-title" style="margin-left:var(--s-3)">Хизмати нав</span>
       <div class="at-right">
         <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
-        <span class="avatar" style="background:var(--h-indigo-bg);color:var(--h-indigo-fg)">АК</span>
       </div>
     </div>
 
     <div class="adm-body">
-      <div class="adm-h wz-h"><h1>Хизмати нав</h1><p>Аз қаердан оғоз мекунем, баъд маълумоти асосӣ — сипас захира ё сохтани шакл</p></div>
+      <div class="adm-h wz-h"><h1>Хизмати нав</h1><p>Кортчаи хизматро пур кунед — шаклро ҳамин ҳол ё баъдтар месозед.</p></div>
 
       <div class="wz" data-flow id="wz">
-        <nav class="wz-steps" aria-label="Қадамҳо">
-          <div class="wz-step active"><span class="n">1</span><div><b>Усул</b></div></div>
-          <div class="wz-step" id="basisStep"><span class="n">2</span><div><b>Асос</b></div></div>
-          <div class="wz-step"><span class="n">3</span><div><b>Маълумот</b></div></div>
-          <div class="wz-step"><span class="n">4</span><div><b>Тайёр</b></div></div>
+        <nav class="stepper wz-steps" aria-label="Қадамҳо">
+          <span class="stepper__step wz-step active" aria-current="step"><span class="stepper__number n">1</span>Усул</span>
+          <span class="stepper__line" data-basis-line></span>
+          <span class="stepper__step wz-step" id="basisStep"><span class="stepper__number n">2</span>Асос</span>
+          <span class="stepper__line"></span>
+          <span class="stepper__step wz-step"><span class="stepper__number n">3</span>Маълумот</span>
+          <span class="stepper__line"></span>
+          <span class="stepper__step wz-step"><span class="stepper__number n">4</span>Тайёр</span>
         </nav>
-
         <div class="wz-body">
           <!-- 1 method -->
           <section data-step="1">
             <h2>Аз қаер оғоз кунем?</h2>
             <p class="lead">Аз сафед бунёд кунед, ё аз қолаб/хизмати мавҷуд, ки зудтар аст — қадамҳои стандартӣ аллакай омода мешаванд.</p>
             <label class="opt"><input type="radio" name="method" value="blank"><span class="tile t-slate sh-c" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><span class="tt"><b>Аз сафед</b><p>раванди холӣ — ҳама чизро худатон месозед.</p></span></label>
-            <label class="opt"><input type="radio" name="method" value="template" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span><span class="meta"><span class="pill-st review">тавсия</span></span></label>
+            <label class="opt"><input type="radio" name="method" value="template" checked><span class="tile t-teal sh-r" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span class="tt"><b>Аз қолаби омода</b><p>қадамҳои тайёр барои навъи хизмат — танҳо майдонҳоро мутобиқ кунед.</p></span></label>
             <label class="opt"><input type="radio" name="method" value="copy"><span class="tile t-violet sh-l" style="width:40px;height:40px"><svg style="width:20px;height:20px"><use href="/design-system/assets/icons.svg#i-refresh"/></svg></span><span class="tt"><b>Нусха аз хизмати мавҷуд</b><p>хизмати монандро нусхабардорӣ ва тағйир диҳед.</p></span></label>
 
             <div class="copy-picker" id="copyPicker" hidden>
@@ -214,6 +215,7 @@
     $('#sla').value=activeLang()==='ru'?'1 рабочий день':'1 рӯзи корӣ';
     copyPicker.hidden=method!=='copy';
     basisStep.hidden=!usesTemplate;
+    $$('[data-basis-line]').forEach(function(line){ line.hidden=!usesTemplate; });
     $$('.wz-step .n').forEach(function(n,i){ n.textContent=usesTemplate?String(i+1):String(i===0?1:i); });
 
     setAttr(methodNext,'data-next',usesTemplate);
@@ -223,18 +225,18 @@
     methodNext.disabled=method==='copy'&&!selectedCopy;
 
     if(method==='blank'){
-      $('#rvBase').textContent='Аз сафед';
-      $('#rvProcess').textContent='Раванди холӣ — қадамҳои тайёр нестанд.';
+      $('#rvBase').textContent=activeLang()==='ru'?'С нуля':'Аз сафед';
+      $('#rvProcess').textContent=activeLang()==='ru'?'Пустой процесс — готовых шагов нет.':'Раванди холӣ — қадамҳои тайёр нестанд.';
       setFormHref('blank');
       if(!preserveNames) setNames('',''); else syncName();
     }else if(method==='copy'){
-      $('#rvBase').textContent=selectedCopy?selectedCopy.getAttribute('data-name-tg'):'Хизмат интихоб нашудааст';
-      $('#rvProcess').textContent='Нусхаи пурраи раванди хизмати интихобшуда';
+      $('#rvBase').textContent=selectedCopy?selectedCopy.getAttribute(activeLang()==='ru'?'data-name-ru':'data-name-tg'):(activeLang()==='ru'?'Услуга не выбрана':'Хизмат интихоб нашудааст');
+      $('#rvProcess').textContent=activeLang()==='ru'?'Полная копия процесса выбранной услуги':'Нусхаи пурраи раванди хизмати интихобшуда';
       setFormHref('copy',selectedCopy&&selectedCopy.value);
       if(selectedCopy&&!preserveNames) setNames('Нусха — '+selectedCopy.getAttribute('data-name-tg'),'Копия — '+selectedCopy.getAttribute('data-name-ru'));
       else syncName();
     }else{
-      $('#rvProcess').textContent='тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат';
+      $('#rvProcess').textContent=activeLang()==='ru'?'подтверждение → поля → доставка → рассмотрение → документ':'тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат';
       setFormHref('template');
       if(!preserveNames) setNames('Маълумотнома дар бораи маҳалли истиқомат','Справка о месте жительства');
       else syncName();

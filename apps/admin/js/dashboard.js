@@ -70,7 +70,12 @@ const CONTENT = {
   }
 };
 
+/* the URL's ?lang= only reflects how the page was first opened — once the switcher
+   fires bp:langchange, that's the live language, even if the URL never changes */
+let langOverride = null;
+document.addEventListener('bp:langchange', event => { langOverride = (event.detail && event.detail.lang) || langOverride; });
 const lang = () => {
+  if (langOverride) return langOverride;
   try { return new URLSearchParams(location.search).get('lang') || localStorage.getItem('ekh.preferences.lang') || 'tg'; }
   catch (_) { return 'tg'; }
 };
@@ -89,13 +94,13 @@ function roleSelect(role, x) {
 }
 
 function metrics(x) {
-  const values = [['all',x.total,612,''],['draft',x.draft,8,''],['in_review',x.review,4,''],['approved',x.approved,3,''],['published',x.published,596,''],['errors',x.errors,1,'metric--danger']];
-  return `<nav class="metric-strip dashboard-metrics" aria-label="${x.title}">${values.map(([status,label,value,tone])=>`<a class="metric ${tone}" href="services.html${status==='all'?'':`?status=${status}`}" data-metric-status="${status}"><strong class="metric__value">${value}</strong><span class="metric__label">${label}</span></a>`).join('')}</nav>`;
+  const values = [['all',x.total,612,''],['draft',x.draft,8,''],['in_review',x.review,4,''],['approved',x.approved,3,''],['published',x.published,596,''],['errors',x.errors,1,'stat--danger']];
+  return `<nav class="reg-stats reg-stats--dashboard" aria-label="${x.title}">${values.map(([status,label,value,tone])=>`<a class="stat ${tone}" href="services.html${status==='all'?'':`?status=${status}`}" data-metric-status="${status}"><div class="big">${value}</div><div class="k">${label}</div></a>`).join('')}</nav>`;
 }
 
 function reviewPanel(role, x, copy) {
   const t=taskForRole(role,x,copy);
-  return `<section class="panel dashboard-panel dashboard-tasks"><div class="panel__head"><h2>${x.tasks}</h2><span class="status-pill status-pill--info">1</span></div><div class="panel__body dashboard-task"><div><a class="dashboard-row-link" href="${t.href}"><strong>${t.name}</strong></a><p>${t.agency} · ${x.version} ${t.version} · ${x.deadline}: ${t.deadline}</p></div>${statusIcon(t.tone,t.label)}<a class="btn btn-sec btn-sm" href="${t.href}">${x.openReview}</a></div></section>`;
+  return `<section class="panel dashboard-panel dashboard-tasks"><div class="panel__head"><h2>${x.tasks}</h2><span class="status-pill status-pill--info">1</span></div><a class="dashboard-task-row" href="${t.href}">${statusIcon(t.tone,t.label)}<span class="dashboard-task-row__copy"><strong>${t.name}</strong><span>${t.agency} · ${x.version} ${t.version} · ${x.deadline}: ${t.deadline}</span><span class="dashboard-task-row__action">${x.openReview}${icon('i-chev-r')}</span></span></a></section>`;
 }
 
 function slaPanel(x, copy) {

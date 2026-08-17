@@ -232,6 +232,7 @@ function flowGoto(flow, n){
   $$(".j-prog .bar",flow).forEach(function(b,i){ b.classList.toggle("on", i<n-1); });
   $$(".wz-step",flow).forEach(function(s,i){
     s.classList.toggle("done", i<n-1); s.classList.toggle("active", i===n-1);
+    if(i===n-1) s.setAttribute("aria-current","step"); else s.removeAttribute("aria-current");
   });
   var lbl=$("[data-step-label]",flow);
   if(lbl){ var tpl=lbl.getAttribute("data-step-tpl")||"{n}/{t}"; lbl.textContent=tpl.replace("{n}",n).replace("{t}",total); }

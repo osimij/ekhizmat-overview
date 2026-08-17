@@ -134,7 +134,11 @@ const SERVICE_RECORDS = [
 
 let state = load();
 const listeners = new Set();
-const lang = () => { try { return new URLSearchParams(location.search).get('lang') || localStorage.getItem('ekh.preferences.lang') || 'tg'; } catch(e) { return 'tg'; } };
+/* the URL's ?lang= only reflects how the page was first opened — once the switcher
+   fires bp:langchange, that's the live language, even if the URL never changes */
+let langOverride = null;
+document.addEventListener('bp:langchange', event => { langOverride = (event.detail && event.detail.lang) || langOverride; });
+const lang = () => { if(langOverride) return langOverride; try { return new URLSearchParams(location.search).get('lang') || localStorage.getItem('ekh.preferences.lang') || 'tg'; } catch(e) { return 'tg'; } };
 const c = () => COPY[lang()] || COPY.tg;
 const localized = (value, fallback='') => typeof value === 'string' ? value : value?.[lang()] || value?.ru || fallback;
 const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));

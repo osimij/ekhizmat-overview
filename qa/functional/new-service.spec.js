@@ -26,8 +26,9 @@ test('Admin new-service keeps blank and copy paths distinct in Russian', async (
       radioBorder:getComputedStyle(radio).borderTopColor
     };
   });
-  expect(firstStepPolish.titleWeight).toBeLessThanOrEqual(550);
-  expect(firstStepPolish.titleLeadGap).toBeLessThanOrEqual(4);
+  expect(firstStepPolish.titleWeight).toBeGreaterThanOrEqual(550);
+  expect(firstStepPolish.titleLeadGap).toBeGreaterThanOrEqual(6);
+  expect(firstStepPolish.titleLeadGap).toBeLessThanOrEqual(8);
   expect(firstStepPolish.radioCenterDelta).toBeLessThanOrEqual(1);
   expect(firstStepPolish.radioBorder).toBe('rgb(201, 202, 206)');
 
@@ -125,4 +126,42 @@ test('Admin can continue directly into a form prefilled for the new service', as
   await expect(page.locator('#formNameTg')).toHaveValue('Ариза барои чорабинӣ');
   await expect(page.locator('#formNameRu')).toHaveValue('Заявление на мероприятие');
   await expect(page.locator('#formBackLabel')).toHaveText('Услуги');
+});
+
+test('Admin selected choices turn the icon tile solid blue', async ({ page }) => {
+  await page.goto('/admin/new-service.html?lang=ru&theme=light');
+
+  const methodTiles = await page.locator('[data-step="1"]').evaluate((step) => {
+    const selected = step.querySelector('.opt:has(input:checked) .tile');
+    const idle = step.querySelector('.opt:not(:has(input:checked)) .tile');
+    return {
+      selectedBg: getComputedStyle(selected).backgroundColor,
+      selectedColor: getComputedStyle(selected).color,
+      idleBg: getComputedStyle(idle).backgroundColor,
+    };
+  });
+  expect(methodTiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(methodTiles.selectedColor).toBe('rgb(255, 255, 255)');
+  expect(methodTiles.idleBg).not.toBe('rgb(0, 114, 214)');
+
+  await page.locator('[name="method"][value="copy"]').check();
+  await page.locator('.copy-service input[value="SVC-FAM-01"]').check();
+  const copyTile = page.locator('.copy-service:has(input:checked) .tile');
+  await expect.poll(async () => copyTile.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(0, 114, 214)');
+  await expect.poll(async () => copyTile.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 255, 255)');
+
+  await page.locator('#methodNext').click();
+  await page.locator('[data-step="3"]').waitFor({ state: 'visible' });
+  const categoryTiles = await page.locator('[data-step="3"] .chips-row').evaluate((row) => {
+    const selected = row.querySelector('.tile[aria-pressed="true"]');
+    const idle = row.querySelector('.tile[aria-pressed="false"]');
+    return {
+      selectedBg: getComputedStyle(selected).backgroundColor,
+      selectedColor: getComputedStyle(selected).color,
+      idleBg: getComputedStyle(idle).backgroundColor,
+    };
+  });
+  expect(categoryTiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(categoryTiles.selectedColor).toBe('rgb(255, 255, 255)');
+  expect(categoryTiles.idleBg).not.toBe('rgb(0, 114, 214)');
 });

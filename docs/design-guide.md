@@ -72,8 +72,10 @@ Settled product-wide. Pages still using a retired pattern are wrong, not "altern
 | Top bar | `60px`; page title left; search optically centered, `min(460px, 37vw)`; right side holds the **role slot only**; no avatar (identity lives in the sidebar user card); **no theme toggle** — theme follows the OS via `data-system-theme` | Per-page moon/sun toggle; avatar in the top bar |
 | Sidebar | The shared `.ekh-side` component only (`design-system/css/sidebar.css` + `sidebar.js`): 264px expanded / 66px rail, fixed 33px icon axis, pre-paint collapse class on `<html>`, labels morph into hairline dividers, neutral (non-blue) selection in dark mode | Bespoke per-app rails (`.adm-rail`, old ministry rail) |
 | Page header | One `h1`; a subtitle only when it adds orientation the title lacks; the page-level create/new action is a **quiet pill** (border, transparent, `--ink-2`) — blue is reserved for the decisive action of a flow (continue, publish, submit) | Subtitle restating the title; `btn-pri` on browse-page headers |
+| Sequential wizard | Shared `.stepper` across the top of a single centered panel; current step via `aria-current="step"`; completed steps use `.done` | Vertical numbered rail beside the form |
 | Form controls | Shared custom-drawn radios/checkboxes (`appearance:none`, blue dot / SVG check, `:focus-visible` ring); every `select` gets `appearance:none` + sprite chevron; binary/short choices may be tappable cards (`.cost-options`) | Bare native radios/checkboxes/selects inside styled flows |
 | Action color | `--blue` (`#0072d6` in tokens — chosen for identity + contrast) marks interactivity: primary action, selection, focus, links. One primary per region/decision. Explicit hover/press tokens, never `filter: brightness()` | Blue as decoration or heading color |
+| Selected icon tile | When a choice is selected (`:checked`, `aria-pressed`, `aria-selected`, or `.open`), its icon well goes **solid `--blue` + `--on-blue` glyph** (builder `.stg-ic`). Category hue is idle-only. `.status-icon` and sidebar icons keep their own contracts | Selected tile keeps its category hue |
 | Density | Platforms share anatomy, tokens, and state language but not density: Citizen comfortable/touch (44px+), Ministry compact specialist, ЦОН workstation (1280px minimum), Admin editor-oriented multi-pane | Forcing one density on all platforms |
 
 ## 4. Typography
@@ -100,6 +102,8 @@ Weight ladder — the whole interface uses a narrow band:
 - **600** — the ceiling: headings, primary/danger button labels, and the *active/selected/current* item in a repeated list. Only state earns extra weight; decoration never does.
 - **620–680** — display numerals only (stat values, money sums).
 
+Where a value sits on the token scale, write the token — `var(--weight-regular)`, `var(--weight-medium)`, `var(--weight-semibold)` — and reserve numeric literals for the in-between steps (450, 550, 620–680).
+
 The most common defect in unpolished pages is everything bold at once: 11–12px uppercase tracked labels and 640–720 weights competing. The fix is always the same — 14px sentence case, letter-spacing 0, weight down the ladder.
 
 ## 5. Space, surfaces, alignment
@@ -108,7 +112,7 @@ The most common defect in unpolished pages is everything bold at once: 11–12px
 
 **Surfaces**, in order: `--bg` (page) → `--panel` (primary container) → `--field` / `--field-on-panel` (inputs, quiet groups) → `--raised` + `--shadow-layer` (menus, dialogs). Borders are quiet separators: `--line` around groups, `--line-in` for internal hairlines. One border per semantic level — never nest bordered cards that add no meaning.
 
-**Scrollbars** are a shared foundation, never page-local: every page and nested scroll surface uses the 6px treatment in `design-system/css/foundations.css`, with a transparent track and a low-contrast thumb that becomes slightly clearer on fine-pointer hover. Do not hide or restyle scrollbars in an app stylesheet.
+**Scrollbars** are a shared foundation, never page-local: every page and nested scroll surface uses the 6px treatment in `design-system/css/foundations.css`, with a transparent track and a low-contrast thumb that becomes slightly clearer on fine-pointer hover. Do not hide or restyle scrollbars in an app stylesheet. One exception: inside a device mockup the artifact imitates the target OS, whose scrollbars are overlays — the phone preview's app viewport (`.pv-app`) hides its bar deliberately.
 
 **Semantic state colors**: green = done/valid, amber = waiting/degraded, red = error/breach/destructive, neutral = draft/inactive. State must survive without color (text, icon, position, or accessible name carries it too). Category hue tiles (`--h-*-bg/fg`) aid recognition in catalogues; remove them from dense comparison rows.
 
@@ -119,6 +123,7 @@ The most common defect in unpolished pages is everything bold at once: 11–12px
 - Ellipsis only where the full value stays reachable (detail view, `title`, accessible name). Truncation is a layout decision, not an emergency.
 - Shell anchors are stable: `--h-topbar` 60px, `--w-side` 264px / `--w-side-collapsed` 66px, centered search. Content changes never move navigation or global chrome.
 - Multi-pane editors constrain reading width (`--w-builder-editor`) even when the workspace is wide; side panels (version rails, live previews) are `position: sticky` with their own `overflow-y: auto` scroll.
+- A full-workspace editor (service builder, form editor) locks its shell to the viewport instead: `height: 100dvh` + `overflow: hidden` on the shell, and every column becomes its own scroll region. Sticky is for panels inside a page that scrolls; shell-lock is for pages that *are* the app.
 
 ## 6. Components
 
@@ -132,6 +137,7 @@ Canonical anatomy lives in `styleguide.html` and `docs/admin-component-map.md`; 
 - **Custom controls** beyond styled natives require the complete keyboard/ARIA model (trigger `aria-haspopup/expanded/controls`, listbox `aria-selected`, arrows/Home/End/Escape, focus return). Visual polish without keyboard completeness is unfinished work.
 - **Status icons**: the four-glyph mapping from §3; tint pair + `role="img"` + localized `aria-label` + `title`.
 - **Empty states** answer: what happened, is it good or bad, what can I do next (`.reg-empty`, `.fb-empty`). **Loading** skeletons match final geometry. **Errors** are specific and sit next to the decision they affect.
+- **Device previews** reproduce real device geometry: the builder phone is iPhone 17 Pro Max — screen 440×956pt, 62pt display radius and Dynamic Island expressed as percentages of the screen so proportions hold at any width (see the `.pv-phone` comment in `apps/admin/app.css`). The chrome stays quiet: no fake OS status content, bezel color mixed toward the page background, and the caption sits *below* the device as small regular-weight text.
 
 ## 7. Behavior and state
 
@@ -174,14 +180,18 @@ Apply mechanically wherever seen:
 10. Joined KPI strip / label-first stat → separate bordered cards, value first, `tabular-nums`, `aria-pressed` when clickable.
 11. Bespoke sidebar/rail markup → shared `.ekh-side`.
 12. Theme toggle in page chrome → remove; `data-system-theme` + pre-paint script.
-13. Bare native select/radio/checkbox in a styled flow → shared custom-drawn control with `:focus-visible`.
-14. Blue on a browse-page header action → quiet pill; blue only for the flow's decisive action.
-15. Raw color/spacing/duration/curve value → token (lint enforces most of these).
-16. Bare `1fr` or truncation-prone child without `min-width: 0` → `minmax(0,1fr)` + `min-width:0`; ellipsis only with the full value reachable.
-17. Header and rows with separately defined columns → one `--*-columns` custom property for both.
-18. Tall side panel scrolling with the page → `position: sticky` + own `overflow-y: auto`.
-19. Hover-only affordance → add focus-visible and touch paths.
-20. A good pattern rebuilt locally for the second time → promote to `design-system/`, add to `styleguide.html` + the Figma map.
+13. Sequential wizard with a side step rail → shared `.stepper` above the question in a centered panel.
+14. Bare native select/radio/checkbox in a styled flow → shared custom-drawn control with `:focus-visible`.
+15. Blue on a browse-page header action → quiet pill; blue only for the flow's decisive action.
+16. Raw color/spacing/duration/curve value → token (lint enforces most of these).
+17. Bare `1fr` or truncation-prone child without `min-width: 0` → `minmax(0,1fr)` + `min-width:0`; ellipsis only with the full value reachable.
+18. Header and rows with separately defined columns → one `--*-columns` custom property for both.
+19. Tall side panel scrolling with the page → `position: sticky` + own `overflow-y: auto`.
+20. Hover-only affordance → add focus-visible and touch paths.
+21. A good pattern rebuilt locally for the second time → promote to `design-system/`, add to `styleguide.html` + the Figma map.
+22. Secondary description lines inside a step/pipeline rail → title only; the detail belongs in the selected pane's header.
+23. A "live"/status badge with a pulsing dot on always-visible chrome → static quiet caption; constant surfaces get no animation (§8).
+24. Selectable row/card/button with an icon well (`.tile`, `.stg-ic`, `.fb-ic`, …) → selected well is solid `--blue` / `--on-blue`; idle keeps category hue. Do not restyle `.status-icon` or sidebar icons.
 
 ## 11. Verification — definition of done
 

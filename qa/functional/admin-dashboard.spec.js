@@ -6,9 +6,9 @@ test('admin dashboard renders the complete business overview and role-aware task
   await expect(page.locator('.dashboard-tasks')).toBeVisible();
   await expect(page.locator('.dashboard-primary .panel')).toHaveCount(2);
   await expect(page.locator('.dashboard-feed')).toHaveCount(3);
-  const before=await page.locator('.dashboard-task strong').textContent();
+  const before=await page.locator('.dashboard-task-row strong').textContent();
   await page.locator('#dashboardRole').selectOption('reviewer');
-  await expect.poll(()=>page.locator('.dashboard-task strong').textContent()).not.toBe(before);
+  await expect.poll(()=>page.locator('.dashboard-task-row strong').textContent()).not.toBe(before);
 });
 
 for (const status of ['draft','in_review','approved','published','errors']) {

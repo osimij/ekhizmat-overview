@@ -17,13 +17,17 @@ const CATEGORY_STYLE={
 };
 
 const COPY={
-  tg:{draft:'сиёҳнавис',fields:'майдон',free:'ройгон',updated:'таҳрир: ҳозир',saved:'Сиёҳнависи хизмат захира шуд',untitled:'Хизмати беном',person:'шахси воқеӣ',business:'шахси ҳуқуқӣ',guest:'меҳмон'},
-  ru:{draft:'черновик',fields:'полей',free:'бесплатно',updated:'изменено: только что',saved:'Черновик услуги сохранён',untitled:'Услуга без названия',person:'физлицо',business:'юрлицо',guest:'гость'},
+  tg:{draft:'сиёҳнавис',fields:'майдон',free:'ройгон',updated:'таҳрир: ҳозир',saved:'Сиёҳнависи хизмат захира шуд',untitled:'Хизмати беном',person:'шахси воқеӣ',business:'шахси ҳуқуқӣ',guest:'меҳмон',guestBadge:'Меҳмон'},
+  ru:{draft:'черновик',fields:'полей',free:'бесплатно',updated:'изменено: только что',saved:'Черновик услуги сохранён',untitled:'Услуга без названия',person:'физлицо',business:'юрлицо',guest:'гость',guestBadge:'Гость'},
 };
 
 const clone=value=>JSON.parse(JSON.stringify(value));
 const esc=value=>String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const lang=()=>{try{return new URLSearchParams(location.search).get('lang')||localStorage.getItem('ekh.preferences.lang')||'tg';}catch(_){return 'tg';}};
+/* the URL's ?lang= only reflects how the page was first opened — once the switcher
+   fires bp:langchange, that's the live language, even if the URL never changes */
+let langOverride=null;
+document.addEventListener('bp:langchange',event=>{langOverride=(event.detail&&event.detail.lang)||langOverride;});
+const lang=()=>{if(langOverride)return langOverride;try{return new URLSearchParams(location.search).get('lang')||localStorage.getItem('ekh.preferences.lang')||'tg';}catch(_){return 'tg';}};
 const theme=()=>document.documentElement.dataset.theme||'light';
 const copy=()=>COPY[lang()]||COPY.tg;
 
@@ -108,10 +112,13 @@ function registryRow(draft){
   const href=draft.formId
     ?targetUrl('form-builder.html',{id:draft.formId,service:draft.id})
     :targetUrl('form-builder.html',{new:'1',service:draft.id});
+  const audienceCell=(draft.audience||[]).includes('guest')
+    ?`<span class="svc-audience" title="${esc(c.guestBadge)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg><span>${esc(c.guestBadge)}</span></span>`
+    :`<span class="svc-audience" aria-hidden="true"></span>`;
   return `<a class="svc-row" href="${esc(href)}" data-created-service="${esc(draft.id)}" data-audience="${esc((draft.audience||[]).join(' '))}">
     <span class="tile ${esc(style[0])}" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#${esc(style[1])}"/></svg></span>
     <span class="nm"><b>${esc(name)}</b><span class="k">${esc(agency[l]||agency.tg)}${audience?' · '+esc(audience):''} · ${esc(draft.code)}</span></span>
-    <span class="cols"><span><b>0</b> ${esc(c.fields)}</span><span>${esc(price)}</span><span>${esc(c.updated)}</span></span>
+    <span class="cols">${audienceCell}<span><b>0</b> ${esc(c.fields)}</span><span>${esc(price)}</span><span>${esc(c.updated)}</span></span>
     <span class="status-icon status-icon--warning" role="img" aria-label="${esc(c.draft)}" title="${esc(c.draft)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
   </a>`;
 }

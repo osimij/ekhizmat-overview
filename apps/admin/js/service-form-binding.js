@@ -42,10 +42,19 @@ function renderSelected(){
   const root=$('#serviceFormSelection'); if(!root) return;
   const {form,version}=referenceData(); if(!form||!version){ root.innerHTML=''; return; }
   const currentLive=liveVersion(form),hasUpdate=currentLive&&currentLive.number!==version.number;
-  root.innerHTML=`<article class="attached-form-card">
-    <span class="attached-form-card__icon"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-    <div class="attached-form-card__copy"><span>${esc(form.code)} · ${esc(label(form.owner))}</span><h3>${esc(label(form.name))}</h3><p>${esc(label(form.description))}</p><div><span class="form-version-badge form-version-badge--${statusTone(version.status)}">v${version.number}${statusIcon(version.status)}</span><span class="metachip">${version.fields.length} ${esc(c().fields)}</span></div></div>
-    ${hasUpdate?`<div class="attached-form-update"><span><svg><use href="/design-system/assets/icons.svg#i-refresh"/></svg>${esc(c().available)} · v${currentLive.number}</span><small>${esc(c().upgrade)}</small></div>`:`<span class="attached-form-pin"><svg><use href="/design-system/assets/icons.svg#i-pin"/></svg>${esc(c().pinned)} · v${version.number}</span>`}
+  root.innerHTML=`<article class="attached-form-card${hasUpdate?' attached-form-card--update':''}">
+    <div class="attached-form-card__row">
+      <span class="attached-form-card__icon" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+      <div class="attached-form-card__main">
+        <div class="attached-form-card__head">
+          <h3>${esc(label(form.name))}</h3>
+          <span class="form-version-badge form-version-badge--${statusTone(version.status)}">v${version.number}${statusIcon(version.status)}</span>
+        </div>
+        <p class="attached-form-card__meta"><span>${esc(form.code)} · ${esc(label(form.owner))}</span><span class="attached-form-card__sep" aria-hidden="true">·</span><span>${version.fields.length} ${esc(c().fields)}</span></p>
+        <p class="attached-form-card__desc">${esc(label(form.description))}</p>
+      </div>
+    </div>
+    ${hasUpdate?`<div class="attached-form-card__notice"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-refresh"/></svg><span><b>${esc(c().available)} · v${currentLive.number}</b> ${esc(c().upgrade)}</span></div>`:''}
   </article>`;
   const link=$('#openAttachedForm'); if(link){link.href=`form-builder.html?id=${encodeURIComponent(form.id)}&version=${version.number}`;const text=$('span',link);if(text)text.textContent=c().open;}
   const readonly=$('#serviceFormReadonlyFields'); if(readonly) readonly.innerHTML=version.fields.map((field,index)=>`<div class="service-readonly-field"><span>${index+1}</span><div><b>${esc(label(field.label))}</b><small>${esc(field.required?c().required:c().optional)}</small></div><svg><use href="/design-system/assets/icons.svg#i-lock"/></svg></div>`).join('');

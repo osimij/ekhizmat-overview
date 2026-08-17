@@ -395,6 +395,23 @@ test('Admin builder reserves pipeline label emphasis for the selected step', asy
   expect(weights.selected).toBe('500');
 });
 
+test('Admin selected pipeline step uses a solid blue icon tile', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  const tiles = await page.evaluate(() => {
+    const selected = document.querySelector('.bld-pipe .stg[aria-selected="true"] .stg-ic');
+    const unselected = document.querySelector('.bld-pipe .stg:not([aria-selected="true"]) .stg-ic');
+    return {
+      selectedBg: getComputedStyle(selected).backgroundColor,
+      selectedColor: getComputedStyle(selected).color,
+      unselectedBg: getComputedStyle(unselected).backgroundColor,
+    };
+  });
+  expect(tiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(tiles.selectedColor).toBe('rgb(255, 255, 255)');
+  expect(tiles.unselectedBg).not.toBe('rgb(0, 114, 214)');
+});
+
 test('Admin builder centers the phone above its quiet preview caption', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin/builder.html?lang=ru&theme=light');

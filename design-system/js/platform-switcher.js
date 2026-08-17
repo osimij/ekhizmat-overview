@@ -19,7 +19,6 @@ function linkWithContext(href) {
 }
 
 export function createPlatformSwitcher(current) {
-  const lang = getLang() === 'ru' ? 'ru' : 'tg';
   const root = document.createElement('div');
   root.className = 'ekh-platforms';
   root.dataset.sharedPlatformSwitcher = '';
@@ -28,17 +27,29 @@ export function createPlatformSwitcher(current) {
   button.className = 'ekh-platforms__button';
   button.setAttribute('aria-expanded', 'false');
   button.setAttribute('aria-haspopup', 'menu');
-  const label = lang === 'ru' ? 'Платформы' : 'Платформаҳо';
-  button.setAttribute('aria-label', label);
-  button.title = label;
   button.innerHTML = `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-dots"></use></svg>`;
   const menu = document.createElement('div');
   menu.className = 'ekh-platforms__menu';
   menu.setAttribute('role', 'menu');
   menu.hidden = true;
-  menu.innerHTML = `<a href="/" role="menuitem"><span class="ekh-platforms__tile t-slate"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg></span><span><strong>${lang === 'ru' ? 'Все платформы' : 'Ҳамаи платформаҳо'}</strong><small>eKhizmat</small></span></a>${platforms.map(item => `<a href="${linkWithContext(item.href)}" role="menuitem"${current === item.id ? ' aria-current="page"' : ''}><span class="ekh-platforms__tile ${item.tone}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-${item.icon}"></use></svg></span><span><strong>${item[lang]}</strong><small>${lang === 'ru' ? item.detailRu : item.detailTg}</small></span></a>`).join('')}`;
   root.append(button, menu);
   bindMenu(button, menu);
+
+  /* getLang() is frozen at this module's own load time; it never reflects a later
+     switch made through another page's language control (e.g. admin's bpSetLang),
+     since those write straight to localStorage without notifying this module. So
+     the button/menu text is re-derived from whichever language event fires last,
+     not just this module's own getLang() snapshot. */
+  function render(lang) {
+    lang = lang === 'ru' ? 'ru' : 'tg';
+    const label = lang === 'ru' ? 'Платформы' : 'Платформаҳо';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    menu.innerHTML = `<a href="/" role="menuitem"><span class="ekh-platforms__tile t-slate"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg></span><span><strong>${lang === 'ru' ? 'Все платформы' : 'Ҳамаи платформаҳо'}</strong><small>eKhizmat</small></span></a>${platforms.map(item => `<a href="${linkWithContext(item.href)}" role="menuitem"${current === item.id ? ' aria-current="page"' : ''}><span class="ekh-platforms__tile ${item.tone}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-${item.icon}"></use></svg></span><span><strong>${item[lang]}</strong><small>${lang === 'ru' ? item.detailRu : item.detailTg}</small></span></a>`).join('')}`;
+  }
+  render(getLang());
+  window.addEventListener('ekh:preferences', event => render(event.detail?.lang));
+  document.addEventListener('bp:langchange', event => render(event.detail?.lang));
   return root;
 }
 
