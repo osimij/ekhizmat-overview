@@ -192,6 +192,7 @@ Apply mechanically wherever seen:
 22. Secondary description lines inside a step/pipeline rail → title only; the detail belongs in the selected pane's header.
 23. A "live"/status badge with a pulsing dot on always-visible chrome → static quiet caption; constant surfaces get no animation (§8).
 24. Selectable row/card/button with an icon well (`.tile`, `.stg-ic`, `.fb-ic`, …) → selected well is solid `--blue` / `--on-blue`; idle keeps category hue. Do not restyle `.status-icon` or sidebar icons.
+25. A list of versioned library objects (forms) → one `.svc-row` with a compact `vN` strip whose background carries status (green live, amber draft, neutral archive); slight corner radius, not a pill, and no status-icon in that strip. Show at most 3 versions with a quiet `+N` overflow chip. Status text stays in `title` + `.sr-only`. No second Open control, no description that restates the title, no identical icon tile on every row.
 
 ## 11. Verification — definition of done
 

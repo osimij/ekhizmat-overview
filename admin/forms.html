@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="tg" data-theme="light">
+<html lang="tg" data-theme="light" data-system-theme>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Китобхонаи шаклҳо</title>
-<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){};try{if(localStorage.getItem("ekh.admin.rail")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
+<script>try{document.documentElement.dataset.theme=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}catch(e){};try{if(localStorage.getItem("ekh.admin.rail")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/design-system/global.css">
 <link rel="stylesheet" href="/apps/admin/app.css">
@@ -16,7 +16,6 @@
   <span class="bp-tag"><svg><use href="/design-system/assets/icons.svg#i-star8"/></svg>Макет</span>
   <label for="bpnav">Экран</label>
   <select class="bp-select" id="bpnav" data-nav aria-label="Гузариш ба экран"></select>
-  <div class="bp-right"><button class="icon-btn" data-theme-toggle aria-label="Иваз кардани тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button></div>
 </div>
 
 <div class="adm">
@@ -24,33 +23,40 @@
   <div class="adm-main">
     <div class="adm-top">
       <span class="at-title" id="formsTopTitle">Шаклҳо</span>
-      <label class="at-search" for="formsSearch"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input id="formsSearch" type="search" autocomplete="off" aria-label="Ҷустуҷӯи шакл" placeholder="Ҷустуҷӯи шакл, идора ё рамз…"></label>
-      <div class="at-right">
-        <button class="icon-btn" data-theme-toggle aria-label="Тема"><svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
-      </div>
+      <div class="at-search"><svg><use href="/design-system/assets/icons.svg#i-search"/></svg><input id="formsSearch" type="search" autocomplete="off" aria-label="Ҷустуҷӯи шакл, идора ё рамз" placeholder="Ҷустуҷӯи шакл, идора ё рамз…"></div>
+      <div class="at-right"></div>
     </div>
 
-    <main class="adm-body forms-library">
-      <header class="adm-h forms-library__head">
-        <div>
-          <div class="forms-eyebrow"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg><span id="formsEyebrow">Китобхонаи мустақил</span></div>
-          <h1 id="formsTitle">Шаклҳо</h1>
-          <p id="formsLead">Шаклро як бор созед, нусхаҳояшро идора кунед ва дар ҳар хизмати лозим истифода баред.</p>
+    <main class="adm-body">
+      <div class="adm-h"><div class="row">
+        <div><h1 class="services-page-title" id="formsTitle">Шаклҳо</h1></div>
+        <a class="btn services-create-action" href="form-builder.html?new=1"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg><span id="newFormLabel">Шакли нав</span></a>
+      </div></div>
+
+      <div class="reg-stats reg-stats--4" id="formsStats" aria-label="Хулосаи шаклҳо"></div>
+
+      <section class="panel" id="formsCatalog">
+        <div class="panel-h service-registry-head">
+          <h3 id="allFormsLabel">Ҳамаи шаклҳо</h3>
+          <label class="registry-status-filter" for="formStatusFilter">
+            <span class="registry-filter-label"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-filter"/></svg><span id="formsFilterLabel">Филтр аз рӯи ҳолат</span></span>
+            <span class="registry-filter-field">
+              <select id="formStatusFilter" aria-label="Филтр аз рӯи ҳолат">
+                <option value="all">Ҳама</option>
+                <option value="live">Зинда</option>
+                <option value="draft">Сиёҳнавис</option>
+                <option value="archived">Бойгонӣ</option>
+                <option value="unused">Бе хизмат</option>
+              </select>
+              <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+            </span>
+          </label>
         </div>
-        <a class="btn btn-pri" href="form-builder.html?new=1"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg><span id="newFormLabel">Шакли нав</span></a>
-      </header>
-
-      <section class="forms-stats" id="formsStats" aria-label="Хулосаи шаклҳо"></section>
-
-      <section class="panel forms-catalog-panel">
-        <div class="panel-h forms-toolbar">
-          <div><h2 id="allFormsLabel">Ҳамаи шаклҳо</h2><p id="formsCountLabel"></p></div>
-          <div class="seg" id="formsFilter" role="radiogroup" aria-label="Филтри шаклҳо">
-            <label><input type="radio" name="formStatus" value="all" checked><span id="filterAll">Ҳама</span></label>
-            <label><input type="radio" name="formStatus" value="live"><span id="filterLive">Зинда</span></label>
-            <label><input type="radio" name="formStatus" value="draft"><span id="filterDraft">Сиёҳнавис</span></label>
-            <label><input type="radio" name="formStatus" value="archived"><span id="filterArchived">Бойгонӣ</span></label>
-          </div>
+        <div class="form-library-head" aria-hidden="true">
+          <span id="formsColForm">Шакл</span>
+          <span id="formsColFields">Майдонҳо</span>
+          <span id="formsColServices">Хизматҳо</span>
+          <span id="formsColVersions">Нусхаҳо</span>
         </div>
         <div class="forms-list" id="formsList" aria-live="polite"></div>
         <div class="reg-empty" id="formsEmpty" hidden>

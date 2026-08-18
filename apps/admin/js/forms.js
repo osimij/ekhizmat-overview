@@ -12,11 +12,11 @@ let currentLang=(()=>{ try{return new URLSearchParams(location.search).get('lang
 
 const COPY={
   tg:{
-    forms:'Шаклҳо',eyebrow:'Китобхонаи мустақил',title:'Шаклҳо',lead:'Шаклро як бор созед, нусхаҳояшро идора кунед ва дар ҳар хизмати лозим истифода баред.',newForm:'Шакли нав',allForms:'Ҳамаи шаклҳо',all:'Ҳама',live:'Зинда',draft:'Сиёҳнавис',archived:'Бойгонӣ',empty:'Ягон шакл ёфт нашуд',emptyBody:'Ҷустуҷӯ ё филтрро тағйир диҳед.',search:'Ҷустуҷӯи шакл, идора ё рамз…',formsCount:n=>n+' шакл',versions:'нусха',fields:'майдон',services:'хизмат',usedBy:n=>n?`дар ${n} хизмат`:'ҳоло истифода намешавад',open:'Кушодан',publishedLive:'Нашршуда · зинда',archivedStatus:'Бойгонӣ',draftStatus:'Сиёҳнавис',hasDraft:'Бо сиёҳнавис',liveForms:'Шакли зинда',unused:'Бе хизмат',
+    forms:'Шаклҳо',title:'Шаклҳо',newForm:'Шакли нав',allForms:'Ҳамаи шаклҳо',all:'Ҳама',live:'Зинда',draft:'Сиёҳнавис',archived:'Бойгонӣ',empty:'Ягон шакл ёфт нашуд',emptyBody:'Ҷустуҷӯ ё филтрро тағйир диҳед.',search:'Ҷустуҷӯи шакл, идора ё рамз…',filterLabel:'Филтр аз рӯи ҳолат',statsLabel:'Хулосаи шаклҳо',colForm:'Шакл',colFields:'Майдонҳо',colServices:'Хизматҳо',colVersions:'Нусхаҳо',fields:'майдон',services:'хизмат',hasDraft:'Бо сиёҳнавис',liveForms:'Шакли зинда',unused:'Бе хизмат',
     back:'Шаклҳо',backServices:'Хизматрасониҳо',history:'Таърих',versionTitle:'Нусхаҳои шакл',versionHelp:'Сиёҳнависро озодона тағйир диҳед. Хизматҳо танҳо нусхаи нашршударо истифода мебаранд.',editorEyebrow:'Муҳаррири мустақили шакл',createTitle:'Сохтани шакл',editTitle:'Таҳрири шакл',editorLead:'Ном ва майдонҳоро дар ин ҷо идора кунед. Пайваст кардани шакл ба хизмат қадами алоҳида аст.',detailsTitle:'Маълумоти шакл',detailsLead:'Ин ном дар китобхона ва ҳангоми интихоби шакл нишон дода мешавад.',nameTg:'Ном ба тоҷикӣ',nameRu:'Ном ба русӣ',description:'Тавсифи кӯтоҳ',fieldsTitle:'Майдонҳои шакл',fieldsLead:'Тартиб ва талаботи майдонҳо дар худи шакл нигоҳ дошта мешаванд.',addField:'Илова кардани майдон',preview:'Пешнамоиш',citizenView:'Чашми шаҳрванд',liveNow:'зинда',continue:'Идома',paletteTitle:'Навъи майдонро интихоб кунед',paletteLead:'Майдон ба охири шакл илова мешавад.',save:'Захира кардани сиёҳнавис',publish:'Нашри нусха',newDraft:'Сохтани нусхаи нав',openLive:'Кушодани нусхаи зинда',readOnly:'Ин нусха танҳо барои хондан аст.',required:'Ҳатмӣ',requiredHelp:'Шаҳрванд бояд ин майдонро пур кунад',optional:'Ихтиёрӣ',fieldTg:'Номи майдон ба тоҷикӣ',fieldRu:'Номи майдон ба русӣ',options:'Вариантҳо (бо вергул)',moveUp:'Боло',moveDown:'Поён',remove:'Нест кардан',noFields:'Ҳоло майдон нест. Майдони аввалро илова кунед.',untitled:'Шакли беном',newCode:'FORM-NEW',saved:'Сиёҳнавис захира шуд',published:'Нусха нашр шуд ва ҳоло зинда аст',created:'Нусхаи нави сиёҳнавис сохта шуд',nameRequired:'Аввал номи шаклро ворид кунед',fieldRequired:'Барои нашр ҳадди ақал як майдон лозим аст',publishTitle:'Нашри ин нусха?',publishLead:'Нусхаи зиндаи ҳозира бойгонӣ мешавад. Хизматҳои нав метавонанд ин нусхаро интихоб кунанд.',publishSummary:(v,n)=>`v${v} · ${n} майдон`,cancel:'Бекор',statusDraft:'Сиёҳнавис',statusPublished:'Нашршуда · зинда',statusArchived:'Бойгонӣ',typeText:'Матни кӯтоҳ',typeEmail:'Почтаи электронӣ',typeTextarea:'Матни дароз',typeSelect:'Рӯйхати интихоб',typeDate:'Сана',typeFile:'Файл',typeCheckbox:'Тасдиқ',choose:'Интихоб кунед',fileHint:'PDF, JPG ё PNG',yes:'Тасдиқ мекунам',newField:'Майдони нав',descriptionPlaceholder:'Шакл барои чӣ истифода мешавад?',savedVersion:'Захира шуд',draftVersion:'Дар таҳрир',liveVersion:'Дар хизматҳо дастрас',archivedVersion:'Нусхаи пешина',
   },
   ru:{
-    forms:'Формы',eyebrow:'Независимая библиотека',title:'Формы',lead:'Создайте форму один раз, управляйте её версиями и используйте в нужных услугах.',newForm:'Новая форма',allForms:'Все формы',all:'Все',live:'Живые',draft:'Черновики',archived:'Архив',empty:'Формы не найдены',emptyBody:'Измените поиск или фильтр.',search:'Поиск формы, ведомства или кода…',formsCount:n=>`${n} форм`,versions:'версии',fields:'полей',services:'услугах',usedBy:n=>n?`в ${n} услугах`:'пока не используется',open:'Открыть',publishedLive:'Опубликована · живая',archivedStatus:'В архиве',draftStatus:'Черновик',hasDraft:'С черновиком',liveForms:'Живые формы',unused:'Без услуг',
+    forms:'Формы',title:'Формы',newForm:'Новая форма',allForms:'Все формы',all:'Все',live:'Живые',draft:'Черновики',archived:'Архив',empty:'Формы не найдены',emptyBody:'Измените поиск или фильтр.',search:'Поиск формы, ведомства или кода…',filterLabel:'Фильтр по статусу',statsLabel:'Сводка форм',colForm:'Форма',colFields:'Поля',colServices:'Услуги',colVersions:'Версии',fields:'полей',services:'услуг',hasDraft:'С черновиком',liveForms:'Живые формы',unused:'Без услуг',
     back:'Формы',backServices:'Услуги',history:'История',versionTitle:'Версии формы',versionHelp:'Черновик можно свободно менять. Услуги используют только опубликованную версию.',editorEyebrow:'Независимый редактор формы',createTitle:'Создание формы',editTitle:'Редактирование формы',editorLead:'Название и поля управляются здесь. Подключение формы к услуге — отдельный шаг.',detailsTitle:'Данные формы',detailsLead:'Это название видно в библиотеке и при выборе формы.',nameTg:'Название на таджикском',nameRu:'Название на русском',description:'Краткое описание',fieldsTitle:'Поля формы',fieldsLead:'Порядок и требования полей хранятся в самой форме.',addField:'Добавить поле',preview:'Предпросмотр',citizenView:'Глазами гражданина',liveNow:'вживую',continue:'Продолжить',paletteTitle:'Выберите тип поля',paletteLead:'Поле будет добавлено в конец формы.',save:'Сохранить черновик',publish:'Опубликовать версию',newDraft:'Создать новую версию',openLive:'Открыть живую версию',readOnly:'Эта версия доступна только для чтения.',required:'Обязательное',requiredHelp:'Гражданин должен заполнить это поле',optional:'Необязательное',fieldTg:'Название поля на таджикском',fieldRu:'Название поля на русском',options:'Варианты (через запятую)',moveUp:'Выше',moveDown:'Ниже',remove:'Удалить',noFields:'Полей пока нет. Добавьте первое поле.',untitled:'Форма без названия',newCode:'FORM-NEW',saved:'Черновик сохранён',published:'Версия опубликована и теперь живая',created:'Создан черновик новой версии',nameRequired:'Сначала укажите название формы',fieldRequired:'Для публикации нужно хотя бы одно поле',publishTitle:'Опубликовать эту версию?',publishLead:'Текущая живая версия уйдёт в архив. Новые услуги смогут выбрать эту версию.',publishSummary:(v,n)=>`v${v} · ${n} полей`,cancel:'Отмена',statusDraft:'Черновик',statusPublished:'Опубликована · живая',statusArchived:'В архиве',typeText:'Короткий текст',typeEmail:'Электронная почта',typeTextarea:'Длинный текст',typeSelect:'Список вариантов',typeDate:'Дата',typeFile:'Файл',typeCheckbox:'Подтверждение',choose:'Выберите',fileHint:'PDF, JPG или PNG',yes:'Подтверждаю',newField:'Новое поле',descriptionPlaceholder:'Для чего используется эта форма?',savedVersion:'Сохранена',draftVersion:'В работе',liveVersion:'Доступна услугам',archivedVersion:'Предыдущая версия',
   },
 };
@@ -33,63 +33,103 @@ const toast=message=>window.bpToast?window.bpToast(message):null;
 function setText(id,value){ const element=$('#'+id); if(element) element.textContent=value; }
 function setPlaceholder(id,value){ const element=$('#'+id); if(element) element.placeholder=value; }
 
+const LIBRARY_FILTERS=['all','live','draft','archived','unused'];
+let libraryFilter='all';
+
 function versionPills(form){
-  return form.versions.slice().sort((a,b)=>b.number-a.number).map(version=>
-    `<span class="form-mini-version form-mini-version--${statusTone(version.status)}"><b>v${version.number}</b>${statusIcon(version.status)}</span>`
-  ).join('');
+  const versions=form.versions.slice().sort((a,b)=>b.number-a.number);
+  const visible=versions.slice(0,3);
+  const extra=versions.length-visible.length;
+  const pills=visible.map(version=>{
+    const text=statusText(version.status);
+    return `<span class="form-mini-version form-mini-version--${statusTone(version.status)}" title="${esc(text)}"><b>v${version.number}</b><span class="sr-only">${esc(text)}</span></span>`;
+  }).join('');
+  return extra?`${pills}<span class="form-mini-more">+${extra}</span>`:pills;
+}
+
+function formMatchesFilter(form,filter){
+  if(filter==='live') return !!liveVersion(form);
+  if(filter==='draft') return form.versions.some(version=>version.status==='draft');
+  if(filter==='archived') return form.versions.some(version=>version.status==='archived');
+  if(filter==='unused') return form.usedBy===0;
+  return true;
+}
+
+function setLibraryFilter(status,replaceUrl){
+  if(!LIBRARY_FILTERS.includes(status)) status='all';
+  libraryFilter=status;
+  const select=$('#formStatusFilter'); if(select) select.value=status;
+  $$('#formsStats [data-st-go]').forEach(button=>button.setAttribute('aria-pressed', String(button.getAttribute('data-st-go')===status)));
+  if(replaceUrl){
+    const url=new URL(location.href);
+    if(status==='all') url.searchParams.delete('status');
+    else url.searchParams.set('status',status);
+    history.replaceState(null,'',url);
+  }
+  renderLibrary();
 }
 
 function renderLibrary(){
   const root=$('#formsList'); if(!root) return;
   const forms=getForms();
   const search=($('#formsSearch')?.value||'').trim().toLowerCase();
-  const filter=$('[name="formStatus"]:checked')?.value||'all';
   const matches=forms.filter(form=>{
     const text=[label(form.name),label(form.description),label(form.owner),form.code].join(' ').toLowerCase();
     if(search&&!text.includes(search)) return false;
-    if(filter==='live'&&!form.versions.some(version=>version.status==='published'&&version.live)) return false;
-    if(filter==='draft'&&!form.versions.some(version=>version.status==='draft')) return false;
-    if(filter==='archived'&&!form.versions.some(version=>version.status==='archived')) return false;
-    return true;
+    return formMatchesFilter(form,libraryFilter);
   });
   root.innerHTML=matches.map(form=>{
     const latest=editableVersion(form)||newestVersion(form);
-    const live=liveVersion(form);
     const fieldCount=(latest?.fields||[]).length;
-    return `<article class="form-library-row">
-      <a class="form-library-row__main" href="form-builder.html?id=${encodeURIComponent(form.id)}&version=${latest.number}&${pageContext()}">
-        <span class="form-library-icon"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-        <span class="form-library-copy"><span class="form-library-meta"><b>${esc(form.code)}</b><span>${esc(label(form.owner))}</span></span><strong>${esc(label(form.name))}</strong><span>${esc(label(form.description))}</span></span>
-        <span class="form-library-usage"><b>${fieldCount}</b><span>${esc(c().fields)}</span></span>
-        <span class="form-library-usage"><b>${form.usedBy}</b><span>${esc(c().services)}</span></span>
-      </a>
-      <div class="form-library-row__versions"><div class="form-version-strip">${versionPills(form)}</div><a class="btn btn-ghost btn-sm" href="form-builder.html?id=${encodeURIComponent(form.id)}&version=${latest.number}&${pageContext()}">${esc(c().open)}<svg><use href="/design-system/assets/icons.svg#i-arrow-r"/></svg></a></div>
-    </article>`;
+    return `<a class="svc-row form-library-row" href="form-builder.html?id=${encodeURIComponent(form.id)}&version=${latest.number}&${pageContext()}">
+      <span class="nm" title="${esc(label(form.name))}"><b>${esc(label(form.name))}</b><span class="k">${esc(form.code)} · ${esc(label(form.owner))}</span></span>
+      <span class="form-library-metric"><b>${fieldCount}</b><span class="sr-only"> ${esc(c().fields)}</span></span>
+      <span class="form-library-metric"><b>${form.usedBy}</b><span class="sr-only"> ${esc(c().services)}</span></span>
+      <span class="form-version-strip">${versionPills(form)}</span>
+    </a>`;
   }).join('');
   const empty=$('#formsEmpty'); if(empty) empty.hidden=matches.length!==0;
-  setText('formsCountLabel',c().formsCount(forms.length));
   const liveCount=forms.filter(form=>liveVersion(form)).length;
   const draftCount=forms.filter(form=>form.versions.some(version=>version.status==='draft')).length;
+  const archivedCount=forms.filter(form=>form.versions.some(version=>version.status==='archived')).length;
   const unused=forms.filter(form=>form.usedBy===0).length;
   const stats=$('#formsStats');
-  if(stats) stats.innerHTML=`
-    <div class="forms-stat"><span class="forms-stat__icon forms-stat__icon--blue"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><span><b>${forms.length}</b><small>${esc(c().allForms)}</small></span></div>
-    <div class="forms-stat"><span class="forms-stat__icon forms-stat__icon--green"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span><span><b>${liveCount}</b><small>${esc(c().liveForms)}</small></span></div>
-    <div class="forms-stat"><span class="forms-stat__icon forms-stat__icon--amber"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span><span><b>${draftCount}</b><small>${esc(c().hasDraft)}</small></span></div>
-    <div class="forms-stat"><span class="forms-stat__icon"><svg><use href="/design-system/assets/icons.svg#i-minus"/></svg></span><span><b>${unused}</b><small>${esc(c().unused)}</small></span></div>`;
+  if(stats){
+    stats.setAttribute('aria-label',c().statsLabel);
+    stats.innerHTML=`
+    <button class="stat" type="button" data-st-go="live" aria-pressed="${libraryFilter==='live'}"><div class="big">${liveCount}</div><div class="k">${esc(c().liveForms)}</div></button>
+    <button class="stat" type="button" data-st-go="draft" aria-pressed="${libraryFilter==='draft'}"><div class="big">${draftCount}</div><div class="k">${esc(c().hasDraft)}</div></button>
+    <button class="stat" type="button" data-st-go="archived" aria-pressed="${libraryFilter==='archived'}"><div class="big">${archivedCount}</div><div class="k">${esc(c().archived)}</div></button>
+    <button class="stat" type="button" data-st-go="unused" aria-pressed="${libraryFilter==='unused'}"><div class="big">${unused}</div><div class="k">${esc(c().unused)}</div></button>`;
+  }
 }
 
 function localizeLibrary(){
-  setText('formsTopTitle',c().forms); setText('formsEyebrow',c().eyebrow); setText('formsTitle',c().title); setText('formsLead',c().lead); setText('newFormLabel',c().newForm); setText('allFormsLabel',c().allForms); setText('filterAll',c().all); setText('filterLive',c().live); setText('filterDraft',c().draft); setText('filterArchived',c().archived); setText('formsEmptyTitle',c().empty); setText('formsEmptyBody',c().emptyBody); setPlaceholder('formsSearch',c().search);
+  setText('formsTopTitle',c().forms); setText('formsTitle',c().title); setText('newFormLabel',c().newForm); setText('allFormsLabel',c().allForms); setText('formsFilterLabel',c().filterLabel); setText('formsColForm',c().colForm); setText('formsColFields',c().colFields); setText('formsColServices',c().colServices); setText('formsColVersions',c().colVersions); setText('formsEmptyTitle',c().empty); setText('formsEmptyBody',c().emptyBody); setPlaceholder('formsSearch',c().search);
+  const search=$('#formsSearch'); if(search) search.setAttribute('aria-label',c().search.replace('…',''));
+  const select=$('#formStatusFilter');
+  if(select){
+    select.setAttribute('aria-label',c().filterLabel);
+    const labels={all:c().all,live:c().live,draft:c().draft,archived:c().archived,unused:c().unused};
+    $$('#formStatusFilter option').forEach(option=>{ if(labels[option.value]) option.textContent=labels[option.value]; });
+  }
   const create=$('#newFormLabel')?.closest('a'); if(create) create.href=`form-builder.html?new=1&${pageContext()}`;
   renderLibrary();
 }
 
 function initLibrary(){
   if(!$('#formsList')) return;
+  const requested=new URLSearchParams(location.search).get('status')||'all';
+  libraryFilter=LIBRARY_FILTERS.includes(requested)?requested:'all';
   $('#formsSearch')?.addEventListener('input',renderLibrary);
-  $('#formsFilter')?.addEventListener('change',renderLibrary);
+  $('#formStatusFilter')?.addEventListener('change',event=>setLibraryFilter(event.target.value,true));
+  $('#formsStats')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-st-go]'); if(!button) return;
+    const value=button.getAttribute('data-st-go');
+    setLibraryFilter(libraryFilter===value?'all':value,true);
+  });
   localizeLibrary();
+  setLibraryFilter(libraryFilter,false);
 }
 
 const FIELD_TYPES=['text','email','textarea','select','date','file','checkbox'];
@@ -164,7 +204,7 @@ function renderVersionList(){
   root.innerHTML=versions.map(version=>{
     const selected=Number(version.number)===Number(editor.version.number);
     const updated=label(version.updated)||'';
-    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-item__copy"><b>v${version.number}</b>${updated?`<small>${esc(updated)}</small>`:''}</span><span class="form-version-item__icon">${statusIcon(version.status)}</span></button>`;
+    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-item__copy"><b>v${version.number}</b>${updated?`<small>${esc(updated)}</small>`:''}<span class="sr-only">${esc(statusText(version.status))}</span></span><span class="form-version-item__icon">${statusIcon(version.status)}</span></button>`;
   }).join('');
   setText('versionCount',String(versions.length));
 }
@@ -183,7 +223,7 @@ function renderEditorChrome(){
   if(ru){ru.value=editor.draft.name?.ru||'';ru.disabled=!editorEditable();}
   if(desc){desc.value=label(editor.draft.description)||editor.draft.description?.tg||'';desc.disabled=!editorEditable();}
   setText('formEditorName',activeName()); setText('formEditorCode',editor.form?.code||c().newCode);
-  const status=$('#formEditorStatus'); if(status) status.textContent=`[v${editor.version.number}]`;
+  const status=$('#formEditorStatus'); if(status) status.textContent=`v${editor.version.number} · ${statusText(editor.version.status)}`;
   const add=$('#addFormField'); if(add) add.hidden=!editorEditable();
   const palette=$('#formPaletteGrid'); if(palette) palette.innerHTML=FIELD_TYPES.map(type=>`<button class="form-type-option" type="button" data-form-add="${type}"><span><svg><use href="/design-system/assets/icons.svg#${typeIcon(type)}"/></svg></span><b>${esc(typeCopy(type))}</b></button>`).join('');
   renderVersionList(); renderEditorActions(); renderEditorFields(); renderEditorPreview();

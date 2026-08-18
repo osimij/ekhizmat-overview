@@ -8,6 +8,35 @@ test.beforeEach(async ({ page }) => {
   });
   await page.reload();
 });
+test('status filter lives in the URL and KPI shortcuts toggle it', async ({ page }) => {
+  await page.locator('[data-st-go="draft"]').click();
+  await expect(page).toHaveURL(/status=draft/);
+  await expect(page.locator('.form-library-row')).toHaveCount(3);
+  await page.locator('#formStatusFilter').selectOption('unused');
+  await expect(page).toHaveURL(/status=unused/);
+  await expect(page.locator('.form-library-row')).toHaveCount(1);
+  await page.locator('[data-st-go="unused"]').click();
+  await expect(page).not.toHaveURL(/status=/);
+  await expect(page.locator('.form-library-row')).toHaveCount(4);
+});
+
+test('form library metric columns stay aligned across rows', async ({ page }) => {
+  const rows = page.locator('.form-library-row');
+  await expect(rows).toHaveCount(4);
+  const xs = await rows.evaluateAll((elements) => elements.map((row) => {
+    const metric = row.querySelectorAll('.form-library-metric');
+    const versions = row.querySelector('.form-version-strip');
+    return {
+      fields: Math.round(metric[0].getBoundingClientRect().right),
+      services: Math.round(metric[1].getBoundingClientRect().right),
+      versions: Math.round(versions.getBoundingClientRect().right),
+    };
+  }));
+  expect(new Set(xs.map((box) => box.fields)).size).toBe(1);
+  expect(new Set(xs.map((box) => box.services)).size).toBe(1);
+  expect(new Set(xs.map((box) => box.versions)).size).toBe(1);
+});
+
 test('forms live in a separate library with visible version states', async ({ page }) => {
   await expect(page.locator('.form-library-row')).toHaveCount(4);
   const family = page.locator('.form-library-row').filter({ hasText: 'Справка — состав семьи' });
