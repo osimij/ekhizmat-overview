@@ -90,7 +90,7 @@ function taskForRole(role, x, copy) {
 }
 
 function roleSelect(role, x) {
-  return `<label class="admin-role"><span>${x.role}</span><span class="admin-role__control"><select class="input" id="dashboardRole"><option value="agency-author" ${role==='agency-author'?'selected':''}>${x.author}</option><option value="reviewer" ${role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${role==='portal-admin'?'selected':''}>${x.admin}</option></select>${icon('i-chev-d')}</span></label>`;
+  return `<div class="admin-role"><span class="admin-role__control"><select class="input" id="dashboardRole" aria-label="${x.role}"><option value="agency-author" ${role==='agency-author'?'selected':''}>${x.author}</option><option value="reviewer" ${role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${role==='portal-admin'?'selected':''}>${x.admin}</option></select>${icon('i-chev-d')}</span></div>`;
 }
 
 function metrics(x) {
