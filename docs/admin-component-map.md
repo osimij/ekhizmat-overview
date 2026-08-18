@@ -63,6 +63,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Stepper` (Current / Done) | `.stepper`, `.stepper__step[aria-current='step']`, `.stepper__step.done` |
 | 🧩 Overlays | `Modal` (slot body, icon-only close, action pair) | `.modal` + `.mhd` |
 | | `Toast` | `.toast` |
+| | `Profile popover` (identity, language selector, three-theme choice) | `.adm-profile-pop` |
 
 ## Icon mapping — icons.svg → Hugeicons (stroke-rounded, 24px, 1.5px)
 
@@ -86,6 +87,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | i-history | clock-04 | i-cat-passport | passport |
 | i-refresh | refresh | i-baby | baby-01 |
 | i-clock | clock-01 | i-biz | briefcase-01 |
+| i-theme-system | Figma appearance/system |  |  |
 | i-calendar | calendar-03 | i-retire | archive-02 |
 | i-upload | upload-02 | i-rings | (pick in Hugeicons plugin) |
 

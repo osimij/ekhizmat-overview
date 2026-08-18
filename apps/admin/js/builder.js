@@ -37,6 +37,8 @@ document.addEventListener("click", function(e){
   var next=document.documentElement.dataset.theme==="dark"?"light":"dark";
   try{ localStorage.setItem(THEME,next); }catch(err){}
   document.documentElement.dataset.theme=next;
+  profileThemeSource=next;
+  syncThemeRow();
 });
 
 /* ---------- operator page nav (injected into every toolbar) ----------
@@ -86,64 +88,380 @@ function ddMove(menu, btn, glide){
   if(glide) hl.classList.add("move"); else hl.classList.remove("move");
   hl.style.top=btn.offsetTop+"px"; hl.style.height=btn.offsetHeight+"px"; hl.style.opacity="1";
 }
-function ddClose(){
-  $$(".dd.open").forEach(function(dd){
-    dd.classList.remove("open");
-    var b=dd.querySelector(".dd-btn"); if(b) b.setAttribute("aria-expanded","false");
-  });
+function ddFinePointer(){
+  try{ return matchMedia("(hover: hover) and (pointer: fine)").matches; }catch(e){ return true; }
 }
-function ddOpen(dd){
-  ddClose(); dd.classList.add("open");
+function ddCloseOne(dd){
+  if(!dd) return;
+  if(ddAimState&&ddAimState.dd===dd) ddAimClear();
+  dd.classList.remove("open","dd-up","dd-right");
+  dd._openByHover=false;
+  var b=dd.querySelector(".dd-btn"); if(b) b.setAttribute("aria-expanded","false");
+  ddAimHideBridge(dd);
+}
+function ddFlipMenu(dd){
+  var menu=dd.querySelector(".dd-menu"), btn=dd.querySelector(".dd-btn");
+  if(!menu||!btn) return;
+  dd.classList.remove("dd-up","dd-right");
+  var pop=dd.closest("#admProfilePop");
+  if(pop&&pop.classList.contains("adm-profile-pop--side")){ dd.classList.add("dd-right"); return; }
+  var menuH=menu.offsetHeight||180, br=btn.getBoundingClientRect();
+  if(br.bottom+8+menuH>window.innerHeight-8 && br.top-8-menuH>=8) dd.classList.add("dd-up");
+}
+function ddClose(){
+  ddAimClear();
+  $$(".dd.open").forEach(ddCloseOne);
+}
+/* Amazon / jquery-menu-aim safe triangle: keep the language flyout open while
+   the pointer travels toward it (including over Theme). Overlay polygon is the
+   hit target; JS hit-test is the fallback. */
+var ddAimState=null, ddAimTimer=null;
+function ddAimClearTimer(){
+  if(ddAimTimer){ clearTimeout(ddAimTimer); ddAimTimer=null; }
+}
+function ddAimClear(){
+  ddAimClearTimer();
+  if(ddAimState&&ddAimState.dd) ddAimHideBridge(ddAimState.dd);
+  ddAimState=null;
+}
+function ddAimPointInTri(px, py, x1, y1, x2, y2, x3, y3){
+  var d=(y2-y3)*(x1-x3)+(x3-x2)*(y1-y3); if(!d) return false;
+  var a=((y2-y3)*(px-x3)+(x3-x2)*(py-y3))/d;
+  var b=((y3-y1)*(px-x3)+(x1-x3)*(py-y3))/d;
+  return a>=0 && b>=0 && (a+b)<=1;
+}
+function ddAimBridge(dd){
+  var el=dd.querySelector(":scope > .dd-aim-bridge");
+  if(el) return el;
+  el=document.createElementNS("http://www.w3.org/2000/svg","svg");
+  el.setAttribute("class","dd-aim-bridge");
+  el.setAttribute("aria-hidden","true");
+  el.appendChild(document.createElementNS("http://www.w3.org/2000/svg","polygon"));
+  dd.appendChild(el);
+  return el;
+}
+function ddAimHideBridge(dd){
+  if(!dd) return;
+  var el=dd.querySelector(":scope > .dd-aim-bridge");
+  if(!el) return;
+  el.classList.remove("is-on");
+  var p=el.querySelector("polygon");
+  if(p) p.setAttribute("points","");
+}
+function ddAimCorners(dd){
+  var menu=dd.querySelector(".dd-menu");
+  if(!menu) return null;
+  var mr=menu.getBoundingClientRect();
+  if(dd.classList.contains("dd-right")){
+    return {bx:mr.left, by:mr.top, cx:mr.left, cy:mr.bottom};
+  }
+  if(dd.classList.contains("dd-up")){
+    return {bx:mr.left, by:mr.bottom, cx:mr.right, cy:mr.bottom};
+  }
+  return {bx:mr.left, by:mr.top, cx:mr.right, cy:mr.top};
+}
+function ddAimApex(dd, x, y){
+  if(typeof x==="number" && typeof y==="number") return {x:x, y:y};
+  if(typeof dd._aimX==="number") return {x:dd._aimX, y:dd._aimY};
+  var btn=dd.querySelector(".dd-btn");
+  if(!btn) return {x:0, y:0};
+  var br=btn.getBoundingClientRect();
+  if(dd.classList.contains("dd-right")) return {x:br.left+8, y:br.top+br.height/2};
+  return {x:br.left+br.width/2, y:br.bottom-2};
+}
+function ddAimPaint(dd, x, y){
+  if(!dd||!dd.classList.contains("open")) return;
+  var corners=ddAimCorners(dd); if(!corners) return;
+  var apex=ddAimApex(dd, x, y);
+  ddAimState={dd:dd, ax:apex.x, ay:apex.y, bx:corners.bx, by:corners.by, cx:corners.cx, cy:corners.cy};
+  var bridge=ddAimBridge(dd), poly=bridge.querySelector("polygon");
+  poly.setAttribute("points", apex.x+","+apex.y+" "+corners.bx+","+corners.by+" "+corners.cx+","+corners.cy);
+  bridge.classList.add("is-on");
+}
+function ddAimHit(el, dd){
+  return !!(el && dd && dd.contains(el));
+}
+function ddAimCheck(x, y){
+  var s=ddAimState; if(!s||!s.dd.classList.contains("open")){ ddAimClear(); return; }
+  var dd=s.dd, el=document.elementFromPoint(x, y);
+  if(ddAimHit(el, dd)){
+    ddAimClearTimer();
+    if(el.closest && el.closest(".dd-btn")){
+      dd._aimX=x; dd._aimY=y;
+      ddAimPaint(dd, x, y);
+    }
+    return;
+  }
+  var corners=ddAimCorners(dd);
+  if(corners && ddAimPointInTri(x, y, s.ax, s.ay, corners.bx, corners.by, corners.cx, corners.cy)){
+    ddAimClearTimer();
+    return;
+  }
+  if(!ddAimTimer) ddAimTimer=setTimeout(function(){ ddCloseOne(dd); }, 80);
+}
+function ddAimProfileDd(target){
+  return target&&target.closest&&target.closest("#admProfilePop .dd");
+}
+function ddOpen(dd, viaHover){
+  var hover=!!viaHover;
+  ddClose();
+  dd.classList.add("open");
+  dd._openByHover=hover;
   var b=dd.querySelector(".dd-btn"); if(b) b.setAttribute("aria-expanded","true");
   var menu=dd.querySelector(".dd-menu"); if(!menu) return;
+  ddFlipMenu(dd);
   var sel=menu.querySelector("[aria-selected='true']")||menu.querySelector("button");
   ddMove(menu, sel, false);
-  requestAnimationFrame(function(){ ddMove(menu, sel, true); });
+  requestAnimationFrame(function(){
+    ddMove(menu, sel, true);
+    ddAimPaint(dd);
+  });
 }
 document.addEventListener("click", function(e){
   var trig=e.target.closest(".dd-btn");
-  if(trig){ var dd=trig.closest(".dd"); if(dd){ e.preventDefault(); dd.classList.contains("open")?ddClose():ddOpen(dd); return; } }
+  if(trig){
+    var dd=trig.closest(".dd");
+    if(dd){
+      e.preventDefault();
+      if(dd._openByHover && dd.classList.contains("open")){ dd._openByHover=false; return; }
+      if(dd.classList.contains("open")) ddClose(); else ddOpen(dd, false);
+      return;
+    }
+  }
   var opt=e.target.closest(".dd-menu button");
   if(opt){
     var menu=opt.closest(".dd-menu");
     $$("button[role='option']",menu).forEach(function(x){ x.setAttribute("aria-selected", String(x===opt)); });
     var lang=opt.getAttribute("data-lang");
-    if(lang){ if(window.bpSetLang){ window.bpSetLang(lang); } }
+    if(lang){ if(window.bpSetLang){ window.bpSetLang(lang); } syncThemeRow(); }
     var acct=opt.getAttribute("data-acct");
     if(acct){ var label=(opt.querySelector("span")||opt).textContent.trim();
       var ac=$("#acctCur"); if(ac) ac.textContent=label;
       var ha=$("#hdrAcct"); if(ha) ha.textContent=label; }
     ddClose(); return;
   }
+  if(e.target.closest(".dd-aim-bridge")) return;
   if(!e.target.closest(".dd")) ddClose();
 });
-document.addEventListener("keydown", function(e){ if(e.key==="Escape") ddClose(); });
+document.addEventListener("mousemove", function(e){
+  var btn=e.target.closest&&e.target.closest("#admProfilePop .dd.open .dd-btn");
+  if(btn){
+    var hoverDd=btn.closest(".dd");
+    hoverDd._aimX=e.clientX; hoverDd._aimY=e.clientY;
+    ddAimPaint(hoverDd, e.clientX, e.clientY);
+  }
+  if(ddAimState) ddAimCheck(e.clientX, e.clientY);
+});
+document.addEventListener("mouseout", function(e){
+  var dd=ddAimProfileDd(e.target);
+  if(!dd||!dd.classList.contains("open")) return;
+  var rel=e.relatedTarget;
+  if(rel&&dd.contains(rel)) return;
+  ddAimPaint(dd, dd._aimX, dd._aimY);
+  ddAimCheck(e.clientX, e.clientY);
+});
 document.addEventListener("mouseover", function(e){
+  if(ddFinePointer()){
+    var popDd=e.target.closest("#admProfilePop .dd.lang");
+    if(popDd){
+      var from=e.relatedTarget;
+      if(!(from&&popDd.contains(from))){
+        if(!popDd.classList.contains("open")) ddOpen(popDd, true);
+        else ddAimClearTimer();
+      }
+    }
+  }
   var b=e.target.closest(".dd.open .dd-menu button"); if(b) ddMove(b.closest(".dd-menu"), b, true);
 });
 
-/* ---------- language switcher (injected into every header — one source of truth) ---------- */
-var LANG_SWITCH='<div class="dd lang">'+
-  '<button class="dd-btn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">'+
-    '<svg class="gl"><use href="/design-system/assets/icons.svg#i-globe"/></svg><span id="langCur" data-no-i18n>ТҶ</span><svg class="caret"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
+/* ---------- language switcher (lives in the profile popover — one source of truth) ---------- */
+var LANG_SWITCH='<div class="dd lang adm-profile-pop__row-host">'+
+  '<button class="dd-btn adm-profile-pop__row" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">'+
+    '<span class="adm-profile-pop__row-label">Забон</span>'+
+    '<span id="langCur" data-no-i18n>Тоҷикӣ</span>'+
+    '<svg class="adm-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>'+
+    '<svg class="adm-profile-pop__compact-icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"/></svg></button>'+
   '<div class="dd-menu" role="listbox" aria-label="Забон / Language">'+
     '<div class="dd-label" aria-hidden="true">Забон</div>'+
     '<button role="option" data-lang="tg" aria-selected="true"><span data-no-i18n>Тоҷикӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>'+
     '<button role="option" data-lang="ru" aria-selected="false"><span data-no-i18n>Русский</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>'+
     '<button role="option" data-lang="en" disabled aria-disabled="true" aria-selected="false"><span data-no-i18n>English</span><span class="dd-soon">ба зудӣ</span></button>'+
   '</div></div>';
-/* gallery + map pages have a bare header — give them an actions cluster (theme + lang) too */
-$$(".hdr .hdr-in").forEach(function(hin){
-  if(hin.querySelector(".hdr-acts")) return;
-  var acts=document.createElement("div"); acts.className="hdr-acts";
-  acts.innerHTML='<button class="icon-btn" id="themeBtn2" data-theme-toggle aria-label="Тема">'+
-    '<svg class="th-moon"><use href="/design-system/assets/icons.svg#i-moon"/></svg><svg class="th-sun"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>';
-  hin.appendChild(acts);
+var PROFILE_USER={name:"Аброр Каримов", role:"Маъмури платформа", initials:"АК"};
+var profilePop=null, profileTrigger=null;
+var PROFILE_TRIGGER_BTN='<button type="button" class="icon-btn adm-profile-trigger" data-admin-profile-trigger aria-haspopup="dialog" aria-expanded="false" aria-controls="admProfilePop" aria-label="Профил">'+
+  '<span class="ekh-side__avatar adm-profile-trigger__avatar" aria-hidden="true">'+PROFILE_USER.initials+'</span></button>';
+var THEME_LABEL={tg:{dark:"Темная",light:"Равшан",system:"Аз система"},ru:{dark:"Тёмная",light:"Светлая",system:"Система"}};
+var profileThemeSource=(function(){
+  if(systemTheme) return "system";
+  var saved=null;
+  try{ saved=new URLSearchParams(location.search).get("theme")||localStorage.getItem(THEME); }catch(e){}
+  return saved==="dark"||saved==="light" ? saved : "system";
+})();
+function profileLangKey(){
+  try{ return new URLSearchParams(location.search).get("lang")||localStorage.getItem("ekh.preferences.lang")||"tg"; }catch(e){ return "tg"; }
+}
+function profileThemeLabel(){
+  var labels=THEME_LABEL[profileLangKey()]||THEME_LABEL.tg;
+  return labels[profileThemeSource]||labels.system;
+}
+function profileThemeOptionHtml(value, icon){
+  var active=profileThemeSource===value;
+  var disabled=systemTheme?' disabled aria-disabled="true"':'';
+  var label=profileThemeLabelFor(value);
+  return '<button type="button" class="adm-profile-pop__theme-choice adm-profile-pop__theme-choice--'+value+'" data-admin-theme-choice="'+value+'" aria-pressed="'+active+'" aria-label="'+label+'" title="'+label+'"'+disabled+'>'+
+    '<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#'+icon+'"/></svg></button>';
+}
+function profileThemeLabelFor(value){
+  var labels=THEME_LABEL[profileLangKey()]||THEME_LABEL.tg;
+  return labels[value]||labels.system;
+}
+function profileThemeRowHtml(){
+  return '<div class="adm-profile-pop__row adm-profile-pop__row--theme" data-admin-theme-row>'+
+    '<span class="adm-profile-pop__row-label">Тема</span>'+
+    '<div class="adm-profile-pop__theme-options" role="group" aria-label="Тема">'+
+      profileThemeOptionHtml("system","i-theme-system")+
+      profileThemeOptionHtml("light","i-sun")+
+      profileThemeOptionHtml("dark","i-moon")+
+    '</div></div>';
+}
+function syncThemeRow(){
+  if(!profilePop) return;
+  $$("[data-admin-theme-choice]",profilePop).forEach(function(choice){
+    var value=choice.getAttribute("data-admin-theme-choice");
+    var label=profileThemeLabelFor(value);
+    choice.setAttribute("aria-pressed",String(value===profileThemeSource));
+    choice.setAttribute("aria-label",label);
+    choice.setAttribute("title",label);
+  });
+}
+function setProfileTheme(value){
+  if(systemTheme||!["system","light","dark"].includes(value)) return;
+  profileThemeSource=value;
+  try{
+    if(value==="system") localStorage.removeItem(THEME);
+    else localStorage.setItem(THEME,value);
+  }catch(e){}
+  document.documentElement.dataset.theme=value==="system"?(mq.matches?"dark":"light"):value;
+  syncThemeRow();
+}
+function profilePopHtml(){
+  return '<div class="adm-profile-pop" id="admProfilePop" role="dialog" aria-modal="true" aria-labelledby="admProfileTitle" hidden>'+
+    '<div class="adm-profile-pop__card">'+
+      '<span class="ekh-side__avatar" aria-hidden="true">'+PROFILE_USER.initials+'</span>'+
+      '<div class="adm-profile-pop__identity"><b id="admProfileTitle">'+PROFILE_USER.name+'</b><span>'+PROFILE_USER.role+'</span></div>'+
+    '</div>'+
+    '<div class="adm-profile-pop__divider" aria-hidden="true"></div>'+
+    '<div class="adm-profile-pop__preferences">'+LANG_SWITCH+profileThemeRowHtml()+'</div>'+
+  '</div>';
+}
+function mountProfilePop(){
+  if(document.getElementById("admProfilePop")){ profilePop=document.getElementById("admProfilePop"); return; }
+  document.body.insertAdjacentHTML("beforeend", profilePopHtml());
+  profilePop=document.getElementById("admProfilePop");
+}
+function profilePopSideInset(side){
+  var sideRect=side.getBoundingClientRect(), cs=getComputedStyle(side);
+  var padL=parseFloat(cs.paddingLeft)||0, padR=parseFloat(cs.paddingRight)||0;
+  return {left:sideRect.left+padL, right:sideRect.right-padR, width:sideRect.width-padL-padR};
+}
+function positionProfilePop(trigger){
+  if(!profilePop||!trigger) return;
+  profilePop.hidden=false;
+  var rect=trigger.getBoundingClientRect(), side=trigger.closest(".ekh-side");
+  var top, left, popRect;
+  if(side){
+    var inset=profilePopSideInset(side);
+    profilePop.classList.add("adm-profile-pop--side");
+    profilePop.style.setProperty("--adm-profile-pop-max-w", inset.width+"px");
+    popRect=profilePop.getBoundingClientRect();
+    top=rect.top-popRect.height-8;
+    left=inset.left;
+    if(top<8) top=rect.bottom+8;
+    profilePop.style.transformOrigin="bottom left";
+    left=Math.max(inset.left, Math.min(left, inset.right-popRect.width));
+  } else {
+    profilePop.classList.remove("adm-profile-pop--side");
+    profilePop.style.removeProperty("--adm-profile-pop-max-w");
+    popRect=profilePop.getBoundingClientRect();
+    top=rect.bottom+8;
+    left=rect.right-popRect.width;
+    profilePop.style.transformOrigin="top right";
+    left=Math.max(8, Math.min(left, window.innerWidth-popRect.width-8));
+  }
+  top=Math.max(8, Math.min(top, window.innerHeight-popRect.height-8));
+  profilePop.style.top=top+"px";
+  profilePop.style.left=left+"px";
+}
+function closeProfilePop(restore){
+  if(!profilePop||profilePop.hidden) return;
+  ddClose();
+  profilePop.classList.remove("is-open");
+  profilePop.hidden=true;
+  if(profileTrigger){
+    profileTrigger.setAttribute("aria-expanded","false");
+    if(restore&&profileTrigger.focus) profileTrigger.focus();
+    profileTrigger=null;
+  }
+}
+function openProfilePop(trigger){
+  mountProfilePop();
+  if(profileTrigger===trigger&&!profilePop.hidden){ closeProfilePop(true); return; }
+  closeProfilePop(false);
+  profileTrigger=trigger;
+  trigger.setAttribute("aria-expanded","true");
+  profilePop.hidden=false;
+  positionProfilePop(trigger);
+  syncThemeRow();
+  requestAnimationFrame(function(){ profilePop.classList.add("is-open"); });
+  var f=focusables(profilePop); if(f.length) f[0].focus();
+}
+function ensureProfileTriggers(){
+  $$(".hdr .hdr-in").forEach(function(hin){
+    if(hin.querySelector(".hdr-acts")) return;
+    var acts=document.createElement("div"); acts.className="hdr-acts";
+    acts.innerHTML=PROFILE_TRIGGER_BTN;
+    hin.appendChild(acts);
+  });
+  $$(".hdr-acts, .adm-top .at-right").forEach(function(host){
+    host.querySelectorAll(":scope > [data-theme-toggle], :scope > .dd.lang").forEach(function(el){ el.remove(); });
+    if(!host.querySelector("[data-admin-profile-trigger]")){
+      host.insertAdjacentHTML("beforeend", PROFILE_TRIGGER_BTN);
+    }
+  });
+}
+ensureProfileTriggers();
+window.addEventListener("resize", function(){
+  if(profilePop&&!profilePop.hidden&&profileTrigger) positionProfilePop(profileTrigger);
 });
-$$(".hdr-acts, .adm-top .at-right").forEach(function(host){
-  if(host.querySelector(".dd.lang")) return;
-  $$(":scope > .dd-btn", host).forEach(function(b){ b.remove(); });   /* drop the old dead ТҶ button */
-  host.insertAdjacentHTML("afterbegin", LANG_SWITCH);
+new MutationObserver(function(){
+  if(profilePop&&!profilePop.hidden&&profileTrigger) positionProfilePop(profileTrigger);
+}).observe(document.documentElement,{attributes:true,attributeFilter:["class"]});
+document.addEventListener("click", function(e){
+  var trig=e.target.closest("[data-admin-profile-trigger]");
+  if(trig){ e.preventDefault(); e.stopPropagation(); openProfilePop(trig); return; }
+  if(profilePop&&!profilePop.hidden&&!e.target.closest("#admProfilePop")) closeProfilePop(true);
+});
+document.addEventListener("click", function(e){
+  var choice=e.target.closest("[data-admin-theme-choice]");
+  if(!choice) return;
+  e.preventDefault();
+  setProfileTheme(choice.getAttribute("data-admin-theme-choice"));
+});
+document.addEventListener("keydown", function(e){
+  if(e.key!=="Tab"||!profilePop||profilePop.hidden) return;
+  var f=focusables(profilePop); if(!f.length) return;
+  var first=f[0], last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey&&document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
+document.addEventListener("keydown", function(e){
+  if(e.key!=="Escape") return;
+  if(profilePop&&!profilePop.hidden&&profilePop.querySelector(".dd.open")){
+    e.preventDefault(); ddClose(); return;
+  }
+  if(profilePop&&!profilePop.hidden){ e.preventDefault(); closeProfilePop(true); return; }
+  ddClose();
 });
 
 /* ---------- toast ---------- */
@@ -314,12 +632,14 @@ $$("[data-bld-rail]").forEach(function(rail){
   BLD_NAV.forEach(function(it){
     if (it[0]==="__label"){ h += '<div class="ekh-side__label">'+it[1]+'</div>'; return; }
     var cur = it[0]===active;
+    var icon = '<svg><use href="/design-system/assets/icons.svg#'+it[2]+'"/></svg>';
     h += '<a class="ekh-side__item" href="'+(BLD_HREF[it[0]]||"#")+'"'+(cur?' aria-current="true"':'')+' title="'+it[1]+'">'+
-         '<svg><use href="/design-system/assets/icons.svg#'+it[2]+'"/></svg><span class="ekh-side__text">'+it[1]+'</span>'+
+         icon+'<span class="ekh-side__text">'+it[1]+'</span>'+
          (it[3]?'<span class="ekh-side__count">'+it[3]+'</span>':'')+'</a>';
   });
   h += '<div class="ekh-side__spacer"></div>';
-  h += '<a class="ekh-side__user" href="#" onclick="return false" title="Аброр Каримов · Маъмури платформа"><span class="ekh-side__avatar">АК</span><span class="ekh-side__identity"><b>Аброр Каримов</b><span>Маъмури платформа</span></span></a>';
+  h += '<button type="button" class="ekh-side__user" data-admin-profile-trigger aria-haspopup="dialog" aria-expanded="false" aria-controls="admProfilePop" title="Аброр Каримов · Маъмури платформа">'+
+       '<span class="ekh-side__avatar" aria-hidden="true">АК</span><span class="ekh-side__identity"><b>Аброр Каримов</b><span>Маъмури платформа</span></span></button>';
   rail.innerHTML = h;
   /* Keep the collapse control in the stable top bar. It remains in the same
      task-level chrome on every screen and is never confused with page content. */
@@ -367,7 +687,7 @@ $$("[data-qr]").forEach(function(svg){ window.bpQR(svg, svg.getAttribute("data-q
    runtime layer. Choice persists in localStorage so it holds across page nav. */
 var I18N_KEY='ekh.preferences.lang';
 var DICT=(window.BP_DICT||{});
-var LANG_NAMES={tg:"ТҶ",ru:"RU",en:"EN"};
+var LANG_NAMES={tg:"Тоҷикӣ",ru:"Русский",en:"English"};
 var _txt=null, _att=null, _title=null;          /* harvested originals (lazy, once) */
 function i18nHarvest(){
   _txt=[]; _att=[]; _title=document.title;
@@ -441,6 +761,7 @@ window.bpSetLang=function(lang){
   i18nReflect(lang); i18nApply(lang); i18nObserve(lang); navSetLang(lang);
   if(railHandle) railHandle.sync();  /* refresh data-no-i18n rail toggle labels — only where a rail exists */
   document.dispatchEvent(new CustomEvent("bp:langchange",{detail:{lang:lang}}));
+  syncThemeRow();
 };
 function i18nInit(){
   var l='tg'; try{ l=new URLSearchParams(location.search).get('lang')||localStorage.getItem(I18N_KEY)||'tg'; }catch(e){}
