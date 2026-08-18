@@ -86,13 +86,15 @@ Scale — use `--fs-*` tokens by role:
 
 | Role | Token | Weight |
 | --- | ---: | ---: |
-| Page title | `--fs-24`–`--fs-32` (consoles clamp between them) | 600 |
-| Modal / section title | `--fs-20` / `--fs-16`–`--fs-18` | 500–600 |
+| Page title | `--fs-28` | 600 |
+| Pane/step heading inside an editor or wizard | `--fs-24` | 600 |
+| Modal title | `--fs-20` | 600 |
+| Panel / section title | `--fs-17` | 600 |
 | Body / operational baseline | `--fs-15` | 500 (consoles), 400 (long-form) |
 | Row title (repeated lists) | `--fs-14` | 500 |
-| Micro-label, table header, eyebrow, section caption | `--fs-14` sentence case | 500–600 |
-| Secondary row metadata | `--fs-12`–`--fs-13` | 400–500 |
-| Compact badge only | `--fs-10`–`--fs-11` | 550–650 |
+| Micro-label, table/column header, eyebrow, section caption | `--fs-13` sentence case | 500 |
+| Secondary row metadata | `--fs-12` | 400 |
+| Compact badge/chip only | `--fs-10`–`--fs-11` | 500–550, numerals 600 |
 
 Weight ladder — the whole interface uses a narrow band:
 
