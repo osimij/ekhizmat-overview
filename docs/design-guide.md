@@ -89,7 +89,7 @@ Scale — use `--fs-*` tokens by role:
 | Page title | `--fs-28` | 600 |
 | Pane/step heading inside an editor or wizard | `--fs-24` | 600 |
 | Modal title | `--fs-20` | 600 |
-| Panel / section title | `--fs-17` | 600 |
+| Panel / section title | `--fs-17` | 500 |
 | Body / operational baseline | `--fs-15` | 500 (consoles), 400 (long-form) |
 | Row title (repeated lists) | `--fs-14` | 500 |
 | Micro-label, table/column header, eyebrow, section caption | `--fs-13` sentence case | 500 |
@@ -124,6 +124,7 @@ The most common defect in unpolished pages is everything bold at once: 11–12px
 - Every flexible grid/flex child that may truncate gets `min-width: 0`. Use `minmax(0, 1fr)`, never bare `1fr`, for content tracks.
 - Ellipsis only where the full value stays reachable (detail view, `title`, accessible name). Truncation is a layout decision, not an emergency.
 - Shell anchors are stable: `--h-topbar` 60px, `--w-side` 264px / `--w-side-collapsed` 66px, centered search. Content changes never move navigation or global chrome.
+- One content container per console: `.adm-body` (1360px max, centered, `--s-6` padding) sets the left edge for every page — page sections must never override its width, or the content edge jumps between pages. The only sanctioned exception is a deliberately centered flow (the wizard's narrow sheet), which is a different composition, not a different gutter.
 - Multi-pane editors constrain reading width (`--w-builder-editor`) even when the workspace is wide; side panels (version rails, live previews) are `position: sticky` with their own `overflow-y: auto` scroll.
 - A full-workspace editor (service builder, form editor) locks its shell to the viewport instead: `height: 100dvh` + `overflow: hidden` on the shell, and every column becomes its own scroll region. Sticky is for panels inside a page that scrolls; shell-lock is for pages that *are* the app.
 
