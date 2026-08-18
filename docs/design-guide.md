@@ -2,19 +2,22 @@
 
 Status: **canonical and default**. This is the single UX/UI contract for every eKhizmat platform (Citizen, Ministry, ЦОН/TSON, Admin, mobile prototype). It supersedes and replaces `polish-design-guide.md`, `docs/PLAN-MINISTRY-POLISH.md`, and `docs/component-inventory.md`.
 
-Reference implementation: **`admin/services.html`** (the admin governance polish pass, commits `0c4e435..545ef3b`, August 2026), building on the Ministry polish pass (`e0c8385`, `c5967ca`). When a rule here seems ambiguous, open services.html next to the page you are changing and copy its reasoning.
+Reference implementation: **`admin/services.html`**. When a rule here seems ambiguous, open services.html next to the page you are changing and copy its reasoning. Every rule in this guide was distilled from a real, measured before/after pass over live pages (see the Appendix) — none of it is theoretical preference, which is why the rules are binding.
 
-The one-sentence philosophy, proven twice now:
+The one-sentence philosophy, proven across the Ministry and Admin passes:
 
 > Polish is not the number of visual elements. It is the quality of hierarchy, alignment, restraint, state feedback, and edge-case handling.
+
+The practical corollary: **most polish work is deletion and convergence, not decoration.** An unpolished eKhizmat page almost never lacks anything — it has too many competing signals, too many weights, too many one-off values. If your diff for a "polish" task is mostly additions, re-read §2.
 
 ---
 
 ## 0. How to use this guide (read this first, especially if you are an AI agent)
 
-- Asked to build, restyle, "clean up", or polish any page → follow the **procedure in §2**, applying the rules in §3–§10. Do not invent a personal aesthetic; the aesthetic is defined here.
+- Asked to build, restyle, "clean up", or polish any page → follow the **procedure in §2**, applying the rules in §3–§10. Do not invent a personal aesthetic; the aesthetic is defined here, and consistency with the neighbouring pages is worth more than any local improvement.
 - Every rule in **§1 is machine-enforced** by `qa/design-lint.mjs`. Your change is not done while `npm run lint:design-system` fails.
-- The **§10 decision rules** are the quick-reference form of this guide: "when you see X, do Y." Most polish work is applying those mechanically.
+- The **§10 decision rules** are the quick-reference form of this guide: "when you see X, do Y." Most polish work is applying those mechanically. When a rule and your taste disagree, the rule wins; if you believe the rule is wrong, change the rule *and* the code in the same change, with the reasoning.
+- **Measure, don't eyeball.** The drift this guide exists to kill (four panel-title styles, a 70px gutter jump between pages) survived many visual reviews and fell in one afternoon of `getComputedStyle` / `getBoundingClientRect` measurements in the browser. Verify roles numerically.
 - Finish with **§11 verification**. "Looks better in one screenshot" is not done.
 
 Sources of truth (never duplicate these, always link to them):
@@ -32,57 +35,60 @@ Sources of truth (never duplicate these, always link to them):
 
 ## 1. Non-negotiables (lint-enforced)
 
-These fail CI. Never introduce them; remove them on sight:
+These fail CI. Never introduce them; remove them on sight. Each exists because the violation, once present, spreads by copy-paste faster than review can catch it:
 
-1. **No raw colors** in app or design-system CSS — no hex, no `rgb()/rgba()`. Semantic tokens only (`--ink`, `--panel`, `--blue-tint`, …). Raw values live only in `design-system/tokens/color.css`.
-2. **`letter-spacing` is always 0.** No positive, no negative tracking anywhere. `--tracking: 0` is a contract.
-3. **No `text-transform: uppercase`.** Sentence case everywhere (see §4).
-4. **No `transition: all`** and **no raw `cubic-bezier(...)`** — use motion tokens (`--t-*`, `--ease*`) only.
-5. **Icons come only from the canonical sprite** `/design-system/assets/icons.svg#i-…` — never local `<use href="#…">` copies.
-6. **No copied foundations** — apps never load or fork their own `tokens/base/components` CSS.
-7. **localStorage keys** must be on the approved list in `qa/design-lint.mjs` (`ekh.preferences.theme|lang`, `ekh.admin.rail`, `ekh.ministry.side`, `ekh.citizen.auth`, `ekh.tson.bind`).
+1. **No raw colors** in app or design-system CSS — no hex, no `rgb()/rgba()`. Semantic tokens only (`--ink`, `--panel`, `--blue-tint`, …). Raw values live only in `design-system/tokens/color.css`. *Why:* a raw color is invisible to theming — it renders in one theme and breaks silently in the other, and it can never be retuned centrally.
+2. **`letter-spacing` is always 0.** No positive, no negative tracking anywhere; `--tracking: 0` is a contract. *Why:* tracking was historically used to make tiny uppercase labels feel "designed" — the same crutch this guide retires. Inter at our sizes needs none.
+3. **No `text-transform: uppercase`.** Sentence case everywhere (§4). *Why:* uppercase is slower to scan, reads bureaucratically loud, and was always a hierarchy patch — fix the hierarchy instead.
+4. **No `transition: all`** and **no raw `cubic-bezier(...)`** — motion tokens (`--t-*`, `--ease*`) only. *Why:* `all` animates properties you didn't intend (including layout); raw curves fragment the motion character and dodge the reduced-motion zeroing that the tokens provide.
+5. **Icons come only from the canonical sprite** `/design-system/assets/icons.svg#i-…` — never local `<use href="#…">` copies. *Why:* local copies fork the icon set and break when the sprite updates or the build rewrites asset paths.
+6. **No copied foundations** — apps never load or fork their own `tokens/base/components` CSS. *Why:* a fork stops receiving fixes the moment it is created.
+7. **localStorage keys** must be on the approved list in `qa/design-lint.mjs` (`ekh.preferences.theme|lang`, `ekh.admin.rail`, `ekh.ministry.side`, `ekh.citizen.auth`, `ekh.tson.bind`). *Why:* the platforms share one origin; unreviewed keys become cross-app leaks and privacy liabilities (see `docs/decisions.md`).
 
 And two contract rules the lint cannot see:
 
-8. The font is **Inter** via `var(--font)` (`design-system/tokens/type.css`). Do not introduce another font or a per-app override.
-9. A pattern used by two or more pages belongs in `design-system/`, with an entry in `styleguide.html` and (for admin) `docs/admin-component-map.md`. Do not copy improved CSS between apps.
+8. The font is **Inter** via `var(--font)` (`design-system/tokens/type.css`). Do not introduce another font or a per-app override. *Why:* one font is the cheapest form of cross-platform coherence; per-app overrides also break on clean devices where the override isn't bundled.
+9. A pattern used by two or more pages belongs in `design-system/`, with an entry in `styleguide.html` and (for admin) `docs/admin-component-map.md`. Do not copy improved CSS between apps. *Why:* the second copy is where drift starts — the two copies will be edited independently within weeks.
 
 ## 2. The polish procedure
 
-Work in passes, in this order. Later passes are wasted if earlier ones are skipped.
+Work in passes, in this order. The order matters because each pass changes what the next one sees: there is no point aligning type on an element pass 2 will delete, and no point animating a control pass 3 will replace.
 
-1. **Inventory.** Screenshot the page in its real states: default, most crowded, empty, error, open menu/dialog, light/dark, Russian/Tajik, desktop/tablet/phone. List every visual object on the main screen and what fact or action it represents. Map user tasks by frequency (constant / repeated / occasional / rare) — frequency decides visibility and motion budget.
-2. **Remove competition** (§10 rules 1–7). Duplicate representations of one fact, decorative icons in dense rows, subtitles that restate the title, redundant chips, actions repeated in several places. This pass deletes; it does not restyle.
-3. **Converge controls** (§6, §10 rules 8–12). Filters become the labeled dropdown; natives get the shared custom styling; KPI cards, status displays, top bar, and sidebar converge on the canon in §3.
+1. **Inventory.** Screenshot the page in its real states: default, most crowded, empty, error, open menu/dialog, light/dark, Russian/Tajik, desktop/tablet/phone. List every visual object on the main screen and what fact or action it represents. Map user tasks by frequency (constant / repeated / occasional / rare) — frequency decides visibility and motion budget. *Never start from the cleanest screen; the crowded one is where the design fails.*
+2. **Remove competition** (§10 rules 1–7). Duplicate representations of one fact, decorative icons in dense rows, subtitles that restate the title, redundant chips, actions repeated in several places. This pass deletes; it does not restyle. *Why first: every element you delete here is styling, aligning, and localizing work you never do.*
+3. **Converge controls** (§6, §10 rules 8–14). Filters become the labeled dropdown; natives get the shared custom styling; KPI cards, status displays, top bar, sidebar, and preferences converge on the canon in §3. *Why: a control that differs from its sibling on the next page reads as a bug even when both work.*
 4. **Typography** (§4). Case, size, and weight discipline. Mostly this pass makes things smaller, quieter, and less bold.
-5. **Layout and alignment** (§5). Token spacing by relationship, single-definition grids, `min-width: 0`, intentional truncation, stable shell anchors.
+5. **Layout and alignment** (§5). Token spacing by relationship, single-definition grids, `min-width: 0`, intentional truncation, stable shell anchors, the shared content container.
 6. **States, behavior, accessibility** (§7, §9). Complete state coverage, URL-synced filter state, sticky panel scrolling, focus/touch/reduced-motion, localized accessible names.
-7. **Motion last** (§8). Only where it explains state or space.
-8. **Verify** (§11) and, if a page needed a rule this guide lacks, add the rule here in the same change.
+7. **Motion last** (§8). Only where it explains state or space. *Why last: motion applied before the layout settles gets rebuilt, and motion is the easiest place to add fake polish that hides real problems.*
+8. **Verify** (§11) and, if a page needed a decision this guide lacks, add the rule here in the same change — that is how every rule in this document was born.
 
 ## 3. Canon decisions
 
-Settled product-wide. Pages still using a retired pattern are wrong, not "alternative":
+Settled product-wide. Pages still using a retired pattern are wrong, not "alternative". Each row carries its reasoning so you can extend the canon correctly to cases the row doesn't literally cover:
 
 | Topic | Standard | Retired |
 | --- | --- | --- |
-| Filters | Labeled dropdown: icon + text label + `appearance:none` select with chevron in a bordered field (`.registry-status-filter` on services.html); `:focus-within` ring | Segmented radio button-rows for filtering (tabs remain valid for *view* switching, e.g. `.lc-review-tabs`) |
-| KPI / stat cards | **Separate bordered cards**: `--panel` background, `1px --line-in` border, `--r-l` radius, `--s-3` gap; value first, label second; `tabular-nums`; when a stat filters a list it is a `<button>` with `aria-pressed` (`.dashboard-metrics`, `.reg-stats`) | Joined strips with internal dividers; label-above-value order; icon tiles inside stat cards |
-| Status in repeated rows | `.status-icon` (28px round, tinted, `role="img"` + `aria-label` + `title`): success=check, info/in-progress=clock, draft/warning=edit, danger=x | Text status pills in dense rows (pills stay valid in detail headers where the status is primary content) |
-| Top bar | `60px`; page title left; search optically centered, `min(460px, 37vw)`; right side holds the **role slot only**; no avatar (identity lives in the sidebar user card); **no theme toggle** — theme follows the OS via `data-system-theme` | Per-page moon/sun toggle; avatar in the top bar |
-| Sidebar | The shared `.ekh-side` component only (`design-system/css/sidebar.css` + `sidebar.js`): 264px expanded / 66px rail, fixed 33px icon axis, pre-paint collapse class on `<html>`, labels morph into hairline dividers, neutral (non-blue) selection in dark mode | Bespoke per-app rails (`.adm-rail`, old ministry rail) |
-| Page header | One `h1`; a subtitle only when it adds orientation the title lacks; a page-level create/new action appears only when the sidebar does not already carry that destination, and then as a **quiet pill** (border, transparent, `--ink-2`) — blue is reserved for the decisive action of a flow (continue, publish, submit) | Subtitle restating the title; `btn-pri` on browse-page headers; a header action duplicating a sidebar item |
-| Sequential wizard | Shared `.stepper` across the top of a single centered panel; current step via `aria-current="step"`; completed steps use `.done` | Vertical numbered rail beside the form |
-| Form controls | Shared custom-drawn radios/checkboxes (`appearance:none`, blue dot / SVG check, `:focus-visible` ring); every `select` gets `appearance:none` + sprite chevron; binary/short choices may be tappable cards (`.cost-options`) | Bare native radios/checkboxes/selects inside styled flows |
-| Action color | `--blue` (`#0072d6` in tokens — chosen for identity + contrast) marks interactivity: primary action, selection, focus, links. One primary per region/decision. Explicit hover/press tokens, never `filter: brightness()` | Blue as decoration or heading color |
-| Selected icon tile | When a choice is selected (`:checked`, `aria-pressed`, `aria-selected`, or `.open`), its icon well goes **solid `--blue` + `--on-blue` glyph** (builder `.stg-ic`). Category hue is idle-only. `.status-icon` and sidebar icons keep their own contracts | Selected tile keeps its category hue |
-| Density | Platforms share anatomy, tokens, and state language but not density: Citizen comfortable/touch (44px+), Ministry compact specialist, ЦОН workstation (1280px minimum), Admin editor-oriented multi-pane | Forcing one density on all platforms |
+| Filters | Labeled dropdown: icon + text label + `appearance:none` select with chevron in a bordered field (`.registry-status-filter` on services.html); `:focus-within` ring. *Why: filter option sets grow and their RU/TJ labels are long — a dropdown holds any count at fixed width, while a button-row fights for space and wraps.* | Segmented radio button-rows for filtering (tabs remain valid for *view* switching, e.g. `.lc-review-tabs`, where 2–3 short mutually-exclusive views benefit from being visible at once) |
+| KPI / stat cards | **Separate bordered cards**: `--panel` background, `1px --line-in` border, `--r-l` radius, `--s-3` gap; value first, label second; `tabular-nums`; when a stat filters a list it is a `<button>` with `aria-pressed` (`.dashboard-metrics`, `.reg-stats`). *Why: each stat is an independent fact — separate cards scan as units, reflow cleanly at any breakpoint, and value-first matches how operators read numbers.* | Joined strips with internal dividers; label-above-value order; icon tiles inside stat cards (decoration competing with the number) |
+| Status in repeated rows | `.status-icon` (28px round, tinted, `role="img"` + `aria-label` + `title`): success=check, info/in-progress=clock, draft/warning=edit, danger=x. *Why: in a dense list the status is a comparison signal, not prose — a tinted glyph carries it at a glance while the text lives in the accessible name where it belongs.* | Text status pills in dense rows (pills stay valid in detail headers where the status is the primary content of the view) |
+| Top bar | `60px`; page title left; search optically centered, `min(460px, 37vw)`; right side holds the **role slot only**. *Why: permanent chrome earns its place only with content that is global and per-page-relevant; everything else moved behind the profile.* | Per-page moon/sun theme toggle; language dropdown in the bar; avatar in the top bar |
+| Global preferences | Language and theme live in the **profile popover** (`.adm-profile-pop`), anchored to the sidebar user card (a real `<button>`) or to an avatar trigger on full-screen editors: identity card, language flyout, three-state theme choice (system / light / dark, `i-theme-system` icon). Explicit choice persists via `ekh.preferences.theme`; pages pinned to `data-system-theme` render the explicit choices disabled and follow the OS. Elevation via `--shadow-1`; collapsed-rail compact variant; flyout submenus use `dd-right`/`dd-up` with a hover aim-bridge. *Why: preferences are set rarely — identity is where users look for them, and removing them from the frame is what lets the top bar stay quiet.* | Theme/language controls in permanent chrome |
+| Sidebar | The shared `.ekh-side` component only (`design-system/css/sidebar.css` + `sidebar.js`): 264px expanded / 66px rail, fixed 33px icon axis, pre-paint collapse class on `<html>`, labels morph into hairline dividers, neutral (non-blue) selection in dark mode. *Why: navigation is muscle memory — one component means targets never move between pages, and the collapse contract (nothing shifts horizontally, text fades, labels become dividers) is engineered once.* | Bespoke per-app rails (`.adm-rail`, old ministry rail) |
+| Page header | One `h1`; a subtitle only when it adds orientation the title lacks; a page-level create/new action appears only when the sidebar does not already carry that destination, and then as a **quiet pill** (border, transparent, `--ink-2`). *Why: the header orients, it doesn't sell — and an action duplicated from the sidebar is pure noise (services dropped its button because "Хизмати нав" is a rail item; forms keeps one because it isn't).* | Subtitle restating the title; `btn-pri` on browse-page headers; a header action duplicating a sidebar item |
+| Sequential wizard | Shared `.stepper` across the top of a single centered panel; current step via `aria-current="step"`; completed steps use `.done`. *Why: a horizontal stepper preserves top-to-bottom reading order — the user reads progress, then the question; a side rail makes two columns compete.* | Vertical numbered rail beside the form |
+| Form controls | Shared custom-drawn radios/checkboxes (`appearance:none`, blue dot / SVG check, `:focus-visible` ring); every `select` gets `appearance:none` + sprite chevron; binary/short choices may be tappable cards (`.cost-options`). *Why: native control rendering varies by OS and clashes with the token palette; the custom set is drawn once, themed by tokens, and keeps full keyboard behavior because it styles real inputs.* | Bare native radios/checkboxes/selects inside styled flows |
+| Action color | `--blue` (`#0072d6` in tokens — chosen for identity + contrast) marks interactivity: primary action, selection, focus, links. One primary per region/decision. Explicit hover/press tokens, never `filter: brightness()`. *Why: blue is the affordance signal — every decorative use of it teaches users to ignore it.* | Blue as decoration or heading color |
+| Selected icon tile | When a choice is selected (`:checked`, `aria-pressed`, `aria-selected`, or `.open`), its icon well goes **solid `--blue` + `--on-blue` glyph** (builder `.stg-ic`). Category hue is idle-only. `.status-icon` and sidebar icons keep their own contracts. *Why: selection is state and must out-rank category decoration; if hue and selection use the same visual channel, neither reads.* | Selected tile keeps its category hue |
+| Density | Platforms share anatomy, tokens, and state language but not density: Citizen comfortable/touch (44px+), Ministry compact specialist, ЦОН workstation (1280px minimum), Admin editor-oriented multi-pane. *Why: the jobs differ — a citizen files one request, an operator processes hundreds; forcing one density betrays one of them.* | Forcing one density on all platforms |
 
 ## 4. Typography
 
-Inter, `--tracking: 0`, sentence case, `tabular-nums` on all data surfaces (identifiers, dates, money, counts).
+Inter, `--tracking: 0`, sentence case, `tabular-nums` on all data surfaces (identifiers, dates, money, counts — so columns of digits don't wobble as values change).
 
-Scale — use `--fs-*` tokens by role:
+The system in one sentence: **size expresses role, weight expresses state.** A thing is big because of what it *is* (page title, row title, metadata); it is bold because of what it is *doing right now* (selected, active, primary). When you can't decide a value, ask which of the two questions you're answering.
+
+Scale — use `--fs-*` tokens by role. These exact values were measured and unified across all seven admin pages; do not reintroduce neighbors (16 vs 17, 27 vs 28):
 
 | Role | Token | Weight |
 | --- | ---: | ---: |
@@ -96,84 +102,86 @@ Scale — use `--fs-*` tokens by role:
 | Secondary row metadata | `--fs-12` | 400 |
 | Compact badge/chip only | `--fs-10`–`--fs-11` | 500–550, numerals 600 |
 
-Weight ladder — the whole interface uses a narrow band:
+Weight ladder — the whole interface uses a narrow band, because a narrow band is what makes the one heavier thing visible:
 
 - **400** — long-form text, input values, quiet metadata, lead paragraphs.
 - **450–500** — default UI text; repeated row titles are 500.
 - **550** — medium emphasis: badges, key cells.
 - **600** — the ceiling: headings, primary/danger button labels, and the *active/selected/current* item in a repeated list. Only state earns extra weight; decoration never does.
-- **620–680** — display numerals only (stat values, money sums).
+- **620–680** — display numerals only (stat values, money sums), where mass compensates for the thin strokes of large digits.
 
 Where a value sits on the token scale, write the token — `var(--weight-regular)`, `var(--weight-medium)`, `var(--weight-semibold)` — and reserve numeric literals for the in-between steps (450, 550, 620–680).
 
-The most common defect in unpolished pages is everything bold at once: 11–12px uppercase tracked labels and 640–720 weights competing. The fix is always the same — 14px sentence case, letter-spacing 0, weight down the ladder.
+The most common defect in unpolished pages is everything bold at once: 11–12px uppercase tracked labels and 640–720 weights competing. When everything is emphasized, nothing is. The fix is always the same — 13px sentence case, letter-spacing 0, weight down the ladder.
 
 ## 5. Space, surfaces, alignment
 
-**Spacing** uses the 4px token scale (`--s-1`…`--s-16`) chosen by *relationship*, not by eye: icon↔label 4–8, controls in one toolbar 8–12, columns in a row 12–20, panel interior 16–24, page sections 24–32, hero separation 40+. One 4px optical deviation is allowed with a code comment; it must not break the shared grid.
+**Spacing** uses the 4px token scale (`--s-1`…`--s-16`) chosen by *relationship*, not by eye — spacing is information about what belongs together: icon↔label 4–8, controls in one toolbar 8–12, columns in a row 12–20, panel interior 16–24, page sections 24–32, hero separation 40+. One 4px optical deviation is allowed with a code comment; it must not break the shared grid.
 
-**Surfaces**, in order: `--bg` (page) → `--panel` (primary container) → `--field` / `--field-on-panel` (inputs, quiet groups) → `--raised` + `--shadow-layer` (menus, dialogs). Borders are quiet separators: `--line` around groups, `--line-in` for internal hairlines. One border per semantic level — never nest bordered cards that add no meaning.
+**Surfaces**, in order: `--bg` (page) → `--panel` (primary container) → `--field` / `--field-on-panel` (inputs, quiet groups) → `--raised` + `--shadow-1`/`--shadow-layer` (popovers, menus, dialogs). Borders are quiet separators: `--line` around groups, `--line-in` for internal hairlines. One border per semantic level — never nest bordered cards that add no meaning, because each extra border spends contrast the content needs.
 
-**Scrollbars** are a shared foundation, never page-local: every page and nested scroll surface uses the 6px treatment in `design-system/css/foundations.css`, with a transparent track and a low-contrast thumb that becomes slightly clearer on fine-pointer hover. Do not hide or restyle scrollbars in an app stylesheet. One exception: inside a device mockup the artifact imitates the target OS, whose scrollbars are overlays — the phone preview's app viewport (`.pv-app`) hides its bar deliberately.
+**Scrollbars** are a shared foundation, never page-local: every page and nested scroll surface uses the 6px treatment in `design-system/css/foundations.css`, with a transparent track and a low-contrast thumb that becomes slightly clearer on fine-pointer hover. Do not hide or restyle scrollbars in an app stylesheet — scattered `scrollbar-width:none` hacks were how each page ended up scrolling differently. One exception: inside a device mockup the artifact imitates the target OS, whose scrollbars are overlays — the phone preview's app viewport (`.pv-app`) hides its bar deliberately.
 
-**Semantic state colors**: green = done/valid, amber = waiting/degraded, red = error/breach/destructive, neutral = draft/inactive. State must survive without color (text, icon, position, or accessible name carries it too). Category hue tiles (`--h-*-bg/fg`) aid recognition in catalogues; remove them from dense comparison rows.
+**Semantic state colors**: green = done/valid, amber = waiting/degraded, red = error/breach/destructive, neutral = draft/inactive. State must survive without color (text, icon, position, or accessible name carries it too). Category hue tiles (`--h-*-bg/fg`) aid recognition in catalogues; remove them from dense comparison rows where they compete with the fields users actually compare.
 
-**Alignment is a system**:
+**Alignment is a system**, because "nearly aligned" reads as unfinished even when nobody can say why:
 
-- Define table/queue columns **once** in a custom property, shared by header and rows (`--queue-columns` pattern); identical padding for both.
-- Every flexible grid/flex child that may truncate gets `min-width: 0`. Use `minmax(0, 1fr)`, never bare `1fr`, for content tracks.
+- Define table/queue columns **once** in a custom property, shared by header and rows (`--queue-columns`, `--form-row-columns`); identical padding for both. Two independently-maintained column definitions *will* drift.
+- Every flexible grid/flex child that may truncate gets `min-width: 0`. Use `minmax(0, 1fr)`, never bare `1fr`, for content tracks — grid's intrinsic minimum otherwise lets one long value widen the whole page.
 - Ellipsis only where the full value stays reachable (detail view, `title`, accessible name). Truncation is a layout decision, not an emergency.
 - Shell anchors are stable: `--h-topbar` 60px, `--w-side` 264px / `--w-side-collapsed` 66px, centered search. Content changes never move navigation or global chrome.
-- One content container per console: `.adm-body` (1360px max, centered, `--s-6` padding) sets the left edge for every page — page sections must never override its width, or the content edge jumps between pages. The only sanctioned exception is a deliberately centered flow (the wizard's narrow sheet), which is a different composition, not a different gutter.
+- One content container per console: `.adm-body` (1360px max, centered, `--s-6` padding) sets the left edge for every page — page sections must never override its width, or the content edge jumps between pages (review.html once sat 70px off because of a private `max-width:1500px`). The only sanctioned exception is a deliberately centered flow (the wizard's narrow sheet), which is a different composition, not a different gutter.
 - Multi-pane editors constrain reading width (`--w-builder-editor`) even when the workspace is wide; side panels (version rails, live previews) are `position: sticky` with their own `overflow-y: auto` scroll.
 - A full-workspace editor (service builder, form editor) locks its shell to the viewport instead: `height: 100dvh` + `overflow: hidden` on the shell, and every column becomes its own scroll region. Sticky is for panels inside a page that scrolls; shell-lock is for pages that *are* the app.
 
 ## 6. Components
 
-Canonical anatomy lives in `styleguide.html` and `docs/admin-component-map.md`; compose, don't fork. Every interactive component must expose the full state set:
+Canonical anatomy lives in `styleguide.html` and `docs/admin-component-map.md`; compose, don't fork. Every interactive component must expose the full state set — a component missing a state fails exactly when the user is paying most attention:
 
 `default → hover → active/press → focus-visible → selected/open → disabled → loading → error/success → reduced-motion`
 
-- **Buttons**: pill shape; press `scale(.97)` (`.96` icon buttons) over `--t-fast`; disabled never moves; primary/danger labels 600, ordinary 500.
-- **Navigation items**: 18px outline icon, tint + ink + weight change together on the active item; counts stay secondary (red tint only when urgent).
+- **Buttons**: pill shape; press `scale(.97)` (`.96` icon buttons) over `--t-fast` — the interface physically acknowledges input; disabled never moves; primary/danger labels 600, ordinary 500.
+- **Navigation items**: 18px outline icon, tint + ink + weight change together on the active item (one state, all channels agree); counts stay secondary (red tint only when urgent).
 - **Dropdown filter** (the canon filter): visible text label with 16px icon, bordered 38px field, `appearance:none` select, sprite chevron, `:focus-within` ring, syncs to the URL (§7).
-- **Custom controls** beyond styled natives require the complete keyboard/ARIA model (trigger `aria-haspopup/expanded/controls`, listbox `aria-selected`, arrows/Home/End/Escape, focus return). Visual polish without keyboard completeness is unfinished work.
+- **Profile popover** (`.adm-profile-pop`): identity card on top, hairline divider, then preferences (language flyout, three-state theme). Anchored to the sidebar user card or the editor avatar trigger; `--shadow-1` elevation on `--raised`; compact variant under the collapsed rail; submenus position with `dd-right`/`dd-up` and keep a hover aim-bridge so diagonal pointer travel doesn't close the flyout.
+- **Custom controls** beyond styled natives require the complete keyboard/ARIA model (trigger `aria-haspopup/expanded/controls`, listbox `aria-selected`, arrows/Home/End/Escape, focus return). Visual polish without keyboard completeness is unfinished work — it demos well and fails real users.
 - **Status icons**: the four-glyph mapping from §3; tint pair + `role="img"` + localized `aria-label` + `title`.
-- **Empty states** answer: what happened, is it good or bad, what can I do next (`.reg-empty`, `.fb-empty`). **Loading** skeletons match final geometry. **Errors** are specific and sit next to the decision they affect.
-- **Device previews** reproduce real device geometry: the builder phone is iPhone 17 Pro Max — screen 440×956pt, 62pt display radius and Dynamic Island expressed as percentages of the screen so proportions hold at any width (see the `.pv-phone` comment in `apps/admin/app.css`). The chrome stays quiet: no fake OS status content, bezel color mixed toward the page background, and the caption sits *below* the device as small regular-weight text.
+- **Empty states** answer three questions: what happened, is it good or bad, what can I do next (`.reg-empty`, `.fb-empty`). **Loading** skeletons match final geometry so nothing jumps on arrival. **Errors** are specific and sit next to the decision they affect.
+- **Device previews** reproduce real device geometry: the builder phone is iPhone 17 Pro Max — screen 440×956pt, 62pt display radius and Dynamic Island expressed as percentages of the screen so proportions hold at any width (see the `.pv-phone` comment in `apps/admin/app.css`). The chrome stays quiet: no fake OS status content, bezel color mixed toward the page background, caption *below* the device in small regular text. *Why: a preview sells trust in the builder — wrong proportions read as a toy.*
 
 ## 7. Behavior and state
 
-- **Filter/view state lives in the URL** (`?status=draft`) via `history.replaceState`; on load, an allow-listed query param restores state. KPI cards that act as shortcuts set the same state and `aria-pressed`.
-- **Theme** follows the OS (`data-system-theme` + `matchMedia` pre-paint script). **Sidebar collapse** persists (`ekh.admin.rail`) and is applied on `<html>` before first paint — no flash, no animation on load; the width tween arms only on a real toggle.
-- Dynamic list regions get `aria-live="polite"`.
+- **Filter/view state lives in the URL** (`?status=draft`) via `history.replaceState`; on load, an allow-listed query param restores state. KPI cards that act as shortcuts set the same state and `aria-pressed`. *Why: reload, back-button, and shared links must land on what the user was looking at.*
+- **Theme** is chosen in the profile popover (system / light / dark). Explicit choices persist via `ekh.preferences.theme`; pages pinned with `data-system-theme` disable the explicit options and follow the OS through the `matchMedia` pre-paint script. Theme is applied on `<html>` **before first paint** — a theme flash is a bug.
+- **Sidebar collapse** persists (`ekh.admin.rail`) and is applied on `<html>` before first paint; the width tween arms only on a real toggle (`.ekh-side-anim`), so loads and re-renders never animate.
+- Dynamic list regions get `aria-live="polite"` so screen readers hear filter results change.
 - Preferences are never silently overwritten by deterministic demo query params (see `docs/decisions.md`).
 
 ## 8. Motion
 
-Character: calm, immediate, official. No bounce, no spring. Motion explains state or space — never decorates.
+Character: calm, immediate, official. No bounce, no spring. Motion explains state or space — never decorates. An operator who sees the same transition three hundred times a day experiences every unnecessary millisecond as friction.
 
 Frequency budget: constant actions (search, filter, sort, queue redraw) get **no** spatial animation; repeated ones near-instant; occasional layers (dialog, drawer, toast) standard transitions; rare moments (login, first success) a little warmth.
 
-Tokens only: `--t-fast` 120ms (hover/press/color), `--t-popover` 150ms, `--t-exit` 160ms (exits slightly faster than entries), `--t-step` 180ms, `--t-layer` 200ms, `--t-draw` 400ms; curves `--ease`, `--ease-out`, `--ease-layer`. All zero out under reduced motion — but test that the interface still communicates.
+Tokens only: `--t-fast` 120ms (hover/press/color), `--t-popover` 150ms, `--t-exit` 160ms (exits slightly faster than entries — leaving should feel lighter than arriving), `--t-step` 180ms, `--t-layer` 200ms, `--t-draw` 400ms; curves `--ease`, `--ease-out`, `--ease-layer`. All zero out under reduced motion — but test that the interface still communicates state without them.
 
-Spatial rules: popovers grow from their trigger (`transform-origin`); drawers/toasts exit the way they entered; scale entrances start ~.98, never 0; remove DOM only after the exit finishes. Animate `transform`/`opacity` only — never font-size, padding, or page layout (the single-track sidebar tween and toast-stack collapse are the two audited exceptions).
+Spatial rules: popovers grow from their trigger (`transform-origin`); drawers/toasts exit the way they entered; scale entrances start ~.98, never 0; remove DOM only after the exit finishes — a layer that vanishes mid-exit reads as a crash. Animate `transform`/`opacity` only — never font-size, padding, or page layout (the single-track sidebar tween and toast-stack collapse are the two audited exceptions, both justified because preventing a content jump outranks the rule).
 
-Cross-page navigation: console pages are separate documents, so navigation is a hard cut by default and JS-built shell chrome can paint empty for a frame. The canon fix is both halves together: `blocking="render"` on the shell-building module in each page's `<head>` (the rail must never paint empty), plus `@view-transition{navigation:auto}` with the rail and top bar carrying `view-transition-name`s so identical shell pixels hold still while the workspace cross-fades at `--t-fast` (which is 0ms under reduced motion).
+Cross-page navigation: console pages are separate documents, so navigation is a hard cut by default and JS-built shell chrome can paint empty for a frame. The canon fix is both halves together: `blocking="render"` on the shell-building module in each page's `<head>` (the rail must never paint empty), plus `@view-transition{navigation:auto}` with the rail and top bar carrying `view-transition-name`s so identical shell pixels hold still while the workspace cross-fades at `--t-fast` (0ms under reduced motion). Result: separate documents feel like one application.
 
 ## 9. Responsive, localization, accessibility
 
-**Responsive** preserves task and reading order, recomposing at *content-failure* breakpoints, not device names: consoles fold the detail column below content (~1080px), swap the rail for a drawer / cards for tables (~960px), tighten padding (~620px). Test short viewports, not just narrow. `pointer: coarse` targets ≥44px.
+**Responsive** preserves task and reading order, recomposing at *content-failure* breakpoints, not device names: consoles fold the detail column below content (~1080px), swap the rail for a drawer / cards for tables (~960px, the point where column alignment stops helping comparison), tighten padding (~620px). Test short viewports, not just narrow. `pointer: coarse` targets ≥44px.
 
-**Localization (RU + TJ) is a layout rule**: size controls for the longer real translation; localize data, durations, money, statuses, and every `aria-label` (including both outcomes of stateful controls — "collapse"/"expand"); a component that breaks in the longer language is not finished.
+**Localization (RU + TJ) is a layout rule, not a translation pass**: size controls for the longer real translation; localize data, durations, money, statuses, and every `aria-label` (including both outcomes of stateful controls — "collapse"/"expand"); a component that breaks in the longer language is not finished.
 
-**Accessibility is part of polish**: every control has a programmatic name; focus visible and never clipped; dialogs trap focus, close on Escape, return focus; row-buttons are keyboard reachable with useful names; sort direction is announced, not just drawn; color is never the only channel; hover-only affordances have focus/touch paths (`@media (hover:hover) and (pointer:fine)` gates hover styles).
+**Accessibility is part of polish** — an interface feels finished when it responds consistently regardless of input method: every control has a programmatic name; focus visible and never clipped by rounded containers; dialogs trap focus, close on Escape, return focus to the trigger; row-buttons are keyboard reachable with useful names; sort direction is announced, not just drawn; color is never the only channel; hover-only affordances have focus/touch paths (`@media (hover:hover) and (pointer:fine)` gates hover styles so touch devices never get stuck hover states).
 
 ## 10. Decision rules — quick reference
 
-Apply mechanically wherever seen:
+Apply mechanically wherever seen. Each is the compressed form of a §3–§9 rule; the reasoning lives there:
 
-1. Uppercase/tracked micro-label → `--fs-14` sentence case, `letter-spacing: 0`.
+1. Uppercase/tracked micro-label → `--fs-13` sentence case, `letter-spacing: 0`.
 2. UI text weight above 600 (or drifting 640/650/700) → step down the §4 ladder; ≥620 for display numerals only.
 3. Everything in a row equally bold → titles 500, only active/selected 600.
 4. Subtitle restating the `h1` → delete.
@@ -184,7 +192,7 @@ Apply mechanically wherever seen:
 9. Segmented radio row used as a filter → labeled dropdown, state in the URL.
 10. Joined KPI strip / label-first stat → separate bordered cards, value first, `tabular-nums`, `aria-pressed` when clickable.
 11. Bespoke sidebar/rail markup → shared `.ekh-side`.
-12. Theme toggle in page chrome → remove; `data-system-theme` + pre-paint script.
+12. Theme or language control in permanent chrome → move into the profile popover (§3); pages pinned to `data-system-theme` keep explicit theme choices disabled.
 13. Sequential wizard with a side step rail → shared `.stepper` above the question in a centered panel.
 14. Bare native select/radio/checkbox in a styled flow → shared custom-drawn control with `:focus-visible`.
 15. Blue on a browse-page header action → quiet pill; blue only for the flow's decisive action.
@@ -209,9 +217,10 @@ npm run test:a11y
 npm run test:visual
 ```
 
-Then review like a designer:
+Then review like a designer, and measure like an engineer:
 
 - 1440px (sidebar expanded *and* collapsed), 960px, 620px, and a viewport under 700px tall; light and dark; Russian and Tajik.
+- **Measure the roles numerically** on every page you touched: `getComputedStyle` for the §4 type roles, `getBoundingClientRect().left` on the `h1` for the shared content edge. Same role, same number, every page.
 - Compare side-by-side with `admin/services.html`: does your page read as the same product?
 - Hunt the classic defects: header/body column drift, inconsistent left edges, everything-bold rows, tiny uppercase labels, clipped focus rings, color-only status, menus growing from the wrong origin, layers that vanish without an exit, hover stuck on touch, horizontal overflow during sidebar collapse.
 - Read your own diff as a design artifact: for every meaningful change, you can state the user problem, the rule applied (cite the § here), what was *removed* because the new element replaces it, and which test protects it.
@@ -220,12 +229,18 @@ A page is polished when a user works faster and misreads less while being only v
 
 ## Appendix — evidence
 
-The rules above are distilled from real passes; read the diffs for worked examples:
+Every rule above was distilled from a real pass; read the diffs for worked examples. This is also the maintenance model: each future pass that teaches a new rule adds its commit here.
 
 | Commits | Pass | What it demonstrates |
 | --- | --- | --- |
 | `e0c8385`, `c5967ca` | Ministry workflows + typography | IA before styling; weight/case discipline; table geometry |
-| `ba33432` | Admin governance experience | De-decoration, status icons, wizard control styling |
-| `c359fba` | Form builder spacing | Spacing-by-relationship fixes |
-| `0800b7a` | Shared sidebar (`.ekh-side`) | Promoting a pattern to `design-system/`; collapse contract |
+| `ba33432`, `c359fba` | Admin governance + form builder spacing | De-decoration, status icons, spacing by relationship |
+| `0800b7a` | Shared sidebar (`.ekh-side`) | Promoting a pattern to `design-system/`; the collapse contract |
 | `545ef3b` | Dashboard metrics + typography | The separate-bordered-card KPI canon |
+| `a015e61` | Builder workspace | Device-preview geometry, editor shell-lock, shared scrollbars, title-only pipeline |
+| `4b9381c` | Wizard + selected tiles | Shared stepper canon; solid-blue selected icon wells |
+| `ec39b20` | Forms library convergence | A full page converging on existing canon; versioned-row pattern (rule 26) |
+| `10cbabb` | Typography unification | Browser-measured role scale across all pages (§4 table) |
+| `5ccd252` | Cross-page navigation | Render-blocked shell + view transitions (rule 25) |
+| `825bc2f`, `1328533` | Edge alignment + quiet chrome | One content container (§5); header-action-only-when-needed |
+| `3b00217` | Profile popover | Preferences out of permanent chrome; `--shadow-1` token |
