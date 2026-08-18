@@ -2330,14 +2330,14 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
    SERVICE REVIEW & PUBLICATION — queue, complete preview and audit trail
    ===================================================================== */
 .lc-review{max-width:1500px;margin:0 auto;gap:var(--s-4)}
-.lc-review-head{padding-bottom:var(--s-2);border-bottom:1px solid var(--line-in)}
+.lc-review-head{padding-bottom:var(--s-2)}
 .lc-review-head>div:first-child{max-width:760px}
 .lc-review-head .eyebrow,.lc-section-heading .eyebrow,.lc-overview-banner .eyebrow{font-size:var(--fs-13);font-weight:500;letter-spacing:0;text-transform:none;color:var(--blue-ink)}
 .lc-review-head h1{letter-spacing:0;margin:var(--s-1) 0 var(--s-3)}
 .lc-review-head p{max-width:700px;line-height:1.55;font-weight:var(--weight-regular);margin:0}
 .lc-review-context{display:flex;align-items:center;gap:var(--s-3);max-width:860px;padding:var(--s-3) var(--s-4);border:1px solid color-mix(in srgb,var(--blue) 20%,var(--line));border-radius:var(--r-m);background:var(--blue-tint);color:var(--blue-ink)}
 .lc-review-context p{font-size:var(--fs-13);line-height:1.45}
-.lc-context-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;background:var(--panel)}
+.lc-context-icon{display:grid;place-items:center;flex:0 0 auto;color:inherit}
 .lc-context-icon svg{width:17px;height:17px}
 .lc-review-tabs{margin-top:var(--s-1)}
 .lc-review-tabs .tab{min-height:34px;padding:7px 14px;border-radius:var(--r-pill);white-space:nowrap;transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
@@ -2370,7 +2370,6 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 .lc-version{display:inline-flex;width:max-content;padding:5px 8px;border-radius:var(--r-s);background:var(--field);font-size:var(--fs-11);font-weight:600;font-variant-numeric:tabular-nums}
 .lc-row-arrow{width:16px;height:16px;color:var(--ink-faint);transition:transform var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 .lc-queue-row:hover .lc-row-arrow{transform:translateX(2px);color:var(--ink)}
-.lc-queue-empty{min-height:300px;border:0;border-radius:0}
 
 .lc-back{width:max-content;margin:-2px 0 0 -10px;color:var(--ink-2)}
 .lc-back svg{width:16px;height:16px}
@@ -2611,3 +2610,20 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
   .form-library-head > span:nth-child(3),
   .form-library-metric{display:none}
 }
+
+/* =====================================================================
+   CROSS-PAGE NAVIGATION — cross-document view transitions
+   Each console page is a full document, so navigation used to hard-cut
+   (and the JS-built rail could paint empty for a frame — prevented by
+   blocking="render" on builder.js in each page head). Here the swap
+   becomes one quiet cross-fade; the rail and top bar carry their own
+   view-transition-names so identical shell pixels hold perfectly still
+   and only the workspace fades. Durations ride the motion tokens, which
+   collapse to 0ms under prefers-reduced-motion.
+   ===================================================================== */
+@view-transition{navigation:auto}
+.adm > .ekh-side{view-transition-name:ekh-side}
+.adm-top{view-transition-name:adm-top}
+::view-transition-group(*),
+::view-transition-old(root),
+::view-transition-new(root){animation-duration:var(--t-fast);animation-timing-function:var(--ease)}

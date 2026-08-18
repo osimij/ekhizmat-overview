@@ -536,7 +536,7 @@ test('Admin new-service audience and full review / approval / publish workflow',
 
   await page.goto('/admin/review.html?lang=ru&theme=light');
   await page.locator('[data-lc-filter="audience"]').selectOption('business');
-  await expect(page.locator('#lowCodeReview .empty-state')).toBeVisible();
+  await expect(page.locator('#lowCodeReview .reg-empty')).toBeVisible();
   await page.locator('[data-lc-filter="audience"]').selectOption('guest');
   await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
   await page.locator('[data-lc-role]').selectOption('reviewer');

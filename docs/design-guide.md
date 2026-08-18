@@ -158,6 +158,8 @@ Tokens only: `--t-fast` 120ms (hover/press/color), `--t-popover` 150ms, `--t-exi
 
 Spatial rules: popovers grow from their trigger (`transform-origin`); drawers/toasts exit the way they entered; scale entrances start ~.98, never 0; remove DOM only after the exit finishes. Animate `transform`/`opacity` only — never font-size, padding, or page layout (the single-track sidebar tween and toast-stack collapse are the two audited exceptions).
 
+Cross-page navigation: console pages are separate documents, so navigation is a hard cut by default and JS-built shell chrome can paint empty for a frame. The canon fix is both halves together: `blocking="render"` on the shell-building module in each page's `<head>` (the rail must never paint empty), plus `@view-transition{navigation:auto}` with the rail and top bar carrying `view-transition-name`s so identical shell pixels hold still while the workspace cross-fades at `--t-fast` (which is 0ms under reduced motion).
+
 ## 9. Responsive, localization, accessibility
 
 **Responsive** preserves task and reading order, recomposing at *content-failure* breakpoints, not device names: consoles fold the detail column below content (~1080px), swap the rail for a drawer / cards for tables (~960px), tighten padding (~620px). Test short viewports, not just narrow. `pointer: coarse` targets ≥44px.
@@ -194,7 +196,8 @@ Apply mechanically wherever seen:
 22. Secondary description lines inside a step/pipeline rail → title only; the detail belongs in the selected pane's header.
 23. A "live"/status badge with a pulsing dot on always-visible chrome → static quiet caption; constant surfaces get no animation (§8).
 24. Selectable row/card/button with an icon well (`.tile`, `.stg-ic`, `.fb-ic`, …) → selected well is solid `--blue` / `--on-blue`; idle keeps category hue. Do not restyle `.status-icon` or sidebar icons.
-25. A list of versioned library objects (forms) → one `.svc-row` with a compact `vN` strip whose background carries status (green live, amber draft, neutral archive); slight corner radius, not a pill, and no status-icon in that strip. Show at most 3 versions with a quiet `+N` overflow chip. Status text stays in `title` + `.sr-only`. No second Open control, no description that restates the title, no identical icon tile on every row.
+25. A hard cut or empty-shell flash when navigating between console pages → render-block the shell-building module in `<head>` + cross-document view transitions with the shell pinned (§8).
+26. A list of versioned library objects (forms) → one `.svc-row` with a compact `vN` strip whose background carries status (green live, amber draft, neutral archive); slight corner radius, not a pill, and no status-icon in that strip. Show at most 3 versions with a quiet `+N` overflow chip. Status text stays in `title` + `.sr-only`. No second Open control, no description that restates the title, no identical icon tile on every row.
 
 ## 11. Verification — definition of done
 
