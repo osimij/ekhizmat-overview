@@ -193,14 +193,15 @@ export function radioGroup({ label, options = [], value, name }) {
 }
 
 /* Источники значения поля. Ключ — он же модификатор класса .src--*, поэтому
-   вид чипа задаётся в components.css, а не здесь (§11.2). */
+   вид чипа задаётся в components.css, а не здесь (§11.2).
+
+   Источников ровно два, и оба отвечают на вопрос, который оператор не может
+   решить сам: значение пришло из реестра или он ввёл его руками. Уровни
+   доверия к распознанному паспорту чипами больше не подписываются — S2b
+   помечает только поля под проверку, см. .field--check. */
 const SRC = {
   profile:  { icon: 'shield', key: 'form.fromProfile' },
   manual:   { icon: 'edit',   key: 'form.entered' },
-  mrz:      { icon: 'check',  key: 'enroll.srcMrz' },
-  ocr:      { icon: 'sign',   key: 'enroll.srcOcr' },
-  check:    { icon: 'info',   key: 'enroll.srcCheck' },
-  verified: { icon: 'shield', key: 'enroll.srcVerified' },
 };
 
 /* ---------- сборка обёртки ----------

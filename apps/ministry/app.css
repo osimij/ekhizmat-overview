@@ -1330,46 +1330,7 @@ button.step:focus-visible {
   outline: 0;
 }
 
-/* ============================================================
-   S0 · Вход (§6/S0)
-   «Ворота»: одна колонка 440 по центру, сверху свободно ≥15% высоты (§3.3).
-   ============================================================ */
-.s-login {
-  min-height: calc(100vh - var(--h-topbar));
-  background: var(--hero);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: max(15vh, var(--s-16)) var(--s-6) var(--s-6);
-  gap: var(--s-2);
-}
-.s-login__brand { display: flex; align-items: center; gap: var(--s-2); }
-.s-login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); }
-
-.s-login__slider { width: var(--w-gate); max-width: 100%; }
-.s-login__card { padding: var(--s-8); }
-.s-login__step { color: var(--ink-faint); }
-.s-login__submit { width: 100%; margin-top: var(--s-2); }
-.s-login__legend { color: var(--ink-faint); margin-top: var(--s-5); }
-
-/* §8 — переход шагов: fade+slide 8px, 180ms. */
-.s-login__card.is-in   { animation: step-in var(--t-step) var(--ease); }
-.s-login__card.is-back { animation: step-back var(--t-step) var(--ease); }
-@keyframes step-in   { from { opacity: 0; transform: translateX(8px); } }
-@keyframes step-back { from { opacity: 0; transform: translateX(-8px); } }
-
-/* Ошибка кредов — шейк 2×4px (§6/S0). */
-.s-login__card.is-shake { animation: shake 180ms var(--ease); }
-@keyframes shake {
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-4px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .s-login__card.is-in,
-  .s-login__card.is-back,
-  .s-login__card.is-shake { animation: none; }
-}
+/* S0 login gate: shared `.login` in design-system/css/patterns.css. */
 
 /* ============================================================
    S1 · Главная смены (§6/S1)
@@ -2322,95 +2283,6 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
 .report-row__num { font-variant-numeric: tabular-nums; font-weight: 550; }
 .meter { display: block; height: 8px; border-radius: var(--r-pill); background: var(--field); overflow: hidden; }
 .meter__fill { display: block; height: 100%; border-radius: var(--r-pill); background: var(--ink); }
-
-/* ============================================================
-   Экран входа (§7Б.4) — усиленная аутентификация (МФА)
-   ============================================================ */
-.login {
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: var(--hero);
-  display: grid; place-items: center;
-  padding: var(--s-6);
-  /* The extra space below shifts the visual center upward without using a
-     transform, so the form remains naturally scrollable on short screens. */
-  padding-block-end: clamp(96px, 18vh, 180px);
-}
-.login__inner {
-  width: min(100%, 560px); min-width: 0;
-  display: flex; flex-direction: column; align-items: center;
-  gap: var(--s-2);
-}
-@media (max-height: 700px) {
-  .login { place-items: start center; padding-block-end: var(--s-6); }
-}
-.login__brand { display: flex; align-items: center; gap: var(--s-2); }
-.login__brand .icon { color: var(--blue-ink); }
-.login__brand b { font-size: 20px; font-weight: 600; letter-spacing: 0; }
-.login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); text-align: center; }
-.login__card {
-  width: 420px;
-  max-width: 100%;
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  padding: 36px var(--s-8) var(--s-8);
-  border-radius: calc(var(--r-xl) + var(--s-1));
-}
-.login__card > .stack { width: 100%; gap: var(--s-3); }
-.login__fields { display: grid; gap: var(--s-3); margin-bottom: var(--s-5); }
-.login__fields .field { margin-bottom: 0; }
-.login__card .field { gap: var(--s-1); }
-.login__card .login-field--floating {
-  position: relative;
-  gap: 0;
-}
-.login__card .login-field--floating > .field__label {
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  left: var(--s-4);
-  padding-inline: 6px;
-  background: var(--panel);
-  font-size: 16px;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
-  pointer-events: none;
-  transform: translateY(-50%);
-  transform-origin: left center;
-  transition: transform var(--t-step) var(--ease-out),
-              color var(--t-step) var(--ease);
-}
-.login__card .login-field--floating:focus-within > .field__label,
-.login__card .login-field--floating:has(.field__input:not(:placeholder-shown)) > .field__label {
-  font-weight: 500;
-  transform: translateY(calc(-50% - (var(--h-btn-l) / 2))) scale(.8125);
-}
-.login__card .login-field--floating:focus-within > .field__label { color: var(--blue-ink); }
-.login__card .field__input {
-  height: var(--h-btn-l);
-  font-size: 16px;
-  border-radius: var(--r-pill);
-  background: var(--panel);
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.login__card .btn { width: 100%; margin-top: 0; }
-.login__actions { display: flex; flex-direction: column; gap: var(--s-2); }
-.login__card .login__actions .btn { margin-top: 0; }
-.login__legend {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--s-2);
-  color: var(--ink-faint);
-  margin-top: var(--s-5);
-  max-width: 42ch;
-  text-align: center;
-}
-.login__legend-copy { display: block; min-width: 0; }
-.login__step { color: var(--ink-faint); }
-.login__mfa-target { font-variant-numeric: tabular-nums; font-weight: 550; color: var(--ink); }
-.login__card.is-shake { animation: shake 180ms var(--ease); }
 
 /* ============================================================
    Модальные раскладки (решение, запрос сведений, возврат)

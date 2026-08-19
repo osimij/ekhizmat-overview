@@ -279,6 +279,143 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
 .comment__head time,.comment__anchor { color:var(--ink-3); font-size:var(--fs-12); }
 .comment__body { margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; }
 
+/* Workstation login gate (Ministry + ЦОН). One centered card, credentials
+   then MFA, floating labels, pill fields. Specificity beats per-app
+   `.panel` / `.field` forks so the gate does not drift between platforms. */
+.login {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--hero);
+  display: grid;
+  place-items: center;
+  padding: var(--s-6);
+  /* Extra space below shifts the visual center up without a transform, so
+     the form stays scrollable on short screens. */
+  padding-block-end: clamp(96px, 18vh, 180px);
+}
+.screen > .login {
+  /* Inside a console shell the remaining viewport is already minus the topbar. */
+  min-height: 100%;
+  min-height: calc(100dvh - var(--h-topbar));
+}
+.login__inner {
+  width: min(100%, var(--w-gate-wide));
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+}
+@media (max-height: 700px) {
+  .login { place-items: start center; padding-block-end: var(--s-6); }
+}
+.login__brand { display: flex; align-items: center; gap: var(--s-2); }
+.login__brand .icon { color: var(--blue-ink); }
+.login__brand b {
+  font-size: var(--fs-20);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0;
+}
+.login__subtitle {
+  color: var(--ink-2);
+  margin-bottom: var(--s-6);
+  text-align: center;
+}
+.panel.login__card {
+  width: min(100%, var(--w-login-card));
+  max-width: 100%;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  /* 36px is +4 on --s-8: optically equal top/side once the floating labels
+     rise above the first field. */
+  padding: 36px var(--s-8) var(--s-8);
+  border-radius: calc(var(--r-xl) + var(--s-1));
+}
+.panel.login__card > .stack { width: 100%; gap: var(--s-3); }
+.login__fields { display: grid; gap: var(--s-3); margin-bottom: var(--s-5); }
+.login__fields .field { margin-bottom: 0; }
+.panel.login__card .field { gap: var(--s-1); }
+.panel.login__card .login-field--floating {
+  position: relative;
+  gap: 0;
+}
+.panel.login__card .login-field--floating > .field__label {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: var(--s-4);
+  padding-inline: 6px; /* sit on the field stroke; --s-1 is too tight */
+  background: var(--panel);
+  font-size: 16px;
+  font-weight: var(--weight-medium);
+  text-transform: none;
+  letter-spacing: 0;
+  pointer-events: none;
+  display: block;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  transition: transform var(--t-step) var(--ease-out),
+              color var(--t-step) var(--ease);
+}
+.panel.login__card .login-field--floating:focus-within > .field__label,
+.panel.login__card .login-field--floating:has(.field__input:not(:placeholder-shown)) > .field__label {
+  font-weight: var(--weight-medium);
+  transform: translateY(calc(-50% - (var(--h-btn-l) / 2))) scale(.8125);
+}
+.panel.login__card .login-field--floating:focus-within > .field__label { color: var(--blue-ink); }
+.panel.login__card .field__wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.panel.login__card .field__affix {
+  position: absolute;
+  right: var(--s-3);
+  display: flex;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.panel.login__card .field__input {
+  display: block;
+  width: 100%;
+  height: var(--h-btn-l);
+  padding-inline: var(--s-4);
+  border: 0;
+  outline: 0;
+  font-size: 16px;
+  border-radius: var(--r-pill);
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.panel.login__card .field__wrap .field__input { padding-right: var(--s-10); }
+.panel.login__card .btn { width: 100%; margin-top: 0; }
+.login__actions { display: flex; flex-direction: column; gap: var(--s-2); }
+.panel.login__card .login__actions .btn { margin-top: 0; }
+.login__legend {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  color: var(--ink-faint);
+  margin-top: var(--s-5);
+  max-width: 42ch;
+  text-align: center;
+}
+.login__legend-copy { display: block; min-width: 0; }
+.login__step { color: var(--ink-faint); }
+.login__mfa-target { font-variant-numeric: tabular-nums; font-weight: 550; color: var(--ink); }
+.login__card.is-in   { animation: login-step-in var(--t-step) var(--ease); }
+.login__card.is-back { animation: login-step-back var(--t-step) var(--ease); }
+.login__card.is-shake { animation: login-shake 180ms var(--ease); }
+@keyframes login-step-in   { from { opacity: 0; transform: translateX(8px); } }
+@keyframes login-step-back { from { opacity: 0; transform: translateX(-8px); } }
+@keyframes login-shake {
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
 @media (max-width:640px) {
   .ekh-demo-tools { right:var(--s-3); left:var(--s-3); bottom:var(--s-3); flex-wrap:wrap; }
   .ekh-demo-tools strong { flex:1 0 100%; }
@@ -289,4 +426,7 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
   .category-count-card { transition:none; }
   .facescan--scanning .facescan__frame::before,.facescan--scanning .facescan__frame::after { animation:none; }
   .facescan--scanning .facescan__frame::after { display:none; }
+  .login__card.is-in,
+  .login__card.is-back,
+  .login__card.is-shake { animation: none; }
 }

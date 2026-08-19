@@ -395,22 +395,11 @@ select.field__input {
 .src--profile { background: var(--blue-tint); color: var(--blue-ink); }
 .src--manual  { background: var(--h-gray-bg); color: var(--h-gray-fg); }
 
-/* Источники со скана паспорта (§6/S2b). Три уровня доверия — три цвета, и
-   разница между ними не декоративная: зелёный говорит «сверено машиной,
-   смотреть незачем», серый — «прочитано уверенно», янтарный — «проверьте
-   глазами». Оператор распределяет по ним своё внимание, поэтому янтарного на
-   экране должно быть ровно столько, сколько полей действительно сомнительны. */
-.src--mrz      { background: var(--green-tint); color: var(--green); }
-.src--verified { background: var(--green-tint); color: var(--green); }
-.src--ocr      { background: var(--h-gray-bg);  color: var(--h-gray-fg); }
-.src--check    { background: var(--amber-tint); color: var(--amber); }
-
-/* Поле под проверку. Рамка, а не заливка: значение внутри читают и правят, и
-   фон под текстом мешал бы ровно тому, ради чего поле подсвечено. */
-.field--check .field__input {
-  border-color: var(--amber);
-  box-shadow: inset 0 0 0 1px var(--amber);
-}
+/* Поле под проверку (§6/S2b). Рамка, а не заливка: значение внутри читают и
+   правят, и фон под текстом мешал бы ровно тому, ради чего поле подсвечено.
+   Чипов доверия на других полях больше нет — помечено только исключение,
+   иначе янтарный тонет среди зелёного и серого. */
+.field--check .field__input { box-shadow: inset 0 0 0 1px var(--amber); }
 
 /* OTP / код из приложения — 6 ячеек (§6/S0, S2). */
 .otp { display: flex; gap: var(--s-2); }
@@ -940,6 +929,21 @@ button.step:focus-visible {
   min-width: 0;
 }
 
+/* Согласие живёт в подтверждении, а не панелью под формой: оператор читает
+   список вслух ровно в этот момент, а на экране он повторял бы ту же сводку
+   второй раз (design-guide §10.6). Отделено хайрлайном, а не второй карточкой:
+   одна граница на смысловой уровень (§5). */
+.s-enroll-confirm__consent {
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line-in);
+}
+.s-enroll-confirm__consent-title {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
 /* ============================================================
    5.3 Drawer — карточка услуги 480 (§6/S4)
    ============================================================ */
@@ -1036,7 +1040,10 @@ button.step:focus-visible {
   padding: var(--s-12) var(--s-6);
   text-align: center;
 }
-.empty .icon { width: 48px; height: 48px; color: var(--ink-faint); }
+/* Только СОБСТВЕННАЯ иконка пустого состояния 48px. Без прямого потомка
+   правило доставало и до иконок внутри кнопки действия («Вернуться в каталог»,
+   «Сканировать разворот»), раздувая их с 20 до 48 прямо в подписи. */
+.empty > .icon { width: 48px; height: 48px; color: var(--ink-faint); }
 .empty__title { font-size: 17px; line-height: 1.3; font-weight: 550; }
 .empty__hint  { font-size: 13px; color: var(--ink-faint); max-width: 40ch; }
 
@@ -1516,58 +1523,7 @@ button.step:focus-visible {
   outline: 0;
 }
 
-/* ============================================================
-   S0 · Вход (§6/S0)
-   «Ворота»: одна колонка 440 по центру, сверху свободно ≥15% высоты (§3.3).
-   ============================================================ */
-.s-login {
-  min-height: calc(100vh - var(--h-topbar));
-  min-height: calc(100dvh - var(--h-topbar));
-  background: var(--hero);
-  display: grid;
-  place-items: center;
-  padding: var(--s-6);
-  /* Match the Ministry login: slightly above center, with layout-based
-     spacing so short viewports can still scroll cleanly. */
-  padding-block-end: clamp(96px, 18vh, 180px);
-}
-.s-login__inner {
-  width: min(100%, var(--w-gate));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-2);
-}
-@media (max-height: 700px) {
-  .s-login { place-items: start center; padding-block-end: var(--s-6); }
-}
-.s-login__brand { display: flex; align-items: center; gap: var(--s-2); }
-.s-login__subtitle { color: var(--ink-2); margin-bottom: var(--s-6); }
-
-.s-login__slider { width: 100%; }
-.s-login__card { padding: var(--s-8); }
-.s-login__step { color: var(--ink-faint); }
-.s-login__submit { width: 100%; margin-top: var(--s-2); }
-.s-login__legend { color: var(--ink-faint); margin-top: var(--s-5); }
-
-/* §8 — переход шагов: fade+slide 8px, 180ms. */
-.s-login__card.is-in   { animation: step-in var(--t-step) var(--ease); }
-.s-login__card.is-back { animation: step-back var(--t-step) var(--ease); }
-@keyframes step-in   { from { opacity: 0; transform: translateX(8px); } }
-@keyframes step-back { from { opacity: 0; transform: translateX(-8px); } }
-
-/* Ошибка кредов — шейк 2×4px (§6/S0). */
-.s-login__card.is-shake { animation: shake 180ms var(--ease); }
-@keyframes shake {
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-4px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .s-login__card.is-in,
-  .s-login__card.is-back,
-  .s-login__card.is-shake { animation: none; }
-}
+/* S0 login gate: shared `.login` in design-system/css/patterns.css. */
 
 /* ============================================================
    S1 · Главная смены (§6/S1)
@@ -1757,64 +1713,201 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 /* ============================================================
    S2b · Регистрация гражданина (§6/S2b)
 
-   Единственный экран «ворот», который НЕ центрирован колонкой 720px: у
-   остальных одно решение и нечего сравнивать, а здесь оператор всё время
-   сверяет две вещи — скан слева и поле справа. Сузить его до ворот значило
-   бы заставить листать глазами то, что должно лежать рядом.
+   Экран не «страница с формой», а рабочее место сверки: оператор ведёт
+   пальцем по паспорту и глазами по полям, и эти две вещи обязаны стоять
+   рядом от первой строки до последней. Поэтому здесь не прокручиваемый
+   документ с прилипшим сканом, а зафиксированная по высоте мастерская
+   (design-guide §5, «full-workspace editor»): шелл заперт во вьюпорт, скан
+   слева не уезжает вообще, а собственный скролл есть только у колонки полей.
+   Прежняя раскладка — общий скролл + sticky + фиксированная панель действий с
+   «взлётной полосой» в padding-bottom — решала ту же задачу тремя костылями
+   сразу и всё равно позволяла адресу уехать от разворота с пропиской.
    ============================================================ */
+
+/* Экран сам себе вьюпорт: единственная скролл-область АРМ (.screen) на нём
+   выключается, иначе получилось бы два вложенных скролла на одну задачу. */
+.screen:has(> .s-enroll) {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  overflow: hidden;
+}
+
 .s-enroll {
+  /* Высота панели действий: она fixed, и ровно на неё нужно ужать сетку,
+     чтобы последнее поле не пряталось под кнопкой «Зарегистрировать». */
+  --enroll-foot: calc(var(--h-btn-m) + var(--s-3) * 2 + 1px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-height: 0;
+  padding-bottom: calc(var(--enroll-foot) + var(--s-4));
+}
+
+/* Роли типографики — ровно по таблице design-guide §4: 28/600 заголовок
+   страницы, 17/500 заголовок панели и секции, 13/500 микро-подпись, 15/400
+   значение. Числа записаны в пикселях, а не токенами --fs-*: АРМ держит
+   `html { font-size: 15px }`, и rem-овый токен даёт здесь 26.25 вместо 28 —
+   то есть роль «заголовок страницы» перестала бы совпадать с админкой, ради
+   чего таблица и существует. Расхождение корня — отдельный, платформенный
+   долг; чинить его внутри одного экрана нельзя.
+
+   Номер телефона живёт ровно здесь: в форме его больше нет (поле, которое
+   нельзя править, форме не принадлежит), а в реестр он уходит из
+   подтверждения. */
+.s-enroll__title {
+  font-size: 28px;
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold);
+}
+.s-enroll__subject {
+  margin-top: var(--s-1);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.s-enroll__banner:empty { display: none; }
+.s-enroll__banner { display: flex; flex-direction: column; gap: var(--s-2); }
+
+.s-enroll__cols {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+  gap: var(--s-6);
+  min-height: 0;
+}
+
+/* Каждая колонка — своя скролл-область (§5). Скан при этом не скроллится
+   почти никогда: разворот тянется по остатку высоты, а не по своей. */
+.s-enroll__scanner {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
-  /* The fixed action bar is removed from document flow. Keep enough runway
-     for the final fields to scroll fully above it instead of hiding beneath it. */
-  padding-bottom: calc(var(--s-16) + var(--s-6));
+  min-height: 0;
+  overflow-y: auto;
+  /* На 20, а не на 24: при высоте окна 700 панель обязана уместить развороты,
+     превью и кнопки под ним целиком — четыре пикселя с каждой стороны решают,
+     будет «Удалить» обрезан или нет. Внутренний отступ панели §5 допускает
+     16–24, так что это выбор внутри диапазона, а не отклонение от него. */
+  padding: var(--s-5);
 }
-.s-enroll__head { max-width: 72ch; }
-.s-enroll__verified {
-  align-self: flex-start;
+.s-enroll__form {
+  min-height: 0;
+  overflow-y: auto;
+  /* Полоса прокрутки не должна вставать вплотную к значениям полей. */
+  padding-right: var(--s-2);
+}
+
+/* Одна роль — одно число по обе стороны экрана. До правки заголовок панели
+   скана шёл 15/550 (.label), а заголовки групп полей 17/550 (.h3): два
+   соседних столбца одного экрана называли свои разделы по-разному. */
+.s-enroll__pane-title,
+.s-enroll__group-title {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: var(--weight-medium);
+}
+
+/* Развороты — список того, что нужно снять, а не два пронумерованных
+   квадратика. Пустой адрес почти всегда значит забытую страницу регистрации,
+   и список обязан говорить об этом словом, а не отсутствием миниатюры.
+   Состояние подписывается только у исключений: снятый резкий разворот
+   молчит — сказать о нём нечего. */
+.s-enroll__pages { display: flex; flex-direction: column; gap: var(--s-1); }
+.s-enroll__page {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: var(--h-btn-s);
   padding: var(--s-2) var(--s-3);
-  border-radius: var(--r-pill);
-  background: var(--green-tint);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  background: var(--panel);
+  color: var(--ink);
+  text-align: left;
+  font-size: 14px;
+  font-weight: var(--weight-medium);
+  transition: background-color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
 }
-.s-enroll__banner:not(:empty) { display: flex; flex-direction: column; gap: var(--s-2); }
-
-.s-enroll__cols {
-  display: grid;
-  grid-template-columns: 420px minmax(0, 1fr);
-  gap: var(--s-4);
-  align-items: start;
+.s-enroll__page .icon { color: var(--ink-3); }
+@media (hover: hover) and (pointer: fine) {
+  .s-enroll__page:hover { background: var(--hover); }
 }
+.s-enroll__page:active { background: var(--press); }
+.s-enroll__page[aria-pressed="true"] {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+  color: var(--blue-ink);
+}
+.s-enroll__page[aria-pressed="true"] .icon { color: var(--blue-ink); }
+.s-enroll__page-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.s-enroll__page-state {
+  flex: none;
+  font-size: 13px;
+  font-weight: var(--weight-regular);
+  color: var(--ink-2);
+}
+.s-enroll__page-state--warn { color: var(--amber); }
 
-/* Скан «прилипает»: поля справа длиннее разворота, и без sticky оператор,
-   докрутив до адреса, сверял бы его с пустым местом. */
-.s-enroll__scanner { position: sticky; top: var(--s-6); }
-
+/* Сцена разворота. Одна поверхность на уровень (§5): панель уже нарисована
+   вокруг всей колонки, поэтому сцена рамки не имеет — фон получает только
+   само изображение. */
 .s-enroll__stage {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--s-3);
-  min-height: 300px;
-  position: relative;
-  padding: var(--s-4);
+  flex: 1 1 auto;
+  min-height: 0;
 }
-
-/* Разворот 125×88 — пропорция самого документа. Оператор должен узнать
-   паспорт в превью, не читая подписи. */
 .s-enroll__preview {
+  flex: 1 1 auto;
+  /* Уступает первым: на коротком окне панель обязана вместить и развороты, и
+     кнопки под сканом — исчезнувший «Пересканировать» дороже крупного превью. */
+  min-height: 120px;
   display: grid;
   place-items: center;
+  overflow: hidden;
   padding: var(--s-3);
-  background: var(--field);
+  background: var(--field-on-panel);
   border-radius: var(--r-m);
-  min-height: 180px;
 }
 .s-enroll__preview img {
-  width: 100%;
-  max-height: 220px;
+  max-width: 100%;
+  max-height: 100%;
   object-fit: contain;
   border-radius: var(--r-s);
   transition: transform var(--t-layer) var(--ease);
+}
+.s-enroll__empty {
+  flex: 1 1 auto;
+  justify-content: center;
+  padding-block: var(--s-4);
+}
+.s-enroll__empty > .btn { margin-top: var(--s-2); }
+
+.s-enroll__tools { display: flex; align-items: center; gap: var(--s-2); }
+.s-enroll__del { color: var(--red-ink); }
+
+/* Редкие пути — файл и ручной ввод — тихой строкой под кнопкой съёмки и
+   только в пустом состоянии: они заменяют именно её, а за приём к ним
+   обращаются считанные разы (§2, раскладка по частоте). */
+.s-enroll__aux {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  flex-wrap: wrap;
 }
 
 /* «Шторка» сканера — та же, что на S7: жест захвата один и тот же, и второй
@@ -1823,7 +1916,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: var(--r-l);
+  border-radius: var(--r-m);
   background: linear-gradient(to bottom,
     transparent 0%, color-mix(in srgb, var(--blue) 22%, transparent) 50%, transparent 100%);
   animation: curtain 600ms var(--ease) infinite;
@@ -1833,18 +1926,43 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   .s-enroll__stage.is-scanning::after { animation: none; opacity: 0.4; }
 }
 
-.s-enroll__page { width: auto; padding-inline: var(--s-3); gap: var(--s-2); }
-.s-enroll__page.is-active { border-color: var(--blue); background: var(--blue-tint); }
+/* §4 — подпись поля меньше и тише значения: сверяют значение, а не подпись.
+   До правки подпись шла 15/550, значение 15/400, и глазу приходилось каждый
+   раз решать, что из двух главное. */
+.s-enroll .field { gap: var(--s-1); }
+.s-enroll .field__label {
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}
+/* Паспортные данные — сплошь идентификаторы, даты и номера (§4). */
+.s-enroll .field__input { font-variant-numeric: tabular-nums; }
+
+/* Единственная пометка на поле — и только у полей под проверку. Раньше чип
+   висел на каждом («сверено по MRZ» ×5, «распознано», «проверьте» ×3): когда
+   помечено всё, не помечено ничто, и три сомнительных поля терялись среди
+   семи спокойных. */
+.s-enroll .field__flag {
+  margin-left: var(--s-2);
+  font-size: 13px;
+  font-weight: var(--weight-medium);
+  color: var(--amber);
+}
 
 .s-enroll__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--s-4);
+  gap: var(--s-5) var(--s-4);
 }
 /* ФИО и адрес — во всю ширину: они длиннее остальных, и половина строки
-   заставляла бы читать их с прокруткой внутри поля. */
-.s-enroll__grid > .field:first-child,
+   заставляла бы читать их с прокруткой внутри поля. Названы поимённо, а не
+   через :first-child: тот заодно растягивал «Серию и номер», хотя значение
+   там короткое, — правило противоречило собственному комментарию. */
+.s-enroll__grid > .field:has([name="full"]),
 .s-enroll__grid > .field:has([name="address"]) { grid-column: 1 / -1; }
+
+.s-enroll__group { display: flex; flex-direction: column; gap: var(--s-4); }
 
 /* До скана поля есть, но пусты и выключены: показать пустую форму честнее,
    чем спрятать её, — оператор сразу видит объём того, что предстоит сверить. */
@@ -1855,6 +1973,8 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   .s-enroll__form .is-reading { animation: none; opacity: 0.55; }
 }
 
+/* Панель действий стоит поперёк всего окна, но её содержимое выровнено по
+   левому краю канваса — тот же край, что у заголовка и у полей (§5). */
 .s-enroll__foot {
   position: fixed;
   bottom: 0;
@@ -1863,7 +1983,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
     var(--s-6),
     calc((100vw - var(--w-canvas)) / 2 + var(--s-6))
   ) calc(var(--s-3) + env(safe-area-inset-bottom));
-  z-index: 40;
+  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
   gap: var(--s-3);

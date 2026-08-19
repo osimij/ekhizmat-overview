@@ -39,12 +39,17 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
 
   await page.goto('/ministry/?lang=ru&theme=light');
   const ministry = await page.evaluate(() => {
-    const surface = document.querySelector('.login').getBoundingClientRect();
+    const login = document.querySelector('.login');
+    const surface = login.getBoundingClientRect();
     const content = document.querySelector('.login__inner').getBoundingClientRect();
+    const style = getComputedStyle(login);
+    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
     const subtitleRange = document.createRange();
     subtitleRange.selectNodeContents(document.querySelector('.login__subtitle'));
     return {
-      centerDelta: Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)),
+      centerDelta: Math.abs(
+        Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
+      ),
       legendText: document.querySelector('.login__legend-copy').textContent.trim(),
       legendBlockCount: document.querySelector('.login__legend').children.length,
       legendBreakCount: document.querySelectorAll('.login__legend-copy br').length,
@@ -96,7 +101,7 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
   expect(ministry.inputFontSize).toBe(16);
   expect(ministry.loginLabelFontSize).toBe(16);
   expect(ministry.loginLabelFontWeight).toBe('500');
-  expect(Number.parseFloat(ministry.loginLabelLetterSpacing)).toBe(0);
+  expect(Number.parseFloat(ministry.loginLabelLetterSpacing) || 0).toBe(0);
   expect(ministry.usernameLabelTransform).not.toBe(ministry.passwordLabelTransform);
   expect(ministry.loginLabelTextTransform).toBe('none');
   expect(ministry.legendText).toContain('Доступ по усиленной аутентификации (МФА).');
@@ -118,22 +123,48 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/ministry/?lang=tg&theme=light');
   await expectPageFits(page);
-  const ministryMobileDelta = await page.evaluate(() => {
-    const surface = document.querySelector('.login').getBoundingClientRect();
+  const ministryMobile = await page.evaluate(() => {
+    const login = document.querySelector('.login');
+    const surface = login.getBoundingClientRect();
     const content = document.querySelector('.login__inner').getBoundingClientRect();
-    return Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2));
+    const style = getComputedStyle(login);
+    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
+    return Math.abs(
+      Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
+    );
   });
-  expect(ministryMobileDelta).toBeLessThanOrEqual(1);
+  expect(ministryMobile).toBeLessThanOrEqual(1);
 
   await page.setViewportSize({ width: 1357, height: 987 });
   await page.goto('/tson/?lang=ru&theme=light');
-  await expect(page.locator('.s-login__inner')).toBeVisible();
+  await expect(page.locator('.login__inner')).toBeVisible();
   const tson = await page.evaluate(() => {
-    const surface = document.querySelector('.s-login').getBoundingClientRect();
-    const content = document.querySelector('.s-login__inner').getBoundingClientRect();
-    return Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2));
+    const login = document.querySelector('.login');
+    const surface = login.getBoundingClientRect();
+    const content = document.querySelector('.login__inner').getBoundingClientRect();
+    const style = getComputedStyle(login);
+    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
+    return {
+      centerDelta: Math.abs(
+        Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
+      ),
+      cardRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).borderRadius),
+      cardHeight: document.querySelector('.login__card').getBoundingClientRect().height,
+      inputRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).borderRadius),
+      inputHeight: document.querySelector('.login__card .field__input').getBoundingClientRect().height,
+      buttonHeight: document.querySelector('.login__card .btn--l').getBoundingClientRect().height,
+      loginLabelFontSize: Number.parseFloat(getComputedStyle(document.querySelector('label[for="l-pass"]')).fontSize),
+      usernameLabelTransform: getComputedStyle(document.querySelector('label[for="l-user"]')).transform,
+      passwordLabelTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).transform,
+    };
   });
-  expect(tson).toBeLessThanOrEqual(1);
+  expect(tson.centerDelta).toBeLessThanOrEqual(1);
+  expect(tson.cardRadius).toBe(28);
+  expect(tson.cardHeight).toBe(300);
+  expect(tson.inputRadius).toBeGreaterThanOrEqual(tson.inputHeight / 2);
+  expect(tson.inputHeight).toBe(tson.buttonHeight);
+  expect(tson.loginLabelFontSize).toBe(16);
+  expect(tson.usernameLabelTransform).not.toBe(tson.passwordLabelTransform);
 
   await page.goto('/citizen/?lang=ru&theme=light');
   await page.locator('#loginBtn').click();
@@ -542,7 +573,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/tson/?dev=1&lang=ru&theme=light');
   await page.locator('input[name="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();

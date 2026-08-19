@@ -81,6 +81,7 @@ Settled product-wide. Pages still using a retired pattern are wrong, not "altern
 | Action color | `--blue` (`#0072d6` in tokens — chosen for identity + contrast) marks interactivity: primary action, selection, focus, links. One primary per region/decision. Explicit hover/press tokens, never `filter: brightness()`. *Why: blue is the affordance signal — every decorative use of it teaches users to ignore it.* | Blue as decoration or heading color |
 | Selected icon tile | When a choice is selected (`:checked`, `aria-pressed`, `aria-selected`, or `.open`), its icon well goes **solid `--blue` + `--on-blue` glyph** (builder `.stg-ic`). Category hue is idle-only. `.status-icon` and sidebar icons keep their own contracts. *Why: selection is state and must out-rank category decoration; if hue and selection use the same visual channel, neither reads.* | Selected tile keeps its category hue |
 | Density | Platforms share anatomy, tokens, and state language but not density: Citizen comfortable/touch (44px+), Ministry compact specialist, ЦОН workstation (1280px minimum), Admin editor-oriented multi-pane. *Why: the jobs differ — a citizen files one request, an operator processes hundreds; forcing one density betrays one of them.* | Forcing one density on all platforms |
+| Workstation login | Shared `.login` gate (`design-system/css/patterns.css`): logo + product name, one 420px card, floating labels, pill fields at `--h-btn-l`, credentials then MFA. Step 1 primary is Continue; step 2 is Enter with a Back control. No "step N of M" chrome — the control change is the progress. *Why: specialist consoles share one morning ritual; a second login that looks like a form wizard teaches operators that the products are different.* | Label-above fields; "step 1 of 2" inside the card; two screens both titled Enter |
 
 ## 4. Typography
 
@@ -207,6 +208,7 @@ Apply mechanically wherever seen. Each is the compressed form of a §3–§9 rul
 24. Selectable row/card/button with an icon well (`.tile`, `.stg-ic`, `.fb-ic`, …) → selected well is solid `--blue` / `--on-blue`; idle keeps category hue. Do not restyle `.status-icon` or sidebar icons.
 25. A hard cut or empty-shell flash when navigating between console pages → render-block the shell-building module in `<head>` + cross-document view transitions with the shell pinned (§8).
 26. A list of versioned library objects (forms) → one `.svc-row` with a compact `vN` strip whose background carries status (green live, amber draft, neutral archive); slight corner radius, not a pill, and no status-icon in that strip. Show at most 3 versions with a quiet `+N` overflow chip. Status text stays in `title` + `.sr-only`. No second Open control, no description that restates the title, no identical icon tile on every row.
+27. A specialist-console login (Ministry, ЦОН) that still looks like a labelled form or a numbered wizard → shared `.login` gate: floating labels, pill fields, Continue then MFA, no step counter. Do not copy the CSS into the app stylesheet.
 
 ## 11. Verification — definition of done
 

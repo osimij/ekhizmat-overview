@@ -8,8 +8,10 @@
    Правило экрана: скан слева, поля справа, и они не расстаются. Оператор
    правит не «форму», а РАСХОЖДЕНИЕ между распознанным значением и тем, что
    написано в документе, — а сравнивать можно только то, что видно
-   одновременно. Отсюда и фокус: щёлкнув по полю «Адрес», оператор получает
-   разворот с пропиской, а не листает сканы руками.
+   одновременно. Отсюда и раскладка (design-guide §5, «full-workspace
+   editor»): экран заперт по высоте вьюпорта, скан не уезжает вообще, свой
+   скролл есть только у колонки полей. Отсюда же фокус: щёлкнув по полю
+   «Адрес», оператор получает разворот с пропиской, а не листает сканы руками.
 
    Три вещи, которые экран держит на себе намеренно:
 
@@ -19,10 +21,13 @@
       паспорт, — замыкание этого экрана и его же DOM. Размонтировался — нет
       данных, и это гарантия конструкции, а не дисциплины.
 
-   2. **Доверие к значению видно на самом значении.** Машиночитаемая зона
-      сверена контрольной цифрой, визуальная — распознана и может врать.
-      Первая приходит закрытой на правку, вторая — открытой и помеченной
-      «проверьте». Оператор не должен гадать, чему верить.
+   2. **Помечено только то, что требует глаз.** Раньше доверие подписывалось на
+      каждом поле («сверено по MRZ» ×5, «распознано», «проверьте» ×3) плюс
+      кнопка «изменить» на каждом закрытом. Когда помечено всё, не помечено
+      ничто: три сомнительных поля тонули среди семи спокойных, а замок стоял
+      ровно на том действии, ради которого экран и существует. Теперь поля
+      открыты все, а пометку несут только те, что просят проверки, — остальное
+      говорит сводкой в банере (design-guide §10.3, §10.6).
 
    3. **Скан не переживает регистрацию.** Разворот уходит в реестр вместе с
       записью и стирается с рабочего места сразу после ответа сервера: держать
@@ -33,16 +38,19 @@ import { h, mount, icon, toast, modal, confirmDanger } from '../ui.js';
 import { t, errText } from '../i18n.js';
 import { getState, dispatch, trackBlobUrl } from '../store.js';
 import { enroll, docs as fileApi, sim } from '../mock/api.js';
-import { field, maskedField, selectField, setLoading } from '../fields.js';
+import { field, selectField, maskedField, setLoading } from '../fields.js';
 import { isExpired } from '../format.js';
 import {
-  PASSPORT_FIELDS, PASSPORT_GROUPS, PASSPORT_PAGES, OCR_TRUST, SCOPES, BASE_SCOPES,
+  PASSPORT_FIELDS, PASSPORT_GROUPS, PASSPORT_PAGES, OCR_TRUST, BASE_SCOPES, SCOPES,
 } from '../mock/data.js';
 
 export function renderEnroll(host) {
   let dead = false;
   let scans = [];        // снимки разворотов: [{id, page, url, blurry, rot}]
-  let active = 0;        // какой разворот показан
+  // Выбран РАЗВОРОТ, а не индекс снимка: страница существует и до того, как её
+  // сняли, и «выбрана вторая страница, её ещё нет» — обычное состояние экрана,
+  // а не дырка в данных.
+  let active = PASSPORT_PAGES[0].page;
   let read = false;      // распознавание уже отработало (успешно или нет)
 
   /* Чем кончилось распознавание: число полей под проверку, 'ocr' (не
@@ -60,61 +68,70 @@ export function renderEnroll(host) {
   const st = getState();
   const phone = st.identify?.phone || '';
 
-  const banner = h('div', { class: 's-enroll__banner' });
-  const stage = h('div', { class: 's-enroll__stage panel' });
-  const thumbs = h('div', { class: 'thumbs' });
+  // Сводка о распознавании — живая область: счётчик полей под проверку убывает
+  // по мере работы, и скринридер обязан услышать это изменение (§9).
+  const banner = h('div', { class: 's-enroll__banner', 'aria-live': 'polite' });
+  const pages = h('div', { class: 's-enroll__pages' });
+  const stage = h('div', { class: 's-enroll__stage' });
   const groups = h('div', { class: 'stack g-8' });
 
-  const scanBtn = h('button', { class: 'btn btn--primary', onClick: () => shoot() },
-    icon('refresh', { size: 20 }), t('enroll.scan'));
+  // Две кнопки съёмки, а не одна переодевающаяся: пока разворота нет, съёмка —
+  // главное действие панели и живёт в пустом состоянии; когда разворот есть,
+  // главное действие экрана уже другое («Зарегистрировать»), и пересъёмка
+  // обязана стать тихой (§3, «одно главное действие на регион»).
+  const scanBtn = h('button', {
+    class: 'btn btn--primary', type: 'button', onClick: () => shoot(active),
+  }, icon('card', { size: 20 }), t('enroll.scan'));
+
+  // Иконки в панели значат по одной вещи: card — «снять разворот», refresh —
+  // «повернуть». Пока пересъёмка тоже была refresh, в одном ряду стояли две
+  // одинаковые стрелки с разным смыслом.
+  const rescanBtn = h('button', {
+    class: 'btn btn--secondary btn--s', type: 'button', onClick: () => shoot(active),
+  }, icon('card', { size: 20 }), t('enroll.rescan'));
 
   const fileInput = h('input', {
     type: 'file', class: 'sr-only', accept: 'application/pdf,image/jpeg,image/png',
     onChange: e => upload(e.target.files[0]),
   });
 
-  const uploadBtn = h('button', { class: 'btn btn--secondary', onClick: () => fileInput.click() },
+  const uploadBtn = h('button', { class: 'btn btn--ghost btn--s', type: 'button', onClick: () => fileInput.click() },
     icon('upload', { size: 20 }), t('enroll.upload'));
 
-  const manualBtn = h('button', { class: 'btn btn--ghost btn--s', onClick: () => openFields('manual') },
+  const manualBtn = h('button', { class: 'btn btn--ghost btn--s', type: 'button', onClick: () => openFields('manual') },
     icon('edit', { size: 20 }), t('enroll.manual'));
 
-  const submitBtn = h('button', { class: 'btn btn--primary', onClick: confirmSubmit }, t('enroll.submit'));
+  const submitBtn = h('button', { class: 'btn btn--primary', type: 'button', onClick: confirmSubmit },
+    t('enroll.submit'));
 
   mount(host,
     h('div', { class: 'canvas s-enroll' },
-      h('div', { class: 'stack g-2 s-enroll__head' },
-        h('h1', { class: 'h2' }, t('enroll.title')),
-        h('p', { class: 'body-l ink-2' }, t('enroll.lead')),
-        // Подтверждённый телефон — единственное, что уже доказано, и он
-        // остаётся на виду весь экран: всё остальное оператор ещё только
-        // сверяет, и путать доказанное с распознанным нельзя.
-        h('div', { class: 'row g-2 s-enroll__verified' },
-          icon('shield', { size: 20, cls: 'green-ink' }),
-          h('span', { class: 'small' }, t('enroll.phoneVerified', { phone: fmtPhone(phone) })))),
+      // Заголовок несёт ровно два факта: что делаем и с кем. Подтверждённый
+      // номер стоит здесь и больше нигде: в форме ему не место (править его
+      // нельзя, а форма — про правку), а в реестр он уходит из подтверждения.
+      h('header', {},
+        h('h1', { class: 's-enroll__title' }, t('enroll.title')),
+        h('p', { class: 's-enroll__subject' }, t('enroll.phoneVerified', { phone: fmtPhone(phone) }))),
 
       banner,
 
       h('div', { class: 's-enroll__cols' },
-        h('div', { class: 'panel stack g-4 s-enroll__scanner' },
-          h('h2', { class: 'label' }, t('enroll.passport')),
+        h('section', { class: 'panel s-enroll__scanner' },
+          h('h2', { class: 's-enroll__pane-title' }, t('enroll.passport')),
+          pages,
           stage,
-          thumbs,
-          h('hr', { class: 'rule' }),
-          h('div', { class: 'stack g-2' }, scanBtn, uploadBtn, fileInput, manualBtn)),
+          fileInput),
 
-        h('div', { class: 'stack g-6 s-enroll__form' },
-          groups,
-          consentPanel())),
+        h('div', { class: 's-enroll__form' }, groups)),
 
       h('div', { class: 's-enroll__foot' },
-        h('button', { class: 'btn btn--ghost', onClick: cancel }, t('common.cancelVisit')),
+        h('button', { class: 'btn btn--ghost', type: 'button', onClick: cancel }, t('common.cancelVisit')),
         h('span', { class: 'spacer' }),
         submitBtn)));
 
   buildFields();
   drawStage();
-  drawThumbs();
+  drawPages();
   drawBanner();
   lockFields(true);          // до первого скана править нечего
 
@@ -145,15 +162,10 @@ export function renderEnroll(host) {
      ============================================================ */
   function buildFields() {
     mount(groups, ...PASSPORT_GROUPS.map(g =>
-      h('section', { class: 'stack g-4' },
-        h('h2', { class: 'h3' }, t(`enroll.group.${g.id}`)),
+      h('section', { class: 's-enroll__group' },
+        h('h2', { class: 's-enroll__group-title' }, t(`enroll.group.${g.id}`)),
         h('div', { class: 's-enroll__grid' },
-          ...PASSPORT_FIELDS.filter(f => f.group === g.id).map(make),
-          // Телефон живёт в группе контактов, но приходит не из паспорта, а
-          // из подтверждённого кода. Поэтому он в форме — оператор видит,
-          // ЧТО именно уйдёт в реестр, — но закрыт: менять подтверждённый
-          // номер на непроверенный значило бы тихо обнулить подтверждение.
-          g.id === 'contact' ? phoneField() : null))));
+          ...PASSPORT_FIELDS.filter(f => f.group === g.id).map(make)))));
   }
 
   function make(spec) {
@@ -164,22 +176,21 @@ export function renderEnroll(host) {
     // сканом прописки невозможно, а именно это и происходит, когда экран
     // показывает не ту страницу.
     api.input.addEventListener('focus', () => {
-      const i = scans.findIndex(s => s.page === spec.page);
-      if (i !== -1 && i !== active) { active = i; drawStage(); drawThumbs(); }
+      if (spec.page === active) return;
+      active = spec.page;
+      drawStage();
+      drawPages();
     });
 
-    // Оператор тронул значение — источник больше не «распознано», а
-    // «введено». Молчаливо оставить чип OCR на исправленном значении значило
-    // бы приписать машине то, что сделал человек.
+    // Оператор тронул значение — проверять его больше не надо: он только что
+    // это и сделал. Пометка уходит вместе с правкой, а счётчик в банере
+    // убывает: число, которое не меняется, когда оператор уже проверил три
+    // поля из четырёх, — не подсказка, а укор.
     api.input.addEventListener('input', () => {
       const wasCheck = api.dataSource === 'check';
-      if (api.dataSource !== 'manual') { api.dataSource = 'manual'; api.source('manual'); }
+      api.dataSource = 'manual';
       api.error('');
-      api.el.classList.remove('field--check');
-
-      // Счётчик в банере убывает по мере работы. Число, которое не меняется,
-      // когда оператор уже проверил три поля из четырёх, — не подсказка, а
-      // укор; а когда проверено всё, банер должен уйти сам.
+      flag(api, false);
       if (wasCheck && typeof outcome === 'number') drawBanner(countFlagged());
     });
 
@@ -187,37 +198,46 @@ export function renderEnroll(host) {
     return api.el;
   }
 
+  /* Подписи полей берутся из словаря, а не из PASSPORT_FIELDS: в data.js они
+     лежат по-русски, потому что это схема паспорта, а не тексты интерфейса, —
+     и в таджикской версии экран показывал «ФИО», «Дата рождения», «Пол» рядом
+     с таджикскими заголовками групп. Локализация — часть раскладки (§9), а на
+     этом экране подписи и есть основной текст. */
   function build1(spec) {
-    const common = { label: spec.label, help: spec.help, name: spec.id };
-    if (spec.type === 'select') return selectField({ ...common, options: spec.options });
+    const common = {
+      label: t(`enroll.field.${spec.id}`),
+      help: spec.help ? t(`enroll.help.${spec.id}`) : undefined,
+      name: spec.id,
+    };
+    if (spec.type === 'select') {
+      return selectField({
+        ...common,
+        options: spec.options.map(o => ({ v: o.v, n: t(`enroll.${spec.id}.${o.v}`) })),
+      });
+    }
     if (spec.type === 'date' || spec.type === 'inn') return maskedField({ ...common, kind: spec.type });
     return field(common);
   }
 
-  function phoneField() {
-    const api = maskedField({ label: t('enroll.phone'), kind: 'phone', value: phone });
-    api.input.readOnly = true;
-    api.el.classList.add('field--locked');
-    api.source('verified');
-    F.set('phone', { spec: { id: 'phone', required: true, page: 1 }, api });
-    return api.el;
+  /* Единственная пометка на поле: «проверьте». Она же и весь язык доверия на
+     экране — уровни «сверено по MRZ» и «распознано» ушли в сводку банера,
+     потому что per-field они ничего не решали: поведение оператора у них
+     одинаковое (прочитать и идти дальше), а места они занимали больше, чем
+     исключение, ради которого экран и открыт. */
+  function flag(api, on) {
+    api.labelEl.querySelector('.field__flag')?.remove();
+    api.el.classList.toggle('field--check', on);
+    if (on) api.labelEl.append(h('span', { class: 'field__flag' }, t('enroll.flag')));
   }
 
-  /* Значения из распознавания. Раскладываются по трём корзинам, и корзина
-     решает всё поведение поля:
-
-       mrz   — сверено контрольной цифрой → закрыто, кнопка «изменить»;
-       ocr   — распознано уверенно        → закрыто, кнопка «изменить»;
-       check — распознано неуверенно      → ОТКРЫТО и помечено «проверьте».
-
-     Открывать неуверенное поле, а не просто красить, важно: оператор и так
-     будет его править, и лишний клик «изменить» на каждом сомнительном поле
-     превратил бы подсказку в препятствие. */
+  /* Значения из распознавания. Решение по каждому одно: показывать пометку или
+     нет. Машиночитаемая зона сверена контрольной цифрой, визуальная выше
+     порога — распознана уверенно; и то и другое оператор просто читает.
+     Визуальная ниже порога — просит глаз, и только она помечается. */
   function fill(fields) {
     let flagged = 0;
 
     for (const [id, { api }] of F) {
-      if (id === 'phone') continue;
       const got = fields[id];
       if (!got) continue;
 
@@ -227,38 +247,21 @@ export function renderEnroll(host) {
       // тронутое руками и непустое, распознавание больше не перетирает.
       if (api.dataSource === 'manual' && String(api.value() || '').trim()) continue;
 
-      // Распознавание может прийти второй раз — оператор доснял прописку или
-      // пересканировал размытый разворот. Поле обязано вернуться в исходное
-      // состояние ДО раскладки по корзинам, иначе на нём копятся кнопки
-      // «изменить», а однажды закрытое MRZ-поле остаётся закрытым, даже когда
-      // новый снимок прочитался хуже прежнего.
-      api.input.readOnly = false;
-      api.el.classList.remove('field--locked', 'field--check');
-      api.el.querySelector('.field__unlock')?.remove();
-
       api.set(got.value);
+      api.error('');
 
       if (!got.value) {
         // Поле не прочиталось совсем: разворот не снят или размыт. Пустое и
-        // открытое — оператор вводит с документа.
+        // без пометки — помечать нечего, значение вводят с документа.
         api.dataSource = 'manual';
-        api.source(null);
+        flag(api, false);
         continue;
       }
 
-      const kind = got.zone === 'mrz' ? 'mrz'
-        : got.confidence >= OCR_TRUST ? 'ocr'
-        : 'check';
-
-      api.dataSource = kind;
-      api.source(kind);
-
-      if (kind === 'check') {
-        flagged += 1;
-        api.el.classList.add('field--check');
-      } else {
-        api.lock(() => { api.dataSource = 'manual'; });
-      }
+      const needsEyes = got.zone !== 'mrz' && got.confidence < OCR_TRUST;
+      api.dataSource = needsEyes ? 'check' : 'read';
+      flag(api, needsEyes);
+      if (needsEyes) flagged += 1;
     }
 
     return flagged;
@@ -270,24 +273,13 @@ export function renderEnroll(host) {
 
      Уже прочитанное НЕ стираем: если первый разворот успел распознаться, а
      второй — нет, отменять первый было бы наказанием оператора за поломку
-     сканера. Но замок с полей снимаем со всех: банер обещает ручной ввод, и
-     поле, которое после этого обещания не редактируется, — прямая ложь.
-     Чип при этом остаётся тот же — «сверено по MRZ» на прочитанном значении
-     правда независимо от того, открыто поле или закрыто. */
+     сканера. */
   function openFields(reason) {
     read = true;
     lockFields(false);
 
-    for (const [id, { api }] of F) {
-      if (id === 'phone') continue;
-      api.input.readOnly = false;
-      api.el.classList.remove('field--locked');
-      api.el.querySelector('.field__unlock')?.remove();
-
-      if (!String(api.value() || '').trim()) {
-        api.dataSource = 'manual';
-        api.source(null);
-      }
+    for (const [, { api }] of F) {
+      if (!String(api.value() || '').trim()) api.dataSource = 'manual';
     }
 
     drawBanner(reason);
@@ -295,10 +287,7 @@ export function renderEnroll(host) {
   }
 
   function lockFields(on) {
-    for (const [id, { api }] of F) {
-      if (id === 'phone') continue;         // всегда закрыт, он подтверждён
-      api.input.disabled = on;
-    }
+    for (const [, { api }] of F) api.input.disabled = on;
     groups.classList.toggle('is-waiting', on);
     submitBtn.disabled = on;
   }
@@ -308,38 +297,45 @@ export function renderEnroll(host) {
   }
 
   function firstField() {
-    for (const [id, { api }] of F) {
-      if (id !== 'phone' && !api.input.disabled && !api.input.readOnly) return api.input;
-    }
+    for (const [, { api }] of F) if (!api.input.disabled) return api.input;
     return null;
   }
 
   /* ============================================================
      Сканер
      ============================================================ */
+  function scanFor(page) { return scans.find(s => s.page === page); }
+
   function drawStage() {
-    if (!scans.length) {
-      mount(stage, h('div', { class: 'empty' },
-        icon('card', { size: 48 }),
-        h('span', { class: 'empty__title' }, t('enroll.emptyTitle')),
-        h('span', { class: 'empty__hint' }, t('enroll.emptyHint'))));
+    const s = scanFor(active);
+
+    if (!s) {
+      // Пустое состояние отвечает на три вопроса §6: что здесь должно быть,
+      // почему пусто и что нажать. Подпись — та самая страница, которая
+      // выбрана, а не общая инструкция про «два разворота».
+      // Запасные пути стоят ровно здесь, рядом с той съёмкой, которую они
+      // заменяют, и только пока разворота нет. После захвата им нечего делать:
+      // поля к этому моменту уже открыты на правку, а второй разворот, если он
+      // не снят, покажет эту же тройку кнопок на своей странице.
+      // Без 48-пиксельной иконки: панель уже подписана «Паспорт», над ней стоит
+      // список разворотов, и третья картинка того же документа отнимала бы
+      // высоту у кнопок — а на 1280×720 её взять неоткуда (§10.6).
+      mount(stage,
+        h('div', { class: 'empty s-enroll__empty' },
+          h('span', { class: 'empty__title' }, t('enroll.emptyTitle')),
+          h('span', { class: 'empty__hint' }, t(`enroll.pageHint.${active}`)),
+          scanBtn,
+          h('div', { class: 's-enroll__aux' }, uploadBtn, manualBtn)));
       return;
     }
 
-    const s = scans[Math.min(active, scans.length - 1)];
-    const page = PASSPORT_PAGES.find(p => p.page === s.page);
-
     mount(stage,
-      h('div', { class: 'row between' },
-        h('span', { class: 'label' }, page?.name || ''),
-        h('span', { class: 'small ink-faint' }, page?.hint || '')),
-
+      // Нерезкий разворот — состояние снимка, и кнопки в банере нет: та самая
+      // пересъёмка стоит строкой ниже, дублировать её нечем (§10.7).
       s.blurry
         ? h('div', { class: 'banner banner--warn' },
             icon('info'),
-            h('span', { class: 'banner__text' }, t('enroll.blurry')),
-            h('button', { class: 'btn btn--ghost btn--s', onClick: () => shoot(s.page) },
-              t('enroll.rescan')))
+            h('span', { class: 'banner__text' }, t('enroll.blurry')))
         : null,
 
       h('div', { class: 's-enroll__preview' },
@@ -348,35 +344,48 @@ export function renderEnroll(host) {
           style: { transform: `rotate(${s.rot || 0}deg)` },
         })),
 
-      h('div', { class: 'row wrap g-2' },
-        h('button', { class: 'btn btn--secondary btn--s', onClick: rotate },
-          icon('refresh', { size: 20 }), t('enroll.rotate')),
-        h('button', { class: 'btn btn--secondary btn--s', onClick: () => shoot(s.page) },
-          icon('refresh', { size: 20 }), t('enroll.rescan')),
-        h('button', { class: 'btn btn--danger btn--s', onClick: () => remove(s) },
-          icon('trash', { size: 20 }), t('enroll.delete'))));
+      h('div', { class: 's-enroll__tools' },
+        rescanBtn,
+        h('span', { class: 'spacer' }),
+        h('button', {
+          class: 'btn btn--ghost btn--icon btn--s', type: 'button',
+          'aria-label': t('enroll.rotate'), title: t('enroll.rotate'), onClick: rotate,
+        }, icon('refresh', { size: 20 })),
+        h('button', {
+          class: 'btn btn--ghost btn--icon btn--s s-enroll__del', type: 'button',
+          'aria-label': t('enroll.delete'), title: t('enroll.delete'), onClick: () => remove(s),
+        }, icon('trash', { size: 20 }))));
   }
 
-  /* Развороты — не «страницы 1,2,3…», а два конкретных места в документе.
-     Кнопка показывает, какой ещё не снят: пустой адрес почти всегда значит,
-     что оператор забыл про страницу регистрации. */
-  function drawThumbs() {
-    mount(thumbs, ...PASSPORT_PAGES.map(p => {
-      const i = scans.findIndex(s => s.page === p.page);
-      const has = i !== -1;
+  /* Развороты — не «страницы 1, 2», а список того, что оператор обязан снять.
+     Поэтому это строки с названиями, а не пронумерованные квадратики: пустой
+     адрес почти всегда значит забытую страницу регистрации, и сказать об этом
+     должно слово «не снят», а не отсутствие миниатюры. Снятый резкий разворот
+     не подписывается ничем: про него сказать нечего, а подпись на каждом
+     обесценила бы подпись на проблемном. */
+  function drawPages() {
+    mount(pages, ...PASSPORT_PAGES.map(p => {
+      const s = scanFor(p.page);
+      const state = !s ? { key: 'enroll.pageMissing', warn: false }
+        : s.blurry ? { key: 'enroll.pageBlurry', warn: true }
+        : null;
+
       return h('button', {
-        class: `thumb s-enroll__page${has && i === active ? ' is-active' : ''}`,
-        'aria-selected': String(has && i === active),
-        title: has ? p.name : t('enroll.addPage', { name: p.name }),
+        class: 's-enroll__page', type: 'button',
+        'aria-pressed': String(p.page === active),
         onClick: () => {
-          if (!has) return void shoot(p.page);
-          active = i;
+          active = p.page;
           drawStage();
-          drawThumbs();
+          drawPages();
+          if (!scanFor(p.page)) shoot(p.page);
         },
       },
-        icon(has ? 'doc' : 'plus', { size: 20 }),
-        h('span', { class: 'small' }, String(p.page)));
+        icon(s ? 'doc' : 'plus', { size: 20 }),
+        h('span', { class: 's-enroll__page-name' }, t(`enroll.page.${p.page}`)),
+        state
+          ? h('span', { class: `s-enroll__page-state${state.warn ? ' s-enroll__page-state--warn' : ''}` },
+              t(state.key))
+          : null);
     }));
   }
 
@@ -403,17 +412,20 @@ export function renderEnroll(host) {
     if (typeof reason === 'number' && reason > 0) {
       // §6/S2b — сколько полей просит проверки. Число, а не «есть замечания»:
       // оператор должен знать, сколько раз ему предстоит поднять глаза на
-      // документ, прежде чем нажать «Зарегистрировать».
+      // документ, прежде чем нажать «Зарегистрировать». Это же число заменяет
+      // собой чипы доверия на спокойных полях.
       nodes.push(h('div', { class: 'banner banner--warn' },
         icon('info'), h('span', { class: 'banner__text' }, t('enroll.checkFields', { n: reason }))));
     }
 
     mount(banner, ...nodes);
     scanBtn.disabled = sim.faults.scanner;
+    rescanBtn.disabled = sim.faults.scanner;
   }
 
   async function shoot(page = nextPage()) {
     setLoading(scanBtn, true);
+    setLoading(rescanBtn, true);
     stage.classList.add('is-scanning');
     try {
       const s = await enroll.scan(page);
@@ -424,18 +436,26 @@ export function renderEnroll(host) {
       // снимка, и две версии одной страницы паспорта означали бы вопрос
       // «какая настоящая», на который ответить нечем.
       const i = scans.findIndex(x => x.page === page);
-      if (i !== -1) { URL.revokeObjectURL(scans[i].url); scans[i] = s; active = i; }
-      else { scans.push(s); active = scans.length - 1; }
+      if (i !== -1) { URL.revokeObjectURL(scans[i].url); scans[i] = s; }
+      else scans.push(s);
+      active = page;
 
       drawStage();
-      drawThumbs();
+      drawPages();
       await extract();
     } catch (e) {
       if (dead) return;
       toast(errText(e), 'error');
-      drawBanner();
     } finally {
-      if (!dead) { setLoading(scanBtn, false); stage.classList.remove('is-scanning'); }
+      if (!dead) {
+        setLoading(scanBtn, false);
+        setLoading(rescanBtn, false);
+        stage.classList.remove('is-scanning');
+        // Возвращает не только банер, но и disabled кнопок съёмки: setLoading
+        // снимает блокировку безусловно, а тумблер «сканер недоступен» мог
+        // остаться включённым (§7).
+        drawBanner();
+      }
     }
   }
 
@@ -450,10 +470,13 @@ export function renderEnroll(host) {
       trackBlobUrl(r.url);
 
       const page = nextPage();
-      scans.push({ ...r, page, blurry: false });
-      active = scans.length - 1;
+      const i = scans.findIndex(x => x.page === page);
+      if (i !== -1) { URL.revokeObjectURL(scans[i].url); scans[i] = { ...r, page, blurry: false }; }
+      else scans.push({ ...r, page, blurry: false });
+      active = page;
+
       drawStage();
-      drawThumbs();
+      drawPages();
       await extract();
     } catch (e) {
       if (!dead) toast(errText(e), 'error');
@@ -488,12 +511,13 @@ export function renderEnroll(host) {
   }
 
   function nextPage() {
-    const free = PASSPORT_PAGES.find(p => !scans.some(s => s.page === p.page));
-    return free?.page ?? 1;
+    const free = PASSPORT_PAGES.find(p => !scanFor(p.page));
+    return free?.page ?? active;
   }
 
   function rotate() {
-    const s = scans[active];
+    const s = scanFor(active);
+    if (!s) return;
     s.rot = ((s.rot || 0) + 90) % 360;
     drawStage();
   }
@@ -506,9 +530,11 @@ export function renderEnroll(host) {
       onConfirm: () => {
         URL.revokeObjectURL(s.url);
         scans = scans.filter(x => x !== s);
-        active = Math.max(0, active - 1);
+        // Разворот остаётся выбранным: на его месте встаёт пустое состояние с
+        // кнопкой съёмки — ровно то, что оператор собирается сделать дальше.
+        active = s.page;
         drawStage();
-        drawThumbs();
+        drawPages();
       },
     });
   }
@@ -604,9 +630,15 @@ export function renderEnroll(host) {
 
     const v = id => F.get(id)?.api.value() || '';
 
+    /* Подтверждение — это и есть момент согласия, поэтому список скоупов
+       переехал сюда с экрана. Раньше «что будет записано в реестр» стояло
+       панелью под формой и повторялось сводкой в этом же модале: один факт,
+       две витрины (§10.6). А читает его оператор вслух ровно здесь — держа
+       палец над кнопкой, а не пролистывая форму сорока строками выше. */
     close = modal({
       title: t('enroll.confirmTitle'),
       className: 's-enroll-confirm',
+      wide: true,
       body: h('div', { class: 'stack g-4' },
         h('div', { class: 'def s-enroll-confirm__summary' },
           row(t('enroll.f.full'), v('full')),
@@ -614,7 +646,17 @@ export function renderEnroll(host) {
           row(t('enroll.f.inn'), v('inn')),
           row(t('enroll.f.docNo'), v('docNo')),
           row(t('enroll.f.address'), v('address')),
-          row(t('enroll.phone'), v('phone'))),
+          row(t('enroll.phone'), fmtPhone(phone))),
+
+        h('section', { class: 'stack g-3 s-enroll-confirm__consent' },
+          h('h3', { class: 's-enroll-confirm__consent-title' }, t('enroll.consentTitle')),
+          h('div', { class: 'check-list' },
+            ...BASE_SCOPES.map(id => h('div', { class: 'check-item check-item--done' },
+              icon('check'),
+              h('span', {}, SCOPES[id]?.name || id)))),
+          h('p', { class: 'small ink-2' }, t('enroll.consentBody')),
+          h('p', { class: 'small ink-faint' }, t('enroll.consentNote'))),
+
         // Та же логика, что и у «прочитано вслух» на S7: под записью в
         // государственный реестр подписывается оператор, и он должен сказать
         // это явно, а не нажатием кнопки «дальше».
@@ -636,14 +678,13 @@ export function renderEnroll(host) {
       // а старому — без, и оператор видел бы у одного человека два разных
       // формата одного и того же номера (ровно то, ради чего в fields.js
       // маска ложится и на реестровые значения).
-      const RAW = new Set(['inn', 'phone']);
       const fields = Object.fromEntries([...F].map(([id, { api }]) =>
-        [id, RAW.has(id) && api.raw ? api.raw() : api.value()]));
+        [id, id === 'inn' && api.raw ? api.raw() : api.value()]));
 
       const bind = getState().bind;
       const res = await enroll.submit({
         fields,
-        phone: F.get('phone').api.raw(),
+        phone,
         by: t('enroll.by', { tson: bind?.tsonName || bind?.tson || '', n: bind?.window ?? '' }),
       });
       if (dead) return;
@@ -728,20 +769,6 @@ export function renderEnroll(host) {
       onConfirm: () => dispatch('CANCEL'),
     });
   }
-}
-
-/* Что именно будет записано и на что гражданин соглашается. Оператор читает
-   это вслух — поэтому список конкретный (скоупы по именам), а не «данные,
-   необходимые для оказания услуг». */
-function consentPanel() {
-  return h('section', { class: 'panel stack g-3' },
-    h('h2', { class: 'label' }, t('enroll.consentTitle')),
-    h('div', { class: 'check-list' },
-      ...BASE_SCOPES.map(id => h('div', { class: 'check-item check-item--done' },
-        icon('check'),
-        h('span', {}, SCOPES[id]?.name || id)))),
-    h('p', { class: 'small ink-2' }, t('enroll.consentBody')),
-    h('p', { class: 'small ink-faint' }, t('enroll.consentNote')));
 }
 
 function row(k, v) {

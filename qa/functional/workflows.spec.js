@@ -144,7 +144,7 @@ test('Authentication never pre-fills a password or verification code', async ({ 
   await expect(page.locator('input[name="username"]')).not.toHaveValue('');
   await expect(page.locator('input[name="password"]')).toHaveValue('');
   await page.locator('input[name="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   for (const cell of await page.locator('.otp__cell').all()) await expect(cell).toHaveValue('');
 });
 
@@ -361,9 +361,9 @@ test('Ministry workers can create a form and hand it to the shared review queue'
 test('TSON MFA reaches the shift dashboard and exposes operational start', async ({ page }) => {
   await page.goto('/tson/?lang=ru&theme=light');
   await page.locator('input[type="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   await expect(page.locator('.otp')).toBeVisible();
-  await expectSameActionHeight(page, '.s-login form');
+  await expectSameActionHeight(page, '.login__actions');
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
@@ -373,7 +373,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
 test('TSON demo roles expose both dashboards, drill-down and guest reception', async ({ page }) => {
   await page.goto('/tson/?lang=ru&theme=light');
   await page.locator('input[type="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
 

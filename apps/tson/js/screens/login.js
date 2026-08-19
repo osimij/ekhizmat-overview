@@ -1,7 +1,8 @@
 /* ============================================================
    S0 · Вход оператора — MFA · #/login  (§6/S0)
 
-   Два шага в ОДНОЙ карточке (креды → OTP), слайд-влево 200ms. Карточка одна
+   Одна карточка, два шага (креды → OTP), как на АРМ ведомства: плавающие
+   подписи, поля-пилюли, «Продолжить», затем код и «Войти». Карточка одна
    не ради красоты: оператор входит так каждое утро, и отдельные страницы
    означали бы лишние перерисовки шелла на пути к работе.
 
@@ -14,40 +15,40 @@
    рефреш страницы возвращает на S0. Второе обеспечено тем, что
    store.initial() всегда AUTH — авторизация не восстанавливается из storage.
    ============================================================ */
-import { h, mount, icon, toast } from '../ui.js';
+import { h, mount, icon } from '../ui.js';
 import { t } from '../i18n.js';
 import { dispatch } from '../store.js';
 import { load, save } from '../storage.js';
 import { auth } from '../mock/api.js';
-import { field, passwordField, otpInput, setLoading, shake } from '../fields.js';
+import { otpInput, setLoading, shake } from '../fields.js';
 
 /* Версия АРМ в подвале S0 (§6/S0). Держим строкой здесь, а не в словаре:
    номер версии не переводится, и в i18n он бы разъехался между языками. */
 const VERSION = '1.3.0';
 
 export function renderLogin(host) {
-  let step = 0;                       // 0 креды · 1 OTP · 2 привязка
+  let step = 0;                       // 0 креды · 1 OTP
   let creds = null;
   let cooldownTimer = null;
 
-  const card = h('div', { class: 's-login__card panel' });
-  const slider = h('div', { class: 's-login__slider' }, card);
+  const card = h('div', { class: 'panel login__card' });
 
   mount(host,
-    h('div', { class: 's-login' },
-      h('div', { class: 's-login__inner' },
-        h('div', { class: 's-login__brand' },
+    h('div', { class: 'login' },
+      h('div', { class: 'login__inner' },
+        h('div', { class: 'login__brand' },
           icon('logo', { size: 24 }),
-          h('span', { class: 'h3' }, t('login.title'))),
-        h('p', { class: 'small s-login__subtitle' }, t('app.subtitle')),
-        slider,
+          h('b', {}, t('app.name'))),
+        h('div', { class: 'login__subtitle body-l' }, t('app.subtitle')),
+        card,
         // §6/S0 требует в подвале версию рядом с «Сессия действует…» (Д-21):
         // при разборе инцидента первое, что спрашивают у оператора, — какая
         // версия АРМ на окне, и искать её в devtools ему нечем.
-        h('p', { class: 'small s-login__legend' },
-          t('login.legend'),
-          h('span', { class: 'ink-faint' }, ' · '),
-          h('span', { class: 'tnum ink-faint' }, `${t('app.version')} ${VERSION}`)))));
+        h('div', { class: 'login__legend small' },
+          h('span', { class: 'login__legend-copy' },
+            t('login.legend'),
+            h('br'),
+            `${t('app.version')} ${VERSION}`)))));
 
   go(0);
   return () => clearInterval(cooldownTimer);
@@ -66,26 +67,45 @@ export function renderLogin(host) {
     // Автофокус на первое поле — оператор проходит вход без мыши (P4).
     // Синхронно, а не через rAF: в неотрисовываемой вкладке rAF не выполнится
     // и автофокус молча пропадёт. Поле уже в DOM после mount().
-    //
-    // select тоже ищем: на шаге привязки полей ввода нет вообще, там два
-    // <select> (ЦОН и окно), и запрос только по input не находил ничего —
-    // фокус молча не вставал, и шаг требовал мыши (Д-20).
     card.querySelector('input, select')?.focus();
   }
 
   /* ---------- шаг 1: креды ---------- */
   function stepCreds() {
-    const err = h('span', { class: 'field__error', role: 'alert' });
-    const login = field({ label: t('login.login'), value: 'operator.sino04', name: 'username', autocomplete: 'username' });
-    const pass = passwordField({ label: t('login.password') });
-    const submit = h('button', { class: 'btn btn--primary btn--l s-login__submit', type: 'submit' },
-      t('login.submit'));
+    const err = h('span', { class: 'field__error', role: 'alert', hidden: true });
+    const login = floatingField({
+      id: 'l-user',
+      label: t('login.login'),
+      value: 'operator.sino04',
+      name: 'username',
+      autocomplete: 'username',
+    });
+    const pass = floatingField({
+      id: 'l-pass',
+      label: t('login.password'),
+      name: 'password',
+      type: 'password',
+      autocomplete: 'current-password',
+      affix: h('span', { class: 'field__affix' }, icon('lock', { size: 20 })),
+    });
+    const submit = h('button', {
+      class: 'btn btn--primary btn--l', type: 'submit', 'data-act': 'login-next',
+    }, t('login.next'));
 
-    const form = h('form', {
+    return h('form', {
       class: 'stack g-4', novalidate: true,
       onSubmit: async e => {
         e.preventDefault();
         err.textContent = '';
+        err.hidden = true;
+        if (!login.input.value.trim() || !pass.input.value) {
+          err.hidden = false;
+          err.id = 'login-error';
+          err.textContent = t('login.required');
+          shake(card);
+          (login.input.value.trim() ? pass.input : login.input).focus();
+          return;
+        }
         setLoading(submit, true);
         try {
           const r = await auth.login(login.input.value.trim(), pass.input.value);
@@ -93,45 +113,50 @@ export function renderLogin(host) {
           go(1);
         } catch (e2) {
           shake(card);
+          err.hidden = false;
+          err.id = 'login-error';
           err.textContent = e2.code === 'LOCKED_OUT'
             ? t('login.lockout', { t: '00:30' })
             : t('login.badCreds');
+          pass.input.setAttribute('aria-invalid', 'true');
+          pass.input.setAttribute('aria-describedby', 'login-error');
           pass.input.select();
         } finally {
           setLoading(submit, false);
         }
       },
     },
-      stepLabel(1), login.el, pass.el, err, submit);
-
-    return form;
+      h('div', { class: 'login__fields' }, login.el, pass.el, err),
+      submit);
   }
 
   /* ---------- шаг 2: OTP ---------- */
   function stepOtp() {
-    const err = h('span', { class: 'field__error', role: 'alert' });
+    const err = h('span', { class: 'field__error', role: 'alert', hidden: true });
     const cells = otpInput(code => submitOtp(code));
-    const submit = h('button', { class: 'btn btn--primary btn--l s-login__submit', type: 'submit' },
-      t('login.submit'));
-
-    const resend = h('button', {
-      class: 'btn btn--ghost btn--l', type: 'button',
-      onClick: async () => { await auth.resendOtp(); toast(t('login.otpResent'), 'success'); },
-    }, t('login.otpResend'));
+    cells.el.id = 'l-otp';
+    const submit = h('button', {
+      class: 'btn btn--primary btn--l', type: 'submit', 'data-act': 'login-enter',
+    }, icon('shield', { size: 20 }), t('login.submit'));
+    const back = h('button', {
+      class: 'btn btn--ghost btn--l', type: 'button', 'data-act': 'login-back',
+      onClick: () => go(0),
+    }, t('common.back'));
 
     const form = h('form', {
       class: 'stack g-4', novalidate: true,
       onSubmit: e => { e.preventDefault(); submitOtp(cells.value()); },
     },
-      stepLabel(2),
-      h('span', { class: 'label' }, t('login.otpTitle')),
-      cells.el,
+      h('div', { class: 'login__step small' }, t('login.mfaHint')),
+      h('div', { class: 'field' },
+        h('span', { class: 'field__label', id: 'l-otp-label' }, t('login.mfa')),
+        cells.el),
       err,
-      submit,
-      h('div', { class: 'row center' }, resend));
+      h('div', { class: 'login__actions' }, submit, back));
 
     async function submitOtp(code) {
       err.textContent = '';
+      err.hidden = true;
       cells.error(false);
       setLoading(submit, true);
       try {
@@ -143,6 +168,8 @@ export function renderLogin(host) {
         if (e2.code === 'LOCKED_OUT') {
           startCooldown(e2.until, err, submit);
         } else {
+          err.hidden = false;
+          err.id = 'login-error';
           err.textContent = t('login.badOtp', { n: e2.left ?? 2 });
           cells.clear();
         }
@@ -169,9 +196,11 @@ export function renderLogin(host) {
         delete submit.dataset.lockedUntil;
         submit.disabled = false;
         err.textContent = '';
+        err.hidden = true;
         return;
       }
       const s = Math.ceil(left / 1000);
+      err.hidden = false;
       err.textContent = t('login.lockout', { t: `00:${String(s).padStart(2, '0')}` });
     };
     tick();
@@ -194,10 +223,24 @@ export function renderLogin(host) {
     dispatch('MFA_OK', { operator: creds });
     dispatch('BIND_OK', { bind: { ...r.bind, tsonName: tsonName(r.bind.tson) } });
   }
+}
 
-  function stepLabel(n) {
-    return h('span', { class: 'small s-login__step' }, t('login.step', { n }));
-  }
+/* Поле входа ведомства: подпись живёт внутри поля и всплывает над обводкой,
+   когда есть значение или фокус. placeholder=" " нужен для :placeholder-shown. */
+function floatingField({ id, label, value = '', name, type = 'text', autocomplete, affix }) {
+  const input = h('input', {
+    class: 'field__input', id, name, type, value,
+    placeholder: ' ',
+    autocomplete,
+    spellcheck: 'false',
+  });
+  const control = affix ? h('div', { class: 'field__wrap' }, input, affix) : input;
+  return {
+    el: h('div', { class: 'field login-field--floating' },
+      h('label', { class: 'field__label', for: id }, label),
+      control),
+    input,
+  };
 }
 
 /* ЦОНы нужны синхронно в finishLogin (авто-привязка), а fetch там уже поздно.

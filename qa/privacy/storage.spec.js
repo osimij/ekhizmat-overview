@@ -35,7 +35,7 @@ test('Ministry demo application records are not persisted', async ({ page }) => 
 test('TSON wipes citizen data from memory, DOM, storage and URL when a visit ends', async ({ page }) => {
   await page.goto('/tson/?dev=1&lang=ru&theme=light');
   await page.locator('input[type="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();

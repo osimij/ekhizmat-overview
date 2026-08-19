@@ -21,7 +21,7 @@ for (const variant of [{ theme: 'light', lang: 'ru' }, { theme: 'dark', lang: 't
     for (const platform of ['citizen', 'tson', 'ministry', 'admin']) {
       await page.goto(`/${platform}/?present=1&theme=${variant.theme}&lang=${variant.lang}`, { waitUntil: 'networkidle' });
       await expect(page.locator('[data-shared-platform-switcher]')).toBeVisible();
-      if (platform === 'tson') await expect(page.locator('#screen .s-login')).toBeVisible();
+      if (platform === 'tson') await expect(page.locator('#screen .login')).toBeVisible();
       await expect(page).toHaveScreenshot(`${platform}-desktop-${variant.theme}-${variant.lang}.png`, { fullPage: true, animations: 'disabled' });
     }
   });
@@ -52,7 +52,7 @@ test('ЦОН centre and leadership dashboard references', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tson/?present=1&theme=light&lang=ru');
   await page.locator('input[type="password"]').fill('demo');
-  await page.locator('form').getByRole('button', { name: 'Войти' }).click();
+  await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await page.getByRole('button', { name: /меню оператора/i }).click();

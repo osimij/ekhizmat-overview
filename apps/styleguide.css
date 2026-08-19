@@ -23,6 +23,17 @@
 .sg-scroll-demo span { padding:8px 10px; border-radius:var(--r-s); background:var(--field); color:var(--ink-2); font-size:var(--fs-13); }
 .sg-form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .sg-auth { grid-column:1/-1; max-width:440px; }
+.sg-login-gate {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--s-8);
+  border-radius: var(--r-xl);
+  background: var(--hero);
+}
+.sg-login-gate .login__card { width: min(100%, var(--w-login-card)); }
 .sg-auth .panel__body { display:grid; gap:14px; }
 .sg-auth p { color:var(--ink-3); }
 .otp-demo { display:flex; gap:8px; }
@@ -51,6 +62,7 @@
   .sg-main { width:min(100% - 32px,920px); padding-top:32px; }
   .sg-form-grid { grid-template-columns:minmax(0,1fr); }
   .sg-auth { width:100%; min-width:0; }
+  .sg-login-gate { padding: var(--s-4); }
   .sg-auth .panel__body { min-width:0; }
   .otp-demo { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; }
   .otp-demo input { width:100%; min-width:0; }
