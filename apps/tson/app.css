@@ -1484,6 +1484,7 @@ button.step:focus-visible {
   border-radius: var(--r-m);
   background: var(--field);
   color: var(--ink-faint);
+  font-size: var(--fs-13);
   line-height: 1;
 }
 .menu__note { padding: 0 var(--s-3) var(--s-2); }
@@ -1654,6 +1655,7 @@ button.step:focus-visible {
 }
 .topbar__brand { display: flex; align-items: center; gap: var(--s-2); }
 .topbar__bind { color: var(--ink-2); }
+.topbar__operator { color: var(--ink); }
 
 /* On the flat Figma login canvas only the pre-login preferences control
    remains from the shell. The product brand belongs to the gate itself.
@@ -1800,15 +1802,17 @@ button.step:focus-visible {
   min-width: 0;
 }
 .s-idle__kpis .kpi__value { margin-bottom: 0; }
-.s-idle__kpis .kpi__label { margin-top: 0; }
+.s-idle__kpis .kpi__label {
+  margin-top: 0;
+  font-weight: var(--weight-regular);
+}
 .s-idle__recent {
   grid-column: 2;
   grid-row: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  /* Строки уже дают --s-3 снизу; вместе с этим получается тот же --s-6, что сверху. */
-  padding-bottom: var(--s-3);
+  padding-bottom: 0;
 }
 /* Сетка 5×3: колонки равные, без зазора — линейка строки стыкуется в одну.
    Заявления заполняют колонки сверху вниз; третья — пустые ячейки. */

@@ -421,13 +421,14 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
       shortcut: {
         padding: [style(shortcut).paddingTop, style(shortcut).paddingRight],
         radius: style(shortcut).borderRadius,
+        fontSize: style(shortcut).fontSize,
       },
       dividerMargins: [...element.querySelectorAll(':scope > .rule')]
         .map((rule) => [style(rule).marginTop, style(rule).marginBottom]),
     };
   });
   expect(menuGeometry.systemIcon).toEqual(['26px', '26px']);
-  expect(menuGeometry.shortcut).toEqual({ padding: ['4px', '8px'], radius: '14px' });
+  expect(menuGeometry.shortcut).toEqual({ padding: ['4px', '8px'], radius: '14px', fontSize: '13px' });
   expect(menuGeometry.dividerMargins).toEqual(expect.arrayContaining([['8px', '8px']]));
   await operatorMenu.click();
   await expect(operatorMenu).toHaveAttribute('aria-expanded', 'false');
@@ -474,6 +475,18 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expect(page.locator('.s-locked__card .field__input')).toHaveCSS('height', '70px');
   await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('height', '70px');
   await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('font-weight', '400');
+});
+
+test('TSON lock preview URL summons the lock screen without login', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/tson/?lang=ru&theme=dark&preview=locked');
+  await expect(page.locator('.s-locked__card')).toBeVisible();
+  await expect(page.locator('.s-locked__copy h2')).toHaveText('Рабочее место заблокировано');
+  await expect(page).toHaveURL(/preview=locked/);
+
+  await page.goto('/tson/?lang=ru&theme=dark#/locked');
+  await expect(page.locator('.s-locked__card')).toBeVisible();
+  await expect(page).toHaveURL(/#\/locked/);
 });
 
 test('TSON and Ministry operator session survives a normal reload', async ({ page }) => {
@@ -529,8 +542,15 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   const idleKpiColors = await idleKpis.locator('.s-idle__kpi-icon').evaluateAll((icons) =>
     icons.map(icon => getComputedStyle(icon).color));
   expect(new Set(idleKpiColors).size).toBe(3);
+  await expect(idleKpis.locator('.kpi__label').first()).toHaveCSS('font-weight', '400');
+  await expect(page.locator('.s-idle__recent')).toHaveCSS('padding-bottom', '0px');
   await expect(page.locator('.s-idle__tools .btn--ghost').first()).toHaveCSS('font-size', '15px');
   await expect(page.locator('.s-idle__tools .btn--ghost').first()).toHaveCSS('font-weight', '400');
+  const operatorMenuColor = await page.locator('.topbar__operator').evaluate((button) => ({
+    actual: getComputedStyle(button).color,
+    expected: getComputedStyle(document.body).color,
+  }));
+  expect(operatorMenuColor.actual).toBe(operatorMenuColor.expected);
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
   await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();

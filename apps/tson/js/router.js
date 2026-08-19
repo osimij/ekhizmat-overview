@@ -11,7 +11,7 @@
    Из-за этого guard работает в обе стороны: он и не пускает URL вперёд машины,
    и переписывает URL, когда машина ушла сама (TTL, отзыв согласия).
    ============================================================ */
-import { ST, STEP, getState, subscribe } from './store.js';
+import { ST, STEP, getState, subscribe, dispatch } from './store.js';
 
 /* Роут → состояние, в котором он легален (§6, колонка «Роуты»). */
 export const ROUTES = {
@@ -132,6 +132,12 @@ function apply() {
   if (LOOKS_LIKE_PII.test(decodeURIComponent(raw))) {
     console.error('router: в URL похоже на персональные данные — вычищаю (§2.3.4)');
     replace(routeFor(getState().app));
+    return;
+  }
+
+  // Temporary design preview: appending #/locked summons the overlay.
+  if (raw.split('?')[0] === '#/locked' && getState().app !== ST.LOCKED) {
+    dispatch('LOCK');
     return;
   }
 

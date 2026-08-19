@@ -228,7 +228,7 @@ function openLangFlyout(row, onClose) {
 function operatorMenu(st) {
   let closeMenu = null;
   const btn = h('button', {
-    class: 'btn btn--ghost btn--s', 'aria-label': t('shell.operatorMenu'),
+    class: 'btn btn--ghost btn--s topbar__operator', 'aria-label': t('shell.operatorMenu'),
     'aria-haspopup': 'menu', 'aria-expanded': 'false',
     onClick: () => {
       if (closeMenu) { closeMenu(); return; }

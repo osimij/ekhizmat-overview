@@ -67,10 +67,19 @@ function persistArm() {
   });
 }
 
+/* Temporary design preview: /tson/?preview=locked or /tson/#/locked
+   opens the lock overlay immediately so the screen can be restyled
+   without logging in and pressing Ctrl+L. Drop both when the design settles. */
+function isLockedPreview() {
+  if (new URLSearchParams(location.search).get('preview') === 'locked') return true;
+  return (location.hash || '').split('?')[0] === '#/locked';
+}
+
 function restoreArm() {
   const snap = readArm();
   if (!snap || !restoreWorkstation(snap)) return;
   if (snap.role) setRole(snap.role);
+  if ((location.hash || '').split('?')[0] === '#/locked') return;
   const next = idleRoute(location.hash) || idleRoute(snap.route) || '#/idle';
   if ((location.hash || '') !== next) history.replaceState(null, '', next);
 }
@@ -80,6 +89,7 @@ async function boot() {
   await initI18n();
   await preloadTsons();
   restoreArm();
+  if (isLockedPreview()) dispatch('LOCK');
 
   demo = new URLSearchParams(location.search).get('dev') === '1'
     ? initDemo()
