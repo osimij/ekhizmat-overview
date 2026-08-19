@@ -607,6 +607,71 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   expect(toolsLayout.sideBySide).toBe(true);
   expect(toolsLayout.labelsFit).toBe(true);
 
+  const recentList = page.locator('.s-idle__recent-list');
+  await expect(recentList.locator('.status-icon')).toHaveCount(10);
+  await expect(recentList.locator('.s-idle__recent-row:not(.s-idle__recent-row--empty)')).toHaveCount(10);
+  await expect(recentList.locator('.s-idle__recent-row--empty')).toHaveCount(5);
+  const recentLayout = await recentList.evaluate((el) => {
+    const rows = [...el.querySelectorAll('.s-idle__recent-row')].map((row) => row.getBoundingClientRect());
+    const list = el.getBoundingClientRect();
+    const kpis = document.querySelector('.s-idle__kpis')?.getBoundingClientRect();
+    const panelEl = el.closest('.s-idle__recent');
+    const panel = panelEl?.getBoundingClientRect();
+    const panelCs = panelEl ? getComputedStyle(panelEl) : null;
+    const rowCs = getComputedStyle(el.querySelector('.s-idle__recent-row'));
+    const mark = el.querySelector('.status-icon');
+    const padTop = panelCs ? parseFloat(panelCs.paddingTop) : 0;
+    const padBottom = panelCs ? parseFloat(panelCs.paddingBottom) : 0;
+    const rowPad = parseFloat(rowCs.paddingBottom);
+    return {
+      columns: getComputedStyle(el).gridTemplateColumns.split(' ').length,
+      twoColumns: Math.abs(rows[0].top - rows[5].top) < 2,
+      stacked: rows[1].top > rows[0].bottom - 1,
+      secondColumnCloser: rows[5].left < list.left + list.width / 2,
+      thirdEmpty: rows[10].left >= rows[5].right - 1 && rows[10].width > 0,
+      continuousRule: Math.abs(rows[0].right - rows[5].left) < 2
+        && Math.abs(rows[5].right - rows[10].left) < 2
+        && Math.abs(rows[0].left - list.left) < 2
+        && Math.abs(rows[10].right - list.right) < 2
+        && Math.abs(rows[0].bottom - rows[5].bottom) < 2
+        && Math.abs(rows[5].bottom - rows[10].bottom) < 2,
+      sameHeightAsKpis: kpis && panel ? Math.abs(kpis.height - panel.height) < 2 : false,
+      markFill: mark ? getComputedStyle(mark).backgroundColor : null,
+      padBottomLtTop: padBottom < padTop,
+      padBalancesTop: Math.abs(rowPad + padBottom - padTop) < 1,
+    };
+  });
+  expect(recentLayout.columns).toBe(3);
+  expect(recentLayout.twoColumns).toBe(true);
+  expect(recentLayout.stacked).toBe(true);
+  expect(recentLayout.secondColumnCloser).toBe(true);
+  expect(recentLayout.thirdEmpty).toBe(true);
+  expect(recentLayout.continuousRule).toBe(true);
+  expect(recentLayout.sameHeightAsKpis).toBe(true);
+  expect(recentLayout.markFill).toMatch(/^(transparent|rgba?\(0,\s*0,\s*0,\s*0\))$/);
+  expect(recentLayout.padBottomLtTop).toBe(true);
+  expect(recentLayout.padBalancesTop).toBe(true);
+
+  const kpiCentered = await page.locator('.s-idle__kpis .kpi').first().evaluate((el) => {
+    const value = el.querySelector('.kpi__value')?.getBoundingClientRect();
+    const label = el.querySelector('.kpi__label')?.getBoundingClientRect();
+    const card = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    if (!value || !label) return { ok: false };
+    const innerTop = card.top + parseFloat(cs.paddingTop);
+    const innerBottom = card.bottom - parseFloat(cs.paddingBottom);
+    const contentMid = (value.top + label.bottom) / 2;
+    const innerMid = (innerTop + innerBottom) / 2;
+    return {
+      justify: cs.justifyContent,
+      valueFirst: value.top < label.top,
+      centered: Math.abs(contentMid - innerMid) < 2,
+    };
+  });
+  expect(kpiCentered.justify).toBe('center');
+  expect(kpiCentered.valueFirst).toBe(true);
+  expect(kpiCentered.centered).toBe(true);
+
   await page.keyboard.press('`');
   const demo = page.locator('.demo');
   await expect(demo).toBeVisible();

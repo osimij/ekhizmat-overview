@@ -46,7 +46,7 @@ export function renderIdle(host) {
         kpi(String(s.issued), t('idle.issued'))),
       recentPanel(
         s.recent.length
-          ? h('div', { class: 's-idle__recent-list' }, ...s.recent.map(r =>
+          ? recentList(s.recent.map(r =>
               h('div', { class: 's-idle__recent-row' },
                 // Только номер — ни ФИО, ни ИНН. Это и есть «без имён граждан!».
                 h('span', { class: 'tnum' }, `№ ${r.no}`),
@@ -66,6 +66,23 @@ function recentPanel(content) {
   return h('section', { class: 'panel s-idle__recent' },
     h('h2', { class: 'h3 panel__title' }, t('idle.recent')),
     content);
+}
+
+/* Сетка 5×3: заявления заполняют колонки сверху вниз, третья колонка
+   остаётся пустой, пока заявлений меньше 15. Пустые ячейки держат
+   горизонтальную линейку на всю ширину панели. */
+const RECENT_ROWS = 5;
+const RECENT_COLS = 3;
+
+function recentList(nodes) {
+  const fill = RECENT_ROWS * RECENT_COLS;
+  while (nodes.length < fill) {
+    nodes.push(h('div', {
+      class: 's-idle__recent-row s-idle__recent-row--empty',
+      'aria-hidden': 'true',
+    }));
+  }
+  return h('div', { class: 's-idle__recent-list' }, ...nodes);
 }
 
 /* §6/S1 — обе кнопки ведут в реальные экраны (Д-09). В ряд под KPI:
@@ -140,8 +157,7 @@ function skeletonStats() {
       h('div', { class: 'skel skel--card' }),
       h('div', { class: 'skel skel--card' }),
       h('div', { class: 'skel skel--card' })),
-    recentPanel(h('div', { class: 'stack g-3' },
-      h('div', { class: 'skel skel--line' }),
-      h('div', { class: 'skel skel--line' }),
-      h('div', { class: 'skel skel--line' }))));
+    recentPanel(recentList(
+      Array.from({ length: 10 }, () =>
+        h('div', { class: 's-idle__recent-row' }, h('div', { class: 'skel skel--line' }))))));
 }

@@ -1632,7 +1632,11 @@ button.step:focus-visible {
    Дом смены: заголовок + одно главное действие; KPI-колонка слева,
    «Последние заявления» справа. Каталог и справка — в ряд под KPI (§6/S1).
    ============================================================ */
-.s-idle { display: grid; gap: var(--s-6); }
+.s-idle {
+  display: grid;
+  gap: var(--s-6);
+  padding-top: var(--s-16); /* greeting needs room under the topbar — --s-6 read as flush */
+}
 .s-idle__head {
   display: flex;
   align-items: flex-start;
@@ -1657,22 +1661,53 @@ button.step:focus-visible {
   grid-row: 1;
   grid-template-columns: 1fr;
 }
+/* Карточки тянутся до высоты панели заявлений — группа «число + подпись»
+   центрируется в этой высоте, порядок value-first не меняется (§3 KPI). */
+.s-idle__kpis .kpi { justify-content: center; }
 .s-idle__recent {
   grid-column: 2;
   grid-row: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
+  /* Строки уже дают --s-3 снизу; вместе с этим получается тот же --s-6, что сверху. */
+  padding-bottom: var(--s-3);
 }
-.s-idle__recent-list { display: grid; }
+/* Сетка 5×3: колонки равные, без зазора — линейка строки стыкуется в одну.
+   Заявления заполняют колонки сверху вниз; третья — пустые ячейки. */
+.s-idle__recent-list {
+  --s-idle-recent-rows: 5;
+  --s-idle-recent-cols: 3;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--s-idle-recent-rows), auto);
+  grid-template-columns: repeat(var(--s-idle-recent-cols), minmax(0, 1fr));
+  align-content: start;
+}
+.s-idle__recent-list > .skel { margin-block: var(--s-3); }
 .s-idle__recent-row {
   display: flex;
   align-items: center;
   gap: var(--s-3);
   min-width: 0;
   padding-block: var(--s-3);
+  padding-inline-end: var(--s-4);
   border-bottom: 1px solid var(--line-in);
 }
+.s-idle__recent-row--empty { padding-inline: 0; }
+.s-idle__recent-row .tnum {
+  min-width: 0;
+  white-space: nowrap;
+}
+.s-idle__recent-row .status-icon {
+  flex: none;
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: var(--green);
+}
+/* Нижняя граница только внутри колонки — 5n совпадает с --s-idle-recent-rows. */
+.s-idle__recent-row:nth-child(5n),
 .s-idle__recent-row:last-child { border-bottom: 0; }
 /* Второстепенные инструменты идут отдельной строкой под всей сводкой: они не
    относятся к KPI-карточкам и получают ширину, достаточную для RU/TJ-подписей. */
