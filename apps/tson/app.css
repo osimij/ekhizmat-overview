@@ -1861,6 +1861,8 @@ button.step:focus-visible {
   min-width: 0;
   justify-content: flex-start;
   padding-inline: var(--s-3);
+  font-size: var(--fs-15);
+  font-weight: var(--weight-regular);
 }
 .s-idle__tools .btn--ghost .icon,
 .s-idle__tools .btn--ghost .kbd { flex-shrink: 0; }

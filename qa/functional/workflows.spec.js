@@ -529,6 +529,8 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   const idleKpiColors = await idleKpis.locator('.s-idle__kpi-icon').evaluateAll((icons) =>
     icons.map(icon => getComputedStyle(icon).color));
   expect(new Set(idleKpiColors).size).toBe(3);
+  await expect(page.locator('.s-idle__tools .btn--ghost').first()).toHaveCSS('font-size', '15px');
+  await expect(page.locator('.s-idle__tools .btn--ghost').first()).toHaveCSS('font-weight', '400');
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
   await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();
