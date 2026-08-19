@@ -368,30 +368,133 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
   await expect(page).toHaveURL(/#\/idle/);
+
+  const operatorMenu = page.getByRole('button', { name: /меню оператора/i });
+  await operatorMenu.click();
+  await expect(operatorMenu).toHaveAttribute('aria-expanded', 'true');
+  const menu = page.locator('#layers [role="menu"]');
+  await expect(menu).toBeVisible();
+  const menuGeometry = await menu.evaluate((element) => {
+    const style = (node) => getComputedStyle(node);
+    const systemIcon = element.querySelector('.menu__theme-system-icon');
+    const shortcut = element.querySelector('.menu__kbd');
+    return {
+      systemIcon: [style(systemIcon).width, style(systemIcon).height],
+      shortcut: {
+        padding: [style(shortcut).paddingTop, style(shortcut).paddingRight],
+        radius: style(shortcut).borderRadius,
+      },
+      dividerMargins: [...element.querySelectorAll(':scope > .rule')]
+        .map((rule) => [style(rule).marginTop, style(rule).marginBottom]),
+    };
+  });
+  expect(menuGeometry.systemIcon).toEqual(['26px', '26px']);
+  expect(menuGeometry.shortcut).toEqual({ padding: ['4px', '8px'], radius: '14px' });
+  expect(menuGeometry.dividerMargins).toEqual(expect.arrayContaining([['8px', '8px']]));
+  await operatorMenu.click();
+  await expect(operatorMenu).toHaveAttribute('aria-expanded', 'false');
+
+  await page.locator('.s-idle__start').click();
+  const identify = page.locator('.s-identify');
+  await expect(identify).toBeVisible();
+  await expect(identify.locator('.s-gate__lead')).toHaveCount(0);
+  await expect(identify.locator('.s-identify__steps')).toHaveCount(0);
+  const identifyLayout = await identify.evaluate((element) => {
+    const title = element.querySelector('h1');
+    const card = element.querySelector('.s-identify__card');
+    const body = element.querySelector('.s-identify__body');
+    return {
+      titleSize: getComputedStyle(title).fontSize,
+      titleWeight: getComputedStyle(title).fontWeight,
+      cardWidth: Math.round(card.getBoundingClientRect().width),
+      bodyDisplay: getComputedStyle(body).display,
+      nestedPanels: body.querySelectorAll('.panel').length,
+    };
+  });
+  expect(identifyLayout.titleSize).toBe('28px');
+  expect(identifyLayout.titleWeight).toBe('600');
+  expect(identifyLayout.cardWidth).toBe(560);
+  expect(identifyLayout.bodyDisplay).toBe('flex');
+  expect(identifyLayout.nestedPanels).toBe(0);
+
+  await page.getByRole('tab', { name: 'Face ID' }).click();
+  const faceTile = identify.locator('.facescan--embed');
+  await expect(faceTile).toBeVisible();
+  await expect(faceTile.locator('.facescan__stroke')).toHaveCount(1);
+  await expect(faceTile).toHaveClass(/facescan--scanning/, { timeout: 5000 });
+  await expect(identify.locator('.facescan__caption')).toContainText('Наведите камеру');
+
+  await page.keyboard.press('Control+l');
+  const lockCopy = page.locator('.s-locked__copy');
+  await expect(lockCopy).toBeVisible();
+  await expect(lockCopy).toHaveCSS('gap', '8px');
+  await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('font-weight', '400');
+});
+
+test('TSON and Ministry operator session survives a normal reload', async ({ page }) => {
+  await page.goto('/tson/?lang=ru&theme=light');
+  await page.locator('input[type="password"]').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const tsonOtp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await tsonOtp.nth(index).fill(String(index + 1));
+  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await page.locator('.s-idle__start').click();
+  await expect(page.locator('.s-identify')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await expect(page.locator('.login')).toHaveCount(0);
+  await expect(page).toHaveURL(/#\/idle/);
+
+  await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', {
+    key: 'R', metaKey: true, ctrlKey: true, shiftKey: true, bubbles: true,
+  })));
+  await page.reload();
+  await expect(page.locator('.login')).toBeVisible();
+  await expect(page.locator('.s-idle__start')).toHaveCount(0);
+
+  await page.goto('/ministry/?lang=ru&theme=light');
+  await page.locator('#l-pass').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const ministryOtp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await ministryOtp.nth(index).fill(String(index + 1));
+  await page.locator('[data-act="login-enter"]').click();
+  await expect(page.locator('#app')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#app')).toBeVisible();
+  await expect(page.locator('.login')).toHaveCount(0);
 });
 
 test('TSON demo roles expose both dashboards, drill-down and guest reception', async ({ page }) => {
-  await page.goto('/tson/?lang=ru&theme=light');
+  // dev=1 because the dashboard's simulated states (high queue, empty, loading,
+  // error) moved out of the page's own chrome into the demo panel, where the
+  // rest of the simulation lives. Without developer mode they are unreachable,
+  // which is the point: an operator can no longer "select an error".
+  await page.goto('/tson/?lang=ru&theme=light&dev=1');
   await page.locator('input[type="password"]').fill('demo');
   await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
-  await page.getByRole('menuitem', { name: /Руководитель отделения/ }).click();
+  await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();
   await expect(page).toHaveURL(/#\/dashboard-center/);
-  await expect(page.locator('.dashboard-kpis .metric')).toHaveCount(5);
-  await page.getByLabel('Сценарий').selectOption('high');
-  await expect(page.locator('.banner--danger')).toBeVisible();
-  await page.getByLabel('Сценарий').selectOption('empty');
+  await expect(page.locator('.dashboard-kpis .kpi')).toHaveCount(5);
+  const scenario = async (name) => {
+    await page.keyboard.press('`');
+    await page.locator('.demo').getByRole('button', { name, exact: true }).click();
+    await page.keyboard.press('`');
+  };
+  await scenario('Высокая очередь');
+  await expect(page.locator('.banner--error')).toBeVisible();
+  await scenario('Пустой период');
   await expect(page.locator('.dashboard-state')).toContainText('За выбранный период визитов нет');
-  await page.getByLabel('Сценарий').selectOption('loading');
+  await scenario('Загрузка');
   await expect(page.locator('.dashboard .skel').first()).toBeVisible();
-  await page.getByLabel('Сценарий').selectOption('error');
+  await scenario('Ошибка');
   await expect(page.locator('.dashboard-state')).toContainText('Не удалось обновить данные');
-  await page.getByLabel('Сценарий').selectOption('normal');
+  await scenario('Обычный');
   await page.getByRole('button', { name: /меню оператора/i }).click();
-  await page.getByRole('menuitem', { name: /^Руководство/ }).click();
+  await page.getByRole('menuitemradio', { name: /^Руководство/ }).click();
   await expect(page).toHaveURL(/#\/dashboard-leadership/);
   const trend = await page.locator('.line-chart polyline').evaluate((line) => ({
     namespace: line.namespaceURI,
@@ -399,17 +502,23 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   }));
   expect(trend.namespace).toBe('http://www.w3.org/2000/svg');
   expect(trend.length).toBeGreaterThan(0);
-  const networkTotal = await page.locator('.dashboard-center-row td:nth-child(2)').evaluateAll((cells) =>
+  const networkTotal = await page.locator('.dashboard-table-section tbody .data-row td:nth-child(2)').evaluateAll((cells) =>
     cells.reduce((sum, cell) => sum + Number(cell.textContent.trim()), 0),
   );
   expect(networkTotal).toBe(2486);
-  await page.getByLabel('Аудитория').selectOption('guest');
-  await expect(page.locator('.audience-bar')).toHaveCount(1);
-  await page.locator('.dashboard-center-row').first().click();
+  // The audience filter is gone: it only hid bars in one section while sitting
+  // beside filters that change the whole screen. Distribution always shows all
+  // three audiences, and the region filter now syncs to the URL (§7).
+  await expect(page.locator('.audience-bar')).toHaveCount(3);
+  await page.getByLabel('Регион').selectOption('sughd');
+  await expect(page).toHaveURL(/region=sughd/);
+  await expect(page.locator('.dashboard-table-section tbody .data-row')).toHaveCount(1);
+  await page.getByLabel('Регион').selectOption('all');
+  await page.locator('.dashboard-table-section tbody .data-row').first().click();
   await expect(page).toHaveURL(/#\/dashboard-center/);
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
-  await page.getByRole('menuitem', { name: /^Оператор/ }).click();
+  await page.getByRole('menuitemradio', { name: /^Оператор/ }).click();
   await page.locator('.s-idle__start').click();
   await page.getByRole('button', { name: /Продолжить как гость/ }).click();
   await expect(page.locator('.srv-row .audience-badge--guest')).toBeVisible();
@@ -476,7 +585,7 @@ test('TSON registration confirmation keeps its attestation above the actions', a
 
   await page.locator('.s-enroll__foot .btn--primary').click();
 
-  const dialog = page.locator('.overlay .modal[role="dialog"]');
+  const dialog = page.locator('.ekh-dialog-backdrop .ekh-dialog[role="dialog"]');
   await expect(dialog).toBeVisible();
   const geometry = await dialog.evaluate((modal) => {
     const label = modal.querySelector('label.check').getBoundingClientRect();
@@ -501,10 +610,14 @@ test('TSON registration confirmation keeps its attestation above the actions', a
   expect(geometry.labelWidth).toBeGreaterThan(200);
   expect(geometry.labelRight).toBeLessThanOrEqual(geometry.bodyRight + 1);
   expect(geometry.labelBottom).toBeLessThanOrEqual(geometry.footTop);
-  expect(geometry.modalAlign).toBe('left');
-  expect(geometry.titleAlign).toBe('left');
-  expect(geometry.keyAlign).toBe('left');
-  expect(geometry.valueAlign).toBe('left');
+  // `start` and `left` are the same axis in an LTR document. The dialog no
+  // longer hard-codes `left`: it inherits the document default now that the
+  // card is the shared .ekh-dialog rather than an app-local copy of .modal.
+  const leftish = ['left', 'start'];
+  expect(leftish).toContain(geometry.modalAlign);
+  expect(leftish).toContain(geometry.titleAlign);
+  expect(leftish).toContain(geometry.keyAlign);
+  expect(leftish).toContain(geometry.valueAlign);
   expect(Math.abs(geometry.actions[0].top - geometry.actions[1].top)).toBeLessThanOrEqual(1);
   expect(Math.abs(geometry.actions[0].height - geometry.actions[1].height)).toBeLessThanOrEqual(1);
   expect(Math.abs(geometry.actions[0].width - geometry.actions[1].width)).toBeLessThanOrEqual(1);

@@ -1,15 +1,19 @@
 /* ============================================================
    base.css — reset, типографика (§4.1), утилиты.
-   Размеры типографики — РЕАЛЬНЫЕ UI-размеры (специмен Figma ÷ 1.5).
+   Размеры ролей берём токенами --fs-* (design-guide §4): одна роль — одно
+   число во всех платформах.
    ============================================================ */
 
 /* ---------- reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
-html {
-  font-size: 15px;            /* §4.1 — базовый размер документа */
-  -webkit-text-size-adjust: 100%;
-}
+/* Корень остаётся браузерным (16px). Раньше здесь стоял `font-size: 15px`, и
+   каждый rem-овый токен --fs-* считался на 6.25% меньше номинала: --fs-28
+   давал 26.25, --fs-14 — 13.125. Роль «заголовок страницы» переставала
+   совпадать с админкой ровно на ту величину, ради устранения которой таблица
+   ролей §4 и заведена, а экрану приходилось прописывать 28px вручную. Базовый
+   размер текста АРМ задаёт body — это его роль, а не роль документа. */
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
@@ -17,8 +21,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 15px;            /* Body/Base — базовый текст всего АРМ */
-  line-height: 1.55;
+  font-size: var(--fs-15);    /* Body/Base — базовый текст всего АРМ */
+  line-height: var(--leading-body);
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -49,29 +53,46 @@ table { border-collapse: collapse; border-spacing: 0; }
   border-radius: inherit;
 }
 
-/* ---------- типографика (§4.1) ---------- */
-.h1 {
-  font-size: 44px; line-height: 1.15;
-  font-weight: 720; letter-spacing: 0;
+/* ---------- типографика ----------
+   Роли и числа — таблица design-guide §4, одна на все платформы: размер
+   выражает роль, вес — состояние, потолок веса 600, ≥620 только для
+   витринных цифр. Прежняя шкала (44/720, 24/720, 17/550, подпись 15/550)
+   держала три веса выше потолка и делала подпись поля крупнее и жирнее его
+   значения — то есть спорила с содержимым за внимание. */
+
+/* Заголовок страницы — единственная роль h1 на экране (§4, 28/600).
+   Раньше страницы носили .h2 (24/720), а S8 — .h1 (44/720): три размера на
+   одну роль, ни один не совпадал с админкой. */
+.page-title {
+  font-size: var(--fs-28); line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold); letter-spacing: 0;
 }
+/* Заголовок панели/шага внутри мастера (§4, 24/600). */
 .h2 {
-  font-size: 24px; line-height: 1.15;
-  font-weight: 720; letter-spacing: 0;
+  font-size: var(--fs-24); line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold); letter-spacing: 0;
 }
+/* Заголовок карточки-модала (§4, 20/600) — им озаглавлены ворота S3. */
+.h2--card {
+  font-size: var(--fs-20); line-height: 1.3;
+  font-weight: var(--weight-semibold);
+}
+/* Заголовок панели/секции (§4, 17/500). */
 .h3 {
-  font-size: 17px; line-height: 1.3;
-  font-weight: 550; letter-spacing: 0;
+  font-size: var(--fs-17); line-height: 1.3;
+  font-weight: var(--weight-medium); letter-spacing: 0;
 }
-.body-l  { font-size: 16px; line-height: 1.5;  font-weight: 400; }
-.body    { font-size: 15px; line-height: 1.55; font-weight: 400; }
+.body-l  { font-size: var(--fs-16); line-height: 1.5;  font-weight: var(--weight-regular); }
+.body    { font-size: var(--fs-15); line-height: var(--leading-body); font-weight: var(--weight-regular); }
+/* Микро-подпись и заголовок секции (§4, 13/500), предложениями, без капса. */
 .label {
-  font-size: 15px; line-height: 1.4;
-  font-weight: 550; letter-spacing: 0;
+  font-size: var(--fs-13); line-height: 1.4;
+  font-weight: var(--weight-medium); letter-spacing: 0;
   text-transform: none;
   color: var(--ink-3);
 }
-.small   { font-size: 13px; line-height: 1.4; font-weight: 400; color: var(--ink-2); }
-.caption { font-size: 12px; line-height: 1.3; font-weight: 550; }
+.small   { font-size: var(--fs-13); line-height: 1.4; font-weight: var(--weight-regular); color: var(--ink-2); }
+.caption { font-size: var(--fs-12); line-height: 1.3; font-weight: var(--weight-medium); }
 
 /* §4.1 — все таймеры, ИНН, номера заявлений */
 .tnum { font-variant-numeric: tabular-nums; }
@@ -84,8 +105,8 @@ table { border-collapse: collapse; border-spacing: 0; }
 /* §9 — текст и ссылки всегда --blue-ink (4.8:1), НЕ сырой --blue (3.2:1) */
 .blue-ink  { color: var(--blue-ink); }
 .red-ink   { color: var(--red-ink); }
-.green-ink { color: var(--green); }
-.amber-ink { color: var(--amber); }
+.green-ink { color: var(--green-ink); }
+.amber-ink { color: var(--amber-ink); }
 
 /* ---------- утилиты раскладки ---------- */
 .stack     { display: flex; flex-direction: column; }
@@ -170,22 +191,35 @@ table { border-collapse: collapse; border-spacing: 0; }
   height: var(--h-btn-m);
   padding-inline: var(--s-5);
   border-radius: var(--r-pill);
-  font-size: 15px;
+  font-size: var(--fs-15);
   line-height: 1;
-  font-weight: 550;
+  font-weight: 500;
   white-space: nowrap;
   user-select: none;
   cursor: pointer;
   transition: background-color var(--t-fast) var(--ease),
-              color var(--t-fast) var(--ease);
+              color var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease);
 }
 
-/* §8 — «Hover/press кнопок: цвет 120ms; scale не используем». */
+/* §6 — интерфейс физически подтверждает нажатие: 0.97 (0.96 у иконочных)
+   за --t-fast. Ранняя спека ЦОН scale запрещала; общий контракт её заменил, и
+   ЦОН оставался единственной платформой, где кнопка под пальцем не отвечала.
+   Выключенная кнопка не двигается никогда — движение означало бы, что нажатие
+   принято. Под prefers-reduced-motion --t-fast равен нулю, поэтому переход
+   схлопывается сам, а на всякий случай ниже scale явно снят. */
+.btn:not(:disabled):not([aria-disabled="true"]):active { transform: scale(0.97); }
+.btn--icon:not(:disabled):not([aria-disabled="true"]):active { transform: scale(0.96); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn:active, .btn--icon:active { transform: none; }
+}
 
 /* --- вид --- */
 .btn--primary {
   background: var(--blue);
   color: var(--on-blue);
+  font-weight: var(--weight-semibold);
 }
 .btn--primary:hover   { background: var(--blue-hover); }
 .btn--primary:active  { background: var(--blue-press); }
@@ -208,20 +242,21 @@ table { border-collapse: collapse; border-spacing: 0; }
 .btn--danger {
   background: var(--red-fill);
   color: var(--on-blue);
+  font-weight: var(--weight-semibold);
 }
-.btn--danger:hover  { filter: brightness(0.94); }
-.btn--danger:active { filter: brightness(0.88); }
+.btn--danger:hover  { background: var(--red-hover); }
+.btn--danger:active { background: var(--red-press); }
 
 /* --- размеры (§5.1) --- */
 .btn--l {
   height: var(--h-btn-l);
   padding-inline: var(--s-6);
-  font-size: 17px;
+  font-size: var(--fs-17);
 }
 .btn--s {
   height: var(--h-btn-s);
   padding-inline: var(--s-4);
-  font-size: 13px;
+  font-size: var(--fs-13);
 }
 
 /* Иконка внутри кнопки: 20 в M/S, 24 в L. */
@@ -281,10 +316,10 @@ table { border-collapse: collapse; border-spacing: 0; }
 
 /* Подпись — Label 15 --ink-3, сверху (§5.2). */
 .field__label {
-  font-size: 15px; line-height: 1.4;
-  font-weight: 550; letter-spacing: 0;
+  font-size: var(--fs-13); line-height: 1.4;
+  font-weight: var(--weight-medium); letter-spacing: 0;
   text-transform: none;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
 
 .field__input {
@@ -314,8 +349,8 @@ table { border-collapse: collapse; border-spacing: 0; }
 }
 
 /* Помощь / ошибка — Small снизу (§5.2). */
-.field__help  { font-size: 13px; line-height: 1.4; color: var(--ink-faint); }
-.field__error { font-size: 13px; line-height: 1.4; color: var(--red-ink); }
+.field__help  { font-size: var(--fs-13); line-height: 1.4; color: var(--ink-faint); }
+.field__error { font-size: var(--fs-13); line-height: 1.4; color: var(--red-ink); }
 
 /* error: рамка --red 1.5px + фон --red-tint 30% (§5.2).
    30% берём через color-mix, чтобы не заводить отдельный токен. */
@@ -384,7 +419,7 @@ select.field__input {
   gap: var(--s-1);
   padding: 2px var(--s-2);
   border-radius: var(--r-s);
-  font-size: 12px; line-height: 1.3; font-weight: 550;
+  font-size: var(--fs-12); line-height: 1.3; font-weight: 550;
   white-space: nowrap;
   letter-spacing: 0;
   /* Чип живёт внутри .field__label, а тот — 13 caps (§5.2). Без сброса чип
@@ -393,7 +428,6 @@ select.field__input {
   text-transform: none;
 }
 .src--profile { background: var(--blue-tint); color: var(--blue-ink); }
-.src--manual  { background: var(--h-gray-bg); color: var(--h-gray-fg); }
 
 /* Поле под проверку (§6/S2b). Рамка, а не заливка: значение внутри читают и
    правят, и фон под текстом мешал бы ровно тому, ради чего поле подсвечено.
@@ -406,7 +440,7 @@ select.field__input {
 .otp__cell {
   width: 48px; height: 56px;
   text-align: center;
-  font-size: 24px; font-weight: 550;
+  font-size: var(--fs-24); font-weight: 550;
   font-variant-numeric: tabular-nums;
   background: var(--field);
   border: 0;
@@ -445,12 +479,12 @@ select.field__input {
 .def__key {
   flex: none;
   width: 200px;
-  font-size: 15px; line-height: 1.4;
-  font-weight: 550; letter-spacing: 0;
+  font-size: var(--fs-13); line-height: 1.4;
+  font-weight: var(--weight-medium); letter-spacing: 0;
   text-transform: none;
-  color: var(--ink-3);
+  color: var(--ink-2);
 }
-.def__val { flex: 1 1 auto; min-width: 0; font-size: 15px; }
+.def__val { flex: 1 1 auto; min-width: 0; font-size: var(--fs-15); }
 /* ФИО, ИНН, номера — tabular (§4.1). */
 .def__val--tnum { font-variant-numeric: tabular-nums; }
 
@@ -474,7 +508,7 @@ select.field__input {
   align-items: center;
   gap: var(--s-2);
   margin-top: var(--s-3);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--ink-faint);
 }
 
@@ -487,11 +521,11 @@ select.field__input {
   gap: var(--s-1);
   padding: var(--s-1) var(--s-3);
   border-radius: var(--r-pill);
-  font-size: 12px; line-height: 1.3; font-weight: 550;
+  font-size: var(--fs-12); line-height: 1.3; font-weight: 550;
   white-space: nowrap;
 }
-.pill--active  { background: var(--green-tint); color: var(--green); }
-.pill--wait    { background: var(--amber-tint); color: var(--amber); }
+.pill--active  { background: var(--green-tint); color: var(--green-ink); }
+.pill--wait    { background: var(--amber-tint); color: var(--amber-ink); }
 .pill--denied  { background: var(--red-tint);   color: var(--red-ink); }
 .pill--draft   { background: var(--h-gray-bg);  color: var(--h-gray-fg); }
 
@@ -516,7 +550,7 @@ select.field__input {
      закреплён за .pill и .dot, и чип, притворяющийся пилюлей, стирал разницу
      между «статус» и «объём доступа». */
   border-radius: var(--r-s);
-  font-size: 13px; font-weight: 550;
+  font-size: var(--fs-13); font-weight: 550;
   background: var(--blue-tint);
   color: var(--blue-ink);
   white-space: nowrap;
@@ -526,7 +560,11 @@ select.field__input {
 
 /* Кликабельный чип — «Доступ: 3» в сессионной полосе, жизненные ситуации в S4. */
 button.chip { cursor: pointer; transition: background-color var(--t-fast) var(--ease); }
-button.chip:hover { filter: brightness(0.97); }
+/* Явный шаг фона вместо filter: brightness() (§3 «Action color»). Яркостный
+   фильтр не знает ни темы, ни токена — в тёмной теме он осветлял то, что
+   должен был подчеркнуть, и был неуправляем при перенастройке палитры. */
+button.chip:hover { background: var(--blue-tint-hover); }
+button.chip:active { transform: scale(0.97); }
 button.chip:focus-visible {
   outline: var(--focus-ring) solid var(--focus);
   outline-offset: var(--focus-offset);
@@ -571,10 +609,10 @@ button.chip:focus-visible {
   border-radius: var(--r-pill);
   background: var(--field);
   color: var(--ink-3);
-  font-size: 12px; font-weight: 550;
+  font-size: var(--fs-12); font-weight: 550;
   font-variant-numeric: tabular-nums;
 }
-.step__label { font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+.step__label { font-size: var(--fs-13); color: var(--ink-3); white-space: nowrap; }
 .step__line {
   width: 32px; height: 1px;
   flex: none;
@@ -582,7 +620,7 @@ button.chip:focus-visible {
 }
 
 .step--active .step__dot   { background: var(--blue); color: var(--on-blue); }
-.step--active .step__label { color: var(--ink); font-weight: 550; }
+.step--active .step__label { color: var(--ink); font-weight: var(--weight-semibold); }
 
 .step--done .step__dot   { background: var(--green); color: var(--on-blue); }
 .step--done .step__label { color: var(--ink-2); }
@@ -633,8 +671,8 @@ button.step:focus-visible {
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 24px;
-  font-weight: 550;
+  font-size: var(--fs-24);
+  font-weight: 620;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
 }
@@ -660,7 +698,7 @@ button.step:focus-visible {
   border-radius: var(--r-m);
   padding: var(--s-3);
 }
-.qr__caption { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.qr__caption { font-size: var(--fs-13); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 /* Истёкший код — блюр + кнопка «Обновить» поверх (§6/S2). */
 .qr--expired .qr__code { filter: blur(6px); }
@@ -679,8 +717,9 @@ button.step:focus-visible {
 /* ============================================================
    5.3 Face ID — плитка распознавания лица (S2 вход · S2b захват)
    Одна и та же плитка на двух экранах: на S2 гражданин входит по лицу, на
-   S2b его лицо снимают в реестр. Жест один — рамка с бегущей линией, — и
-   второй его язык оператору учить незачем (как «шторка» сканера).
+   S2b его лицо снимают в реестр. Жест один — пунктирный штрих по периметру
+   (design-system `.facescan`, design-guide §3 live-scan). Здесь только
+   геометрия АРМ: 240×240 у окна, 200×200 в модале, embed без своей панели.
    ============================================================ */
 .facescan {
   display: flex;
@@ -701,92 +740,135 @@ button.step:focus-visible {
   border-radius: var(--r-l);
   background: var(--field);
   color: var(--ink-faint);
-  overflow: hidden;
 }
-/* Уголки-рамка распознавания: одна рамка внутрь от краёв плитки. */
-.facescan__frame::before {
-  content: "";
-  position: absolute;
-  inset: 20px;
-  border: 2px solid var(--blue);
-  border-radius: var(--r-m);
-  opacity: 0.35;
-}
-.facescan__caption { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-
-/* Ожидание/захват: рамка «дышит», сверху вниз идёт линия сканирования (§8). */
-.facescan--scanning .facescan__frame { color: var(--blue); }
-.facescan--scanning .facescan__frame::before { animation: facepulse 2s var(--ease) infinite; }
-.facescan--scanning .facescan__frame::after {
-  content: "";
-  position: absolute;
-  left: 20px; right: 20px;
-  height: 2px;
-  background: var(--blue);
-  box-shadow: 0 0 8px var(--blue);
-  animation: facescanline 2.2s var(--ease) infinite;
-}
-@keyframes facepulse { 50% { opacity: 0.7; } }
-@keyframes facescanline { 0% { top: 22px; } 50% { top: 216px; } 100% { top: 22px; } }
-@media (prefers-reduced-motion: reduce) {
-  .facescan--scanning .facescan__frame::before,
-  .facescan--scanning .facescan__frame::after { animation: none; }
-  .facescan--scanning .facescan__frame::after { display: none; }
-}
+.facescan__caption { font-size: var(--fs-13); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 /* В модале захвата (S2b) плитка без своей рамки-панели и чуть меньше: она уже
    внутри карточки модала, вторая рамка была бы рамкой в рамке. */
 .facescan--modal { padding: 0; background: none; border: none; width: auto; }
 .facescan--modal .facescan__frame { width: 200px; height: 200px; margin-inline: auto; }
-@keyframes facescanline-modal { 0% { top: 22px; } 50% { top: 176px; } 100% { top: 22px; } }
-.facescan--modal.facescan--scanning .facescan__frame::after { animation-name: facescanline-modal; }
 
-/* ---------- fixed-fixture management dashboards ---------- */
-.guest-identify{display:flex;align-items:center;gap:var(--s-4);padding:var(--s-4);margin-top:var(--s-5)}
+/* ============================================================
+   Управленческие панели (#/dashboard-center, #/dashboard-leadership)
+   ============================================================ */
+/* Запасной путь «принять как гостя»: тихая строка под формой метода, а не
+   вторая обведённая карточка. Ворота задают один вопрос, и рамка вокруг
+   альтернативы делала из подсказки конкурирующее предложение (§3.3). */
+.guest-identify{
+  display:flex;align-items:center;flex-wrap:wrap;gap:var(--s-3);
+  width:100%;
+  padding-top:var(--s-4);
+  border-top:1px solid var(--line-in);
+  text-align:left;
+}
 .guest-identify .audience-badge svg,.srv-row .audience-badge svg,.drawer .audience-badge svg,.sessionbar .audience-badge svg{width:14px;height:14px}
 .dashboard{display:grid;gap:var(--s-6);padding-block:var(--s-6) var(--s-10)}
 .dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-6)}
-.dashboard-controls{display:flex;align-items:flex-end;justify-content:flex-end;gap:var(--s-3);flex-wrap:wrap}
-.dashboard-select{display:grid;gap:var(--s-1);min-width:150px}
-.dashboard-select .input{height:40px;padding-inline:var(--s-3)}
+.dashboard-controls{display:flex;align-items:flex-end;justify-content:flex-end;gap:var(--s-5);flex-wrap:wrap}
+
+/* KPI — отдельные карточки, значение первым (§3 «KPI / stat cards», правило 10).
+   Раньше это была общая «метрика» дизайн-системы: сросшаяся полоса с
+   внутренними разделителями и порядком «подпись → значение». Полоса не
+   переносится, читается как одна таблица и заставляет глаз искать число под
+   словом; отдельные карточки сканируются поштучно и перестраиваются на любой
+   ширине. Красный инсет у тревожного KPI убран: тревогу несут цвет числа и
+   строка контекста — рисовать её третий раз незачем (правило 6). */
 .dashboard-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s-3)}
-.dashboard-kpis--small{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:var(--s-4)}
-.dashboard-metric{min-width:0;padding:var(--s-4)}
-.dashboard-metric .metric__value{font-size:clamp(24px,2.4vw,34px)}
-.dashboard-metric--danger{box-shadow:inset 3px 0 0 var(--red)}
+.dashboard-kpis--small{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dashboard-kpis--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kpi{
+  display:flex;flex-direction:column;gap:var(--s-1);
+  min-width:0;padding:var(--s-4);
+  background:var(--panel);border:1px solid var(--line-in);border-radius:var(--r-l);
+}
+.kpi__value{font-size:var(--fs-28);line-height:var(--leading-tight);font-weight:620;font-variant-numeric:tabular-nums}
+.kpi__label{font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2)}
+.kpi__context{font-size:var(--fs-12);font-weight:var(--weight-regular);color:var(--ink-faint)}
+.kpi--warn .kpi__context{color:var(--amber-ink)}
+.kpi--danger .kpi__value{color:var(--red-ink)}
+.kpi--danger .kpi__context{color:var(--red-ink)}
+
 .dashboard-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:var(--s-4)}
 .dashboard-section{padding:var(--s-5);min-width:0}
 .dashboard-section > .h3,.dashboard-section > .row:first-child{margin-bottom:var(--s-4)}
+
+/* Зона очереди. Тревога — цветом числа и статус-иконкой, а не заливкой всей
+   карточки: залитая красным карточка кричит там, где нужно сравнивать (§5). */
 .queue-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3)}
 .queue-card{display:grid;gap:var(--s-1);text-align:left;padding:var(--s-4);border:1px solid var(--line);border-radius:var(--r-m);background:var(--field);color:var(--ink);transition:border-color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
 .queue-card:hover{border-color:var(--blue)}.queue-card:active{transform:scale(.98)}
-.queue-card strong{font-size:var(--fs-28)}.queue-card__name{font-weight:680}
-.queue-card--danger{border-color:var(--red);background:var(--red-tint)}
+.queue-card__head{display:flex;align-items:center;gap:var(--s-2)}
+/* Число очереди — витринная цифра: 620 и tabular-nums, чтобы колонка не
+   дёргалась при обновлении. Название зоны — обычный заголовок строки 500:
+   680 на нём делал подпись тяжелее самого числа (§4). */
+.queue-card strong{font-size:var(--fs-28);font-weight:620;font-variant-numeric:tabular-nums;line-height:var(--leading-tight)}
+.queue-card__name{flex:1 1 auto;min-width:0;font-weight:var(--weight-medium)}
+.queue-card--danger strong{color:var(--red-ink)}
+
+/* Столбики: подписаны только текущий час и пик — два числа, а не одиннадцать
+   (§10 правило 20: значение не должно жить только в hover). */
 .bar-chart{height:190px;display:flex;align-items:flex-end;gap:var(--s-3);padding-top:var(--s-5)}
 .bar-chart__item{height:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:var(--s-2)}
 .bar-chart__bar{display:block;width:100%;min-height:8px;border-radius:var(--r-s) var(--r-s) 2px 2px;background:var(--blue);opacity:.82}
+.bar-chart__value{font-size:var(--fs-12);color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.bar-chart__item--peak .bar-chart__bar{opacity:1}
+
 .data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:var(--s-3);text-align:left;border-bottom:1px solid var(--line-in);font-size:var(--fs-14)}
-.data-table th{color:var(--ink-3);font-size:var(--fs-14);font-weight:650;text-transform:none;letter-spacing:0}
+.data-table th{color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-medium);text-transform:none;letter-spacing:0}
 .data-table td small{display:block;margin-top:2px}
-.table-wrap{overflow:auto}
-.dashboard-drilldown{padding:var(--s-5);box-shadow:var(--shadow-2)}
+/* Колонка-шеврон: только ширина под иконку 20 + отступы ячейки, прижата
+   вправо. Она и есть видимый признак того, что строка кликабельна. */
+.data-table__go{width:44px;color:var(--ink-faint)}
+.data-table__go .icon{margin-left:auto}
+.table-wrap{overflow-x:auto}
+
+/* Строка-кнопка: вся строка и есть действие, поэтому отдельной колонки с
+   кнопкой «Детали» на каждой из десяти строк больше нет (правило 7). */
+.data-row{cursor:pointer;transition:background var(--t-fast) var(--ease)}
+.data-row:hover,.data-row:focus-visible{background:var(--hover)}
+.data-row:focus-visible{outline:var(--focus-ring) solid var(--focus);outline-offset:calc(var(--focus-offset) * -1)}
+
 .dashboard-state{min-height:360px;display:grid;place-items:center;align-content:center;gap:var(--s-4);text-align:center}
 .dashboard-state > svg{color:var(--ink-3)}
-.line-chart{color:var(--blue)}.line-chart svg{width:100%;height:190px;overflow:visible}.line-chart polyline{vector-effect:non-scaling-stroke}
-.chart-legend{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--s-2);color:var(--ink)}.chart-legend span{display:grid;text-align:center}.chart-legend small{color:var(--ink-3)}
+
+/* Динамика: тонкая линия с точками и подписанной осью. Толстая полилиния без
+   осей и легенда, дублирующая те же числа под ней, — это один факт, нарисованный
+   дважды, и ни разу не названный (правило 6, §9). */
+.line-chart{color:var(--blue)}
+.line-chart svg{width:100%;height:190px;overflow:visible}
+.line-chart polyline{vector-effect:non-scaling-stroke}
+.line-chart__axis{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:var(--s-2);margin-top:var(--s-2);color:var(--ink-faint);font-size:var(--fs-12);text-align:center}
+
 .audience-bars{display:grid;gap:var(--s-5);margin-top:var(--s-5)}.audience-bar{display:grid;gap:var(--s-2)}
 .audience-bar__track{height:12px;border-radius:var(--r-pill);background:var(--field);overflow:hidden}.audience-bar__track > span{display:block;height:100%;border-radius:inherit;background:var(--blue)}
 .dashboard-table-section{display:grid;gap:var(--s-4)}
-.dashboard-center-row{cursor:pointer;transition:background var(--t-fast) var(--ease)}.dashboard-center-row:hover,.dashboard-center-row:focus-visible{background:var(--hover);outline:none}
-.dashboard-problems{align-items:flex-start}.dashboard-problems .stack{color:inherit}
+
+/* Панель «Требует внимания» — строки-кнопки, ведущие в тот самый центр.
+   Статичный баннер с двумя зашитыми строками называл проблему и не давал к ней
+   перейти (§6: пустые и тревожные состояния отвечают «что делать дальше»). */
+.alerts{display:flex;flex-direction:column;gap:var(--s-1)}
+.alert-row{
+  display:flex;align-items:center;gap:var(--s-3);width:100%;
+  padding:var(--s-2) var(--s-3);border-radius:var(--r-m);
+  text-align:left;color:var(--ink);cursor:pointer;
+  transition:background-color var(--t-fast) var(--ease);
+}
+.alert-row:hover{background:var(--hover)}
+.alert-row__text{flex:1 1 auto;min-width:0}
+.alert-row__chev{color:var(--ink-faint)}
+
 .menu__label{display:block;padding:var(--s-2) var(--s-3)}
-@media(max-width:1440px){.dashboard-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}}
+/* АРМ по спецификации живёт от 1280px, а канвас ограничен 1200 — пять карточек
+   по ~230px помещаются в него целиком. Прежний порог max-width:1440 срабатывал
+   на самом штатном разрешении и ломал ряд на 3+2 там, где ничего не мешало. */
+@media(max-width:1279px){.dashboard-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}}
 @media(max-width:1100px){.dashboard-head{align-items:flex-start;flex-direction:column}.queue-grid{grid-template-columns:1fr}.dashboard-kpis{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){.queue-card,.dashboard-center-row{transition:none}.queue-card:active{transform:none}}
+@media(prefers-reduced-motion:reduce){.queue-card,.data-row,.alert-row{transition:none}.queue-card:active{transform:none}}
 
 /* Ожидание подтверждения push (§6/S2): колокол «дышит» рядом с текстом. */
 .s-identify__waiting { align-items: center; color: var(--ink-2); }
 .s-identify__waiting .icon { color: var(--blue); animation: facepulse 1.4s var(--ease) infinite; }
+@keyframes facepulse { 50% { opacity: 0.7; } }
 @media (prefers-reduced-motion: reduce) {
   .s-identify__waiting .icon { animation: none; }
 }
@@ -808,7 +890,7 @@ button.step:focus-visible {
   height: var(--h-btn-s);
   padding-inline: var(--s-4);
   border-radius: var(--r-pill);
-  font-size: 13px; font-weight: 550;
+  font-size: var(--fs-13); font-weight: var(--weight-medium);
   color: var(--ink-2);
   cursor: pointer;
   white-space: nowrap;
@@ -820,6 +902,7 @@ button.step:focus-visible {
 .seg__item[aria-selected="true"] {
   background: var(--panel);
   color: var(--ink);
+  font-weight: var(--weight-semibold);
 }
 .seg__item:focus-visible {
   outline: var(--focus-ring) solid var(--focus);
@@ -829,69 +912,26 @@ button.step:focus-visible {
 
 /* ============================================================
    5.3 Вкладки — скоупы в S5
+   Скин — общий `.tabs.tabs--underline` (design-system/css/components.css).
+   Своего `.tabs` у приложения больше нет: под этим именем в библиотеке уже
+   живёт полоса-капсула министерства, и ЦОН переопределял её лишь частично —
+   отступ, радиус и заливку капсулы вкладки наследовали молча (§1 правило 10).
    ============================================================ */
-.tabs {
-  display: flex;
-  gap: var(--s-1);
-  border-bottom: 1px solid var(--line);
-}
-.tab {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-2);
-  padding: var(--s-3) var(--s-4);
-  font-size: 15px;
-  color: var(--ink-2);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color var(--t-fast) var(--ease),
-              border-color var(--t-fast) var(--ease);
-}
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] {
-  color: var(--ink);
-  font-weight: 550;
-  border-bottom-color: var(--blue);
-}
-.tab:focus-visible {
-  outline: var(--focus-ring) solid var(--focus);
-  outline-offset: calc(var(--focus-offset) * -1);
-  border-radius: var(--r-s);
-}
-.tab .icon { width: 16px; height: 16px; color: var(--ink-faint); }
-
 /* ============================================================
-   5.3 Модал — 480 (confirm) / 640 (scope), --r-xl, оверлей --ink 40%
+   5.3 Модал
+   Скин — общий `.ekh-dialog` / `.ekh-dialog-backdrop`
+   (design-system/css/patterns.css): 480 (confirm) / 640 (--wide, запрос
+   скоупа), --r-xl, подложка --overlay, вход и выход анимирует общий слой.
+   Здесь остаётся только композиция шапки/тела/подвала, которой у общего
+   диалога нет: у него своя шапка с крестиком, а у АРМ — заголовок, текст и
+   ряд действий. Своего `.overlay`/`.modal` у приложения больше нет: под этими
+   именами уже живёт компактный диалог гражданина из components.css, и второе
+   определение перекрашивало подложку в белый в тёмной теме (см. ui.js).
    ============================================================ */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-items: center;
-  padding: var(--s-6);
-  background: color-mix(in srgb, var(--ink) 40%, transparent);
-  animation: fade var(--t-layer) var(--ease);
-}
+@keyframes pop { from { opacity: 0; transform: scale(0.98); } }
 @keyframes fade { from { opacity: 0; } }
 
-.modal {
-  width: var(--w-modal);
-  max-width: 100%;
-  max-height: 100%;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: var(--s-6);
-  background: var(--panel);
-  border-radius: var(--r-xl);
-  text-align: left;
-  animation: pop var(--t-layer) var(--ease);
-}
-.modal--wide { --w-modal: var(--w-modal-wide); }  /* запрос скоупа */
-@keyframes pop { from { opacity: 0; transform: scale(0.98); } }
-
-.modal__title  { margin-bottom: var(--s-3); text-wrap: balance; }
+.modal__title  { font-size: var(--fs-20); line-height: 1.3; font-weight: var(--weight-semibold); margin-bottom: var(--s-3); text-wrap: balance; }
 .modal__body   { color: var(--ink-2); }
 /* Главное действие справа — рука оператора всегда там (P2). */
 .modal__foot {
@@ -901,9 +941,6 @@ button.step:focus-visible {
   gap: var(--s-3);
   margin-top: var(--s-6);
 }
-/* global.css also contains a compact legacy modal. Its stacked-button margin
-   must not leak into this application's horizontal action footer. */
-.modal .modal__foot > .btn + .btn { margin-top: 0; }
 
 /* Registration is a verification task, so its summary follows one stable
    reading axis instead of centring every label and value independently. */
@@ -938,7 +975,7 @@ button.step:focus-visible {
   border-top: 1px solid var(--line-in);
 }
 .s-enroll-confirm__consent-title {
-  font-size: 15px;
+  font-size: var(--fs-15);
   line-height: 1.4;
   font-weight: var(--weight-medium);
   color: var(--ink);
@@ -947,10 +984,18 @@ button.step:focus-visible {
 /* ============================================================
    5.3 Drawer — карточка услуги 480 (§6/S4)
    ============================================================ */
+/* Прозрачная подложка ящика: ловит клик мимо панели и больше ничего не
+   делает (см. drawerLayer в ui.js). Без фона — ящик не блокирует экран. */
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-drawer);
+}
+
 .drawer {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  z-index: 50;
+  z-index: var(--z-drawer);   /* сырой 50 был ниже своей же подложки (§10.16) */
   width: var(--w-drawer);
   max-width: 100%;
   overflow: auto;
@@ -971,36 +1016,39 @@ button.step:focus-visible {
 
 /* ============================================================
    5.3 Тост — правый-верх, 4с, статусные тинты
+   Скин и статусные тинты переехали в design-system/css/patterns.css как
+   `.ekh-toast` / `.ekh-toast-region--top` (§1 правило 9: второй потребитель
+   паттерна — повод поднять его наверх, а не скопировать). Здесь остаётся
+   только вход: он один и тот же у всех слоёв АРМ.
    ============================================================ */
-.toasts {
-  position: fixed;
-  top: var(--s-4); right: var(--s-4);
-  z-index: 60;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  pointer-events: none;
-}
-.toast {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
-  min-width: 280px;
-  max-width: 400px;
-  border-radius: var(--r-m);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  font-size: 15px;
-  pointer-events: auto;
-  animation: toast-in var(--t-layer) var(--ease);
-}
+.ekh-toast { animation: toast-in var(--t-layer) var(--ease); }
 @keyframes toast-in { from { opacity: 0; transform: translateX(16px); } }
 
-.toast--success { background: var(--green-tint); border-color: transparent; color: var(--green); }
-.toast--error   { background: var(--red-tint);   border-color: transparent; color: var(--red-ink); }
-.toast--warn    { background: var(--amber-tint); border-color: transparent; color: var(--amber); }
+/* ============================================================
+   Выходы слоёв (§8)
+
+   Каждый слой уходит тем же путём, каким пришёл: модал сжимается и гаснет,
+   ящик уезжает вправо, поповер сворачивается к своему триггеру, тост
+   отъезжает и гаснет. Класс `is-exiting` ставит closeLayer, и он же ждёт
+   --t-exit перед удалением узла — иначе выход не успевал бы нарисоваться.
+
+   160 мс против 200 на входе: уходить должно быть легче, чем приходить.
+   Под prefers-reduced-motion все --t-* равны нулю, и переходы схлопываются
+   сами — состояние при этом по-прежнему читается: слой просто исчезает,
+   а фокус возвращается на триггер.
+   ============================================================ */
+.is-exiting {
+  pointer-events: none;
+  transition: opacity var(--t-exit) var(--ease-layer),
+              transform var(--t-exit) var(--ease-layer);
+}
+.drawer-scrim.is-exiting .drawer,
+.drawer.is-exiting { transform: translateX(100%); }
+.popover.is-exiting { opacity: 0; transform: scale(0.98); }
+.ekh-toast.is-exiting { opacity: 0; transform: translateX(16px); }
+/* Модал и его подложка гаснут средствами общего диалога: openExistingDialog
+   снимает `is-open`, а переходы описаны рядом с самим компонентом. */
+.ekh-dialog-backdrop.is-exiting { pointer-events: none; }
 
 /* ============================================================
    5.3 Банер — full-width внутри canvas, тинт по семантике
@@ -1011,15 +1059,15 @@ button.step:focus-visible {
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
   border-radius: var(--r-m);
-  font-size: 15px;
+  font-size: var(--fs-15);
 }
 .banner__text  { flex: 1 1 auto; min-width: 0; }
 .banner .icon  { flex: none; }
 
 .banner--info  { background: var(--blue-tint);  color: var(--blue-ink); }
-.banner--warn  { background: var(--amber-tint); color: var(--amber); }
+.banner--warn  { background: var(--amber-tint); color: var(--amber-ink); }
 .banner--error { background: var(--red-tint);   color: var(--red-ink); }
-.banner--ok    { background: var(--green-tint); color: var(--green); }
+.banner--ok    { background: var(--green-tint); color: var(--green-ink); }
 
 /* Offline — липкий сверху (§7). */
 .banner--sticky {
@@ -1044,8 +1092,8 @@ button.step:focus-visible {
    правило доставало и до иконок внутри кнопки действия («Вернуться в каталог»,
    «Сканировать разворот»), раздувая их с 20 до 48 прямо в подписи. */
 .empty > .icon { width: 48px; height: 48px; color: var(--ink-faint); }
-.empty__title { font-size: 17px; line-height: 1.3; font-weight: 550; }
-.empty__hint  { font-size: 13px; color: var(--ink-faint); max-width: 40ch; }
+.empty__title { font-size: var(--fs-17); line-height: 1.3; font-weight: var(--weight-medium); }
+.empty__hint  { font-size: var(--fs-13); color: var(--ink-faint); max-width: 40ch; }
 
 /* ============================================================
    5.3 Скелетон — блоки --field с shimmer
@@ -1085,7 +1133,7 @@ button.step:focus-visible {
   place-items: center;
   background: var(--field);
   border-radius: var(--r-s);
-  font-size: 12px; font-weight: 550;
+  font-size: var(--fs-12); font-weight: 550;
   color: var(--ink-3);
   cursor: pointer;
 }
@@ -1101,7 +1149,7 @@ button.step:focus-visible {
   display: flex;
   align-items: flex-start;
   gap: var(--s-2);
-  font-size: 15px;
+  font-size: var(--fs-15);
 }
 .check-item .icon { width: 20px; height: 20px; flex: none; margin-top: 1px; }
 .check-item--done    { color: var(--ink); }
@@ -1148,7 +1196,7 @@ button.step:focus-visible {
 .timeline { display: flex; align-items: center; gap: var(--s-3); }
 .timeline__node {
   display: flex; align-items: center; gap: var(--s-2);
-  font-size: 13px; color: var(--ink-2);
+  font-size: var(--fs-13); color: var(--ink-2);
 }
 .timeline__node .dot { color: var(--track-off); }
 .timeline__node--done { color: var(--ink); }
@@ -1194,11 +1242,12 @@ button.step:focus-visible {
   padding: 2px var(--s-2);
   border-radius: var(--r-s);
   background: color-mix(in srgb, var(--on-blue) 22%, transparent);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: 550;
   font-family: inherit;
 }
 .btn--secondary .kbd,
+.btn--ghost .kbd,
 .seg__kbd {
   background: color-mix(in srgb, var(--ink) 8%, transparent);
   color: var(--ink-faint);
@@ -1207,7 +1256,7 @@ button.step:focus-visible {
   margin-left: var(--s-1);
   padding: 0 5px;
   border-radius: var(--r-s);
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 /* Спиннер в строке (банер ожидания push). Кнопочный живёт в .btn--loading;
@@ -1225,22 +1274,16 @@ button.step:focus-visible {
 }
 
 /* ---------- чекбокс и радио (§5.2) ----------
-   Нативные контролы не подчиняются токенам (особенно в тёмной теме), но и
-   выбрасывать их нельзя: с ними работают Space, скринридер и автозаполнение.
-   Поэтому нативный вход остаётся, а вид даёт accent-color. */
+   Нативный вход остаётся: с ним работают Space, скринридер и автозаполнение.
+   Вид даёт общий отрисованный контрол из design-system/css/components.css —
+   accent-color рисовал ОС-виджет мимо палитры, и §3 его отменил. Здесь только
+   раскладка подписи рядом с контролом. */
 .check, .radio {
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
   cursor: pointer;
-  font-size: 15px;
-}
-.check__input, .radio__input {
-  width: 18px; height: 18px;
-  flex: none;
-  margin: 0;
-  accent-color: var(--blue);
-  cursor: pointer;
+  font-size: var(--fs-15);
 }
 .radio-group { display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: center; }
 
@@ -1274,10 +1317,10 @@ button.step:focus-visible {
   display: flex;
   align-items: center;
   gap: var(--s-2);
-  font-size: 13px;
+  font-size: var(--fs-13);
   line-height: 1.4;
 }
-.field__hint--warn { color: var(--amber); }
+.field__hint--warn { color: var(--amber-ink); }
 
 /* Промежуток между смысловыми группами внутри def-list (несколько документов). */
 .def__gap { height: var(--s-4); }
@@ -1311,7 +1354,7 @@ button.step:focus-visible {
   color: var(--hue-fg);
 }
 .srv-row__body { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
-.srv-row__name { font-size: 15px; font-weight: 550; }
+.srv-row__name { font-size: var(--fs-15); font-weight: var(--weight-medium); }
 .srv-row--off { opacity: 0.6; cursor: not-allowed; }
 .srv-row--off:hover { background: none; }
 
@@ -1352,7 +1395,7 @@ button.step:focus-visible {
   width: 100%;
   padding: var(--s-3);
   border-radius: var(--r-m);
-  font-size: 15px;
+  font-size: var(--fs-15);
   text-align: left;
   cursor: pointer;
   transition: background-color var(--t-fast) var(--ease);
@@ -1360,8 +1403,59 @@ button.step:focus-visible {
 .menu__item:hover { background: var(--hover); }
 .menu__item:disabled { opacity: 0.4; pointer-events: none; }
 .menu__item .icon { color: var(--ink-3); }
-.menu__kbd { margin: 0; background: var(--field); color: var(--ink-faint); }
+.menu > .rule { margin-block: var(--s-2); }
+.menu__kbd {
+  margin: 0;
+  padding: var(--s-1) var(--s-2);
+  border-radius: var(--r-m);
+  background: var(--field);
+  color: var(--ink-faint);
+  line-height: 1;
+}
 .menu__note { padding: 0 var(--s-3) var(--s-2); }
+
+/* ---------- настройки внутри меню (§3 «Global preferences», §6 «Profile
+   popover») ---------- */
+
+/* Текущее значение справа от подписи: строка отвечает «язык — русский», а не
+   только «язык». Тише подписи, потому что подпись — вопрос, а значение — уже
+   данный ответ (§4: размер = роль). */
+.menu__value { font-size: var(--fs-13); color: var(--ink-2); }
+.menu__chev  { color: var(--ink-faint); }
+
+/* Тема — не пункт меню, а выбор из трёх, поэтому строка не кликабельна целиком
+   и не подсвечивается по hover: кликают кнопки внутри неё. */
+.menu__row--theme {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--fs-15);
+}
+.menu__choices { display: flex; align-items: center; gap: var(--s-1); }
+.menu__choice {
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  border-radius: var(--r-s);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease),
+              color var(--t-fast) var(--ease);
+}
+.menu__choice:hover { background: var(--hover); color: var(--ink); }
+.menu__choice .menu__theme-system-icon { width: 26px; height: 26px; }
+/* Выбранное состояние меняет и фон, и цвет глифа разом — один статус, все
+   каналы согласны (§6 «Navigation items»), и цвет не единственный канал (§9). */
+.menu__choice[aria-pressed="true"] { background: var(--blue-tint); color: var(--blue-ink); }
+.menu__choice:focus-visible {
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+
+/* Выносной список языков — узкий: в нём только названия языков. */
+.menu--flyout { min-width: 180px; }
 
 /* ============================================================
    Миниатюра документа — превью первой страницы (§6/S8)
@@ -1394,6 +1488,13 @@ button.step:focus-visible {
 }
 .doc-thumb:hover { box-shadow: 0 0 0 2px var(--blue); }
 
+/* ИСКЛЮЧЕНИЕ из §4: всё `.doc-page*` ниже намеренно держит сырые px и вес 720
+   и НЕ переводится на токены размера и веса. Это не интерфейс, а изображение
+   выданного листа — превью имитирует целевой носитель (design-guide §6,
+   «device/document previews»), у которого своя типографика. Лист вёрстается в
+   натуральном масштабе 420px и ужимается transform-ом, поэтому его размеры
+   вообще не обязаны совпадать с ролями экрана: связать их значило бы, что
+   правка UI-шкалы молча меняет вид документа. */
 .doc-page {
   width: 420px;
   height: 594px;
@@ -1492,10 +1593,10 @@ button.step:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 .sessionbar__who { font-weight: 550; }
-.sessionbar__timer { font-size: 15px; font-weight: 550; }
+.sessionbar__timer { font-size: var(--fs-15); font-weight: 550; }
 
 /* Пороги TTL (§3.2): >5:00 обычный; ≤5:00 amber; ≤1:00 red + модал. */
-.sessionbar--warn   { background: var(--amber-tint); color: var(--amber); }
+.sessionbar--warn   { background: var(--amber-tint); color: var(--amber-ink); }
 .sessionbar--danger { background: var(--red-tint);   color: var(--red-ink); }
 
 /* --- stepper 44 --- */
@@ -1527,45 +1628,80 @@ button.step:focus-visible {
 
 /* ============================================================
    S1 · Главная смены (§6/S1)
-   ============================================================ */
-.s-idle {
-  display: grid;
-  grid-template-columns: 1fr var(--w-context);
-  gap: var(--s-6);
-  align-items: start;
-}
-.s-idle__main { display: flex; flex-direction: column; gap: var(--s-2); }
 
-/* Пустой центр — осознанный приём: одно решение, ничто не конкурирует (§3.3). */
-.s-idle__hero {
-  position: relative;
-  overflow: hidden;
-  margin-top: var(--s-6);
-  min-height: 320px;
+   Дом смены: заголовок + одно главное действие; KPI-колонка слева,
+   «Последние заявления» справа. Каталог и справка — в ряд под KPI (§6/S1).
+   ============================================================ */
+.s-idle { display: grid; gap: var(--s-6); }
+.s-idle__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-6);
+}
+.s-idle__start {
+  font-size: var(--fs-15);
+  font-weight: var(--weight-regular);
+}
+.s-idle__intro { min-width: 0; }
+.s-idle__body { min-width: 0; }
+.s-idle__main {
+  display: grid;
+  grid-template-columns: minmax(0, var(--w-context)) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  gap: var(--s-4);
+  align-items: stretch;
+}
+.s-idle__kpis {
+  grid-column: 1;
+  grid-row: 1;
+  grid-template-columns: 1fr;
+}
+.s-idle__recent {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+}
+.s-idle__recent-list { display: grid; }
+.s-idle__recent-row {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--s-4);
-  text-align: center;
+  gap: var(--s-3);
+  min-width: 0;
+  padding-block: var(--s-3);
+  border-bottom: 1px solid var(--line-in);
 }
-
-.s-idle__start { position: relative; z-index: 1; }
-
-/* Подсказка горячей клавиши прямо на кнопке — P4: рука должна запомнить F2. */
-.s-idle__kbd {
-  margin-left: var(--s-2);
-  padding: 2px var(--s-2);
-  border-radius: var(--r-s);
-  background: color-mix(in srgb, var(--on-blue) 22%, transparent);
-  font-size: 12px;
-  font-weight: 550;
-  font-family: inherit;
+.s-idle__recent-row:last-child { border-bottom: 0; }
+/* Второстепенные инструменты идут отдельной строкой под всей сводкой: они не
+   относятся к KPI-карточкам и получают ширину, достаточную для RU/TJ-подписей. */
+.s-idle__tools {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+  padding-inline: 0;
+  flex-wrap: wrap;
 }
-
-.s-idle__links { margin-top: var(--s-4); }
-.s-idle__stat { font-size: 17px; font-weight: 550; text-align: right; }
-.s-idle__stats .def__row:last-child { border-bottom: 0; }
+.s-idle__tools .btn--ghost {
+  flex: 0 0 auto;
+  min-width: 0;
+  justify-content: flex-start;
+  padding-inline: var(--s-3);
+}
+.s-idle__tools .btn--ghost .icon,
+.s-idle__tools .btn--ghost .kbd { flex-shrink: 0; }
+.s-idle__tools-label {
+  white-space: nowrap;
+}
+@media (max-width: 1100px) {
+  .s-idle__head { flex-direction: column; align-items: flex-start; }
+  .s-idle__main { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .s-idle__kpis,
+  .s-idle__recent,
+  .s-idle__tools { grid-column: 1; grid-row: auto; }
+}
 
 /* ============================================================
    LOCKED (§6/S9c)
@@ -1593,6 +1729,8 @@ button.step:focus-visible {
 .s-locked__card .field__input,
 .s-locked__card .btn { width: 100%; }
 .s-locked__card .field__input { margin-top: var(--s-3); }
+/* Gate primary is regular, matching .login__actions .btn--primary. */
+.s-locked__card .btn--primary { font-weight: var(--weight-regular); }
 
 /* ============================================================
    Демо-панель (§11.5)
@@ -1631,7 +1769,7 @@ button.step:focus-visible {
   align-items: center;
   column-gap: var(--s-2);
   row-gap: 2px;
-  font-size: 13px;
+  font-size: var(--fs-13);
 }
 .demo__check > .icon { flex: none; }
 .demo__check > .grow { flex: 1 0 auto; }   /* метку не сжимаем — она уезжает на перенос вся целиком */
@@ -1687,28 +1825,91 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 
 /* ============================================================
    S2 · Идентификация (§6/S2)
-   ============================================================ */
-.s-identify { --w-s2: 720px; }
-.s-identify__banner:not(:empty) { width: var(--w-s2); max-width: 100%; }
 
-/* «QR слева, инструкция справа» (§6/S2). QR — по содержимому, инструкция
-   забирает остаток: иначе плитка 240px растягивается и код плывёт. */
-.s-identify__body {
-  display: grid;
-  grid-template-columns: auto minmax(280px, 1fr);
-  gap: var(--s-4);
-  align-items: start;
-  width: var(--w-s2);
+   Одна карточка --w-gate-wide: метод, затем вопрос, затем действие.
+   Двухколоночная сетка была для QR слева / скрипта справа; QR убран, и
+   боковая колонка оставляла поле телефона в пустоте, а нумерация вкладок
+   спорила со скриптом. Скрипт разговора живёт только в ожидании.
+   ============================================================ */
+.s-identify {
+  gap: var(--s-6);
+  text-align: center;
+}
+.s-identify__card {
+  width: var(--w-gate-wide);
   max-width: 100%;
-  margin-top: var(--s-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  padding: var(--s-6);
+  border-radius: var(--r-xl);
   text-align: left;
 }
-.s-identify__form { align-self: stretch; }
-.s-identify__steps { counter-reset: step; }
-.s-identify__steps .step__dot { background: var(--field); color: var(--ink-2); }
+.s-identify__card .seg {
+  display: flex;
+  width: 100%;
+}
+.s-identify__card .seg__item {
+  flex: 1 1 0;
+  min-width: 0;
+  justify-content: center;
+  padding-inline: var(--s-3);
+}
+.s-identify__banner:empty { display: none; }
+.s-identify__banner:not(:empty) { width: 100%; }
+
+.s-identify__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  min-width: 0;
+}
+.s-identify__form { width: 100%; }
+.s-identify__form .btn--primary { width: 100%; }
 .s-identify__status:empty { display: none; }
-.s-identify__foot { margin-top: var(--s-6); }
+.s-identify__status { display: flex; flex-direction: column; gap: var(--s-3); }
+
+/* Скрипт — подпись + тихая нумерация, не панель и не точки-степпера. */
+.s-identify__coach {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line-in);
+}
+.s-identify__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  counter-reset: coach;
+}
+.s-identify__steps li {
+  display: grid;
+  grid-template-columns: var(--s-5) minmax(0, 1fr);
+  gap: var(--s-3);
+  align-items: start;
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--ink-2);
+  counter-increment: coach;
+}
+.s-identify__steps li::before {
+  content: counter(coach);
+  font-variant-numeric: tabular-nums;
+  font-weight: 550;
+  color: var(--ink-3);
+}
+
+/* Рамка лица внутри карточки ворот — не вторая панель. */
+.s-identify__card .facescan--embed {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+}
 .s-identify__noacc { align-self: flex-start; }
+.s-identify__foot { margin-top: 0; }
 
 /* ============================================================
    S2b · Регистрация гражданина (§6/S2b)
@@ -1743,25 +1944,17 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   padding-bottom: calc(var(--enroll-foot) + var(--s-4));
 }
 
-/* Роли типографики — ровно по таблице design-guide §4: 28/600 заголовок
-   страницы, 17/500 заголовок панели и секции, 13/500 микро-подпись, 15/400
-   значение. Числа записаны в пикселях, а не токенами --fs-*: АРМ держит
-   `html { font-size: 15px }`, и rem-овый токен даёт здесь 26.25 вместо 28 —
-   то есть роль «заголовок страницы» перестала бы совпадать с админкой, ради
-   чего таблица и существует. Расхождение корня — отдельный, платформенный
-   долг; чинить его внутри одного экрана нельзя.
+/* Собственного `.s-enroll__title` здесь больше нет: экран носит общий
+   `.page-title`. Локальное правило существовало ровно потому, что корень
+   документа был прибит к 15px и токен --fs-28 давал 26.25 — долг оплачен в
+   корне, и повторять роль заголовка на одном экране больше незачем.
 
    Номер телефона живёт ровно здесь: в форме его больше нет (поле, которое
    нельзя править, форме не принадлежит), а в реестр он уходит из
    подтверждения. */
-.s-enroll__title {
-  font-size: 28px;
-  line-height: var(--leading-tight);
-  font-weight: var(--weight-semibold);
-}
 .s-enroll__subject {
   margin-top: var(--s-1);
-  font-size: 13px;
+  font-size: var(--fs-13);
   line-height: 1.4;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
@@ -1804,7 +1997,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    соседних столбца одного экрана называли свои разделы по-разному. */
 .s-enroll__pane-title,
 .s-enroll__group-title {
-  font-size: 17px;
+  font-size: var(--fs-17);
   line-height: 1.3;
   font-weight: var(--weight-medium);
 }
@@ -1827,7 +2020,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   background: var(--panel);
   color: var(--ink);
   text-align: left;
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: var(--weight-medium);
   transition: background-color var(--t-fast) var(--ease),
               border-color var(--t-fast) var(--ease),
@@ -1853,11 +2046,11 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 .s-enroll__page-state {
   flex: none;
-  font-size: 13px;
+  font-size: var(--fs-13);
   font-weight: var(--weight-regular);
   color: var(--ink-2);
 }
-.s-enroll__page-state--warn { color: var(--amber); }
+.s-enroll__page-state--warn { color: var(--amber-ink); }
 
 /* Сцена разворота. Одна поверхность на уровень (§5): панель уже нарисована
    вокруг всей колонки, поэтому сцена рамки не имеет — фон получает только
@@ -1927,15 +2120,10 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 
 /* §4 — подпись поля меньше и тише значения: сверяют значение, а не подпись.
-   До правки подпись шла 15/550, значение 15/400, и глазу приходилось каждый
-   раз решать, что из двух главное. */
+   Само правило (13/500 --ink-2) поднято в базовый `.field__label`: экран, где
+   оно доказало свою правоту, не должен оставаться единственным местом, где
+   роль соблюдена. Здесь остаётся только плотность колонки сверки. */
 .s-enroll .field { gap: var(--s-1); }
-.s-enroll .field__label {
-  font-size: 13px;
-  line-height: 1.4;
-  font-weight: var(--weight-medium);
-  color: var(--ink-2);
-}
 /* Паспортные данные — сплошь идентификаторы, даты и номера (§4). */
 .s-enroll .field__input { font-variant-numeric: tabular-nums; }
 
@@ -1945,9 +2133,9 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    семи спокойных. */
 .s-enroll .field__flag {
   margin-left: var(--s-2);
-  font-size: 13px;
+  font-size: var(--fs-13);
   font-weight: var(--weight-medium);
-  color: var(--amber);
+  color: var(--amber-ink);
 }
 
 .s-enroll__grid {
@@ -2072,7 +2260,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   padding: var(--s-3) var(--s-2);
   border-radius: var(--r-m);
   text-align: left;
-  font-size: 15px;
+  font-size: var(--fs-15);
   cursor: pointer;
   transition: background-color var(--t-fast) var(--ease);
 }
@@ -2100,7 +2288,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 .s-data--compact .tabs { flex-wrap: wrap; border-bottom: 0; row-gap: 0; }
 .s-data--compact .tab {
   padding: var(--s-2) var(--s-3);
-  font-size: 13px;
+  font-size: var(--fs-13);
   margin-bottom: 0;
 }
 /* Внутри панели своя панель не рисуется второй рамкой. */
@@ -2110,7 +2298,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   background: none;
 }
 .s-data--compact .def__key { width: 100px; }
-.s-data--compact .def__val { font-size: 13px; }
+.s-data--compact .def__val { font-size: var(--fs-13); }
 
 /* ============================================================
    S6 · Форма (§6/S6)
@@ -2231,6 +2419,12 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 
 .s-docs__stage.is-drop { box-shadow: inset 0 0 0 2px var(--blue); }
 
+/* Строка «не хватает …» живёт в липком футере рядом с кнопкой, которую она
+   объясняет, и прижата к ней справа: причина должна быть там же, где решение
+   (§5 «ошибки стоят рядом с решением»). */
+.s-docs__why { text-align: right; max-width: 44ch; }
+.s-docs__empty-acts { justify-content: center; margin-top: var(--s-2); }
+
 .s-docs__foot {
   position: sticky;
   bottom: 0;
@@ -2258,7 +2452,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   text-align: center;
 }
 .s-result__title { margin-top: var(--s-1); }
-.s-result__no { font-size: 16px; }
+.s-result__no { font-size: var(--fs-16); }
 .s-result__body { width: 100%; max-width: 640px; margin-top: var(--s-2); }
 .s-result__body .panel { text-align: left; }
 
@@ -2289,4 +2483,4 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    Слои: запрос скоупа, продление, завершение
    ============================================================ */
 .s-scope__foot { margin-top: var(--s-2); }
-.end__list { color: var(--ink-2); font-size: 15px; }
+.end__list { color: var(--ink-2); font-size: var(--fs-15); }

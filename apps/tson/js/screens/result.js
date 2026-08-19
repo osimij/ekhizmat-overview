@@ -30,7 +30,7 @@ export function renderResult(host) {
   mount(host,
     h('div', { class: 'canvas s-result' },
       h('div', { class: 'hero-mark hero-mark--draw' }, icon('check')),
-      h('h1', { class: 'h1 s-result__title' }, t('result.accepted')),
+      h('h1', { class: 'page-title s-result__title' }, t('result.accepted')),
 
       h('div', { class: 'row center g-2 s-result__no' },
         h('span', { class: 'tnum' }, `№ ${app.no}`),
@@ -44,13 +44,20 @@ export function renderResult(host) {
               toast(t('common.copied'), 'success', 2000);
             } catch { toast(t('common.copyFailed'), 'error'); }
           },
-        }, icon('paperclip', { size: 20 }))),
+        }, icon('copy', { size: 20 }))),
 
       bodyEl,
 
+      /* Одно главное действие на момент (§3 «Action color»). Для мгновенной
+         услуги решающее действие — «Печать»: справка готова, и её сейчас
+         отдадут в руки; «Завершить приём» на том же экране синим спорило с
+         ней за тот же взгляд. Для отложенной печатать нечего, и главным
+         становится завершение. Одна условная разница в классе. */
       h('div', { class: 'row center g-3 s-result__foot' },
-        h('button', { class: 'btn btn--primary btn--l', onClick: () => endVisit() },
-          t('session.end'), h('kbd', { class: 'kbd' }, 'F9')),
+        h('button', {
+          class: `btn btn--${svc.instant ? 'secondary' : 'primary'} btn--l`,
+          onClick: () => endVisit(),
+        }, t('session.end'), h('kbd', { class: 'kbd' }, 'F9')),
         h('button', { class: 'btn btn--ghost btn--l', onClick: again }, t('result.again')))));
 
   svc.instant ? instant() : deferred();

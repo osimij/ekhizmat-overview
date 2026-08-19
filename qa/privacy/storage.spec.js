@@ -19,7 +19,7 @@ test('shared origin stores only approved non-personal settings', async ({ page }
   }));
   expect(state.keys.every(key => /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail|demo\.lowcode))$/.test(key))).toBeTruthy();
   expect(state.values.join(' ')).not.toMatch(/Фируза|Раҳимова|\+992|\d{9,}/);
-  expect(state.sessionKeys).toEqual([]);
+  expect(state.sessionKeys.every(key => /^(ekh\.(tson|ministry)\.arm)$/.test(key))).toBeTruthy();
   expect(state.cookie).toBe('');
   expect(decodeURIComponent(state.url)).not.toMatch(/Фируза|Раҳимова|\d{9,}/);
 });
@@ -59,7 +59,8 @@ test('TSON wipes citizen data from memory, DOM, storage and URL when a visit end
   }));
   expect(audit.text.trim()).toBe('');
   expect(audit.keys.every(key => /^(ekh\.(preferences\.(theme|lang)|tson\.bind))$/.test(key))).toBeTruthy();
-  expect(audit.sessionKeys).toEqual([]);
+  expect(audit.sessionKeys.every(key => key === 'ekh.tson.arm')).toBeTruthy();
+  expect(await page.evaluate(() => sessionStorage.getItem('ekh.tson.arm') || '')).not.toMatch(/Абду|Рахим|\+992|\d{9,}/);
   expect(audit.cookie).toBe('');
   expect(audit.url).not.toMatch(/Абду|Рахим|\d{9,}/);
 });

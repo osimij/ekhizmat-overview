@@ -3,7 +3,12 @@
    сразу под i18n: t('consent.waiting'), JSON-словари ru.json / tg.json.
    Переключатель в topbar меняет язык без перезагрузки.
    ============================================================ */
-import { load, save } from './storage.js';
+/* Хранение языка принадлежит design-system/js/preferences.js — владельцу ключей
+   `ekh.preferences.*` (§1 правило 7). Свой save() писал сюда JSON-строку
+   ("ru" с кавычками), общая библиотека — голую (ru), и два владельца одного
+   ключа не видели записей друг друга: АРМ рисовал таджикский, а <html lang>
+   оставался ru — то есть скринридер объявлял язык страницы неверно (§9). */
+import { getLang as savedLang, setLang as saveLang } from '/design-system/js/preferences.js';
 
 const dictionaryUrls = {
   ru: new URL('../i18n/ru.json', import.meta.url),
@@ -20,7 +25,11 @@ const listeners = new Set();
    Пусть лучше boot() покажет честное «АРМ не запустился» с кнопкой повтора. */
 export async function initI18n() {
   const requested = new URLSearchParams(location.search).get('lang');
-  lang = requested === 'ru' || requested === 'tg' ? requested : load('ekh.preferences.lang', 'ru');
+  // АРМ говорит на двух языках; общий словарь знает и en — чужой код тут
+  // означает «языка нет», а не «падаем».
+  const saved = savedLang();
+  lang = requested === 'ru' || requested === 'tg' ? requested
+    : saved === 'tg' ? 'tg' : 'ru';
   dict = await fetchDict(lang).catch(async e => {
     // Сохранённый язык мог быть tg, а tg.json появляется только в Ф6 (§12).
     // Это не повод падать — падаем, только если недоступен и русский.
@@ -29,7 +38,7 @@ export async function initI18n() {
     lang = 'ru';
     return fetchDict('ru');
   });
-  document.documentElement.lang = lang;
+  saveLang(lang, { persist: false });   // <html lang> ставит владелец настроек
 }
 
 /* Переключение языка в рантайме — наоборот, падать нельзя: оператор нажал
@@ -40,8 +49,7 @@ export async function setLang(next) {
   try {
     dict = await fetchDict(next);
     lang = next;
-    save('ekh.preferences.lang', next);
-    document.documentElement.lang = next;
+    saveLang(next);                     // пишет ключ и обновляет <html lang>
     listeners.forEach(fn => fn(next));
   } catch (e) {
     console.warn(`i18n: словарь "${next}" недоступен, остаёмся на "${lang}"`, e);

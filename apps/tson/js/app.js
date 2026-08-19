@@ -3,9 +3,11 @@
    автоблокировка по бездействию (§7), заглушка на узком окне (§7).
    ============================================================ */
 import { initI18n, onLangChange, t } from './i18n.js';
-import { initTheme, renderTopbar, renderSessionBar, renderStepper, paintTimer } from './shell.js';
+import { renderTopbar, renderSessionBar, renderStepper, paintTimer } from './shell.js';
 import { start as startRouter, refresh as refreshRoute } from './router.js';
-import { getState, subscribe, dispatch, ST, STEP } from './store.js';
+import { getState, subscribe, dispatch, restoreWorkstation, ST, STEP } from './store.js';
+import { bindHardReloadReset, readArm, writeArm, clearArm, idleRoute } from './storage.js';
+import { getRole, setRole } from './role.js';
 import { closeTopLayer, hasLayers } from './ui.js';
 import { renderLogin, preloadTsons } from './screens/login.js';
 import { renderIdle } from './screens/idle.js';
@@ -50,16 +52,41 @@ let teardown = () => {};
 let demo;
 let mounted = { route: null, locked: false };
 
+function persistArm() {
+  const st = getState();
+  if (!st.operator || st.app === ST.AUTH || st.app === ST.SETUP) {
+    if (st.app === ST.AUTH) clearArm();
+    return;
+  }
+  writeArm({
+    operator: st.operator,
+    bind: st.bind,
+    role: getRole(),
+    route: idleRoute(location.hash) || '#/idle',
+    shift: st.shift,
+  });
+}
+
+function restoreArm() {
+  const snap = readArm();
+  if (!snap || !restoreWorkstation(snap)) return;
+  if (snap.role) setRole(snap.role);
+  const next = idleRoute(location.hash) || idleRoute(snap.route) || '#/idle';
+  if ((location.hash || '') !== next) history.replaceState(null, '', next);
+}
+
 async function boot() {
-  initTheme();
+  bindHardReloadReset();
   await initI18n();
   await preloadTsons();
+  restoreArm();
 
   demo = new URLSearchParams(location.search).get('dev') === '1'
     ? initDemo()
     : { redraw() {} };
   bindHotkeys();
   addEventListener('ekh:tson-role', () => renderTopbar(document.getElementById('topbar')));
+  addEventListener('hashchange', persistArm);
   watchIdle();
   watchViewport();
   translateStatic();
@@ -72,17 +99,16 @@ async function boot() {
     renderSessionBar(document.getElementById('sessionbar'));
     renderStepper(document.getElementById('stepper'));
     paintTimer(ttlLeft());     // полосу только что пересобрали — вернём время
+    persistArm();
     demo.redraw();
   });
 
   // §10 — «Переключатель в topbar меняет язык без перезагрузки».
   //
   // В Ф1 здесь стоял location.reload(): словарь был один, и перезагрузка
-  // ничего не стоила. С Ф2 она стала бы прямым багом — store.initial()
-  // всегда AUTH (приёмка §6/S0 «рефреш возвращает на S0»), то есть оператор,
-  // нажавший «TG» посреди приёма, терял бы сессию гражданина и шёл заново
-  // сканировать QR. Поэтому пересобираем шелл и перемонтируем экран: текст
-  // берётся из нового словаря, состояние остаётся на месте.
+  // ничего не стоила. С Ф2 она стала бы прямым багом — смена языка не должна
+  // размонтировать приём. Поэтому пересобираем шелл и перемонтируем экран:
+  // текст берётся из нового словаря, состояние остаётся на месте.
   onLangChange(() => {
     renderTopbar(document.getElementById('topbar'));
     renderSessionBar(document.getElementById('sessionbar'));
@@ -95,6 +121,7 @@ async function boot() {
 
   renderTopbar(document.getElementById('topbar'));
   startRouter(renderRoute);
+  persistArm();
 }
 
 /* ---------- рендер экрана по роуту ----------

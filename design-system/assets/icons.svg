@@ -352,6 +352,14 @@
     <path d="M188 148V144" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M188.125 140.25H188M188.25 140.25C188.25 140.112 188.138 140 188 140C187.862 140 187.75 140.112 187.75 140.25C187.75 140.388 187.862 140.5 188 140.5C188.138 140.5 188.25 140.388 188.25 140.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24">
+    <!-- «Копировать». Заведён отдельным глифом, потому что скрепка означает
+         вложение: одним рисунком нельзя называть два разных действия. Свой
+         viewBox 0 0 24 24 — символ нарисован здесь, а не вырезан из общего
+         листа Hugeicons, как соседи со смещёнными координатами. -->
+    <path d="M9 9.5A2.5 2.5 0 0 1 11.5 7h6A2.5 2.5 0 0 1 20 9.5v6a2.5 2.5 0 0 1-2.5 2.5h-6A2.5 2.5 0 0 1 9 15.5v-6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M15 7V6.5A2.5 2.5 0 0 0 12.5 4h-6A2.5 2.5 0 0 0 4 6.5v6A2.5 2.5 0 0 0 6.5 15H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
   <symbol id="i-paperclip" viewBox="220 132 24 24">
     <path d="M225.823 144L224.279 142.456C222.574 140.75 222.574 137.985 224.279 136.279C225.985 134.574 228.75 134.574 230.456 136.279L239.721 145.544C241.426 147.25 241.426 150.015 239.721 151.721C238.015 153.426 235.25 153.426 233.544 151.721L230.07 148.246C229.004 147.18 229.004 145.452 230.07 144.386C231.136 143.32 232.864 143.32 233.93 144.386L235.86 146.316" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>

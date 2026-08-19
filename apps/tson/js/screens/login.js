@@ -11,9 +11,9 @@
    первый ЦОН/окно по умолчанию (см. finishLogin). Оператор при нужде меняет
    её кнопкой «Сменить привязку» в шелле.
 
-   Приёмка §6/S0: нельзя попасть ни на один роут без прохождения обоих шагов;
-   рефреш страницы возвращает на S0. Второе обеспечено тем, что
-   store.initial() всегда AUTH — авторизация не восстанавливается из storage.
+   Приёмка §6/S0: нельзя попасть ни на один роут без прохождения обоих шагов.
+   Обычный рефреш вкладки восстанавливает оператора (sessionStorage ekh.tson.arm);
+   жёсткий рефреш, выход и закрытие вкладки возвращают сюда.
    ============================================================ */
 import { h, mount, icon } from '../ui.js';
 import { t } from '../i18n.js';
@@ -137,7 +137,7 @@ export function renderLogin(host) {
     cells.el.id = 'l-otp';
     const submit = h('button', {
       class: 'btn btn--primary btn--l', type: 'submit', 'data-act': 'login-enter',
-    }, icon('shield', { size: 20 }), t('login.submit'));
+    }, t('login.submit'));
     const back = h('button', {
       class: 'btn btn--ghost btn--l', type: 'button', 'data-act': 'login-back',
       onClick: () => go(0),
@@ -147,10 +147,10 @@ export function renderLogin(host) {
       class: 'stack g-4', novalidate: true,
       onSubmit: e => { e.preventDefault(); submitOtp(cells.value()); },
     },
-      h('div', { class: 'login__step small' }, t('login.mfaHint')),
-      h('div', { class: 'field' },
+      h('div', { class: 'field login__mfa-field' },
         h('span', { class: 'field__label', id: 'l-otp-label' }, t('login.mfa')),
         cells.el),
+      h('div', { class: 'login__step login__mfa-hint login__mfa-hint--single-line small' }, t('login.mfaHint')),
       err,
       h('div', { class: 'login__actions' }, submit, back));
 

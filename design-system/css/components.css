@@ -112,6 +112,77 @@ textarea.input{height:auto; min-height:104px; padding:var(--s-3) var(--s-4); lin
 .field .err-msg{display:flex; align-items:center; gap:5px; font-size:var(--fs-13); color:var(--red-ink); margin-top:var(--s-2)}
 .field .err-msg svg{width:14px; height:14px; flex:none}
 
+/* ============ CUSTOM-DRAWN CHECKBOX / RADIO ============
+   §3 «Form controls»: общий контрол с appearance:none, синей точкой / галочкой
+   и кольцом :focus-visible. До этого правила каждая платформа красила нативный
+   контрол через accent-color — а accent-color рисует ОС-виджет: в тёмной теме
+   он приезжает со своей рамкой и своим белым, мимо палитры, и выглядит
+   по-разному в Safari и Chrome. Нативный input остаётся настоящим: Space,
+   скринридер, автозаполнение и :checked работают, меняется только вид.
+
+   Галочка нарисована повёрнутой рамкой псевдоэлемента, а не иконкой из
+   спрайта: внутрь <input> нельзя положить <use>, а копия спрайта в CSS
+   запрещена (§1 правило 5).
+
+   Старые имена ЦОН (.check__input / .radio__input) — в синонимах: разметка
+   приложения не переписывается, но определение у контрола ровно одно. */
+.ekh-checkbox, .ekh-radio, .check__input, .radio__input {
+  appearance: none;
+  flex: none;
+  width: 18px; height: 18px;
+  margin: 0;
+  border: 1.5px solid var(--control-line);
+  background: var(--panel);
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: background-color var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease);
+}
+.ekh-checkbox, .check__input { border-radius: calc(var(--r-s) / 2); }
+.ekh-radio, .radio__input { border-radius: var(--r-pill); }
+
+.ekh-checkbox:checked, .ekh-radio:checked,
+.check__input:checked, .radio__input:checked {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+/* Галочка: две стороны рамки, повёрнутые на 45°. */
+.ekh-checkbox::after, .check__input::after {
+  content: "";
+  width: 5px; height: 9px;
+  margin-top: -2px;
+  border: solid var(--on-blue);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--t-fast) var(--ease);
+}
+.ekh-checkbox:checked::after, .check__input:checked::after { transform: rotate(45deg) scale(1); }
+
+/* Точка радио. */
+.ekh-radio::after, .radio__input::after {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--on-blue);
+  transform: scale(0);
+  transition: transform var(--t-fast) var(--ease);
+}
+.ekh-radio:checked::after, .radio__input:checked::after { transform: scale(1); }
+
+@media (hover: hover) and (pointer: fine) {
+  .ekh-checkbox:not(:checked):hover, .ekh-radio:not(:checked):hover,
+  .check__input:not(:checked):hover, .radio__input:not(:checked):hover { border-color: var(--blue); }
+}
+.ekh-checkbox:focus-visible, .ekh-radio:focus-visible,
+.check__input:focus-visible, .radio__input:focus-visible {
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
+.ekh-checkbox:disabled, .ekh-radio:disabled,
+.check__input:disabled, .radio__input:disabled { opacity: .45; cursor: not-allowed; }
+
 /* segmented choice — gray capsule, white active thumb */
 .seg{position:relative;display:flex; gap:4px; background:var(--field); border-radius:var(--r-pill); padding:4px}
 .seg label{
@@ -328,6 +399,33 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .tabs { display:flex; gap:var(--s-1); padding:var(--s-1); border-radius:var(--r-pill); background:var(--field); }
 .tab { min-height:36px; padding:0 var(--s-4); border-radius:var(--r-pill); color:var(--ink-2); font-size:var(--fs-14); font-weight:var(--weight-medium); }
 .tab[aria-selected='true'] { background:var(--panel); color:var(--ink); }
+
+/* Подчёркнутый вариант той же полосы вкладок. Капсула хороша для двух-трёх
+   коротких видов; когда вкладок шесть и часть из них с замком (скоупы ЦОН),
+   капсула перестаёт помещаться и её заливка спорит с панелью под ней.
+   Это модификатор, а не второе определение `.tabs`: пока ЦОН описывал свою
+   полосу тем же именем, приложение переопределяло только часть свойств, а
+   отступ, радиус и заливку капсулы наследовало — вкладки выходили
+   «подчёркнутыми внутри пилюли». */
+.tabs--underline { padding:0; border-radius:0; background:none; border-bottom:1px solid var(--line); }
+.tabs--underline .tab {
+  display:inline-flex; align-items:center; gap:var(--s-2);
+  min-height:0; padding:var(--s-3) var(--s-4);
+  border-radius:0; border-bottom:2px solid transparent; margin-bottom:-1px;
+  background:none; font-size:var(--fs-15); font-weight:var(--weight-regular);
+  transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
+}
+.tabs--underline .tab:hover { background:none; color:var(--ink); }
+.tabs--underline .tab[aria-selected='true'] {
+  background:none; color:var(--ink);
+  font-weight:var(--weight-semibold); border-bottom-color:var(--blue);
+}
+.tabs--underline .tab:focus-visible {
+  outline:var(--focus-ring) solid var(--focus);
+  outline-offset:calc(var(--focus-offset) * -1);
+  border-radius:var(--r-s);
+}
+.tabs--underline .tab svg, .tabs--underline .tab .icon { width:16px; height:16px; color:var(--ink-faint); }
 .pagination { display:flex; align-items:center; gap:var(--s-1); }
 .pagination button { display:grid; place-items:center; min-width:40px; height:40px; border-radius:var(--r-s); }
 .pagination button:hover,.pagination button[aria-current='page'] { background:var(--hover); }

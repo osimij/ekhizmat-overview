@@ -12,7 +12,7 @@ The binding visual rules — action color, typography, surfaces, density variant
 
 ## Privacy on one shared origin
 
-Only `ekh.preferences.*` and approved non-personal, app-namespaced settings may persist. Ministry application fixtures stay in memory. ЦОН uses an explicit storage allow-list and wipes citizen session data when the visit ends or is revoked. Deterministic query parameters affect a visit but do not overwrite saved preferences.
+Only `ekh.preferences.*` and approved non-personal, app-namespaced settings may persist. Ministry application fixtures stay in memory. ЦОН uses an explicit storage allow-list and wipes citizen session data when the visit ends, is revoked, or the page reloads. Operator sign-in for ЦОН and Ministry may live in `sessionStorage` (`ekh.tson.arm`, `ekh.ministry.arm`) for the life of the tab so a normal refresh does not return to MFA; it must never include citizen fields. Deterministic query parameters affect a visit but do not overwrite saved preferences.
 
 ## Presentation and developer separation
 

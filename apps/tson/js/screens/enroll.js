@@ -34,7 +34,7 @@
       копию паспорта в памяти вкладки после того, как она больше не нужна, —
       ровно та утечка, от которой §2.3 обещает избавить.
    ============================================================ */
-import { h, mount, icon, toast, modal, confirmDanger } from '../ui.js';
+import { h, mount, icon, toast, modal, confirmDanger, facescanFrame } from '../ui.js';
 import { t, errText } from '../i18n.js';
 import { getState, dispatch, trackBlobUrl } from '../store.js';
 import { enroll, docs as fileApi, sim } from '../mock/api.js';
@@ -110,7 +110,7 @@ export function renderEnroll(host) {
       // номер стоит здесь и больше нигде: в форме ему не место (править его
       // нельзя, а форма — про правку), а в реестр он уходит из подтверждения.
       h('header', {},
-        h('h1', { class: 's-enroll__title' }, t('enroll.title')),
+        h('h1', { class: 'page-title' }, t('enroll.title')),
         h('p', { class: 's-enroll__subject' }, t('enroll.phoneVerified', { phone: fmtPhone(phone) }))),
 
       banner,
@@ -738,7 +738,7 @@ export function renderEnroll(host) {
       title: t('enroll.bioTitle'),
       body: h('div', { class: 'stack g-4' },
         h('div', { class: 'facescan facescan--modal facescan--scanning' },
-          h('div', { class: 'facescan__frame' }, icon('face', { size: 72 })),
+          facescanFrame(),
           h('span', { class: 'facescan__caption' }, t('enroll.bioScan'))),
         h('p', { class: 'small ink-2' }, t('enroll.bioBody'))),
       actions: [skip, capture],

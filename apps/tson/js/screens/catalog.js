@@ -9,8 +9,8 @@
    Поэтому автофокус здесь не украшение, а часть счёта, а ↑↓/Enter обязаны
    работать без единого клика.
    ============================================================ */
-import { h, mount, icon, openLayer, closeLayer, toast, statusIcon } from '../ui.js';
-import { t, plural, errText, getLang } from '../i18n.js';
+import { h, mount, icon, drawerLayer, closeLayer, toast, statusIcon } from '../ui.js';
+import { t, plural, errText } from '../i18n.js';
 import { dispatch, getState, patchSession, STEP } from '../store.js';
 import { catalog } from '../mock/api.js';
 import { searchField } from '../fields.js';
@@ -54,20 +54,28 @@ export function renderCatalog(host, { readonly = false } = {}) {
 
   const search = searchField({ placeholder: t('catalog.search'), onInput: onSearch });
   const browse = h('div', { class: 's-catalog__browse' });
-  const list = h('div', { class: 's-catalog__results', hidden: true });
+  /* Список результатов — динамическая область: скринридер обязан услышать,
+     что выдача изменилась (§7). role="listbox" не украшение: визуальный курсор
+     ↑↓ живёт отдельно от фокуса (фокус остаётся в поиске, иначе стрелки
+     перестанут печатать), и без aria-activedescendant этот курсор существует
+     только для зрячих (§9). */
+  const list = h('div', {
+    class: 's-catalog__results', hidden: true,
+    role: 'listbox', 'aria-label': t('catalog.title'), 'aria-live': 'polite',
+  });
 
   mount(host,
     h('div', { class: 'canvas s-catalog' },
       readonly
         ? h('div', { class: 'row between s-catalog__head' },
             h('div', { class: 'stack g-1' },
-              h('h1', { class: 'h2' }, t('catalog.viewTitle')),
+              h('h1', { class: 'page-title' }, t('catalog.viewTitle')),
               h('p', { class: 'small ink-2' }, t('catalog.viewLead'))),
             h('button', {
               class: 'btn btn--secondary btn--s',
               onClick: () => { location.hash = '#/idle'; },
             }, icon('chev-l', { size: 20 }), t('catalog.viewBack')))
-        : h('h1', { class: 'h2' }, t('catalog.title')),
+        : h('h1', { class: 'page-title' }, t('catalog.title')),
       enrolledBanner(),
       search.el,
       browse,
@@ -133,6 +141,8 @@ export function renderCatalog(host, { readonly = false } = {}) {
     results = []; cursor = -1;
     browse.hidden = false;
     list.hidden = true;
+    search.input.setAttribute('aria-expanded', 'false');
+    search.input.removeAttribute('aria-activedescendant');
   }
 
   function showGuestServices() {
@@ -141,7 +151,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
     showResults([
       h('div', { class:'banner banner--info' }, icon('user'),
         h('span', { class:'banner__text' }, getState().session?.guest
-          ? (getLang() === 'tg' ? 'Қабули меҳмон: дар хотира профил, РМА ва розигиҳои шаҳрванд нест.' : 'Гостевой приём: в памяти нет профиля, ИНН и согласий гражданина.')
+          ? t('guest.sessionHint')
           : '')),
       ...results.map((svc, i) => row(svc, i, '')),
     ]);
@@ -150,8 +160,12 @@ export function renderCatalog(host, { readonly = false } = {}) {
   function showResults(nodes) {
     browse.hidden = true;
     list.hidden = false;
+    search.input.setAttribute('aria-expanded', 'true');
     mount(list, ...nodes);
     if (filter) list.prepend(filterChip());
+    // Курсор стоит на первой строке уже при выдаче, а не только после ↑↓,
+    // — значит и объявлен он должен быть сразу.
+    paint();
   }
 
   function move(d) {
@@ -166,8 +180,17 @@ export function renderCatalog(host, { readonly = false } = {}) {
      состояния, Enter после наведения мышью открывал бы не то, на что смотрит
      оператор. */
   function paint() {
-    [...list.querySelectorAll('.srv-row')]
-      .forEach((el, i) => el.classList.toggle('is-cursor', i === cursor));
+    const rows = [...list.querySelectorAll('.srv-row')];
+    rows.forEach((el, i) => {
+      const on = i === cursor;
+      el.classList.toggle('is-cursor', on);
+      el.setAttribute('aria-selected', String(on));
+    });
+    // Курсор объявляется через активный потомок поля поиска — там, где сейчас
+    // фокус. Без этого ↑↓ двигали подсветку молча.
+    const active = rows[cursor];
+    if (active) search.input.setAttribute('aria-activedescendant', active.id);
+    else search.input.removeAttribute('aria-activedescendant');
   }
 
   /* ---------- витрина: ситуации + категории + частое ---------- */
@@ -246,6 +269,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
     const c = CATEGORY[svc.cat];
     const el = h('button', {
       class: `panel srv-row${i === cursor ? ' is-cursor' : ''}${svc.unavailable ? ' srv-row--off' : ''}`,
+      id: `srv-${svc.id}`, role: 'option', 'aria-selected': String(i === cursor),
       onClick: () => open(svc),
       onMouseEnter: () => { cursor = i; paint(); },
     },
@@ -260,7 +284,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
         // номере, — и тогда строка выглядит как случайная (Д-18). Показываем,
         // чем именно совпало: «прописка» → «Адресная регистрация».
         matchedSynonym(svc, q)),
-      svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость') : null,
+      svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), t('guest.badge')) : null,
       svc.unavailable
         ? statusIcon('warning', svc.unavailable, { iconName:'info' })
         : icon('chev-r', { size: 20, cls: 'ink-faint' }));
@@ -303,8 +327,8 @@ export function renderCatalog(host, { readonly = false } = {}) {
     },
       h('div', { class: 'drawer__head' },
         h('div', { class: 'stack g-2' },
-          svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), getLang() === 'tg' ? 'Барои меҳмон дастрас' : 'Доступно гостю') : null,
-          h('h2', { class: 'h2' }, svc.name),
+          svc.guest ? h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:14 }), t('guest.available')) : null,
+          h('h2', { class: 'h2--card' }, svc.name),
           h('span', { class: 'small ink-faint' },
             `${CATEGORY[svc.cat].name} · ${t('catalog.term')}: ${fmtTerm(svc)}`),
           h('span', { class: 'small ink-faint' }, `${t('catalog.fee')}: ${fmtFee(svc)}`)),
@@ -341,7 +365,7 @@ export function renderCatalog(host, { readonly = false } = {}) {
 
       h('div', { class: 'drawer__foot' }, start));
 
-    closeDrawer = openLayer(node, { onClose: () => { closeDrawer = null; search.input.focus(); } });
+    closeDrawer = drawerLayer(node, { onClose: () => { closeDrawer = null; search.input.focus(); } });
     start.focus();
   }
 

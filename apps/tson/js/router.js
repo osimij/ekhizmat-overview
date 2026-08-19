@@ -47,6 +47,36 @@ const HOME = {
   [ST.LOCKED]: null,   // LOCKED не имеет своего роута: экран закрыт поверх
 };
 
+/* Какие роуты вправе носить в адресе состояние экрана и какое именно (§7:
+   «состояние фильтра живёт в URL» — перезагрузка и ссылка возвращают на то,
+   что человек смотрел).
+
+   Белый список, а не «любой query», по двум причинам. Первая: ЦОН — не обычная
+   консоль, и §2.3.4 запрещает адресной строке знать что-либо о гражданине;
+   разрешать параметры «вообще» значило бы завести дверь, через которую поиск
+   по ФИО однажды уедет в URL (поэтому у #/session/* и #/catalog-view здесь
+   пусто — и это осознанный отказ, а не забывчивость). Вторая: значения
+   проверяются на ПД тем же правилом, что и весь хеш, так что коды регионов
+   держим латиницей — см. `regionId` в mock/data.js. */
+const QUERY_ALLOW = {
+  '#/dashboard-center': ['period'],
+  '#/dashboard-leadership': ['period', 'region'],
+};
+
+/* Оставляет от query только разрешённые ключи и только значения без ПД. */
+function keepQuery(route, raw) {
+  const allow = QUERY_ALLOW[route];
+  const query = raw.split('?')[1];
+  if (!allow || !query) return route;
+
+  const kept = new URLSearchParams();
+  for (const [k, v] of new URLSearchParams(query)) {
+    if (allow.includes(k) && !LOOKS_LIKE_PII.test(v)) kept.set(k, v);
+  }
+  const s = kept.toString();
+  return s ? `${route}?${s}` : route;
+}
+
 /* Внутри SESSION роут определяется подсостоянием step (§2.2 «Решение»:
    линейный маршрут catalog → form → docs → result + параллельный data).
    Поэтому `#/session/*` — это не пять независимых адресов, а одно окно в
@@ -86,7 +116,10 @@ export function resolve(hash) {
     return { route: sessionRoute(), locked: false, redirected: true };
   }
 
-  return { route: clean, locked: false };
+  // route — чем рендерить (чистое имя), url — что показать в адресной строке.
+  // Разделены намеренно: экран ищется по имени роута, и склеенный с query
+  // ключ просто не нашёлся бы в таблице экранов.
+  return { route: clean, url: keepQuery(clean, hash), locked: false };
 }
 
 function apply() {
@@ -102,9 +135,10 @@ function apply() {
     return;
   }
 
-  const { route, locked, redirected } = resolve(raw);
+  const { route, url, locked, redirected } = resolve(raw);
+  const target = url || route;
 
-  if (redirected || route !== raw) replace(route);
+  if (redirected || target !== raw) replace(target);
   render(route, { locked });
 }
 
@@ -117,11 +151,11 @@ function replace(route) {
 }
 
 export function go(route) {
-  const { route: allowed } = resolve(route);
-  if (allowed !== route) {
+  const { route: allowed, url } = resolve(route);
+  if (allowed !== route.split('?')[0]) {
     console.warn(`router: ${route} недоступен из ${getState().app}, веду на ${allowed}`);
   }
-  location.hash = allowed;
+  location.hash = url || allowed;
 }
 
 /* Перерисовать текущий роут заново. Нужно смене языка (§10): состояние не
@@ -135,8 +169,9 @@ export function start(renderFn) {
   // Машина может уйти сама: TTL=0, отзыв согласия, блокировка (§7).
   // URL обязан догнать её, иначе адресная строка врёт о состоянии.
   subscribe(() => {
-    const { route } = resolve(location.hash || '#/login');
-    if (route !== location.hash) replace(route);
+    const { route, url } = resolve(location.hash || '#/login');
+    const target = url || route;
+    if (target !== location.hash) replace(target);
     render(route, { locked: getState().app === ST.LOCKED });
   });
 

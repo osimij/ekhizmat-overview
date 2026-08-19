@@ -41,11 +41,15 @@ for (const file of htmlFiles) {
 
 const storageSources = [...await files('apps', '.js'), ...await files('design-system/js', '.js')];
 const allowedKeys = /^(ekh\.(preferences\.(theme|lang)|citizen\.auth|tson\.bind|admin\.rail|ministry\.side))$/;
+const allowedSessionKeys = /^(ekh\.(tson|ministry)\.arm)$/;
 for (const file of storageSources) {
   const source = await readFile(file, 'utf8');
   if (/<use\b[^>]*href=["']#/.test(source)) errors.push(`${file}: local icon reference; use canonical sprite`);
   for (const match of source.matchAll(/localStorage\.(?:getItem|setItem|removeItem)\(\s*['"]([^'"]+)['"]/g)) {
     if (!match[1].endsWith('.') && !allowedKeys.test(match[1])) errors.push(`${file}: unapproved storage key ${match[1]}`);
+  }
+  for (const match of source.matchAll(/sessionStorage\.(?:getItem|setItem|removeItem)\(\s*['"]([^'"]+)['"]/g)) {
+    if (!allowedSessionKeys.test(match[1])) errors.push(`${file}: unapproved sessionStorage key ${match[1]}`);
   }
 }
 

@@ -40,8 +40,12 @@ export function renderDocs(host) {
   const stageEl = h('div', { class: 's-docs__stage panel' });
   const banner = h('div', {});
 
+  /* Язык иконок (§10 правило 6, одна иконка — одно значение). До правки
+     `refresh` означал сразу три разных действия: «отсканировать», «повернуть»
+     и «пересканировать». Захват — всегда `card` (тот же жест, что на S2b),
+     поворот остаётся `refresh`, удаление — `trash`. */
   const scanBtn = h('button', { class: 'btn btn--primary', onClick: scan },
-    icon('refresh', { size: 20 }), t('docs.scan'));
+    icon('card', { size: 20 }), t('docs.scan'));
 
   const fileInput = h('input', {
     type: 'file', class: 'sr-only', accept: 'application/pdf,image/jpeg,image/png',
@@ -53,6 +57,12 @@ export function renderDocs(host) {
 
   const submitBtn = h('button', { class: 'btn btn--primary', onClick: confirmSubmit }, t('docs.submit'));
 
+  /* Почему «Отправить» недоступна — видимой строкой рядом с кнопкой, а не в
+     её title. Подсказка стояла на disabled-кнопке, а `.btn:disabled` гасит
+     pointer-events: hover до неё физически не доходил, и объяснение было
+     недостижимо ни мышью, ни клавиатурой (§6, §9). */
+  const submitWhy = h('span', { class: 'small ink-2 s-docs__why' });
+
   mount(host,
     h('div', { class: 'canvas s-docs' },
       banner,
@@ -60,10 +70,13 @@ export function renderDocs(host) {
         h('div', { class: 's-docs__list panel stack g-4' },
           h('h2', { class: 'label' }, t('docs.required')),
           listEl,
+          // Левая колонка — только чеклист и «иной документ». Кнопки захвата
+          // переехали в сцену, к тому документу, который сейчас открыт: пока
+          // они стояли и здесь, и внутри сцены, оператор видел «Сканировать»
+          // дважды и не знал, какая из них про выбранный пункт (правило 7).
           h('button', { class: 'btn btn--ghost btn--s s-docs__add', onClick: addOther },
             icon('plus', { size: 20 }), t('docs.addOther')),
-          h('hr', { class: 'rule' }),
-          h('div', { class: 'stack g-2' }, scanBtn, uploadBtn, fileInput)),
+          fileInput),
         stageEl),
       h('div', { class: 's-docs__foot' },
         h('button', {
@@ -71,6 +84,7 @@ export function renderDocs(host) {
           onClick: () => dispatch('GOTO', { step: STEP.FORM }),
         }, icon('chev-l', { size: 20 }), t('common.back')),
         h('span', { class: 'spacer' }),
+        submitWhy,
         submitBtn)));
 
   // Сеть вернулась — доотправляем то, что не уехало (§7 «сабмиты в очередь
@@ -128,8 +142,13 @@ export function renderDocs(host) {
     drawList();
     drawStage();
     drawBanner();
-    submitBtn.disabled = !complete();
-    submitBtn.title = complete() ? '' : t('docs.submitBlocked');
+    const ok = complete();
+    submitBtn.disabled = !ok;
+    submitBtn.setAttribute('aria-describedby', ok ? null : 'docs-why');
+    submitWhy.id = 'docs-why';
+    submitWhy.textContent = ok ? '' : t('docs.missing', {
+      list: items.filter(d => d.required && !done(d)).map(d => d.name).join(', '),
+    });
   }
 
   function drawBanner() {
@@ -211,10 +230,10 @@ export function renderDocs(host) {
         h('p', { class: 'small ink-faint' }, t('docs.verifiedHint')),
 
         h('div', { class: 'row wrap g-2' },
+          // Только «всё равно отсканировать»: второй «Загрузить файл» здесь
+          // повторял кнопку, которая уже есть в пустом состоянии (правило 7).
           h('button', { class: 'btn btn--secondary btn--s', onClick: scan },
-            icon('refresh', { size: 20 }), t('docs.scanAnyway')),
-          h('button', { class: 'btn btn--ghost btn--s', onClick: () => fileInput.click() },
-            icon('upload', { size: 20 }), t('docs.upload'))));
+            icon('card', { size: 20 }), t('docs.scanAnyway'))));
       return;
     }
 
@@ -223,7 +242,10 @@ export function renderDocs(host) {
       mount(stageEl, h('div', { class: 'empty' },
         icon('doc'),
         h('span', { class: 'empty__title' }, t('docs.emptyTitle')),
-        h('span', { class: 'empty__hint' }, t('docs.emptyHint', { name: d?.name || '' }))));
+        h('span', { class: 'empty__hint' }, t('docs.emptyHint', { name: d?.name || '' })),
+        // Действие стоит под подсказкой, которая его объясняет (§6: пустое
+        // состояние отвечает «что делать дальше»).
+        h('div', { class: 'row g-2 s-docs__empty-acts' }, scanBtn, uploadBtn)));
       return;
     }
 
@@ -247,7 +269,7 @@ export function renderDocs(host) {
         h('button', { class: 'btn btn--secondary btn--s', onClick: rotate },
           icon('refresh', { size: 20 }), t('docs.rotate')),
         h('button', { class: 'btn btn--secondary btn--s', onClick: rescan },
-          icon('refresh', { size: 20 }), t('docs.rescan')),
+          icon('card', { size: 20 }), t('docs.rescan')),
         h('button', { class: 'btn btn--danger btn--s', onClick: remove },
           icon('trash', { size: 20 }), t('docs.delete'))),
 

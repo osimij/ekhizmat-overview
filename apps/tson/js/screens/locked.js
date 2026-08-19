@@ -53,8 +53,11 @@ export function renderLocked(host) {
     },
   },
     icon('lock', { size: 48, cls: 'ink-faint' }),
-    h('h2', { class: 'h3' }, t('locked.title')),
-    h('p', { class: 'small ink-2' }, t('locked.hint')),
+    // Заголовок и подсказка — одна подпись, не два блока карточки: --s-2
+    // вместо карточного --s-3 (design-guide §5, связанные подписи 4–8px).
+    h('div', { class: 'stack g-2 s-locked__copy' },
+      h('h2', { class: 'h3' }, t('locked.title')),
+      h('p', { class: 'small ink-2' }, t('locked.hint'))),
     running ? h('p', { class: 'chip' }, icon('clock', { size: 16 }), t('locked.sessionRunning')) : null,
     input,
     err,

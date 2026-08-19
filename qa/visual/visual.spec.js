@@ -56,12 +56,12 @@ test('ЦОН centre and leadership dashboard references', async ({ page }) => {
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await page.getByRole('button', { name: /меню оператора/i }).click();
-  await page.getByRole('menuitem', { name: /Руководитель отделения/ }).click();
-  await expect(page.locator('.dashboard-kpis .metric')).toHaveCount(5);
+  await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();
+  await expect(page.locator('.dashboard-kpis .kpi')).toHaveCount(5);
   await expect(page).toHaveScreenshot('tson-center-dashboard-light-ru.png', { fullPage: true, animations: 'disabled' });
   await page.getByRole('button', { name: /меню оператора/i }).click();
-  await page.getByRole('menuitem', { name: /^Руководство/ }).click();
-  await expect(page.locator('.dashboard-center-row')).toHaveCount(6);
+  await page.getByRole('menuitemradio', { name: /^Руководство/ }).click();
+  await expect(page.locator('.dashboard-table-section tbody .data-row')).toHaveCount(6);
   await expect(page).toHaveScreenshot('tson-leadership-dashboard-light-ru.png', { fullPage: true, animations: 'disabled' });
 });
 

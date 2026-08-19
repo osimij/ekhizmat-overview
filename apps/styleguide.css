@@ -31,7 +31,7 @@
   max-width: 100%;
   padding: var(--s-8);
   border-radius: var(--r-xl);
-  background: var(--hero);
+  background: var(--login-bg);
 }
 .sg-login-gate .login__card { width: min(100%, var(--w-login-card)); }
 .sg-auth .panel__body { display:grid; gap:14px; }
@@ -47,7 +47,7 @@
 .sg-face-states { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--s-3); }
 .sg-face-states .facescan { width:100%; padding:var(--s-3); }
 .sg-face-states .facescan__frame { width:96px; border-radius:var(--r-l); }
-.sg-face-states .facescan__frame > svg { width:40px; height:40px; }
+.sg-face-states .facescan__frame > svg:not(.facescan__stroke) { width:40px; height:40px; }
 .sg-section .data-table-wrap { min-width:0; max-width:100%; }
 #workflow .stepper { width:100%; overflow-x:auto; padding-bottom:4px; }
 #workflow .stepper__step,#workflow .stepper__line { flex:none; }

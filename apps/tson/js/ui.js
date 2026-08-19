@@ -59,6 +59,29 @@ export function icon(name, { size = 24, label = null, cls = '' } = {}) {
   return svg;
 }
 
+/* Face-scan frame: idle is a square + icon; scanning adds a marching dotted
+   stroke (design-guide §3 live-scan). Markup is shared so identify and enroll
+   cannot fork a second language. SVG uses createElementNS — h() would emit
+   HTML-namespace tags that do not stroke. */
+export function facescanFrame({ size = 72 } = {}) {
+  const stroke = document.createElementNS(SVG_NS, 'svg');
+  stroke.setAttribute('class', 'facescan__stroke');
+  stroke.setAttribute('viewBox', '0 0 100 100');
+  stroke.setAttribute('preserveAspectRatio', 'none');
+  stroke.setAttribute('aria-hidden', 'true');
+  stroke.setAttribute('focusable', 'false');
+  const rect = document.createElementNS(SVG_NS, 'rect');
+  rect.setAttribute('x', '1.5');
+  rect.setAttribute('y', '1.5');
+  rect.setAttribute('width', '97');
+  rect.setAttribute('height', '97');
+  rect.setAttribute('rx', '8');
+  rect.setAttribute('pathLength', '100');
+  rect.setAttribute('fill', 'none');
+  stroke.append(rect);
+  return h('div', { class: 'facescan__frame' }, stroke, icon('face', { size }));
+}
+
 /* Statuses use the shared Hugeicons sprite without repeating the label in
    dense rows. The label remains available to assistive tech and on hover. */
 export function statusIcon(tone, label, { iconName = null } = {}) {
@@ -67,17 +90,91 @@ export function statusIcon(tone, label, { iconName = null } = {}) {
     icon(iconName || names[tone] || names.neutral, { size:16 }));
 }
 
-/* ---------- тосты (§5.3) ---------- */
+/* ---------- клавиатурная модель таб-листа (§6, §9) ----------
+   Свой контрол обязан приезжать с ПОЛНОЙ клавиатурной моделью, иначе он не
+   готов: role="tab" обещает скринридеру стрелки, Home и End, и обещание надо
+   выполнять. Хелпер один на все таб-листы АРМ — сегмент выбора способа входа
+   на S2 и вкладки скоупов на S5 вели себя по-разному ровно потому, что модель
+   писалась (точнее, не писалась) в каждом экране заново.
+
+   Roving tabindex, а не tabindex="0" на всех: Tab должен выносить фокус ИЗ
+   группы, а не обходить каждую вкладку по очереди. */
+export function makeTablist(container, { onSelect = null, selector = '[role="tab"]' } = {}) {
+  const items = () => [...container.querySelectorAll(selector)].filter(el => !el.disabled);
+
+  const focusAt = i => {
+    const list = items();
+    if (!list.length) return;
+    const next = list[(i + list.length) % list.length];
+    list.forEach(el => el.setAttribute('tabindex', el === next ? '0' : '-1'));
+    next.focus();
+    onSelect?.(next);
+  };
+
+  const sync = () => {
+    const list = items();
+    const current = list.findIndex(el => el.getAttribute('aria-selected') === 'true');
+    list.forEach((el, i) => el.setAttribute('tabindex', i === (current === -1 ? 0 : current) ? '0' : '-1'));
+  };
+
+  container.addEventListener('keydown', e => {
+    const list = items();
+    const i = list.indexOf(document.activeElement);
+    if (i === -1) return;
+    const map = {
+      ArrowRight: i + 1, ArrowDown: i + 1,
+      ArrowLeft: i - 1, ArrowUp: i - 1,
+      Home: 0, End: list.length - 1,
+    };
+    if (!(e.key in map)) return;
+    e.preventDefault();
+    focusAt(map[e.key]);
+  });
+
+  sync();
+  return { sync };
+}
+
+/* ---------- канонический фильтр (§3 «Filters», §6 «Dropdown filter») ----------
+   Видимая подпись с иконкой 16 + нативный select в рамке 38px со стрелкой из
+   спрайта и кольцом на :focus-within. Скин — общий `.ekh-filter` из
+   design-system/css/patterns.css; здесь только сборка узла, потому что она
+   нужна обеим управленческим панелям. Именно этот вид §3 называет стандартом:
+   набор значений фильтра растёт, а подписи по-таджикски длиннее русских —
+   выпадающий список держит любое их число в постоянной ширине. */
+export function filterSelect(id, iconName, label, options, value, onChange) {
+  return h('label', { class: 'ekh-filter', for: id },
+    h('span', { class: 'ekh-filter__label' }, icon(iconName, { size: 16 }), label),
+    h('span', { class: 'ekh-filter__field' },
+      h('select', { id, 'aria-label': label, onChange: e => onChange(e.target.value) },
+        ...options.map(([v, name]) => h('option', { value: v, selected: v === value || null }, name))),
+      icon('chev-d', { size: 16 })));
+}
+
+/* ---------- тосты ----------
+   Тоже под общим именем: `.toast` уже занят в components.css нижним
+   центральным тостом гражданина, который до `.show` держит `opacity: 0`. АРМ
+   переопределял только фон и рамку, а позицию и прозрачность наследовал — то
+   есть КАЖДЫЙ тост АРМ («Скопировано», «Черновик сохранён») рисовался
+   невидимым внизу экрана. Под `.ekh-toast` действует одно правило. */
 export function toast(text, kind = '', ms = 4000) {
   const host = document.getElementById('toasts');
   if (!host) return;
 
-  const el = h('div', { class: `toast${kind ? ` toast--${kind}` : ''}`, role: 'status' },
+  const el = h('div', { class: `ekh-toast${kind ? ` ekh-toast--${kind}` : ''}`, role: 'status' },
     icon({ success: 'check', error: 'info', warn: 'info' }[kind] || 'info'),
     h('span', {}, text));
 
   host.append(el);
-  setTimeout(() => el.remove(), ms);
+  // Тост тоже обязан уйти, а не исчезнуть (§8): сначала обратный сдвиг и
+  // затухание, и только потом удаление из DOM.
+  setTimeout(() => {
+    el.classList.add('is-exiting');
+    el.setAttribute('aria-hidden', 'true');   // текст уже прочитан, см. closeLayer
+    const wait = exitMs(el);
+    if (wait > 0) setTimeout(() => el.remove(), wait);
+    else el.remove();
+  }, ms);
   return el;
 }
 
@@ -96,7 +193,7 @@ export function openLayer(node, { onClose = null, closeOnEsc = true } = {}) {
   const host = document.getElementById('layers');
   host.append(node);
 
-  const shared = node.matches?.('.overlay') && node.querySelector('.modal')
+  const shared = node.matches?.('.ekh-dialog-backdrop')
     ? openExistingDialog(node, { trigger, closeOnEscape: false })
     : null;
   const layer = { node, trigger, onClose, closeOnEsc, shared };
@@ -111,16 +208,46 @@ export function openLayer(node, { onClose = null, closeOnEsc = true } = {}) {
   return () => closeLayer(layer);
 }
 
+/* Длительность выхода читаем из токена на самом узле: под prefers-reduced-motion
+   все --t-* обнуляются в tokens/motion.css, и отдельной проверки медиа-запроса
+   здесь не нужно — ноль честно означает «убрать сразу». */
+function exitMs(node) {
+  const raw = getComputedStyle(node).getPropertyValue('--t-exit').trim();
+  return raw.endsWith('ms') ? parseFloat(raw) : raw.endsWith('s') ? parseFloat(raw) * 1000 : 0;
+}
+
+/* §8 — «слой уходит тем же путём, каким пришёл; DOM удаляем ТОЛЬКО после
+   окончания выхода — слой, исчезающий на середине, читается как сбой».
+   Раньше closeLayer удалял узел синхронно: все четыре типа слоёв приезжали с
+   анимацией и пропадали мгновенно.
+
+   Фокус возвращаем сразу, а не после анимации: работа оператора не должна
+   ждать 160 мс, и это единственная часть закрытия, которую он чувствует. */
 export function closeLayer(layer = layers[layers.length - 1]) {
   if (!layer) return;
   const i = layers.indexOf(layer);
   if (i === -1) return;
 
   layers.splice(i, 1);
+
+  // Идемпотентность: F9 успевает столкнуться с кликом по той же кнопке, и
+  // второй вызов не должен ни ронять анимацию, ни возвращать фокус дважды.
+  if (layer.closing) return;
+  layer.closing = true;
+
   layer.shared?.close();
-  layer.node.remove();
+  layer.node.classList.add('is-exiting');
+  // Уходящий слой обязан исчезнуть для клавиатуры и скринридера СРАЗУ, а не
+  // через 160 мс: иначе, пока рисуется выход, в дереве доступности лежат два
+  // меню, и «следующий пункт» может оказаться пунктом уже закрытого.
+  layer.node.setAttribute('inert', '');
+  layer.node.setAttribute('aria-hidden', 'true');
   layer.onClose?.();
   layer.trigger?.focus?.();   // §9 — фокус возвращается на триггер
+
+  const ms = exitMs(layer.node);
+  if (ms > 0) setTimeout(() => layer.node.remove(), ms);
+  else layer.node.remove();
 }
 
 export function closeTopLayer() {
@@ -142,24 +269,46 @@ function trap(e, node) {
   else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
 }
 
-/* ---------- модал (§5.3) ---------- */
+/* ---------- модал ----------
+   Классы общие — `.ekh-dialog-backdrop` / `.ekh-dialog` из
+   design-system/css/patterns.css. Раньше АРМ рисовал модал под именами
+   `.overlay` / `.modal`, а те же имена уже описаны в components.css (компактный
+   диалог гражданина: 380px, текст по центру, кнопки стопкой). Два определения
+   одного класса на одной странице — это §1 правило 6: подложка брала цвет из
+   app.css (--ink 40% — в тёмной теме это БЕЛЫЙ, и модал не затемнял экран, а
+   осветлял), а карточка одновременно ехала по своей анимации `pop` и по
+   переходу общего диалога, отчего в первые 200 мс была полупрозрачной.
+   Под каноническим именем действует ровно одно правило. */
 export function modal({ title, body, actions = [], wide = false, className = '', onClose = null }) {
   const titleId = `m-${Math.random().toString(36).slice(2, 8)}`;
 
   const card = h('div', {
-    class: `modal${wide ? ' modal--wide' : ''}${className ? ` ${className}` : ''}`,
+    class: `ekh-dialog${wide ? ' ekh-dialog--wide' : ''}${className ? ` ${className}` : ''}`,
     role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId,
   },
-    h('h2', { class: 'h3 modal__title', id: titleId }, title),
+    h('h2', { class: 'modal__title', id: titleId }, title),
     h('div', { class: 'modal__body' }, body),
     h('div', { class: 'modal__foot' }, actions));
 
-  const overlay = h('div', { class: 'overlay' }, card);
+  const overlay = h('div', { class: 'ekh-dialog-backdrop' }, card);
 
   // Клик по подложке = отмена. Только по самой подложке, не по карточке.
   overlay.addEventListener('mousedown', e => { if (e.target === overlay) closeTopLayer(); });
 
   return openLayer(overlay, { onClose });
+}
+
+/* ---------- ящик (drawer) ----------
+   Оборачиваем панель в прозрачную подложку: она ничего не красит, а только
+   ловит клик мимо ящика. Esc работал и раньше, а мышью закрыть можно было
+   только найдя крестик — то есть у одного действия было два разных пути в
+   зависимости от того, чем работает оператор (§9: интерфейс отвечает
+   одинаково независимо от способа ввода). Подложка непрозрачности не даёт
+   намеренно: ящик не блокирует работу, под ним видно тот же экран. */
+export function drawerLayer(panel, { onClose = null } = {}) {
+  const scrim = h('div', { class: 'drawer-scrim' }, panel);
+  scrim.addEventListener('mousedown', e => { if (e.target === scrim) closeTopLayer(); });
+  return openLayer(scrim, { onClose });
 }
 
 /* Подтверждение разрушающего действия (§P5: «разрушающие действия —

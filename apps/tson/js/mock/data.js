@@ -598,12 +598,14 @@ export const FREQUENT = ['fam-cert', 'marriage', 'passport-replace'];
 export const TSON_DASHBOARD = {
   center: {
     name: 'ЦОН №3, Душанбе', updated: '14:32',
+    /* Подписи и контекст — в словарях (dash.center.kpi.*); тут только числа
+       и тон. См. комментарий у network.kpis ниже. */
     kpis: [
-      { id:'visits', value:'47', label:'Визиты сегодня', context:'+8% к прошлому дню', tone:'good' },
-      { id:'queue', value:'12', label:'В очереди сейчас', context:'3 ожидают больше 15 минут', tone:'warn' },
-      { id:'wait', value:'06:12', label:'Среднее ожидание', context:'цель — до 10 минут', tone:'good' },
-      { id:'done', value:'31', label:'Услуги завершены', context:'89% без возврата', tone:'good' },
-      { id:'windows', value:'8/10', label:'Окна работают', context:'1 перерыв · 1 закрыто', tone:'warn' },
+      { id:'visits',  value:'47',    tone:'good' },
+      { id:'queue',   value:'12',    tone:'warn' },
+      { id:'wait',    value:'06:12', tone:'good' },
+      { id:'done',    value:'31',    tone:'good' },
+      { id:'windows', value:'8/10',  tone:'warn' },
     ],
     queues:[
       { id:'docs', label:'Документы', waiting:6, long:2, wait:'08:40' },
@@ -625,21 +627,28 @@ export const TSON_DASHBOARD = {
     ],
   },
   network: {
+    /* Подписи и контекст живут в словарях (dash.network.kpi.*), здесь только
+       значения: фикстура — источник чисел, а не второй словарь. Пока подписи
+       лежали тут, таджикский дашборд подписывал русские KPI. */
     kpis:[
-      { value:'2 486', label:'Всего визитов', context:'+6,4% к прошлой неделе' },
-      { value:'92,6%', label:'Обслужено в SLA', context:'цель — 90%' },
-      { value:'08:14', label:'Среднее ожидание', context:'−00:42 к прошлой неделе' },
-      { value:'42/45', label:'Активные центры', context:'3 требуют внимания' },
-      { value:'4,6/5', label:'Удовлетворённость', context:'18 204 оценки' },
+      { id:'visits', value:'2 486' },
+      { id:'sla',    value:'92,6%' },
+      { id:'wait',   value:'08:14' },
+      { id:'active', value:'42/45' },
+      { id:'csat',   value:'4,6/5' },
     ],
     trend:[2010,2180,2265,2190,2370,2415,2486],
+    /* `regionId` — латинский код региона, `region` — то, что видит человек.
+       Код нужен потому, что выбранный регион уезжает в адрес (§7), а роутер
+       ЦОН вычищает из хеша любую кириллицу как возможные ПД (router.js): без
+       кода фильтр сам себя стирал бы при первой же перерисовке. */
     centers:[
-      { id:'dushanbe-3', name:'ЦОН №3, Душанбе', region:'Душанбе', visits:512, sla:'91,2%', wait:'10:48', load:'94%', status:'warning' },
-      { id:'khujand-1', name:'ЦОН №1, Худжанд', region:'Согд', visits:474, sla:'96,4%', wait:'06:20', load:'82%', status:'normal' },
-      { id:'bokhtar-2', name:'ЦОН №2, Бохтар', region:'Хатлон', visits:421, sla:'93,8%', wait:'07:45', load:'78%', status:'normal' },
-      { id:'dushanbe-1', name:'ЦОН №1, Душанбе', region:'Душанбе', visits:398, sla:'95,1%', wait:'06:58', load:'81%', status:'normal' },
-      { id:'tursunzoda-1', name:'ЦОН №1, Турсунзаде', region:'РРП', visits:361, sla:'86,7%', wait:'16:12', load:'103%', status:'danger' },
-      { id:'khorugh-1', name:'ЦОН №1, Хорог', region:'ГБАО', visits:320, sla:'92,2%', wait:'08:04', load:'69%', status:'normal' },
+      { id:'dushanbe-3', name:'ЦОН №3, Душанбе', regionId:'dushanbe', region:'Душанбе', visits:512, sla:'91,2%', wait:'10:48', load:'94%', status:'warning' },
+      { id:'khujand-1', name:'ЦОН №1, Худжанд', regionId:'sughd', region:'Согд', visits:474, sla:'96,4%', wait:'06:20', load:'82%', status:'normal' },
+      { id:'bokhtar-2', name:'ЦОН №2, Бохтар', regionId:'khatlon', region:'Хатлон', visits:421, sla:'93,8%', wait:'07:45', load:'78%', status:'normal' },
+      { id:'dushanbe-1', name:'ЦОН №1, Душанбе', regionId:'dushanbe', region:'Душанбе', visits:398, sla:'95,1%', wait:'06:58', load:'81%', status:'normal' },
+      { id:'tursunzoda-1', name:'ЦОН №1, Турсунзаде', regionId:'rrp', region:'РРП', visits:361, sla:'86,7%', wait:'16:12', load:'103%', status:'danger' },
+      { id:'khorugh-1', name:'ЦОН №1, Хорог', regionId:'gbao', region:'ГБАО', visits:320, sla:'92,2%', wait:'08:04', load:'69%', status:'normal' },
     ],
     audiences:[{label:'ФЛ',value:69},{label:'ЮЛ',value:23},{label:'Гость',value:8}],
   },

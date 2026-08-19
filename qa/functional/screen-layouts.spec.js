@@ -165,6 +165,17 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
   expect(tson.inputHeight).toBe(tson.buttonHeight);
   expect(tson.loginLabelFontSize).toBe(16);
   expect(tson.usernameLabelTransform).not.toBe(tson.passwordLabelTransform);
+  const tsonLightBg = await page.evaluate(() => getComputedStyle(document.querySelector('.login')).backgroundColor);
+  expect(tsonLightBg).toBe('rgb(231, 238, 245)');
+
+  await page.goto('/tson/?lang=ru&theme=dark');
+  await expect(page.locator('.login__inner')).toBeVisible();
+  const tsonDarkSurfaces = await page.evaluate(() => ({
+    canvas: getComputedStyle(document.querySelector('.login')).backgroundColor,
+    card: getComputedStyle(document.querySelector('.login__card')).backgroundColor,
+  }));
+  expect(tsonDarkSurfaces.canvas).toBe('rgb(0, 0, 0)');
+  expect(tsonDarkSurfaces.card).not.toBe('rgb(0, 0, 0)');
 
   await page.goto('/citizen/?lang=ru&theme=light');
   await page.locator('#loginBtn').click();
@@ -577,6 +588,24 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
+  const idleTools = page.locator('.s-idle__tools');
+  await expect(idleTools).toBeVisible();
+  await expect(idleTools).toHaveClass(/row/);
+  const toolsLayout = await idleTools.evaluate((el) => {
+    const buttons = [...el.querySelectorAll('.btn')];
+    const a = buttons[0].getBoundingClientRect();
+    const b = buttons[1].getBoundingClientRect();
+    return {
+      flexDirection: getComputedStyle(el).flexDirection,
+      sameRow: Math.abs(a.top - b.top) < 2,
+      sideBySide: b.left >= a.right,
+      labelsFit: buttons.every((button) => button.scrollWidth <= button.clientWidth),
+    };
+  });
+  expect(toolsLayout.flexDirection).toBe('row');
+  expect(toolsLayout.sameRow).toBe(true);
+  expect(toolsLayout.sideBySide).toBe(true);
+  expect(toolsLayout.labelsFit).toBe(true);
 
   await page.keyboard.press('`');
   const demo = page.locator('.demo');
@@ -597,7 +626,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await page.locator('.s-catalog__freq').first().click();
   await expectLayerFits(page, page.locator('.drawer'));
   await page.locator('.s-drawer__cta').click();
-  await expectLayerFits(page, page.locator('.modal'));
+  await expectLayerFits(page, page.locator('.ekh-dialog'));
   await page.locator('.s-scope__foot .btn--primary').click();
   await page.keyboard.press('`');
   await expect(demo).toBeVisible();
@@ -616,7 +645,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await expect(page.locator('.s-docs')).toBeVisible();
   await expectPageFits(page);
   await page.locator('.s-docs__foot .btn--primary').click();
-  const confirmation = page.locator('.overlay .modal');
+  const confirmation = page.locator('.ekh-dialog-backdrop .ekh-dialog');
   await expectLayerFits(page, confirmation);
   await confirmation.locator('.check__input').check();
   await confirmation.locator('.modal__foot .btn--primary').click();
