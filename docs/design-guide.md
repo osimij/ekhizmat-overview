@@ -92,6 +92,8 @@ Settled product-wide. Pages still using a retired pattern are wrong, not "altern
 
 Inter, `--tracking: 0`, sentence case, `tabular-nums` on all data surfaces (identifiers, dates, money, counts — so columns of digits don't wobble as values change). Display-logotype exceptions (`-0.02em`): `.login__brand b` and citizen `#heroTitle` (§1).
 
+**The document root keeps the browser's 16px.** Never set `font-size` on `html` (or a root wrapper) — the `--fs-*` tokens are rem-based, so a 15px root silently shrinks every token by 6.25% across the whole app while each individual value still "looks like" its token (ЦОН shipped this way for weeks before it was caught by measurement). Set the platform's base size on `body` with `--fs-15`, not on the root.
+
 The system in one sentence: **size expresses role, weight expresses state.** A thing is big because of what it *is* (page title, row title, metadata); it is bold because of what it is *doing right now* (selected, active, primary). When you can't decide a value, ask which of the two questions you're answering.
 
 Scale — use `--fs-*` tokens by role. These exact values were measured and unified across all seven admin pages; do not reintroduce neighbors (16 vs 17, 27 vs 28):
@@ -123,6 +125,8 @@ The most common defect in unpolished pages is everything bold at once: 11–12px
 ## 5. Space, surfaces, alignment
 
 **Spacing** uses the 4px token scale (`--s-1`…`--s-16`) chosen by *relationship*, not by eye — spacing is information about what belongs together: icon↔label 4–8, controls in one toolbar 8–12, columns in a row 12–20, panel interior 16–24, page sections 24–32, hero separation 40+. One 4px optical deviation is allowed with a code comment; it must not break the shared grid.
+
+**Optical vertical symmetry in containers.** A container's padding is what the eye *sees*, not what the token says — and the last child usually contributes its own trailing space (row padding, card margin, list gap). The rule: **last child's trailing space + container `padding-bottom` = container `padding-top`.** Write it as arithmetic the next reader can verify, either `padding-bottom: calc(var(--s-5) - var(--s-2))` against the child's known trailing space, or `padding-bottom: 0` when the child's own space already equals the top (leave a comment stating the sum, e.g. the idle recent list: "rows already give --s-3; together with this it matches the --s-6 on top"). *Why: applying the same token top and bottom double-counts the child's space, so every panel looks bottom-heavy by exactly one row-padding — a defect nobody can name but everyone sees.*
 
 **Surfaces**, in order: `--bg` (page) → `--panel` (primary container) → `--field` / `--field-on-panel` (inputs, quiet groups) → `--raised` + `--shadow-1`/`--shadow-layer` (popovers, menus, dialogs). Borders are quiet separators: `--line` around groups, `--line-in` for internal hairlines. One border per semantic level — never nest bordered cards that add no meaning, because each extra border spends contrast the content needs.
 
@@ -220,6 +224,7 @@ Apply mechanically wherever seen. Each is the compressed form of a §3–§9 rul
 29. A ЦОН identity gate that still uses two columns, a subtitle listing the methods, or a numbered script beside the field → one `--w-gate-wide` card, method tabs, single column, script only while waiting. Guest is a hairline inside the card; cancel is outside.
 30. A Face ID identity gate with animated scan chrome → static Hugeicons `FaceIdIcon` plus the instructional caption. For the less frequent biometric-enrollment capture, one `--blue` marching dotted stroke may communicate active capture; reduced motion keeps it static. Do not pulse the icon.
 31. A login-gate corner that packs a blue ghost settings gear next to the prototype platform switcher inside a one-button `--h-btn-m` slot → one quiet `--ink-2` preferences icon at the top-right; the platform switcher floats (same as the host-less Ministry gate). Localization before sign-in stays; decorative blue on that icon does not. The gear’s `top` is `--login-chrome-inset`, sharing a line with `.login__brand` — do not give the unscaled shell a second `--s-6`.
+32. A container using the same padding token top and bottom while its last child carries trailing space → optical vertical symmetry (§5): `padding-bottom = padding-top − last child's trailing space`, written as a `calc()` or a commented `0`.
 
 ## 11. Verification — definition of done
 
@@ -257,7 +262,8 @@ Every rule above was distilled from a real pass; read the diffs for worked examp
 | `5ccd252` | Cross-page navigation | Render-blocked shell + view transitions (rule 25) |
 | `825bc2f`, `1328533` | Edge alignment + quiet chrome | One content container (§5); header-action-only-when-needed |
 | `3b00217` | Profile popover | Preferences out of permanent chrome; `--shadow-1` token |
-| this pass | ЦОН workstation convergence | Root font-size vs. rem type tokens; one definition per shared class name (`.ekh-dialog`, `.ekh-toast`, `.ekh-filter`, `.ekh-checkbox`); `--*-ink` text-on-tint pairs with a contrast test; layer exits; URL state under a privacy contract |
-| this pass | ЦОН identity gate | One `--w-gate-wide` card; script only while waiting (rule 29) |
-| this pass | ЦОН Face ID scan | Marching dotted stroke, not a scanline (rule 30) |
-| this pass | Figma login + popup redesign | Flat shared workstation gate; responsive six-cell MFA; 40px quiet dialog surface; locked-workstation popup convergence |
+| `44aecd3` | ЦОН workstation convergence | Root font-size vs. rem type tokens; one definition per shared class name (`.ekh-dialog`, `.ekh-toast`, `.ekh-filter`, `.ekh-checkbox`); `--*-ink` text-on-tint pairs with a contrast test; layer exits; URL state under a privacy contract |
+| `27e47c5` | ЦОН identity gate | One `--w-gate-wide` card; script only while waiting (rule 29) |
+| `27e47c5` | ЦОН Face ID scan | Marching dotted stroke, not a scanline (rule 30) |
+| `fba1912` | ЦОН idle shift home | Denser recent list; optical vertical symmetry in the container (§5, rule 32); KPI vertical centering |
+| `896890a` | Figma login + popup redesign | Flat shared workstation gate; responsive six-cell MFA; 40px quiet dialog surface; locked-workstation popup convergence |
