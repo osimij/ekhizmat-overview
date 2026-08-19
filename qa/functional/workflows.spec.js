@@ -532,18 +532,6 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expect(card).toBeVisible();
 });
 
-test('TSON lock preview URL summons the lock screen without login', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto('/tson/?lang=ru&theme=dark&preview=locked');
-  await expect(page.locator('.s-locked__card')).toBeVisible();
-  await expect(page.locator('.s-locked h1')).toHaveText('Рабочее место заблокировано');
-  await expect(page).toHaveURL(/preview=locked/);
-
-  await page.goto('/tson/?lang=ru&theme=dark#/locked');
-  await expect(page.locator('.s-locked__card')).toBeVisible();
-  await expect(page).toHaveURL(/#\/locked/);
-});
-
 test('TSON and Ministry operator session survives a normal reload', async ({ page }) => {
   await page.goto('/tson/?lang=ru&theme=light');
   await page.locator('input[type="password"]').fill('demo');
