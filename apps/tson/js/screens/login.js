@@ -219,7 +219,7 @@ export function renderLogin(host) {
 
 /* Поле входа ведомства: подпись живёт внутри поля и всплывает над обводкой,
    когда есть значение или фокус. placeholder=" " нужен для :placeholder-shown. */
-function floatingField({ id, label, value = '', name, type = 'text', autocomplete }) {
+export function floatingField({ id, label, value = '', name, type = 'text', autocomplete }) {
   const input = h('input', {
     class: 'field__input', id, name, type, value,
     placeholder: ' ',

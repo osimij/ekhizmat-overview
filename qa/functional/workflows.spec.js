@@ -465,23 +465,78 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expect(identify.locator('.facescan__caption')).toContainText('Наведите камеру');
 
   await page.keyboard.press('Control+l');
-  const lockCopy = page.locator('.s-locked__copy');
-  await expect(lockCopy).toBeVisible();
-  await expect(lockCopy).toHaveCSS('gap', '8px');
-  await expect(page.locator('.s-locked__brand')).toBeVisible();
-  await expect(page.locator('.s-locked__legend')).toContainText('Сессия действует только на этом рабочем месте');
-  await expect(page.locator('.s-locked__card')).toHaveCSS('width', '480px');
-  await expect(page.locator('.s-locked__card')).toHaveCSS('border-radius', '40px');
-  await expect(page.locator('.s-locked__card .field__input')).toHaveCSS('height', '70px');
-  await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('height', '70px');
-  await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('font-weight', '400');
+  const lock = page.locator('.s-locked');
+  const card = page.locator('.s-locked__card');
+  await expect(lock.locator('h1')).toHaveText('Рабочее место заблокировано');
+  await expect(lock.locator('.s-locked__brand')).toBeVisible();
+  await expect(lock.locator('.s-locked__legend')).toContainText('Сессия действует только на этом рабочем месте');
+  const lockLayout = await lock.evaluate((element) => {
+    const card = element.querySelector('.s-locked__card');
+    const title = element.querySelector('h1');
+    const hint = element.querySelector('.login__heading p');
+    const input = element.querySelector('.field__input');
+    const button = element.querySelector('.btn--primary');
+    const icon = element.querySelector('.s-locked__icon');
+    const brand = element.querySelector('.s-locked__brand');
+    const cardStyle = getComputedStyle(card);
+    const iconBox = icon.getBoundingClientRect();
+    const titleBox = title.getBoundingClientRect();
+    const hintBox = hint.getBoundingClientRect();
+    const inputBox = input.getBoundingClientRect();
+    const buttonBox = button.getBoundingClientRect();
+    return {
+      overlay: getComputedStyle(element).backgroundColor,
+      cardBackground: cardStyle.backgroundColor,
+      cardRadius: cardStyle.borderRadius,
+      padTop: cardStyle.paddingTop,
+      padRight: cardStyle.paddingRight,
+      padBottom: cardStyle.paddingBottom,
+      padLeft: cardStyle.paddingLeft,
+      titleWeight: getComputedStyle(title).fontWeight,
+      titleSize: getComputedStyle(title).fontSize,
+      hintWeight: getComputedStyle(hint).fontWeight,
+      titleLines: title.getClientRects().length,
+      titleHeight: titleBox.height,
+      inputHeight: inputBox.height,
+      buttonHeight: buttonBox.height,
+      iconSize: iconBox.width,
+      brandLeft: brand.getBoundingClientRect().left,
+      iconToTitle: titleBox.top - iconBox.bottom,
+      titleToHint: hintBox.top - titleBox.bottom,
+      hintToInput: inputBox.top - hintBox.bottom,
+      inputToButton: buttonBox.top - inputBox.bottom,
+      shellBlurred: document.getElementById('shell').classList.contains('is-blurred'),
+    };
+  });
+  expect(lockLayout.overlay).not.toBe('rgba(0, 0, 0, 0)');
+  expect(lockLayout.cardBackground).not.toBe('rgba(0, 0, 0, 0)');
+  expect(lockLayout.cardRadius).toBe('32px');
+  expect(lockLayout.padTop).toBe('40px');
+  expect(lockLayout.padRight).toBe('32px');
+  expect(lockLayout.padBottom).toBe('32px');
+  expect(lockLayout.padLeft).toBe('32px');
+  expect(lockLayout.titleWeight).toBe('500');
+  expect(lockLayout.titleSize).toBe('24px');
+  expect(lockLayout.hintWeight).toBe('400');
+  expect(lockLayout.titleLines).toBe(1);
+  expect(lockLayout.titleHeight).toBeCloseTo(23.0, 1);
+  expect(lockLayout.inputHeight).toBeCloseTo(56, 1);
+  expect(lockLayout.buttonHeight).toBeCloseTo(56, 1);
+  expect(lockLayout.iconSize).toBeCloseTo(51.2, 1);
+  expect(lockLayout.brandLeft).toBeLessThan(80);
+  expect(lockLayout.iconToTitle).toBeCloseTo(25.6, 1);
+  expect(lockLayout.titleToHint).toBeCloseTo(6.4, 1);
+  expect(lockLayout.hintToInput).toBeCloseTo(25.6, 1);
+  expect(lockLayout.inputToButton).toBeCloseTo(9.6, 1);
+  expect(lockLayout.shellBlurred).toBe(true);
+  await expect(card).toBeVisible();
 });
 
 test('TSON lock preview URL summons the lock screen without login', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/tson/?lang=ru&theme=dark&preview=locked');
   await expect(page.locator('.s-locked__card')).toBeVisible();
-  await expect(page.locator('.s-locked__copy h2')).toHaveText('Рабочее место заблокировано');
+  await expect(page.locator('.s-locked h1')).toHaveText('Рабочее место заблокировано');
   await expect(page).toHaveURL(/preview=locked/);
 
   await page.goto('/tson/?lang=ru&theme=dark#/locked');
