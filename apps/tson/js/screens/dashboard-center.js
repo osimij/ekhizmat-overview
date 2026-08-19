@@ -1,137 +1,250 @@
-import { h, mount, icon, modal, statusIcon } from '../ui.js';
-import { getLang } from '../i18n.js';
+/* ============================================================
+   Операционная панель центра (#/dashboard-center).
+
+   Экран сравнения, а не чтения: руководитель смотрит на него между делом и
+   должен за секунду понять, где сейчас плохо. Поэтому один факт рисуется один
+   раз (design-guide §10 правило 6), а всё, что можно открыть, открывается там,
+   где по нему кликнули (§5).
+   ============================================================ */
+import { h, mount, icon, statusIcon, titleAlignedCell, drawerLayer, filterSelect } from '../ui.js';
+import { t } from '../i18n.js';
 import { TSON_DASHBOARD } from '../mock/data.js';
 import { getCenterContext } from '../role.js';
 
-const TXT = {
-  ru:{ title:'Операционная панель центра', demo:'Демо-данные', updated:'Обновлено', today:'Сегодня', week:'Неделя', scenario:'Сценарий', normal:'Обычный', high:'Высокая очередь', empty:'Пустой период', loading:'Загрузка', error:'Ошибка', retry:'Повторить', errorText:'Не удалось обновить данные', queue:'Очередь по зонам', waiting:'ожидают', long:'дольше 15 минут', avg:'среднее', load:'Нагрузка по часам', windows:'Окна и операторы', window:'Окно', operator:'Оператор', state:'Состояние', served:'Обслужено', details:'Детали', serving:'Работает', break:'Перерыв', closed:'Закрыто', alerts:'Требует внимания', emptyText:'За выбранный период визитов нет.', assign:'Назначить оператора', demoOnly:'Действие доступно только в рабочей системе.', period:'Период', close:'Закрыть' },
-  tg:{ title:'Панели амалиётии марказ', demo:'Маълумоти намоишӣ', updated:'Нав шуд', today:'Имрӯз', week:'Ҳафта', scenario:'Саҳна', normal:'Одатӣ', high:'Навбати зиёд', empty:'Давраи холӣ', loading:'Боркунӣ', error:'Хато', retry:'Такрор кардан', errorText:'Маълумотро нав кардан муяссар нашуд', queue:'Навбат аз рӯи минтақа', waiting:'интизоранд', long:'зиёда аз 15 дақиқа', avg:'миёна', load:'Сарборӣ аз рӯи соат', windows:'Тирезаҳо ва операторон', window:'Тиреза', operator:'Оператор', state:'Ҳолат', served:'Хизмат гирифт', details:'Ҷузъиёт', serving:'Кор мекунад', break:'Танаффус', closed:'Пӯшида', alerts:'Таваҷҷуҳ лозим', emptyText:'Дар давраи интихобшуда муроҷиат нест.', assign:'Таъини оператор', demoOnly:'Ин амал танҳо дар системаи корӣ дастрас аст.', period:'Давра', close:'Пӯшидан' },
-};
-const statusTone = { serving:'success', break:'warning', closed:'danger' };
+const statusTone = { serving: 'success', break: 'warning', closed: 'danger' };
+const statusGlyph = { serving: 'check', break: 'pause', closed: 'x-strong' };
+
+/* Период — не персональные данные, поэтому его можно держать в адресе (§7):
+   перезагрузка и ссылка возвращают на то, что человек смотрел. Разрешён
+   ровно один параметр и ровно два значения — маршрутизатор ЦОН выселяет всё
+   подозрительное из хеша, и белый список здесь не формальность. */
+const PERIODS = ['today', 'week'];
+
+function readPeriod() {
+  const q = location.hash.split('?')[1];
+  const v = new URLSearchParams(q || '').get('period');
+  return PERIODS.includes(v) ? v : 'today';
+}
+
+function writePeriod(value) {
+  const base = location.hash.split('?')[0];
+  history.replaceState(null, '', value === 'today' ? base : `${base}?period=${value}`);
+}
 
 export function renderDashboardCenter(host) {
-  let period = 'today';
+  let period = readPeriod();
+  /* Сценарии (высокая очередь, пусто, загрузка, ошибка) — симуляция, и живёт
+     она в демо-панели, а не в рабочей шапке экрана (§11.5). Раньше это был
+     обычный на вид фильтр рядом с «Периодом», то есть рабочее место
+     предлагало руководителю «выбрать ошибку». */
   let mode = 'normal';
-  let selected = null;
   draw();
-  return () => {};
 
-  function copy() { return TXT[getLang()] || TXT.ru; }
+  const onHash = () => { period = readPeriod(); draw(); };
+  window.addEventListener('tson:dash-scenario', onScenario);
+  addEventListener('hashchange', onHash);
+  return () => {
+    window.removeEventListener('tson:dash-scenario', onScenario);
+    removeEventListener('hashchange', onHash);
+  };
+
+  function onScenario(e) { mode = e.detail || 'normal'; draw(); }
 
   function draw() {
-    const x = copy();
     const d = TSON_DASHBOARD.center;
 
     if (mode === 'loading') {
-      mount(host, h('div', { class:'canvas dashboard' },
-        dashboardHeader(x, d),
-        h('div', { class:'skel skel--line' }),
-        h('div', { class:'dashboard-kpis' }, ...d.kpis.map(() => h('div', { class:'skel skel--card' }))),
-        h('div', { class:'skel skel--card' })));
+      mount(host, h('div', { class: 'canvas dashboard' },
+        dashboardHeader(d),
+        h('div', { class: 'dashboard-overview' },
+          h('div', { class: 'dashboard-kpis' }, ...d.kpis.map(() => h('div', { class: 'skel skel--card' }))),
+          h('div', { class: 'skel skel--card' }))));
       return;
     }
 
     if (mode === 'error' || mode === 'empty') {
       const isError = mode === 'error';
-      mount(host, h('div', { class:'canvas dashboard' },
-        dashboardHeader(x, d),
-        h('div', { class:'panel dashboard-state' },
-          icon(isError ? 'info' : 'history', { size:48 }),
-          h('h2', { class:'h3' }, isError ? x.errorText : x.emptyText),
-          h('button', { class:'btn btn--primary', onClick:() => { mode = 'normal'; draw(); } }, isError ? x.retry : x.today))));
+      mount(host, h('div', { class: 'canvas dashboard' },
+        dashboardHeader(d),
+        h('div', { class: 'panel dashboard-state' },
+          icon(isError ? 'info' : 'history', { size: 48 }),
+          h('h2', { class: 'h3' }, t(isError ? 'dash.center.errorText' : 'dash.center.emptyText')),
+          h('button', {
+            class: 'btn btn--primary',
+            onClick: () => { mode = 'normal'; draw(); },
+          }, t(isError ? 'dash.center.retry' : 'dash.center.today')))));
       return;
     }
 
     const high = mode === 'high';
-    const kpis = d.kpis.map(k => k.id === 'queue' && high
-      ? { ...k, value:'29', context:'11 ожидают больше 15 минут', tone:'danger' }
-      : k);
+    const longWait = high ? 11 : 3;
 
     const nodes = [
-      dashboardHeader(x, d),
-      h('section', { class:'dashboard-kpis', 'aria-label':'KPI' }, ...kpis.map(metric)),
-      high ? h('div', { class:'banner banner--danger' }, icon('info'), h('span', { class:'banner__text' }, `${x.alerts}: 11 ${x.long}.`)) : null,
-      h('div', { class:'dashboard-grid' },
-        h('section', { class:'panel dashboard-section' },
-          h('div', { class:'row between' }, h('h2', { class:'h3' }, x.queue), h('span', { class:'small ink-faint' }, period === 'today' ? x.today : x.week)),
-          h('div', { class:'queue-grid' }, ...d.queues.map((q, i) => queueCard(q, high && i === 0, x)))),
-        h('section', { class:'panel dashboard-section' },
-          h('h2', { class:'h3' }, x.load),
-          h('div', { class:'bar-chart', 'aria-label':x.load }, ...d.hours.map((v, i) =>
-            h('div', { class:'bar-chart__item' },
-              h('span', { class:'bar-chart__bar', style:{ height:`${high ? Math.min(100, v + 22) : v}%` }, title:`${9 + i}:00 · ${v}` }),
-              h('small', {}, String(9 + i))))))),
-      h('section', { class:'panel dashboard-section' },
-        h('div', { class:'row between' }, h('h2', { class:'h3' }, x.windows), h('span', { class:'demo-data-badge' }, x.demo)),
-        windowTable(d.windows, x)),
-      selected ? queueDetail(selected, x) : null,
+      dashboardHeader(d),
+      h('div', { class: 'dashboard-overview' },
+        h('section', { class: 'dashboard-kpis', 'aria-label': 'KPI' },
+          ...d.kpis.map(k => kpiCard(k, high))),
+        // Баннер остаётся: это действенная сводка, а не четвёртая перекраска
+        // того же числа — карточка KPI и зона показывают «сколько», баннер
+        // говорит «и это уже дольше нормы».
+        high ? h('div', { class: 'banner banner--error' },
+          icon('info'),
+          h('span', { class: 'banner__text' }, t('dash.center.alertLong', { n: longWait }))) : null,
+        h('div', { class: 'dashboard-grid' },
+          h('section', { class: 'panel dashboard-section dashboard-queue-section' },
+            h('div', { class: 'dashboard-queue-head' },
+              h('h2', { class: 'h3' }, t('dash.center.queue')),
+              h('span', { class: 'small ink-faint' }, t(period === 'today' ? 'dash.center.today' : 'dash.center.week'))),
+            h('div', { class: 'queue-grid' }, ...d.queues.map((q, i) => queueCard(q, high && i === 0)))),
+          h('section', { class: 'panel dashboard-section' },
+            h('h2', { class: 'h3' }, t('dash.center.load')),
+            barChart(d.hours, high)))),
+      h('section', { class: 'panel dashboard-section dashboard-table-section' },
+        h('h2', { class: 'h3' }, t('dash.center.windows')),
+        windowTable(d.windows)),
     ];
-    mount(host, h('div', { class:'canvas dashboard' }, ...nodes));
+    mount(host, h('div', { class: 'canvas dashboard' }, ...nodes));
   }
 
-  function dashboardHeader(x, d) {
+  function dashboardHeader(d) {
     const context = getCenterContext();
-    return h('header', { class:'dashboard-head' },
-      h('div', { class:'stack g-2' },
-        h('div', { class:'row g-2' }, h('span', { class:'review-badge review-badge--stage' }, x.demo), h('span', { class:'small ink-faint' }, `${x.updated} ${d.updated}`)),
-        h('h1', { class:'h2' }, context?.name || d.name),
-        h('p', { class:'ink-2' }, x.title)),
-      h('div', { class:'dashboard-controls' },
-        selectControl(x.period, [['today', x.today], ['week', x.week]], period, v => { period = v; draw(); }),
-        selectControl(x.scenario, [['normal', x.normal], ['high', x.high], ['empty', x.empty], ['loading', x.loading], ['error', x.error]], mode, v => { mode = v; draw(); })));
+    return h('header', { class: 'dashboard-head' },
+      h('div', { class: 'stack g-2' },
+        h('h1', { class: 'page-title' }, context?.name || d.name),
+        h('p', { class: 'ink-2' }, t('dash.center.lead'))),
+      h('div', { class: 'dashboard-controls' },
+        filterSelect('dash-period', 'calendar', t('dash.center.period'),
+          [['today', t('dash.center.today')], ['week', t('dash.center.week')]],
+          period,
+          v => { period = v; writePeriod(v); draw(); },
+          'dashboard-period-filter')));
   }
 
-  function selectControl(label, options, value, onChange) {
-    return h('label', { class:'dashboard-select' },
-      h('span', { class:'small ink-faint' }, label),
-      h('select', { class:'input', onChange:e => onChange(e.target.value) },
-        ...options.map(([v, name]) => h('option', { value:v, selected:v === value }, name))));
+  function kpiCard(k, high) {
+    const isQueue = k.id === 'queue';
+    const value = isQueue && high ? '29' : k.value;
+    const tone = isQueue && high ? 'danger' : k.tone === 'warn' ? 'warn' : k.tone === 'danger' ? 'danger' : '';
+    const ctx = isQueue
+      ? t('dash.center.kpi.queue.ctx', { n: high ? 11 : 3 })
+      : t(`dash.center.kpi.${k.id}.ctx`);
+
+    // Значение первым, подпись второй, контекст третьим (§3 KPI canon).
+    return h('article', { class: `kpi${tone ? ` kpi--${tone}` : ''}` },
+      h('strong', { class: 'kpi__value' }, value),
+      h('span', { class: 'kpi__label' }, t(`dash.center.kpi.${k.id}`)),
+      h('span', { class: 'kpi__context' }, ctx));
   }
 
-  function metric(k) {
-    const tone = k.tone === 'warn' ? 'warning' : k.tone === 'danger' ? 'danger' : 'success';
-    return h('article', { class:`metric dashboard-metric${k.tone === 'danger' ? ' dashboard-metric--danger' : ''}` },
-      h('span', { class:'metric__label' }, k.label),
-      h('strong', { class:'metric__value' }, k.value),
-      h('span', { class:`metric__context metric__context--${tone}` }, k.context));
-  }
-
-  function queueCard(q, isHigh, x) {
+  function queueCard(q, isHigh) {
     const waiting = isHigh ? 18 : q.waiting;
-    return h('button', { class:`queue-card${isHigh ? ' queue-card--danger' : ''}`, onClick:() => { selected = { ...q, waiting }; draw(); } },
-      h('span', { class:'queue-card__name' }, q.label), h('strong', {}, String(waiting)),
-      h('span', { class:'small ink-2' }, x.waiting), h('span', { class:'small ink-faint' }, `${x.avg}: ${q.wait}`));
+    return h('button', {
+      class: `queue-card${isHigh ? ' queue-card--danger' : ''}`,
+      'aria-label': t('dash.center.queueAria', { zone: q.label, n: waiting }),
+      onClick: () => openQueueDrawer({ ...q, waiting }),
+    },
+      h('span', { class: 'queue-card__head' },
+        h('span', { class: 'queue-card__name' }, q.label),
+        // Тон красный (норма нарушена), глиф — часы (люди ждут). «Крестик»
+        // из общей карты означает «закрыто», и на очереди он читался как
+        // «зона не работает».
+        isHigh ? statusIcon('danger', t('dash.center.long'), { iconName: 'clock' }) : null),
+      h('span', { class: 'queue-card__metrics' },
+        h('strong', {}, String(waiting)),
+        h('span', { class: 'small ink-2' }, t('dash.center.waiting')),
+        h('span', { class: 'small ink-faint' }, `${t('dash.center.avg')}: ${q.wait}`)));
   }
 
-  function windowTable(rows, x) {
-    return h('div', { class:'table-wrap' }, h('table', { class:'data-table' },
-      h('thead', {}, h('tr', {}, ...['window', 'operator', 'state', 'served', 'details'].map(key => h('th', {}, x[key])))),
-      h('tbody', {}, ...rows.map(row => h('tr', {},
-        h('td', { class:'tnum' }, String(row.no)), h('td', {}, row.operator),
-        h('td', {}, statusIcon(statusTone[row.status], x[row.status], { iconName:row.status==='break'?'clock':row.status==='closed'?'x':'check' })),
-        h('td', { class:'tnum' }, String(row.served)),
-        h('td', {}, h('button', { class:'btn btn--ghost btn--s', onClick:() => operatorDetail(row, x) }, x.details)))))));
+  /* Столбики нагрузки. Значение раньше жило только в title — то есть было
+     недостижимо без мыши (правило 20). Теперь оно подписано у двух столбиков,
+     которые отвечают на реальные вопросы («сколько сейчас» и «где пик»), а
+     весь график назван для скринридера одной фразой с числами. */
+  function barChart(hours, high) {
+    const values = hours.map(v => (high ? Math.min(100, v + 22) : v));
+    const peak = Math.max(...values);
+    const peakIndex = values.indexOf(peak);
+    const nowIndex = values.length - 1;
+
+    return h('div', {
+      class: 'bar-chart', role: 'img',
+      'aria-label': t('dash.center.loadAria', {
+        peak, peakHour: 9 + peakIndex, now: values[nowIndex], nowHour: 9 + nowIndex,
+      }),
+    }, ...values.map((v, i) => {
+      const labelled = i === peakIndex || i === nowIndex;
+      return h('div', { class: `bar-chart__item${i === peakIndex ? ' bar-chart__item--peak' : ''}` },
+        labelled ? h('span', { class: 'bar-chart__value' }, String(v)) : null,
+        h('span', { class: 'bar-chart__bar', style: { height: `${v}%` }, title: `${9 + i}:00 · ${v}` }),
+        h('small', {}, String(9 + i)));
+    }));
   }
 
-  function queueDetail(q, x) {
-    return h('aside', { class:'panel dashboard-drilldown' },
-      h('div', { class:'row between' }, h('div', {}, h('span', { class:'label' }, x.queue), h('h2', { class:'h3' }, q.label)),
-        h('button', { class:'btn btn--ghost btn--icon', onClick:() => { selected = null; draw(); }, 'aria-label':x.close }, icon('x'))),
-      h('div', { class:'dashboard-kpis dashboard-kpis--small' },
-        metric({ label:x.waiting, value:String(q.waiting), context:`${q.long} ${x.long}`, tone:q.long ? 'warn' : 'good' }),
-        metric({ label:x.avg, value:q.wait, context:'SLA ≤ 10:00', tone:'good' })));
+  /* Строка таблицы сама и есть кнопка. Колонка с одинаковой кнопкой «Детали»
+     на каждой из десяти строк была десятикратным повтором одного действия
+     (правило 7), а открывала она модал с двумя фактами и вечно выключенной
+     кнопкой «Назначить оператора» — контрол, который никогда не сработает,
+     учит не доверять контролам (§6). */
+  function windowTable(rows) {
+    const cols = ['window', 'operator', 'state', 'served'];
+    const labels = Object.fromEntries(cols.map(key => [key, t(`dash.center.${key}`)]));
+    return h('div', { class: 'table-wrap' }, h('table', { class: 'data-table window-table' },
+      h('thead', {}, h('tr', {},
+        ...cols.map(key => h('th', {}, labels[key])),
+        h('th', { class: 'data-table__go' }, h('span', { class: 'sr-only' }, t('dash.center.state'))))),
+      h('tbody', {}, ...rows.map(row => {
+        const open = () => openWindowDrawer(row);
+        return h('tr', {
+          class: 'data-row', tabindex: '0',
+          'aria-label': t('dash.center.rowAria', { n: row.no, operator: row.operator }),
+          onClick: open,
+          onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } },
+        },
+          titleAlignedCell(labels.window, String(row.no), 'tnum'),
+          titleAlignedCell(labels.operator, row.operator),
+          titleAlignedCell(labels.state, statusIcon(statusTone[row.status], t(`dash.center.${row.status}`), { iconName: statusGlyph[row.status] })),
+          titleAlignedCell(labels.served, String(row.served), 'tnum'),
+          h('td', { class: 'data-table__go' }, icon('chev-r', { size: 20 })));
+      }))));
   }
 
-  function operatorDetail(row, x) {
+  /* Разбор открывается слоем-ящиком там же, где по нему кликнули. Раньше он
+     дописывался <aside>-ом в самый низ страницы — под таблицу окон, за
+     пределы экрана: клик по карточке очереди визуально не делал ничего. */
+  function openQueueDrawer(q) {
+    drawer(q.label, t('dash.center.queue'), [
+      kpiStat(String(q.waiting), t('dash.center.waiting'), `${q.long} ${t('dash.center.long')}`, q.long ? 'warn' : ''),
+      kpiStat(q.wait, t('dash.center.avg'), t('dash.center.sla'), ''),
+    ]);
+  }
+
+  function openWindowDrawer(row) {
+    drawer(`${t('dash.center.window')} ${row.no}`, row.operator, [
+      kpiStat(String(row.served), t('dash.center.served'), '', ''),
+      kpiStat(row.avg, t('dash.center.avg'), '', ''),
+    ], h('div', { class: 'row g-2' },
+      statusIcon(statusTone[row.status], t(`dash.center.${row.status}`), { iconName: statusGlyph[row.status] }),
+      h('span', {}, t(`dash.center.${row.status}`))));
+  }
+
+  function kpiStat(value, label, context, tone) {
+    return h('article', { class: `kpi${tone ? ` kpi--${tone}` : ''}` },
+      h('strong', { class: 'kpi__value' }, value),
+      h('span', { class: 'kpi__label' }, label),
+      context ? h('span', { class: 'kpi__context' }, context) : null);
+  }
+
+  function drawer(title, eyebrow, stats, extra = null) {
     let close = () => {};
-    close = modal({
-      title:`${x.window} ${row.no}`,
-      body:h('div', { class:'stack g-4' },
-        h('div', { class:'def' },
-          h('div', { class:'def__row' }, h('span', { class:'def__key' }, x.operator), h('span', { class:'def__val' }, row.operator)),
-          h('div', { class:'def__row' }, h('span', { class:'def__key' }, x.served), h('span', { class:'def__val' }, String(row.served)))),
-        h('p', { class:'small ink-faint' }, x.demoOnly)),
-      actions:[h('button', { class:'btn btn--secondary', disabled:true }, x.assign), h('button', { class:'btn btn--primary', onClick:() => close() }, x.close)],
-    });
+    const node = h('aside', { class: 'drawer', role: 'dialog', 'aria-modal': 'false', 'aria-label': title },
+      h('div', { class: 'drawer__head' },
+        h('div', { class: 'stack g-1' },
+          h('span', { class: 'label' }, eyebrow),
+          h('h2', { class: 'h2--card' }, title)),
+        h('button', {
+          class: 'btn btn--ghost btn--icon btn--s', 'aria-label': t('common.close'),
+          onClick: () => close(),
+        }, icon('x', { size: 20 }))),
+      extra,
+      h('div', { class: 'dashboard-kpis dashboard-kpis--small' }, ...stats));
+    close = drawerLayer(node);
   }
 }

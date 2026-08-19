@@ -6,6 +6,11 @@ const LEGACY = Object.freeze({
   theme: ['ekh-theme', 'varm-theme', 'arm.theme'],
   lang: ['ekh-lang', 'varm-lang', 'arm.lang'],
 });
+/* Two sets, because a theme preference and a rendered theme are different
+   things (design-guide §3 "Global preferences"): the user may choose `system`,
+   and only light/dark can ever land on <html data-theme>. Keeping one set made
+   `system` unstorable, which is why consoles grew private binary toggles. */
+const THEME_CHOICES = new Set(['system', 'light', 'dark']);
 const THEMES = new Set(['light', 'dark']);
 const LANGS = new Set(['tg', 'ru', 'en']);
 
@@ -34,12 +39,17 @@ function migrate(kind, allowed) {
 const query = new URLSearchParams(location.search);
 const queryTheme = THEMES.has(query.get('theme')) ? query.get('theme') : null;
 const queryLang = LANGS.has(query.get('lang')) ? query.get('lang') : null;
-const storedTheme = migrate('theme', THEMES);
+const storedTheme = migrate('theme', THEME_CHOICES);
 const storedLang = migrate('lang', LANGS);
 const systemTheme = document.documentElement.hasAttribute('data-system-theme');
 const colorScheme = matchMedia('(prefers-color-scheme: dark)');
 
-let theme = systemTheme ? (colorScheme.matches ? 'dark' : 'light') : queryTheme || storedTheme || (colorScheme.matches ? 'dark' : 'light');
+const resolveSystem = () => (colorScheme.matches ? 'dark' : 'light');
+
+/* `choice` is what the user picked and what persists; `theme` is what paints.
+   A page pinned with data-system-theme has no choice to make. */
+let choice = systemTheme ? 'system' : queryTheme || storedTheme || 'system';
+let theme = choice === 'system' ? resolveSystem() : choice;
 let lang = queryLang || storedLang || document.documentElement.lang || 'tg';
 if (!LANGS.has(lang)) lang = 'tg';
 
@@ -49,21 +59,26 @@ export function applyPreferences() {
   document.documentElement.dataset.lang = lang;
   const mode = query.get('dev') === '1' ? 'dev' : query.get('present') === '1' ? 'present' : 'product';
   document.documentElement.dataset.mode = mode;
-  window.dispatchEvent(new CustomEvent('ekh:preferences', { detail: { theme, lang, mode } }));
+  window.dispatchEvent(new CustomEvent('ekh:preferences', { detail: { theme, choice, lang, mode } }));
 }
 
 export function getTheme() { return theme; }
+/* What the user chose — 'system' | 'light' | 'dark'. A three-state control
+   must show the choice, not the resolved result: with getTheme() alone a
+   `system` picker on a dark machine renders "dark" as if it were explicit. */
+export function getThemeChoice() { return systemTheme ? 'system' : choice; }
 export function getLang() { return lang; }
 export function getMode() { return document.documentElement.dataset.mode || 'product'; }
 
 export function setTheme(next, { persist = true } = {}) {
   if (systemTheme) {
-    theme = colorScheme.matches ? 'dark' : 'light';
+    theme = resolveSystem();
     applyPreferences();
     return;
   }
-  if (!THEMES.has(next)) return;
-  theme = next;
+  if (!THEME_CHOICES.has(next)) return;
+  choice = next;
+  theme = next === 'system' ? resolveSystem() : next;
   if (persist && !queryTheme) write(KEYS.theme, next);
   applyPreferences();
 }
@@ -88,13 +103,18 @@ export function resetPreferences() {
 applyPreferences();
 
 colorScheme.addEventListener('change', () => {
-  if (!systemTheme) return;
-  theme = colorScheme.matches ? 'dark' : 'light';
+  // Follows the OS both when the page is pinned and when the user chose
+  // `system` — otherwise "system" would only mean "system at load time".
+  if (!systemTheme && choice !== 'system') return;
+  theme = resolveSystem();
   applyPreferences();
 });
 
 addEventListener('storage', event => {
-  if (!systemTheme && event.key === KEYS.theme && THEMES.has(event.newValue)) theme = event.newValue;
+  if (!systemTheme && event.key === KEYS.theme && THEME_CHOICES.has(event.newValue)) {
+    choice = event.newValue;
+    theme = choice === 'system' ? resolveSystem() : choice;
+  }
   if (event.key === KEYS.lang && LANGS.has(event.newValue)) lang = event.newValue;
   applyPreferences();
 });

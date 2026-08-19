@@ -2,6 +2,20 @@ import { test, expect } from '@playwright/test';
 
 test.use({ reducedMotion: 'no-preference' });
 
+test('Admin theme choices use the canonical system, light, and dark icons', async ({ page }) => {
+  await page.goto('/admin/services.html?lang=ru&theme=light');
+  await page.locator('[data-admin-profile-trigger]').first().click();
+
+  const choices = page.locator('#admProfilePop [data-admin-theme-choice]');
+  await expect(choices).toHaveCount(3);
+  await expect(page.locator('#admProfilePop [data-admin-theme-choice="system"] use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-theme-system');
+  await expect(page.locator('#admProfilePop [data-admin-theme-choice="light"] use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-sun');
+  await expect(page.locator('#admProfilePop [data-admin-theme-choice="dark"] use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-moon');
+});
+
 test('Admin rail collapses on the shared 33px icon axis and persists across pages without a flash', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/admin/services.html?lang=ru&theme=light');

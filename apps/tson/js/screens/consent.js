@@ -77,7 +77,7 @@ export function renderConsent(host) {
 
     mount(card,
       r,
-      h('h1', { class: 'h3 s-consent__title' }, t('consent.waiting')),
+      h('h1', { class: 'h2--card s-consent__title' }, t('consent.waiting')),
       h('p', { class: 'small' }, `${st.identify?.maskedName || ''} · ${t(`consent.via.${st.identify?.method || 'qr'}`)}`),
       scopeList(st.consent?.scopes || []),
       h('p', { class: 'small ink-faint s-consent__note' }, t('consent.note')),
@@ -120,7 +120,7 @@ export function renderConsent(host) {
       if (dead) return;
       mount(card,
         h('div', { class: 'hero-mark hero-mark--error' }, icon('info')),
-        h('h1', { class: 'h3 s-consent__title' }, t('consent.failed')),
+        h('h1', { class: 'h2--card s-consent__title' }, t('consent.failed')),
         h('p', { class: 'small' }, errText(e)),
         h('div', { class: 'row center g-3 s-consent__foot' },
           h('button', { class: 'btn btn--primary', onClick: retry }, t('common.retry')),
@@ -135,7 +135,7 @@ export function renderConsent(host) {
     card.classList.add('is-granted');
     mount(card,
       h('div', { class: 'hero-mark hero-mark--draw' }, icon('check')),
-      h('h1', { class: 'h3 s-consent__title' }, t('consent.granted')),
+      h('h1', { class: 'h2--card s-consent__title' }, t('consent.granted')),
       h('p', { class: 'small ink-faint' }, t('consent.grantedHint')));
 
     toast(t('consent.granted'), 'success');
@@ -159,7 +159,7 @@ export function renderConsent(host) {
   function drawDenied(st) {
     mount(card,
       h('div', { class: 'hero-mark hero-mark--error' }, icon('x')),
-      h('h1', { class: 'h3 s-consent__title' }, t('consent.denied')),
+      h('h1', { class: 'h2--card s-consent__title' }, t('consent.denied')),
       h('p', { class: 'small' }, t('consent.deniedHint')),
       h('div', { class: 'row center g-3 s-consent__foot' },
         h('button', { class: 'btn btn--primary', onClick: retry }, t('common.retry')),
@@ -174,7 +174,7 @@ export function renderConsent(host) {
   function drawTimeout(st) {
     mount(card,
       h('div', { class: 'hero-mark hero-mark--warn' }, icon('clock')),
-      h('h1', { class: 'h3 s-consent__title' }, t('consent.timeout')),
+      h('h1', { class: 'h2--card s-consent__title' }, t('consent.timeout')),
       h('p', { class: 'small' }, t('consent.timeoutHint')),
       h('div', { class: 'row center g-3 s-consent__foot' },
         h('button', { class: 'btn btn--primary', onClick: retry }, t('consent.resend')),

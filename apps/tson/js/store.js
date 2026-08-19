@@ -9,7 +9,10 @@
 
    2. Данные гражданина живут только здесь, только в памяти, и только пока
       app === 'SESSION' (§2.3). Любой уход из сессии проходит через wipe().
+      Рефреш вкладки восстанавливает только оператора (см. restoreWorkstation);
+      приём гражданина после F5 не воскресает.
    ============================================================ */
+import { clearArm } from './storage.js';
 
 /* ---------- состояния (§2.2) ---------- */
 export const ST = {
@@ -118,8 +121,9 @@ const GLOBAL = { LOCK: ST.LOCKED };
 const WIPES = new Set(['END_CONFIRMED', 'TTL_0', 'REVOKED', 'CANCEL']);
 
 /* ---------- начальное состояние ----------
-   Приёмка S0: «рефреш страницы возвращает на S0». Поэтому никакого
-   восстановления авторизации из storage — только AUTH. */
+   Холодный старт и жёсткий рефреш (Cmd+Shift+R) — AUTH. Обычный F5
+   восстанавливает оператора через restoreWorkstation() до старта роутера:
+   рабочее место остаётся на смене, приём гражданина — нет. */
 function initial() {
   return {
     app: ST.AUTH,
@@ -152,6 +156,28 @@ function notify(event) {
 }
 
 export function getState() { return state; }
+
+/* Снимок вкладки: оператор уже прошёл MFA. Это не переход машины — AUTH→IDLE
+   без MFA_OK в таблице нет — а восстановление рабочего места после F5.
+   session / identify / consent намеренно не принимаем. */
+export function restoreWorkstation({ operator, bind, shift } = {}) {
+  if (!operator?.login) return false;
+  wipe();
+  state = {
+    ...initial(),
+    app: ST.IDLE,
+    operator: { login: operator.login, name: operator.name || operator.login },
+    bind: bind || null,
+    shift: {
+      served: Number(shift?.served) || 0,
+      avgMs: Number(shift?.avgMs) || 0,
+      issued: Number(shift?.issued) || 0,
+      recent: [],
+    },
+  };
+  notify('RESTORE');
+  return true;
+}
 
 /* ---------- wipe (§2.3.3) ----------
    Обнуляет объект, отзывает все URL.createObjectURL сканов, вычищает
@@ -356,6 +382,7 @@ function reduce(event, p, from, to) {
    в исходное состояние, не перезагружая страницу. */
 export function __reset() {
   wipe();
+  clearArm();
   state = initial();
   notify('RESET');
 }

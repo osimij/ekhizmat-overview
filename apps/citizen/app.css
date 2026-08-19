@@ -23,7 +23,7 @@
 }
 .icon-btn:hover{background:var(--hover); color:var(--ink)}
 .icon-btn svg{width:19px; height:19px}
-/* theme toggle shows the mode you'd switch to (class-based so every toggle — live #themeBtn, blueprint #themeBtn2, dev bar — swaps) */
+/* theme toggle shows the mode you'd switch to (class-based so every remaining moon/sun control swaps) */
 .th-sun,[data-theme="dark"] .th-moon{display:none}
 [data-theme="dark"] .th-sun{display:block}
 .icon-btn .dot{position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; background:var(--red); border:2px solid var(--bg)}
@@ -86,6 +86,7 @@
   .hero-art{--art-pos:100% 20%}
 }
 .hero h1{max-width:21ch}
+#heroTitle{letter-spacing:-0.02em;}
 .hero .sub{color:var(--ink-2); font-size:var(--fs-17); margin:var(--s-4) 0 0; max-width:54ch}
 
 /* auth states are keyed off <html data-auth>, set inline in <head>,

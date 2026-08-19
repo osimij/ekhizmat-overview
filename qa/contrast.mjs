@@ -14,9 +14,20 @@ const checks = [
   ['light primary', hex('--action'), hex('--on-blue')],
   ['light body', hex('--ink'), hex('--bg')],
   ['light secondary', hex('--ink-2'), hex('--panel')],
+  // Text on a state tint. These pairs are why --*-ink exists next to the raw
+  // state color: the raw one paints glyphs and strokes, the ink one paints
+  // text and must clear 4.5:1 on its own tint in both themes.
+  ['light green ink on tint', hex('--green-ink'), hex('--green-tint')],
+  ['light amber ink on tint', hex('--amber-ink'), hex('--amber-tint')],
+  ['light red ink on tint', hex('--red-ink'), hex('--red-tint')],
+  ['light blue ink on tint', hex('--blue-ink'), hex('--blue-tint')],
 ];
 const dark = css.slice(css.indexOf("[data-theme='dark']"));
 checks.push(['dark primary', hex('--action', dark), hex('--on-blue')]);
+checks.push(['dark green ink on tint', hex('--green-ink', dark), hex('--green-tint', dark)]);
+checks.push(['dark amber ink on tint', hex('--amber-ink', dark), hex('--amber-tint', dark)]);
+checks.push(['dark red ink on tint', hex('--red-ink', dark), hex('--red-tint', dark)]);
+checks.push(['dark blue ink on tint', hex('--blue-ink', dark), hex('--blue-tint', dark)]);
 for (const [label, fg, bg] of checks) {
   const value = ratio(fg,bg);
   if (value < 4.5) throw new Error(`${label} contrast ${value.toFixed(2)}:1 is below 4.5:1`);

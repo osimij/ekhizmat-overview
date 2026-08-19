@@ -26,6 +26,7 @@
    ============================================================ */
 import { h, mount, icon } from './ui.js';
 import { dispatch, getState, legalEvents, __reset, ST } from './store.js';
+import { resetRole } from './role.js';
 import { audit } from './storage.js';
 import { clock } from './clock.js';
 import { sim, consent } from './mock/api.js';
@@ -86,6 +87,17 @@ const FAULTS = [
   { id: 'push',     name: 'Push не доставлен' },
   { id: 'face',     name: 'Лицо не распознано' },
 ];
+
+/* Состояния управленческой панели, которые нельзя получить из фикстуры:
+   очередь выше нормы, пустой период, загрузка и отказ обновления. */
+const DASH_SCENARIOS = [
+  ['normal',  'Обычный'],
+  ['high',    'Высокая очередь'],
+  ['empty',   'Пустой период'],
+  ['loading', 'Загрузка'],
+  ['error',   'Ошибка'],
+];
+let dashScenario = 'normal';
 
 export function initDemo() {
   const panel = h('aside', {
@@ -170,6 +182,23 @@ export function initDemo() {
           onClick: () => { clock.speed = x; draw(); },
         }, `×${x}`))),
 
+      /* Сценарии управленческой панели. Раньше это был выпадающий список
+         «Сценарий» в шапке самого дашборда, рядом с настоящим фильтром
+         периода: рабочий экран предлагал руководителю выбрать «Ошибку» или
+         «Загрузку». Симулируемые состояния живут там же, где остальная
+         симуляция, и остаются достижимыми для QA (§11.5). */
+      h('span', { class: 'label' }, 'Дашборд (§11.5)'),
+      h('div', { class: 'demo__grid' },
+        ...DASH_SCENARIOS.map(([id, name]) => h('button', {
+          class: `btn btn--${dashScenario === id ? 'primary' : 'secondary'} btn--s`,
+          'aria-pressed': String(dashScenario === id),
+          onClick: () => {
+            dashScenario = id;
+            window.dispatchEvent(new CustomEvent('tson:dash-scenario', { detail: id }));
+            draw();
+          },
+        }, name))),
+
       h('span', { class: 'label' }, 'Приватность (§2.3 · DoD §13)'),
       h('div', { class: 'demo__audit' },
         check('Данные гражданина в памяти', st.session ? 'да — сессия активна' : 'нет',
@@ -178,8 +207,9 @@ export function initDemo() {
               st.app === ST.SESSION || consent.granted().length === 0),
         check('Скоупы в памяти = выданные', scopesInMemory(st), memoryMatchesGrant(st)),
         check('Чужие ключи в localStorage', a.foreign.length ? a.foreign.join(', ') : 'нет', a.ok),
-        check('sessionStorage', a.sessionStorageKeys ? `${a.sessionStorageKeys} ключей` : 'пусто',
-              a.sessionStorageKeys === 0),
+        check('sessionStorage', a.sessionForeign.length ? a.sessionForeign.join(', ')
+              : (a.sessionStorageKeys ? 'рабочее место' : 'пусто'),
+              a.sessionForeign.length === 0),
         check('Cookies', a.cookies.length ? a.cookies.join(', ') : 'нет', a.cookies.length === 0),
         check('ПД в URL', location.hash || '#/', !/[Ѐ-ӿ]|\d{6,}/.test(decodeURIComponent(location.hash))),
         check('ФИО в DOM вне сессии', leak ?? 'нет', st.app === ST.SESSION || !leak)),
@@ -187,7 +217,7 @@ export function initDemo() {
       h('div', { class: 'demo__grid' },
         h('button', {
           class: 'btn btn--danger btn--s',
-          onClick: () => { REGISTRY.reset(); __reset(); location.hash = '#/login'; draw(); },
+          onClick: () => { REGISTRY.reset(); resetRole(); __reset(); location.hash = '#/login'; draw(); },
         }, 'Сбросить всё')));
   }
 

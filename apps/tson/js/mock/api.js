@@ -229,6 +229,13 @@ export const shift = {
         { no: appNoFor('fam-cert', 472), status: 'issued' },
         { no: appNoFor('marriage', 471), status: 'issued' },
         { no: appNoFor('pension-cert', 468), status: 'issued' },
+        { no: appNoFor('passport-replace', 467), status: 'issued' },
+        { no: appNoFor('no-crime', 465), status: 'issued' },
+        { no: appNoFor('tax-debt', 463), status: 'issued' },
+        { no: appNoFor('birth-reg', 461), status: 'issued' },
+        { no: appNoFor('addr-reg', 459), status: 'issued' },
+        { no: appNoFor('ip-reg', 457), status: 'issued' },
+        { no: appNoFor('land-extract', 454), status: 'issued' },
       ],
     };
   },

@@ -11,6 +11,9 @@
   --hero-light: #e7eef5;
   --hero-dark: #090d15;
   --hero: var(--hero-light);
+  /* Workstation login is a flat canvas: the controls provide hierarchy, not
+     a card-on-wash composition. The semantic alias keeps both themes aligned. */
+  --login-bg: var(--panel);
   --field: #efefef;
   --field-on-panel: #f4f4f5;
   --line: #e8e8e8;
@@ -31,9 +34,21 @@
   --blue-press: var(--action-press);
   --blue-ink: #0066c2;
   --blue-tint: #e9f3fe;
+  /* Шаг наведения для чипов на синем тинте: раньше это делал
+     filter: brightness(), который не знает ни темы, ни палитры (§3). */
+  --blue-tint-hover: #dceafd;
   --on-blue: #ffffff;
 
+  /* Пара «заливка/глиф» и пара «текст» — разные роли одного состояния.
+     --green/--amber красят кружки, штрихи и иконки; --green-ink/--amber-ink —
+     ТЕКСТ на своём тинте, где 4.5:1 обязателен (§9). Раньше --green-ink
+     существовал только внутри [data-platform='admin'], и остальные платформы
+     писали текст сырым --green: пока портальный зелёный тёмный, это проходит,
+     но ровно на этом и споткнулась перенастройка админки (#0f9a5c на тинте —
+     3.19:1). Имя роли есть везде, чтобы следующая перенастройка палитры не
+     могла тихо испортить читаемость. */
   --green: #15754a;
+  --green-ink: #15754a;
   --green-tint: #e6f4ec;
   --red: #e03e33;
   --red-fill: #c4372d;
@@ -42,6 +57,7 @@
   --red-ink: #b92f27;
   --red-tint: #fceae8;
   --amber: #855b00;
+  --amber-ink: #855b00;
   --amber-tint: #f7eed8;
   --focus: #0072d6;
 
@@ -99,6 +115,7 @@
   --panel: #1a1a1b;
   --raised: #1a1a1b;
   --hero: var(--hero-dark);
+  --login-bg: var(--panel);
   --field: #26272b;
   --field-on-panel: #26272b;
   --line: #2a2b2f;
@@ -116,10 +133,10 @@
   --blue-hover: var(--action-hover);
   --blue-press: var(--action-press);
   --blue-ink: #67b3ff;
-  --blue-tint: #15293e;
-  --green: #55c78f; --green-tint: #15301f;
+  --blue-tint: #15293e; --blue-tint-hover: #1b3550;
+  --green: #55c78f; --green-ink: #55c78f; --green-tint: #15301f;
   --red: #f3776e; --red-fill: #c93c31; --red-hover: #b9362c; --red-press: #a52f27; --red-ink: #ff8e86; --red-tint: #3a1b17;
-  --amber: #e7b95d; --amber-tint: #332a12;
+  --amber: #e7b95d; --amber-ink: #e7b95d; --amber-tint: #332a12;
   --focus: #72baff;
   --h-blue-bg: #16293d; --h-blue-fg: #6ab3ff;
   --h-rose-bg: #371d24; --h-rose-fg: #f08ca3;

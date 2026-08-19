@@ -11,9 +11,9 @@
    первый ЦОН/окно по умолчанию (см. finishLogin). Оператор при нужде меняет
    её кнопкой «Сменить привязку» в шелле.
 
-   Приёмка §6/S0: нельзя попасть ни на один роут без прохождения обоих шагов;
-   рефреш страницы возвращает на S0. Второе обеспечено тем, что
-   store.initial() всегда AUTH — авторизация не восстанавливается из storage.
+   Приёмка §6/S0: нельзя попасть ни на один роут без прохождения обоих шагов.
+   Обычный рефреш вкладки восстанавливает оператора (sessionStorage ekh.tson.arm);
+   жёсткий рефреш, выход и закрытие вкладки возвращают сюда.
    ============================================================ */
 import { h, mount, icon } from '../ui.js';
 import { t } from '../i18n.js';
@@ -21,10 +21,6 @@ import { dispatch } from '../store.js';
 import { load, save } from '../storage.js';
 import { auth } from '../mock/api.js';
 import { otpInput, setLoading, shake } from '../fields.js';
-
-/* Версия АРМ в подвале S0 (§6/S0). Держим строкой здесь, а не в словаре:
-   номер версии не переводится, и в i18n он бы разъехался между языками. */
-const VERSION = '1.3.0';
 
 export function renderLogin(host) {
   let step = 0;                       // 0 креды · 1 OTP
@@ -39,16 +35,9 @@ export function renderLogin(host) {
         h('div', { class: 'login__brand' },
           icon('logo', { size: 24 }),
           h('b', {}, t('app.name'))),
-        h('div', { class: 'login__subtitle body-l' }, t('app.subtitle')),
         card,
-        // §6/S0 требует в подвале версию рядом с «Сессия действует…» (Д-21):
-        // при разборе инцидента первое, что спрашивают у оператора, — какая
-        // версия АРМ на окне, и искать её в devtools ему нечем.
-        h('div', { class: 'login__legend small' },
-          h('span', { class: 'login__legend-copy' },
-            t('login.legend'),
-            h('br'),
-            `${t('app.version')} ${VERSION}`)))));
+        h('div', { class: 'login__legend' },
+          h('span', { class: 'login__legend-copy' }, t('login.legend'))))));
 
   go(0);
   return () => clearInterval(cooldownTimer);
@@ -86,14 +75,13 @@ export function renderLogin(host) {
       name: 'password',
       type: 'password',
       autocomplete: 'current-password',
-      affix: h('span', { class: 'field__affix' }, icon('lock', { size: 20 })),
     });
     const submit = h('button', {
       class: 'btn btn--primary btn--l', type: 'submit', 'data-act': 'login-next',
     }, t('login.next'));
 
     return h('form', {
-      class: 'stack g-4', novalidate: true,
+      class: 'stack login__form login__form--credentials', novalidate: true,
       onSubmit: async e => {
         e.preventDefault();
         err.textContent = '';
@@ -126,6 +114,8 @@ export function renderLogin(host) {
         }
       },
     },
+      h('div', { class: 'login__heading' },
+        h('h1', {}, t('login.title'))),
       h('div', { class: 'login__fields' }, login.el, pass.el, err),
       submit);
   }
@@ -137,22 +127,24 @@ export function renderLogin(host) {
     cells.el.id = 'l-otp';
     const submit = h('button', {
       class: 'btn btn--primary btn--l', type: 'submit', 'data-act': 'login-enter',
-    }, icon('shield', { size: 20 }), t('login.submit'));
+    }, t('login.submit'));
     const back = h('button', {
       class: 'btn btn--ghost btn--l', type: 'button', 'data-act': 'login-back',
       onClick: () => go(0),
     }, t('common.back'));
 
     const form = h('form', {
-      class: 'stack g-4', novalidate: true,
+      class: 'stack login__form login__form--mfa', novalidate: true,
       onSubmit: e => { e.preventDefault(); submitOtp(cells.value()); },
     },
-      h('div', { class: 'login__step small' }, t('login.mfaHint')),
-      h('div', { class: 'field' },
-        h('span', { class: 'field__label', id: 'l-otp-label' }, t('login.mfa')),
-        cells.el),
+      h('div', { class: 'login__heading' },
+        h('h1', { id: 'l-otp-label' }, t('login.mfa')),
+        h('p', {}, t('login.mfaHint'))),
+      cells.el,
       err,
       h('div', { class: 'login__actions' }, submit, back));
+    cells.el.setAttribute('role', 'group');
+    cells.el.setAttribute('aria-labelledby', 'l-otp-label');
 
     async function submitOtp(code) {
       err.textContent = '';
@@ -227,18 +219,17 @@ export function renderLogin(host) {
 
 /* Поле входа ведомства: подпись живёт внутри поля и всплывает над обводкой,
    когда есть значение или фокус. placeholder=" " нужен для :placeholder-shown. */
-function floatingField({ id, label, value = '', name, type = 'text', autocomplete, affix }) {
+function floatingField({ id, label, value = '', name, type = 'text', autocomplete }) {
   const input = h('input', {
     class: 'field__input', id, name, type, value,
     placeholder: ' ',
     autocomplete,
     spellcheck: 'false',
   });
-  const control = affix ? h('div', { class: 'field__wrap' }, input, affix) : input;
   return {
     el: h('div', { class: 'field login-field--floating' },
       h('label', { class: 'field__label', for: id }, label),
-      control),
+      input),
     input,
   };
 }

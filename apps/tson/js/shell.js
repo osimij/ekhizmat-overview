@@ -5,48 +5,26 @@
    отсутствуют в DOM (P1: «Нет сессии — в интерфейсе физически нет данных
    (не скрыты, а отсутствуют в DOM и памяти)»).
    ============================================================ */
-import { h, mount, icon, maskName, maskInn, mmss, openLayer, confirmDanger } from './ui.js';
+import { h, mount, icon, maskName, maskInn, mmss, openLayer, closeTopLayer, confirmDanger } from './ui.js';
 import { t, getLang, setLang } from './i18n.js';
 import { getState, dispatch, __reset, ST, STEP } from './store.js';
-import { load, save } from './storage.js';
 import { endVisit } from './session.js';
+import { getThemeChoice, setTheme } from '/design-system/js/preferences.js';
 import { fmtTime } from './format.js';
 import { SCOPES } from './mock/data.js';
 import { consent } from './mock/api.js';
 import { ROLE, getRole, roleLabel, setRole, resetRole } from './role.js';
 
-/* ---------- тема ---------- */
-export function initTheme() {
-  const requested = new URLSearchParams(location.search).get('theme');
-  const saved = requested === 'dark' || requested === 'light' ? requested : load('ekh.preferences.theme', 'light');
-  document.documentElement.dataset.theme = saved;
-}
-
-function toggleTheme() {
-  const dark = document.documentElement.dataset.theme === 'dark';
-  const next = dark ? 'light' : 'dark';
-  document.documentElement.dataset.theme = next;
-  save('ekh.preferences.theme', next);
-  return next;
-}
+/* Тема принадлежит design-system/js/preferences.js — единственному владельцу
+   ключей `ekh.preferences.*` (§1 правило 7). Свой initTheme/toggleTheme здесь
+   был вторым владельцем того же ключа, писал его в другом формате (JSON-строка
+   против голой) и запускался после await за словарём — отсюда и вспышка темы,
+   и то, что сохранённый выбор был не виден общей библиотеке. Предотрисовку
+   делает инлайновый скрипт в tson/index.html (§7). */
 
 /* ---------- topbar (§3.2) ---------- */
 export function renderTopbar(host) {
   const st = getState();
-  const dark = document.documentElement.dataset.theme === 'dark';
-
-  const themeBtn = h('button', {
-    class: 'btn btn--ghost btn--icon', 'aria-label': t('shell.theme'),
-    onClick: e => {
-      const next = toggleTheme();
-      mount(e.currentTarget, icon(next === 'dark' ? 'sun' : 'moon'));
-    },
-  }, icon(dark ? 'sun' : 'moon'));
-
-  const langBtn = h('button', {
-    class: 'btn btn--ghost btn--s', 'aria-label': t('shell.lang'),
-    onClick: () => setLang(getLang() === 'ru' ? 'tg' : 'ru'),
-  }, icon('globe', { size: 20 }), getLang().toUpperCase());
 
   // Привязка кликабельна → смена привязки (§3.2). Смена привязки без
   // перезахода — отдельный сценарий, которого нет в §6; поэтому здесь она
@@ -67,18 +45,180 @@ export function renderTopbar(host) {
         t('shell.window', { n: st.bind.window, tson: st.bind.tsonName || st.bind.tson }))
     : null;
 
+  // Значок роли — только когда роль не подразумевается (§10 правила 4 и 6).
+  // «Оператор» на каждом экране пересказывал умолчание: девять смен из десяти
+  // это и есть оператор, и подпись не отвечала ни на один вопрос. Роль
+  // руководителя или руководства, наоборот, объясняет, почему на экране
+  // дашборд, — её показываем.
+  const badge = st.operator && getRole() !== ROLE.OPERATOR
+    ? h('span', { class: 'review-badge review-badge--stage' }, roleLabel())
+    : null;
+
   mount(host,
     h('div', { class: 'topbar__brand' },
       icon('logo'),
       h('strong', {}, t('app.name')),
       h('span', { class: 'ink-faint' }, '·'),
       h('span', { class: 'ink-2' }, t('app.arm')),
-      st.operator ? h('span', { class: 'review-badge review-badge--stage' }, roleLabel()) : null),
+      badge),
     bind,
     h('span', { class: 'spacer' }),
-    themeBtn,
-    langBtn,
-    st.operator ? operatorMenu(st) : null);
+    // §3 «Top bar»: справа только слот роли. Тема и язык переехали в поповер
+    // оператора (§3 «Global preferences», правило 12) — их ставят раз в смену,
+    // и постоянное место в раме они не окупали. До входа карточки оператора
+    // нет, поэтому там остаётся одна тихая иконка с теми же настройками:
+    // сменить язык до логина оператор обязан уметь (§9). Ghost (синий)
+    // здесь нельзя: blue на воротах — действие «Продолжить», а не шестерёнка.
+    st.operator ? operatorMenu(st) : preferencesButton());
+}
+
+/* Кнопка настроек на экране входа. Тот же поповер, только без личной карточки
+   и действий смены — их не к чему привязать, пока никто не вошёл.
+
+   Открытие — как у меню оператора: повторный клик по шестерёнке закрывает,
+   клик снаружи закрывает, Esc закрывает верхний слой. Раньше onClick только
+   открывал ещё один слой: второй клик по триггеру не переключал, а стопкой
+   клал второе меню, и снаружи закрыть было нечем. */
+function preferencesButton() {
+  let closeMenu = null;
+  const btn = h('button', {
+    class: 'btn btn--icon', 'aria-label': t('shell.preferences'),
+    'aria-haspopup': 'menu', 'aria-expanded': 'false',
+    onClick: () => {
+      if (closeMenu) { closeMenu(); return; }
+      closeMenu = openPreferencesMenu(btn, () => { closeMenu = null; });
+    },
+  }, icon('gear', { size: 20 }));
+  return btn;
+}
+
+function openPreferencesMenu(anchor, onClose) {
+  const rect = anchor.getBoundingClientRect();
+  const node = h('div', {
+    class: 'popover menu', role: 'menu', 'aria-label': t('shell.preferences'),
+    style: {
+      top: `${rect.bottom + 8}px`,
+      right: `${Math.round(innerWidth - rect.right)}px`,
+      transformOrigin: 'top right',
+    },
+  }, ...preferencesGroup());
+  return openAnchoredPopover(anchor, node, { onClose });
+}
+
+/* Поповер, привязанный к кнопке: клик по триггеру не считается «снаружи»
+   (иначе pointerdown закрыл бы меню, а click сразу открыл бы его снова),
+   а выносной список языков — сосед в #layers, не потомок, поэтому его тоже
+   не считаем кликом мимо. Закрытие родителя убирает и живой flyout. */
+function openAnchoredPopover(anchor, node, { onClose } = {}) {
+  let close = () => {};
+  anchor.setAttribute('aria-expanded', 'true');
+
+  const onPointerDown = e => {
+    const el = e.target instanceof Element ? e.target : e.target?.parentElement;
+    if (el && (node.contains(el) || anchor.contains(el) || el.closest('#layers .menu--flyout'))) return;
+    close();
+  };
+  document.addEventListener('pointerdown', onPointerDown);
+  close = openLayer(node, {
+    onClose: () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      anchor.setAttribute('aria-expanded', 'false');
+      if (document.querySelector('#layers .menu--flyout:not([inert])')) closeTopLayer();
+      onClose?.();
+    },
+  });
+  return close;
+}
+
+/* ---------- настройки (§3 «Global preferences», правило 12) ----------
+   Язык и тема живут за личностью, а не в постоянной раме: их ставят раз в
+   смену, и место в топбаре они не окупали. Анатомия — как у профиля админки:
+   строка языка с выносным списком и трёхпозиционный выбор темы. Глобуса
+   в строке языка нет: подпись уже называет контроль, икона была вторым
+   представлением того же факта (§10 правила 5–6). */
+function preferencesGroup() {
+  let closeFlyout = null;
+  const langRow = h('button', {
+    class: 'menu__item menu__row', role: 'menuitem',
+    'aria-haspopup': 'menu', 'aria-expanded': 'false',
+    onClick: () => {
+      if (closeFlyout) { closeFlyout(); return; }
+      closeFlyout = openLangFlyout(langRow, () => { closeFlyout = null; });
+    },
+  },
+    h('span', { class: 'grow' }, t('shell.lang')),
+    h('span', { class: 'menu__value' }, t(`lang.${getLang()}`)),
+    icon('chev-r', { size: 16, cls: 'menu__chev' }));
+
+  return [
+    h('span', { class: 'menu__label small ink-faint' }, t('shell.preferences')),
+    langRow,
+    themeRow(),
+  ];
+}
+
+/* Три состояния, а не переключатель: «системная» — это отдельный ответ, а не
+   отсутствие ответа (§3). aria-pressed объявляет выбранное, поэтому подпись
+   каждой кнопки называет именно её состояние, а не действие (§9). */
+function themeRow() {
+  const options = [
+    { id: 'system', icn: 'theme-system', key: 'shell.themeSystem' },
+    { id: 'light', icn: 'sun', key: 'shell.themeLight' },
+    { id: 'dark', icn: 'moon', key: 'shell.themeDark' },
+  ];
+
+  const row = h('div', { class: 'menu__row menu__row--theme' },
+    h('span', { class: 'grow' }, t('shell.theme')),
+    h('div', { class: 'menu__choices', role: 'group', 'aria-label': t('shell.theme') },
+      ...options.map(o => h('button', {
+        class: 'menu__choice',
+        'aria-pressed': String(getThemeChoice() === o.id),
+        'aria-label': t(o.key), title: t(o.key),
+        onClick: () => {
+          setTheme(o.id);
+          row.querySelectorAll('.menu__choice').forEach((b, i) => {
+            b.setAttribute('aria-pressed', String(options[i].id === getThemeChoice()));
+          });
+        },
+      }, icon(o.icn, {
+        size: 16,
+        // The system glyph has more empty space in its source viewBox than the
+        // sun and moon. This class aligns its visible mark with the other two.
+        cls: o.id === 'system' ? 'menu__theme-system-icon' : '',
+      })))));
+
+  return row;
+}
+
+/* Выносной список языков. Отдельный слой, а не раскрывающийся блок: Esc тогда
+   закрывает сначала его, а фокус возвращается на строку языка — это уже умеет
+   openLayer, и второй такой механизм заводить незачем (§6). */
+function openLangFlyout(row, onClose) {
+  const rect = row.getBoundingClientRect();
+  const langs = ['ru', 'tg'];
+  let close = () => {};
+
+  const node = h('div', {
+    class: 'popover menu menu--flyout', role: 'menu', 'aria-label': t('shell.lang'),
+    style: {
+      top: `${Math.round(rect.top)}px`,
+      right: `${Math.round(innerWidth - rect.left + 8)}px`,
+      transformOrigin: 'top right',
+    },
+  }, ...langs.map(code => h('button', {
+    class: 'menu__item', role: 'menuitemradio',
+    'aria-checked': String(getLang() === code),
+    onClick: () => {
+      close();
+      closeTopLayer();
+      setLang(code);
+    },
+  },
+    h('span', { class: 'grow' }, t(`lang.${code}`)),
+    getLang() === code ? icon('check', { size: 16 }) : null)));
+
+  close = openAnchoredPopover(row, node, { onClose });
+  return close;
 }
 
 /* §3.2 — «меню оператора (смена, блокировка, выход)».
@@ -86,15 +226,19 @@ export function renderTopbar(host) {
    нужно и по §3.2, и по §6/S1 («конец дня — подсказка "Завершить смену" в
    меню оператора»). */
 function operatorMenu(st) {
+  let closeMenu = null;
   const btn = h('button', {
     class: 'btn btn--ghost btn--s', 'aria-label': t('shell.operatorMenu'),
-    'aria-haspopup': 'menu',
-    onClick: () => openOperatorMenu(btn, st),
+    'aria-haspopup': 'menu', 'aria-expanded': 'false',
+    onClick: () => {
+      if (closeMenu) { closeMenu(); return; }
+      closeMenu = openOperatorMenu(btn, st, () => { closeMenu = null; });
+    },
   }, icon('role', { size: 20 }), st.operator.name, icon('chev-d', { size: 16 }));
   return btn;
 }
 
-function openOperatorMenu(anchor, st) {
+function openOperatorMenu(anchor, st, onClose) {
   const rect = anchor.getBoundingClientRect();
   let close = () => {};
 
@@ -102,7 +246,6 @@ function openOperatorMenu(anchor, st) {
   // не закрыв приём, значит бросить его данные в памяти. Сначала «Завершить
   // приём» — это же и есть wipe (§2.3.3).
   const inVisit = st.app === ST.SESSION;
-  const demoRole = getLang() === 'tg' ? 'Нақши намоишӣ' : 'Демо-роль';
 
   const item = (icn, label, hint, onClick, disabled = false) => h('button', {
     class: 'menu__item', role: 'menuitem', disabled,
@@ -112,26 +255,45 @@ function openOperatorMenu(anchor, st) {
     h('span', { class: 'grow' }, label),
     hint ? h('kbd', { class: 'menu__kbd' }, hint) : null);
 
+  // Выбранная роль — настоящий radio с aria-checked и настоящей галочкой.
+  // Раньше «✓» приезжала как подсказка горячей клавиши: скринридер читал её
+  // как клавишу, а глаз — как символ неизвестного назначения (§9).
+  const roleItem = (icn, id) => h('button', {
+    class: 'menu__item', role: 'menuitemradio', 'aria-checked': String(getRole() === id),
+    onClick: () => { close(); switchRole(id); },
+  },
+    icon(icn, { size: 20 }),
+    h('span', { class: 'grow' }, roleLabel(id)),
+    getRole() === id ? icon('check', { size: 16 }) : null);
+
   const node = h('div', {
     class: 'popover menu', role: 'menu', 'aria-label': t('shell.operatorMenu'),
-    style: { top: `${rect.bottom + 8}px`, right: `${Math.round(innerWidth - rect.right)}px` },
+    style: {
+      top: `${rect.bottom + 8}px`,
+      right: `${Math.round(innerWidth - rect.right)}px`,
+      // §8 — поповер растёт из своего триггера, а не из середины себя.
+      transformOrigin: 'top right',
+    },
   },
     h('div', { class: 'menu__head' },
       h('strong', {}, st.operator.name),
       h('span', { class: 'small ink-faint' },
         st.bind ? t('shell.window', { n: st.bind.window, tson: st.bind.tsonName || st.bind.tson }) : '')),
     h('hr', { class: 'rule' }),
-    !inVisit ? h('span', { class: 'menu__label small ink-faint' }, demoRole) : null,
-    !inVisit ? item('role', roleLabel(ROLE.OPERATOR), getRole() === ROLE.OPERATOR ? '✓' : null, () => switchRole(ROLE.OPERATOR)) : null,
-    !inVisit ? item('building', roleLabel(ROLE.SUPERVISOR), getRole() === ROLE.SUPERVISOR ? '✓' : null, () => switchRole(ROLE.SUPERVISOR)) : null,
-    !inVisit ? item('history', roleLabel(ROLE.LEADERSHIP), getRole() === ROLE.LEADERSHIP ? '✓' : null, () => switchRole(ROLE.LEADERSHIP)) : null,
-    !inVisit ? h('hr', { class: 'rule' }) : null,
+    !inVisit ? h('span', { class: 'menu__label small ink-faint' }, t('shell.demoRole')) : null,
+    !inVisit ? roleItem('role', ROLE.OPERATOR) : null,
+    !inVisit ? roleItem('building', ROLE.SUPERVISOR) : null,
+    !inVisit ? roleItem('manager', ROLE.LEADERSHIP) : null,
+    h('hr', { class: 'rule' }),
+    ...preferencesGroup(),
+    h('hr', { class: 'rule' }),
     item('lock', t('shell.lock'), 'Ctrl+L', () => dispatch('LOCK')),
-    item('history', t('shell.endShift'), null, endShift, inVisit),
+    item('clock-check', t('shell.endShift'), null, endShift, inVisit),
     item('out', t('shell.logout'), null, logout, inVisit),
     inVisit ? h('p', { class: 'small ink-faint menu__note' }, t('shell.busyHint')) : null);
 
-  close = openLayer(node);
+  close = openAnchoredPopover(anchor, node, { onClose });
+  return close;
 
   function switchRole(next) {
     setRole(next);
@@ -166,8 +328,7 @@ function logout() {
   });
 }
 
-/* Уход с рабочего места = полный сброс к S0. Тем же путём, что и рефреш
-   (§6/S0 приёмка): состояние собирается заново, в памяти не остаётся ничего. */
+/* Уход с рабочего места = полный сброс к S0: память, сессия вкладки, роль. */
 function leave() {
   resetRole();
   __reset();
@@ -190,8 +351,8 @@ export function renderSessionBar(host) {
 
   if (st.session.guest) {
     mount(host,
-      h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:16 }), getLang() === 'tg' ? 'Меҳмон' : 'Гость'),
-      h('span', { class:'small ink-2' }, getLang() === 'tg' ? 'Бе маълумоти шахсӣ' : 'Без персональных данных'),
+      h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:16 }), t('guest.badge')),
+      h('span', { class:'small ink-2' }, t('guest.noPersonal')),
       h('span', { class:'spacer' }),
       h('span', { class:'sessionbar__timer tnum', role:'timer', 'aria-live':'off', 'aria-label':t('session.ttl') }, mmss(30 * 60_000)),
       h('button', { class:'btn btn--danger btn--s', onClick:() => endVisit() }, t('session.end')));
@@ -254,7 +415,11 @@ function scopePopover(anchor, st) {
 
   const node = h('div', {
     class: 'popover', role: 'dialog', 'aria-label': t('session.scopes'),
-    style: { top: `${rect.bottom + 8}px`, left: `${rect.left}px` },
+    style: {
+      top: `${rect.bottom + 8}px`,
+      left: `${rect.left}px`,
+      transformOrigin: 'top left',   // §8 — растёт из чипа, а не из себя
+    },
   },
     h('span', { class: 'label' }, t('session.scopes')),
     h('div', { class: 'stack g-3 popover__list' },

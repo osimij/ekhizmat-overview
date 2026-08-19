@@ -1,4 +1,4 @@
-body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 38rem); }
+body { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 38rem); }
 .launch-header, .launch-footer { width: min(100% - 48px, 1240px); margin-inline: auto; }
 .launch-header { display: flex; align-items: center; min-height: 76px; border-bottom: 1px solid var(--line); }
 .brand-lockup { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
@@ -12,12 +12,12 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .theme-sun { display: none; }
 [data-theme='dark'] .theme-moon { display: none; }
 [data-theme='dark'] .theme-sun { display: block; }
-.launch-main { width: min(100% - 48px, 1240px); margin: 0 auto; padding: 76px 0 64px; }
+.launch-main { align-self: center; width: min(100% - 48px, 1240px); margin: 0 auto; padding: 48px 0; }
 .launch-intro { max-width: 720px; margin-bottom: 40px; }
 .launch-intro h1 { margin-top: 0; }
-.launch-intro p { max-width: 620px; margin-top: 14px; color: var(--ink-2); font-size: var(--fs-17); }
+.launch-intro p { max-width: none; margin-top: 14px; color: var(--ink-2); font-size: var(--fs-17); white-space: nowrap; }
 .platform-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.platform-card { position: relative; display: grid; grid-template-columns: 60px 1fr 36px; gap: 18px; min-height: 172px; align-items: start; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-xl); background: color-mix(in srgb, var(--panel) 92%, transparent); color: var(--ink); transition: border-color var(--t-fast), transform var(--t-fast), background var(--t-fast); }
+.platform-card { position: relative; display: grid; grid-template-columns: 60px 1fr 36px; gap: 18px; min-height: 172px; align-items: start; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: color-mix(in srgb, var(--panel) 92%, transparent); color: var(--ink); transition: border-color var(--t-fast), transform var(--t-fast), background var(--t-fast); }
 .platform-card:hover { border-color: color-mix(in srgb, var(--action) 45%, var(--line)); background: var(--panel); }
 .platform-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; }
 .platform-icon svg { width: 29px; height: 29px; }
@@ -43,7 +43,8 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 .launch-footer { display: flex; justify-content: space-between; padding: 24px 0 36px; color: var(--ink-3); font-size: var(--fs-13); }
 @media (max-width: 760px) {
   .launch-header, .launch-footer, .launch-main { width: min(100% - 32px, 1240px); }
-  .launch-main { padding-top: 48px; }
+  .launch-main { padding-block: 40px; }
+  .launch-intro p { white-space: normal; }
   .platform-grid { grid-template-columns: 1fr; }
   .platform-card { min-height: 164px; padding: 24px; grid-template-columns: 52px 1fr; gap: 16px; }
   .platform-icon { width: 52px; height: 52px; border-radius: 16px; }
@@ -55,7 +56,7 @@ body { background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 
 @media (max-width: 420px) {
   .launch-control span { display: none; }
   .launch-control { width: 44px; padding: 0; justify-content: center; }
-  .launch-main { padding-top: 36px; }
+  .launch-main { padding-block: 32px; }
   .launch-intro h1 { font-size: 34px; }
   .platform-card { grid-template-columns: 44px 1fr; padding: 20px; }
   .platform-icon { width: 44px; height: 44px; border-radius: 14px; }

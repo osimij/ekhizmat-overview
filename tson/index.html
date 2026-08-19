@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eKhizmat · АРМ оператора ЦОН</title>
+<!-- Тема до первой отрисовки (design-guide §7: «вспышка темы — это баг»).
+     Раньше её ставил boot() ПОСЛЕ await за словарём, и оператор с тёмной темой
+     получал белую вспышку на каждой загрузке. Скрипт инлайновый и стоит выше
+     стилей намеренно: любой внешний файл — это ещё один раунд до первого кадра.
+     Порядок разрешения тот же, что у design-system/js/preferences.js, иначе
+     после гидрации тема поменялась бы второй раз. -->
+<script>try{var q=new URLSearchParams(location.search).get("theme");var s=localStorage.getItem("ekh.preferences.theme");var t=(q==="dark"||q==="light")?q:(s==="dark"||s==="light")?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/design-system/global.css">
 <link rel="stylesheet" href="/apps/tson/app.css">
@@ -30,7 +37,7 @@
 <!-- Слои поверх шелла -->
 <div id="lock-root"></div>
 <div id="layers"></div>
-<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+<div id="toasts" class="ekh-toast-region ekh-toast-region--top" aria-live="polite" aria-atomic="false"></div>
 
 <!-- §9 — пороги таймера сессии объявляются сюда. Отдельно от тостов: тост
      живёт 4 секунды и уносит текст с собой, а порог «до конца приёма минута»

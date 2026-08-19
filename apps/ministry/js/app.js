@@ -45,6 +45,28 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     pop: null                           // 'notif' | 'user' | null
   };
 
+  /* Сессия оператора в этой вкладке. F5 оставляет на месте; Cmd+Shift+R /
+     Ctrl+F5 / выход / закрытие вкладки возвращают на вход. Заявки ведомства
+     по-прежнему только в памяти. */
+  var ARM_VIEWS = { queue:1, all:1, overdue:1, reports:1, interop:1, forms:1, batch:1 };
+  function readArm() {
+    try { return JSON.parse(sessionStorage.getItem('ekh.ministry.arm') || 'null'); }
+    catch (e) { return null; }
+  }
+  function writeArm() {
+    if (!S.authed) { clearArm(); return; }
+    var view = ARM_VIEWS[S.view] ? S.view : 'queue';
+    try { sessionStorage.setItem('ekh.ministry.arm', JSON.stringify({ view: view })); } catch (e) {}
+  }
+  function clearArm() {
+    try { sessionStorage.removeItem('ekh.ministry.arm'); } catch (e) {}
+  }
+  addEventListener('keydown', function (e) {
+    var hardR = (e.key === 'r' || e.key === 'R') && (e.metaKey || e.ctrlKey) && e.shiftKey;
+    var hardF5 = e.key === 'F5' && (e.shiftKey || e.ctrlKey);
+    if (hardR || hardF5) clearArm();
+  }, true);
+
   /* ------------------------------------------------------------------ */
   /* i18n / утилиты                                                     */
   /* ------------------------------------------------------------------ */
@@ -240,36 +262,35 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var body =
       '<div class="login">' +
         '<div class="login__inner"><div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
-        '<div class="login__subtitle body-l">' + esc(t('login_sub')) + '</div>' +
         '<div class="panel login__card' + (loginErr ? ' is-shake' : '') + '">' +
           (step === 1 ?
-            '<div class="stack g-4">' +
+            '<div class="stack login__form login__form--credentials">' +
+              '<div class="login__heading"><h1>' + esc(t('login_title')) + '</h1></div>' +
               '<div class="login__fields">' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
                   '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" placeholder=" " autocomplete="username" spellcheck="false"></div>' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
-                  '<div class="field__wrap"><input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '>' +
-                  '<span class="field__affix">' + ic('i-lock', 'icon--20') + '</span></div></div>' +
+                  '<input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '></div>' +
                 (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
               '</div>' +
               '<button class="btn btn--primary btn--l" type="button" data-act="login-next">' + esc(t('login_next')) + '</button>' +
             '</div>'
           :
-            '<div class="stack g-4">' +
-              '<div class="login__step small">' + esc(t('login_mfa_hint')) + ' <span class="login__mfa-target">•••• 40 22</span></div>' +
-              '<div class="field"><span class="field__label" id="l-otp-label">' + esc(t('login_mfa')) + '</span>' +
-                '<div class="otp" id="l-otp">' +
+            '<div class="stack login__form login__form--mfa">' +
+              '<div class="login__heading"><h1 id="l-otp-label">' + esc(t('login_mfa')) + '</h1>' +
+                '<p>' + esc(t('login_mfa_hint')) + '</p></div>' +
+              '<div class="otp" id="l-otp" role="group" aria-labelledby="l-otp-label">' +
                   [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" name="otp-'+(i+1)+'" inputmode="numeric" maxlength="1" data-otp="'+i+'" autocomplete="one-time-code" aria-label="'+esc(t('login_mfa'))+' '+(i+1)+'"'+(loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '')+'>';}).join('') +
-                '</div></div>' +
+              '</div>' +
               (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
               '<div class="login__actions">' +
-                '<button class="btn btn--primary btn--l" type="button" data-act="login-enter">' + ic('i-shield','icon--20') + esc(t('login_enter')) + '</button>' +
+                '<button class="btn btn--primary btn--l" type="button" data-act="login-enter">' + esc(t('login_enter')) + '</button>' +
                 '<button class="btn btn--ghost btn--l" type="button" data-act="login-back">' + esc(t('login_back')) + '</button>' +
               '</div>' +
             '</div>'
           ) +
         '</div>' +
-        '<div class="login__legend small"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '<br>' + esc(t('login_legend_secondary')) + '</span></div></div>' +
+        '<div class="login__legend"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '</span></div></div>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
     S._loginErr = false;
@@ -1649,7 +1670,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       case 'theme': toggleTheme(); return;
       case 'lock': doLock(); return;
       case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast(t('reset_done'), 'success'); return;
-      case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); renderLogin(); return;
+      case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); clearArm(); renderLogin(); return;
       case 'unlock': S.locked = false; document.getElementById('lock-root').remove(); document.getElementById('app').classList.remove('is-blurred'); return;
       case 'noop': return;
     }
@@ -1849,6 +1870,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     syncNavToggle();
     var main = document.getElementById('main'); if (main) main.scrollTop = 0;
     renderMain();
+    writeArm();
   }
   function openCard(id) { S.cardId = id; S.view = 'card'; S.cardTab = 'overview'; closeLayers(false); var m = document.getElementById('main'); if (m) m.scrollTop = 0; renderMain(); }
 
@@ -1877,7 +1899,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   /* Запуск                                                             */
   /* ================================================================== */
-  function startApp() { S.view = 'queue'; S.statIntroPending = true; renderApp(); }
+  function startApp() { S.view = 'queue'; S.statIntroPending = true; renderApp(); writeArm(); }
 
   function boot() {
     document.documentElement.setAttribute('data-theme', S.theme);
@@ -1898,7 +1920,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       if (S.authed) { refreshChrome(); toast(t('t_received'), 'success'); }
     }, 9000);
 
-    renderLogin();
+    var snap = readArm();
+    if (snap) {
+      S.authed = true;
+      S.view = ARM_VIEWS[snap.view] ? snap.view : 'queue';
+      renderApp();
+    } else {
+      renderLogin();
+    }
     setInterval(function () { if (S.authed && !S.locked) tick(); }, 1000);
   }
 

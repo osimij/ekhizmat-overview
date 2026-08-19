@@ -34,137 +34,163 @@ async function expectLayerFits(page, layer) {
   expect(bounds.bottom).toBeLessThanOrEqual(bounds.viewportHeight + 1);
 }
 
-test('Authentication forms stay vertically centered across platforms', async ({ page }) => {
-  await page.setViewportSize({ width: 1357, height: 987 });
+test('Authentication gates follow the responsive Figma composition across platforms', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1024 });
 
-  await page.goto('/ministry/?lang=ru&theme=light');
-  const ministry = await page.evaluate(() => {
-    const login = document.querySelector('.login');
-    const surface = login.getBoundingClientRect();
-    const content = document.querySelector('.login__inner').getBoundingClientRect();
-    const style = getComputedStyle(login);
-    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
-    const subtitleRange = document.createRange();
-    subtitleRange.selectNodeContents(document.querySelector('.login__subtitle'));
-    return {
-      centerDelta: Math.abs(
-        Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
-      ),
-      legendText: document.querySelector('.login__legend-copy').textContent.trim(),
-      legendBlockCount: document.querySelector('.login__legend').children.length,
-      legendBreakCount: document.querySelectorAll('.login__legend-copy br').length,
-      legendTextAlign: getComputedStyle(document.querySelector('.login__legend')).textAlign,
-      legendIconCount: document.querySelectorAll('.login__legend .icon').length,
-      fieldGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field')).gap),
-      groupGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__card > .stack')).gap),
-      fieldGroupGap: Number.parseFloat(getComputedStyle(document.querySelector('.login__fields')).gap),
-      fieldGroupMarginBottom: Number.parseFloat(getComputedStyle(document.querySelector('.login__fields')).marginBottom),
-      cardHeight: document.querySelector('.login__card').getBoundingClientRect().height,
-      cardRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).borderRadius),
-      cardPaddingTop: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).paddingTop),
-      cardPaddingBottom: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).paddingBottom),
-      buttonTopMargin: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .btn')).marginTop),
-      subtitleLineCount: subtitleRange.getClientRects().length,
-      inputRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).borderRadius),
-      inputHeight: document.querySelector('.login__card .field__input').getBoundingClientRect().height,
-      buttonHeight: document.querySelector('.login__card .btn--l').getBoundingClientRect().height,
-      inputOutline: getComputedStyle(document.querySelector('.login__card .field__input')).boxShadow,
-      buttonBackground: getComputedStyle(document.querySelector('.login__card .btn--primary')).backgroundColor,
-      inputFontSize: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).fontSize),
-      loginLabelFontSize: Number.parseFloat(getComputedStyle(document.querySelector('label[for="l-pass"]')).fontSize),
-      loginLabelFontWeight: getComputedStyle(document.querySelector('label[for="l-pass"]')).fontWeight,
-      loginLabelLetterSpacing: getComputedStyle(document.querySelector('label[for="l-pass"]')).letterSpacing,
-      usernameLabelTransform: getComputedStyle(document.querySelector('label[for="l-user"]')).transform,
-      passwordLabelTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).transform,
-      loginLabelTextTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).textTransform,
-    };
-  });
-  expect(ministry.centerDelta).toBeLessThanOrEqual(1);
-  expect(ministry.legendIconCount).toBe(0);
-  expect(ministry.legendBlockCount).toBe(1);
-  expect(ministry.legendBreakCount).toBe(1);
-  expect(ministry.legendTextAlign).toBe('center');
-  expect(ministry.fieldGap).toBe(0);
-  expect(ministry.groupGap).toBe(12);
-  expect(ministry.fieldGroupGap).toBe(12);
-  expect(ministry.fieldGroupMarginBottom).toBe(20);
-  expect(ministry.cardHeight).toBe(300);
-  expect(ministry.cardRadius).toBe(28);
-  expect(ministry.cardPaddingTop).toBe(36);
-  expect(ministry.cardPaddingBottom).toBe(32);
-  expect(ministry.buttonTopMargin).toBe(0);
-  expect(ministry.subtitleLineCount).toBe(1);
-  expect(ministry.inputRadius).toBeGreaterThanOrEqual(ministry.inputHeight / 2);
-  expect(ministry.inputHeight).toBe(ministry.buttonHeight);
-  expect(ministry.inputOutline).not.toBe('none');
-  expect(ministry.buttonBackground).not.toBe('rgb(0, 0, 0)');
-  expect(ministry.inputFontSize).toBe(16);
-  expect(ministry.loginLabelFontSize).toBe(16);
-  expect(ministry.loginLabelFontWeight).toBe('500');
-  expect(Number.parseFloat(ministry.loginLabelLetterSpacing) || 0).toBe(0);
-  expect(ministry.usernameLabelTransform).not.toBe(ministry.passwordLabelTransform);
-  expect(ministry.loginLabelTextTransform).toBe('none');
-  expect(ministry.legendText).toContain('Доступ по усиленной аутентификации (МФА).');
-  expect(ministry.legendText).toContain('Все действия фиксируются в журнале аудита.');
+  for (const platform of ['ministry', 'tson']) {
+    await page.goto(`/${platform}/?lang=ru&theme=light`);
+    await expect(page.locator('.login__inner')).toBeVisible();
+    await expect(page.locator('.login__heading h1')).toHaveText('Вход в сессию');
+    await expect(page.locator('.login__subtitle')).toHaveCount(0);
+    await expect(page.locator('.login__legend')).toHaveText('Сессия действует только на этом рабочем месте');
 
-  await page.locator('#l-pass').focus();
-  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).transform))
-    .toBe(ministry.usernameLabelTransform);
-  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => Number.parseFloat(getComputedStyle(label).fontSize)))
-    .toBe(16);
-  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => {
-    const style = getComputedStyle(label);
-    const matrix = new DOMMatrixReadOnly(style.transform);
-    return Number.parseFloat(style.fontSize) * Math.hypot(matrix.a, matrix.b);
-  })).toBeCloseTo(13, 1);
-  await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).fontWeight))
-    .toBe('500');
+    const gate = await page.evaluate(() => {
+      const form = document.querySelector('.login__form--credentials');
+      const card = document.querySelector('.login__card');
+      const input = document.querySelector('.login__card .field__input');
+      const button = document.querySelector('.login__card .btn--l');
+      const label = document.querySelector('label[for="l-pass"]');
+      const brand = document.querySelector('.login__brand').getBoundingClientRect();
+      const wordmark = document.querySelector('.login__brand b');
+      const wordmarkStyle = getComputedStyle(wordmark);
+      const footer = document.querySelector('.login__legend').getBoundingClientRect();
+      const canvas = document.querySelector('.login').getBoundingClientRect();
+      const innerStyle = getComputedStyle(document.querySelector('.login__inner'));
+      const innerMatrix = new DOMMatrixReadOnly(innerStyle.transform);
+      return {
+        formWidth: form.getBoundingClientRect().width,
+        cardBackground: getComputedStyle(card).backgroundColor,
+        cardBorder: getComputedStyle(card).borderTopWidth,
+        cardRadius: Number.parseFloat(getComputedStyle(card).borderRadius),
+        inputHeight: input.getBoundingClientRect().height,
+        buttonHeight: button.getBoundingClientRect().height,
+        inputRadius: Number.parseFloat(getComputedStyle(input).borderRadius),
+        inputFontSize: Number.parseFloat(getComputedStyle(input).fontSize),
+        titleFontSize: Number.parseFloat(getComputedStyle(document.querySelector('.login__heading h1')).fontSize),
+        titleFontWeight: getComputedStyle(document.querySelector('.login__heading h1')).fontWeight,
+        labelFontSize: Number.parseFloat(getComputedStyle(label).fontSize),
+        labelTracking: Number.parseFloat(getComputedStyle(label).letterSpacing) || 0,
+        inputPaddingStart: Number.parseFloat(getComputedStyle(input).paddingInlineStart),
+        usernameLabelTransform: getComputedStyle(document.querySelector('label[for="l-user"]')).transform,
+        passwordLabelTransform: getComputedStyle(label).transform,
+        legendFontSize: Number.parseFloat(getComputedStyle(document.querySelector('.login__legend')).fontSize),
+        brandLeft: brand.left,
+        brandTop: brand.top,
+        wordmarkTracking: Number.parseFloat(wordmarkStyle.letterSpacing),
+        wordmarkFontSize: Number.parseFloat(wordmarkStyle.fontSize),
+        footerBottom: innerHeight - footer.bottom,
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        verticalOverflow: document.documentElement.scrollHeight - document.documentElement.clientHeight,
+        canvasHeight: canvas.height,
+        contentScale: Math.hypot(innerMatrix.a, innerMatrix.b),
+      };
+    });
+    expect(gate.formWidth).toBeCloseTo(320, 1);
+    expect(gate.cardBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(gate.cardBorder).toBe('0px');
+    expect(gate.cardRadius).toBe(0);
+    expect(gate.inputHeight).toBeCloseTo(56, 1);
+    expect(gate.buttonHeight).toBeCloseTo(56, 1);
+    expect(gate.inputRadius).toBeGreaterThanOrEqual(35);
+    expect(gate.inputFontSize).toBe(20);
+    expect(gate.titleFontSize).toBe(28);
+    expect(gate.titleFontWeight).toBe('500');
+    expect(gate.labelFontSize).toBe(18);
+    expect(gate.labelTracking).toBe(0);
+    expect(gate.inputPaddingStart).toBe(36);
+    expect(gate.usernameLabelTransform).not.toBe(gate.passwordLabelTransform);
+    expect(gate.legendFontSize).toBe(14);
+    expect(gate.brandLeft).toBeCloseTo(23.04, 1);
+    expect(gate.brandTop).toBeCloseTo(19.2, 1);
+    expect(gate.wordmarkTracking).toBeCloseTo(-0.02 * gate.wordmarkFontSize, 2);
+    expect(gate.footerBottom).toBeCloseTo(32, 1);
+    expect(gate.overflow).toBeLessThanOrEqual(1);
+    expect(gate.verticalOverflow).toBeLessThanOrEqual(1);
+    expect(gate.canvasHeight).toBe(1024);
+    expect(gate.contentScale).toBeCloseTo(.8, 3);
+
+    if (platform === 'tson') {
+      const chrome = await page.evaluate(() => {
+        const prefs = document.querySelector('#topbar > .btn');
+        const switcher = document.querySelector('[data-shared-platform-switcher]');
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--ink-2)';
+        document.body.append(probe);
+        const ink2 = getComputedStyle(probe).color;
+        probe.remove();
+        const prefsRect = prefs.getBoundingClientRect();
+        const switcherRect = switcher.getBoundingClientRect();
+        return {
+          prefsColor: getComputedStyle(prefs).color,
+          ink2,
+          topbarWidth: document.querySelector('#topbar').getBoundingClientRect().width,
+          prefsWidth: prefsRect.width,
+          prefsTop: prefsRect.top,
+          switcherTop: switcherRect.top,
+          viewportHeight: innerHeight,
+        };
+      });
+      expect(chrome.prefsColor).toBe(chrome.ink2);
+      expect(chrome.topbarWidth).toBeCloseTo(chrome.prefsWidth, 1);
+      expect(chrome.prefsTop).toBeCloseTo(gate.brandTop, 1);
+      expect(chrome.switcherTop).toBeGreaterThan(chrome.viewportHeight / 2);
+    }
+
+    await page.locator('#l-pass').focus();
+    await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).transform))
+      .toBe(gate.usernameLabelTransform);
+    await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => Number.parseFloat(getComputedStyle(label).fontSize)))
+      .toBe(18);
+    await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => {
+      const style = getComputedStyle(label);
+      const matrix = new DOMMatrixReadOnly(style.transform);
+      return Number.parseFloat(style.fontSize) * Math.hypot(matrix.a, matrix.b);
+    })).toBeCloseTo(14, 1);
+    await expect.poll(() => page.locator('label[for="l-pass"]').evaluate((label) => getComputedStyle(label).fontWeight))
+      .toBe('500');
+
+    await page.locator('#l-pass').fill('demo');
+    await page.locator('[data-act="login-next"]').click();
+    await expect(page.locator('.otp__cell')).toHaveCount(6);
+    const mfa = await page.evaluate(() => ({
+      width: document.querySelector('.login__form--mfa').getBoundingClientRect().width,
+      otpWidth: document.querySelector('.otp').getBoundingClientRect().width,
+      cellHeight: document.querySelector('.otp__cell').getBoundingClientRect().height,
+      actionWidth: document.querySelector('.login__actions').getBoundingClientRect().width,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    }));
+    expect(mfa.width).toBeCloseTo(390.4, 1);
+    expect(mfa.cellHeight).toBeCloseTo(76.8, 1);
+    expect(mfa.actionWidth).toBeCloseTo(mfa.otpWidth, 1);
+    expect(mfa.overflow).toBeLessThanOrEqual(1);
+  }
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/ministry/?lang=tg&theme=light');
-  await expectPageFits(page);
-  const ministryMobile = await page.evaluate(() => {
-    const login = document.querySelector('.login');
-    const surface = login.getBoundingClientRect();
-    const content = document.querySelector('.login__inner').getBoundingClientRect();
-    const style = getComputedStyle(login);
-    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
-    return Math.abs(
-      Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
-    );
-  });
-  expect(ministryMobile).toBeLessThanOrEqual(1);
-
-  await page.setViewportSize({ width: 1357, height: 987 });
-  await page.goto('/tson/?lang=ru&theme=light');
-  await expect(page.locator('.login__inner')).toBeVisible();
-  const tson = await page.evaluate(() => {
-    const login = document.querySelector('.login');
-    const surface = login.getBoundingClientRect();
-    const content = document.querySelector('.login__inner').getBoundingClientRect();
-    const style = getComputedStyle(login);
-    const padShift = Math.abs(Number.parseFloat(style.paddingTop) - Number.parseFloat(style.paddingBottom)) / 2;
-    return {
-      centerDelta: Math.abs(
-        Math.abs((content.top + content.height / 2) - (surface.top + surface.height / 2)) - padShift
-      ),
-      cardRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card')).borderRadius),
-      cardHeight: document.querySelector('.login__card').getBoundingClientRect().height,
-      inputRadius: Number.parseFloat(getComputedStyle(document.querySelector('.login__card .field__input')).borderRadius),
+  for (const platform of ['ministry', 'tson']) {
+    await page.goto(`/${platform}/?lang=tg&theme=light`);
+    await expect(page.locator('.login__inner')).toBeVisible();
+    await expectPageFits(page);
+    await expect(page.locator('.login__form--credentials')).toHaveCSS('width', '400px');
+    const mobileGate = await page.evaluate(() => ({
+      formWidth: document.querySelector('.login__form--credentials').getBoundingClientRect().width,
       inputHeight: document.querySelector('.login__card .field__input').getBoundingClientRect().height,
-      buttonHeight: document.querySelector('.login__card .btn--l').getBoundingClientRect().height,
-      loginLabelFontSize: Number.parseFloat(getComputedStyle(document.querySelector('label[for="l-pass"]')).fontSize),
-      usernameLabelTransform: getComputedStyle(document.querySelector('label[for="l-user"]')).transform,
-      passwordLabelTransform: getComputedStyle(document.querySelector('label[for="l-pass"]')).transform,
-    };
-  });
-  expect(tson.centerDelta).toBeLessThanOrEqual(1);
-  expect(tson.cardRadius).toBe(28);
-  expect(tson.cardHeight).toBe(300);
-  expect(tson.inputRadius).toBeGreaterThanOrEqual(tson.inputHeight / 2);
-  expect(tson.inputHeight).toBe(tson.buttonHeight);
-  expect(tson.loginLabelFontSize).toBe(16);
-  expect(tson.usernameLabelTransform).not.toBe(tson.passwordLabelTransform);
+      canvasHeight: document.querySelector('.login').getBoundingClientRect().height,
+      verticalOverflow: document.documentElement.scrollHeight - document.documentElement.clientHeight,
+    }));
+    expect(mobileGate.formWidth).toBeCloseTo(320, 1);
+    expect(mobileGate.inputHeight).toBeCloseTo(48, 1);
+    expect(mobileGate.canvasHeight).toBe(844);
+    expect(mobileGate.verticalOverflow).toBeLessThanOrEqual(1);
+  }
+
+  await page.setViewportSize({ width: 1440, height: 1024 });
+  await page.goto('/tson/?lang=ru&theme=dark');
+  await expect(page.locator('.login__inner')).toBeVisible();
+  const dark = await page.evaluate(() => ({
+    canvas: getComputedStyle(document.querySelector('.login')).backgroundColor,
+    input: getComputedStyle(document.querySelector('.login__card .field__input')).backgroundColor,
+  }));
+  expect(dark.canvas).toBe(dark.input);
 
   await page.goto('/citizen/?lang=ru&theme=light');
   await page.locator('#loginBtn').click();
@@ -173,6 +199,7 @@ test('Authentication forms stay vertically centered across platforms', async ({ 
     const modal = element.getBoundingClientRect();
     return Math.abs((modal.top + modal.height / 2) - innerHeight / 2);
   })).toBeLessThanOrEqual(1);
+  await expect(page.locator('#loginOverlay .modal')).toHaveCSS('border-radius', '40px');
 });
 
 test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', async ({ page }) => {
@@ -577,6 +604,89 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
+  const idleTools = page.locator('.s-idle__tools');
+  await expect(idleTools).toBeVisible();
+  await expect(idleTools).toHaveClass(/row/);
+  const toolsLayout = await idleTools.evaluate((el) => {
+    const buttons = [...el.querySelectorAll('.btn')];
+    const a = buttons[0].getBoundingClientRect();
+    const b = buttons[1].getBoundingClientRect();
+    return {
+      flexDirection: getComputedStyle(el).flexDirection,
+      sameRow: Math.abs(a.top - b.top) < 2,
+      sideBySide: b.left >= a.right,
+      labelsFit: buttons.every((button) => button.scrollWidth <= button.clientWidth),
+    };
+  });
+  expect(toolsLayout.flexDirection).toBe('row');
+  expect(toolsLayout.sameRow).toBe(true);
+  expect(toolsLayout.sideBySide).toBe(true);
+  expect(toolsLayout.labelsFit).toBe(true);
+
+  const recentList = page.locator('.s-idle__recent-list');
+  await expect(recentList.locator('.status-icon')).toHaveCount(10);
+  await expect(recentList.locator('.s-idle__recent-row:not(.s-idle__recent-row--empty)')).toHaveCount(10);
+  await expect(recentList.locator('.s-idle__recent-row--empty')).toHaveCount(5);
+  const recentLayout = await recentList.evaluate((el) => {
+    const rows = [...el.querySelectorAll('.s-idle__recent-row')].map((row) => row.getBoundingClientRect());
+    const list = el.getBoundingClientRect();
+    const kpis = document.querySelector('.s-idle__kpis')?.getBoundingClientRect();
+    const panelEl = el.closest('.s-idle__recent');
+    const panel = panelEl?.getBoundingClientRect();
+    const panelCs = panelEl ? getComputedStyle(panelEl) : null;
+    const rowCs = getComputedStyle(el.querySelector('.s-idle__recent-row'));
+    const mark = el.querySelector('.status-icon');
+    const padTop = panelCs ? parseFloat(panelCs.paddingTop) : 0;
+    const padBottom = panelCs ? parseFloat(panelCs.paddingBottom) : 0;
+    const rowPad = parseFloat(rowCs.paddingBottom);
+    return {
+      columns: getComputedStyle(el).gridTemplateColumns.split(' ').length,
+      twoColumns: Math.abs(rows[0].top - rows[5].top) < 2,
+      stacked: rows[1].top > rows[0].bottom - 1,
+      secondColumnCloser: rows[5].left < list.left + list.width / 2,
+      thirdEmpty: rows[10].left >= rows[5].right - 1 && rows[10].width > 0,
+      continuousRule: Math.abs(rows[0].right - rows[5].left) < 2
+        && Math.abs(rows[5].right - rows[10].left) < 2
+        && Math.abs(rows[0].left - list.left) < 2
+        && Math.abs(rows[10].right - list.right) < 2
+        && Math.abs(rows[0].bottom - rows[5].bottom) < 2
+        && Math.abs(rows[5].bottom - rows[10].bottom) < 2,
+      sameHeightAsKpis: kpis && panel ? Math.abs(kpis.height - panel.height) < 2 : false,
+      markFill: mark ? getComputedStyle(mark).backgroundColor : null,
+      padBottomLtTop: padBottom < padTop,
+      padBalancesTop: Math.abs(rowPad + padBottom - padTop) < 1,
+    };
+  });
+  expect(recentLayout.columns).toBe(3);
+  expect(recentLayout.twoColumns).toBe(true);
+  expect(recentLayout.stacked).toBe(true);
+  expect(recentLayout.secondColumnCloser).toBe(true);
+  expect(recentLayout.thirdEmpty).toBe(true);
+  expect(recentLayout.continuousRule).toBe(true);
+  expect(recentLayout.sameHeightAsKpis).toBe(true);
+  expect(recentLayout.markFill).toMatch(/^(transparent|rgba?\(0,\s*0,\s*0,\s*0\))$/);
+  expect(recentLayout.padBottomLtTop).toBe(true);
+  expect(recentLayout.padBalancesTop).toBe(true);
+
+  const kpiCentered = await page.locator('.s-idle__kpis .kpi').first().evaluate((el) => {
+    const value = el.querySelector('.kpi__value')?.getBoundingClientRect();
+    const label = el.querySelector('.kpi__label')?.getBoundingClientRect();
+    const card = el.getBoundingClientRect();
+    const cs = getComputedStyle(el);
+    if (!value || !label) return { ok: false };
+    const innerTop = card.top + parseFloat(cs.paddingTop);
+    const innerBottom = card.bottom - parseFloat(cs.paddingBottom);
+    const contentMid = (value.top + label.bottom) / 2;
+    const innerMid = (innerTop + innerBottom) / 2;
+    return {
+      justify: cs.justifyContent,
+      valueFirst: value.top < label.top,
+      centered: Math.abs(contentMid - innerMid) < 2,
+    };
+  });
+  expect(kpiCentered.justify).toBe('center');
+  expect(kpiCentered.valueFirst).toBe(true);
+  expect(kpiCentered.centered).toBe(true);
 
   await page.keyboard.press('`');
   const demo = page.locator('.demo');
@@ -597,7 +707,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await page.locator('.s-catalog__freq').first().click();
   await expectLayerFits(page, page.locator('.drawer'));
   await page.locator('.s-drawer__cta').click();
-  await expectLayerFits(page, page.locator('.modal'));
+  await expectLayerFits(page, page.locator('.ekh-dialog'));
   await page.locator('.s-scope__foot .btn--primary').click();
   await page.keyboard.press('`');
   await expect(demo).toBeVisible();
@@ -616,7 +726,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await expect(page.locator('.s-docs')).toBeVisible();
   await expectPageFits(page);
   await page.locator('.s-docs__foot .btn--primary').click();
-  const confirmation = page.locator('.overlay .modal');
+  const confirmation = page.locator('.ekh-dialog-backdrop .ekh-dialog');
   await expectLayerFits(page, confirmation);
   await confirmation.locator('.check__input').check();
   await confirmation.locator('.modal__foot .btn--primary').click();

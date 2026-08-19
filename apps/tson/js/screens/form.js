@@ -70,7 +70,9 @@ export function renderForm(host) {
   const saveBtn = h('button', {
     class: 'btn btn--secondary', type: 'button',
     onClick: () => save(true),
-  }, icon('download', { size: 20 }), t('form.saveDraft'));
+  // Без иконки: «скачать» — не «сохранить черновик», а других подходящих
+  // глифов у действия нет. Текст и подсказка Ctrl+S называют его точнее.
+  }, t('form.saveDraft'));
 
   // Футер — ВНУТРИ <form>. Снаружи кнопка type="submit" ничего не отправляет:
   // она не связана с формой, и «Далее — документы» просто не работает.
@@ -79,7 +81,7 @@ export function renderForm(host) {
     onSubmit: e => { e.preventDefault(); submit(); },
   },
     h('div', { class: 'stack g-2' },
-      h('h1', { class: 'h2' }, svc.name),
+      h('h1', { class: 'page-title' }, svc.name),
       savedMark),
     banner,
     summary,
@@ -153,7 +155,8 @@ export function renderForm(host) {
     const api = make(f);
     fields.set(f.id, { api, spec: f });
 
-    api.source(f.from ? 'profile' : 'manual');
+    // Помечаем только исключение — значение из реестра (см. SRC в fields.js).
+    api.source(f.from ? 'profile' : null);
     if (f.value) api.set(f.value);
 
     // Валидация на blur (§6/S6). На вводе — только гасим ошибку: ругаться на
@@ -182,12 +185,16 @@ export function renderForm(host) {
     return h('section', { class: 'panel stack g-3' },
       h('h2', { class: 'label' }, t('form.requirements')),
       h('div', { class: 'check-list' },
+        // «Скоуп: семья» и «Форма 040-У → ③» — язык разработчика: оператор
+        // не говорит «скоуп», а «③» не называет ни шага, ни момента. Строки
+        // называют то же самое словами, которыми оператор объясняет это
+        // гражданину вслух (§9: понятность — часть локализации).
         ...svc.scopes.map(id => h('div', { class: `check-item check-item--${have.includes(id) ? 'done' : 'locked'}` },
           icon(have.includes(id) ? 'check' : 'lock'),
-          h('span', {}, `${t('form.scope')}: ${SCOPES[id].tab.toLowerCase()}`))),
+          h('span', {}, t('form.scopeRow', { name: SCOPES[id].name })))),
         ...svc.docs.filter(d => d.required).map(d => h('div', { class: 'check-item check-item--todo' },
           icon('doc'),
-          h('span', {}, `${d.name} → ③`)))));
+          h('span', {}, t('form.docRow', { name: d.name }))))));
   }
 
   /* ---------- автозаполнение из скоупов (§6/S6) ---------- */
@@ -234,7 +241,9 @@ export function renderForm(host) {
       // это сказать: пустое поле с чипом «из профиля» и без банера читается
       // как «реестр вернул пустоту», а не «данных не спрашивали» (Д-14).
       if (failed.has(scope)) {
-        api.source('manual');
+        // Чипа больше нет — причину называет строка-подсказка под полем, и
+        // одного канала на один факт достаточно (§10 правило 6).
+        api.source(null);
         api.el.append(h('span', { class: 'field__hint field__hint--warn' },
           icon('info', { size: 16 }), t('form.noAutofillField')));
         continue;
@@ -247,7 +256,7 @@ export function renderForm(host) {
       // ввод». Непроверенный снимок в официальное заявление не переносим:
       // показать его в S5 с пометкой честно, а вписать молча — нет.
       if (data[scope].stale) {
-        api.source('manual');
+        api.source(null);
         api.el.append(h('span', { class: 'field__hint field__hint--warn' },
           icon('info', { size: 16 }), t('form.staleField')));
         continue;

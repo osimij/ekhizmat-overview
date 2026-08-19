@@ -54,9 +54,13 @@ export function passwordField({ label, autocomplete = 'current-password', name =
 
 /* ---------- поиск (§6/S4) ---------- */
 export function searchField({ placeholder, onInput }) {
+  /* combobox+listbox: фокус остаётся в поле (иначе ↑↓ перестанут печатать), а
+     подсветленная строка объявляется через aria-activedescendant — его ставит
+     сам список (см. catalog.js). */
   const input = h('input', {
     class: 'field__input', type: 'search', placeholder,
     autocomplete: 'off', 'aria-label': placeholder,
+    role: 'combobox', 'aria-expanded': 'false', 'aria-autocomplete': 'list',
     onInput: e => onInput?.(e.target.value),
   });
 
@@ -192,16 +196,20 @@ export function radioGroup({ label, options = [], value, name }) {
   return api;
 }
 
-/* Источники значения поля. Ключ — он же модификатор класса .src--*, поэтому
-   вид чипа задаётся в components.css, а не здесь (§11.2).
+/* Источник значения поля. Ключ — он же модификатор класса .src--*, поэтому
+   вид чипа задаётся в библиотеке компонентов, а не здесь (§11.2).
 
-   Источников ровно два, и оба отвечают на вопрос, который оператор не может
-   решить сам: значение пришло из реестра или он ввёл его руками. Уровни
-   доверия к распознанному паспорту чипами больше не подписываются — S2b
+   Источник ровно ОДИН — «из профиля». Чипа «введено» больше нет: серый чип
+   висел на каждом поле, которое оператор набрал руками, то есть на
+   большинстве, а когда помечено всё — не помечено ничто (§10.6, тот же вывод
+   уже сделан на S2b). Помечаем исключение: значение, которое приехало не от
+   оператора и за которое отвечает реестр. Ручной ввод — умолчание формы, и
+   называть умолчание незачем.
+
+   Уровни доверия к распознанному паспорту чипами тоже не подписываются: S2b
    помечает только поля под проверку, см. .field--check. */
 const SRC = {
-  profile:  { icon: 'shield', key: 'form.fromProfile' },
-  manual:   { icon: 'edit',   key: 'form.entered' },
+  profile: { icon: 'shield', key: 'form.fromProfile' },
 };
 
 /* ---------- сборка обёртки ----------
@@ -259,7 +267,7 @@ function wrapField({ label, help, control, input, asLabel = true }) {
           input.readOnly = false;
           el.classList.remove('field--locked');
           btn.remove();
-          api.source('manual');
+          api.source(null);        // стало обычным полем — помечать нечего
           input.focus();
           onUnlock?.();
         },

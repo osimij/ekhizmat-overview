@@ -10,7 +10,7 @@
    вкладка не блюрит и не прячет значения — она их не имеет. Данных нет ни в
    DOM, ни в памяти экрана, потому что сервер их не прислал.
    ============================================================ */
-import { h, mount, icon, toast } from '../ui.js';
+import { h, mount, icon, toast, makeTablist } from '../ui.js';
 import { t, errText } from '../i18n.js';
 import { getState, subscribe, dispatch, STEP } from '../store.js';
 import { citizen } from '../mock/api.js';
@@ -26,7 +26,7 @@ export function renderData(host) {
     h('div', { class: 'canvas s-data' },
       h('div', { class: 'row between s-data__head' },
         h('div', { class: 'stack g-1' },
-          h('h1', { class: 'h2' }, t('data.title')),
+          h('h1', { class: 'page-title' }, t('data.title')),
           // §6/S5 каркас: «Доступ предоставлен до 14:32» (Д-19). Считаем от
           // остатка TTL, а не от startedAt: приём могли продлить, и тогда
           // время начала уже ничего не говорит о сроке доступа.
@@ -59,7 +59,8 @@ function dataView({ compact }) {
   const cache = new Map();          // скоуп → данные; живёт ровно столько же,
                                     // сколько сам view: wipe снимает экран.
 
-  const tabsEl = h('div', { class: 'tabs', role: 'tablist', 'aria-label': t('data.title') });
+  const tabsEl = h('div', { class: 'tabs tabs--underline', role: 'tablist', 'aria-label': t('data.title') });
+  let tabs = null;                  // клавиатурная модель таб-листа (§6)
   const paneEl = h('div', { class: 's-data__pane', role: 'tabpanel' });
   const el = h('div', { class: `s-data__box${compact ? ' is-compact' : ''}` }, tabsEl, paneEl);
 
@@ -88,6 +89,11 @@ function dataView({ compact }) {
         onClick: () => select(id),
       }, ok ? null : icon('lock', { size: 16 }), SCOPES[id].tab);
     }));
+    // Вкладки перерисовываются целиком, поэтому клавиатурную модель нужно
+    // навесить заново: она живёт на контейнере, а roving tabindex — на детях
+    // (§6, тот же хелпер, что и у сегмента способов входа на S2).
+    tabs = tabs || makeTablist(tabsEl, { onSelect: btn => select(SCOPE_ORDER[[...tabsEl.children].indexOf(btn)]) });
+    tabs.sync();
   }
 
   function select(id) {
@@ -208,7 +214,7 @@ function row(key, value, copyable = false, tnum = false) {
         toast(t('common.copied'), 'success', 2000);
       } catch { toast(t('common.copyFailed'), 'error'); }
     },
-  }, icon('paperclip', { size: 16 })) : null;
+  }, icon('copy', { size: 16 })) : null;
 
   return h('div', { class: 'def__row' },
     h('span', { class: 'def__key' }, key),
