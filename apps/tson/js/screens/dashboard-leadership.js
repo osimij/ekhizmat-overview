@@ -6,7 +6,7 @@
    НАД таблицей и кликабельны, а не оставлены баннером под ней (§6: тревожное
    состояние обязано отвечать «что делать дальше»).
    ============================================================ */
-import { h, mount, icon, statusIcon, filterSelect } from '../ui.js';
+import { h, mount, icon, statusIcon, titleAlignedCell, filterSelect } from '../ui.js';
 import { t } from '../i18n.js';
 import { TSON_DASHBOARD } from '../mock/data.js';
 import { setCenterContext, setRole, ROLE } from '../role.js';
@@ -50,7 +50,6 @@ export function renderDashboardLeadership(host) {
 
     const head = h('header', { class: 'dashboard-head' },
       h('div', { class: 'stack g-2' },
-        h('span', { class: 'small ink-faint' }, t('dash.network.demo')),
         h('h1', { class: 'page-title' }, t('dash.network.title')),
         h('p', { class: 'ink-2' }, t('dash.network.lead'))),
       // «Аудитория» удалена: она прятала столбики в единственной секции
@@ -60,7 +59,8 @@ export function renderDashboardLeadership(host) {
       h('div', { class: 'dashboard-controls' },
         filterSelect('net-period', 'calendar', t('dash.network.period'),
           [['week', t('dash.network.week')], ['month', t('dash.network.month')]],
-          state.period, v => { state.period = v; writeState(state); draw(); }),
+          state.period, v => { state.period = v; writeState(state); draw(); },
+          'dashboard-period-filter'),
         filterSelect('net-region', 'filter', t('dash.network.region'),
           [['all', t('dash.network.all')], ...regions],
           state.region, v => { state.region = v; writeState(state); draw(); })));
@@ -79,10 +79,12 @@ export function renderDashboardLeadership(host) {
     const audience = h('section', { class: 'panel dashboard-section' },
       h('h2', { class: 'h3' }, t('dash.network.distribution')),
       h('div', { class: 'audience-bars' }, ...d.audiences.map(a =>
-        h('div', { class: 'audience-bar' },
+        h('div', { class: `audience-bar audience-bar--${a.id}` },
           h('div', { class: 'row between' }, h('span', {}, a.label), h('b', { class: 'tnum' }, `${a.value}%`)),
           h('span', { class: 'audience-bar__track' }, h('span', { style: { width: `${a.value}%` } }))))));
 
+    const tableColumns = ['name', 'visits', 'sla', 'wait', 'load', 'state'];
+    const tableLabels = Object.fromEntries(tableColumns.map(key => [key, t(`dash.network.${key}`)]));
     const table = h('section', { class: 'panel dashboard-section dashboard-table-section' },
       h('div', { class: 'row between' },
         h('h2', { class: 'h3' }, t('dash.network.centers')),
@@ -90,12 +92,15 @@ export function renderDashboardLeadership(host) {
           t('dash.network.totalVisits', { n: centers.reduce((sum, row) => sum + row.visits, 0).toLocaleString('ru-RU') }))),
       h('div', { class: 'table-wrap' }, h('table', { class: 'data-table' },
         h('thead', {}, h('tr', {},
-          ...['name', 'visits', 'sla', 'wait', 'load', 'state'].map(key => h('th', {}, t(`dash.network.${key}`))),
+          ...tableColumns.map(key => h('th', {}, tableLabels[key])),
           h('th', { class: 'data-table__go' }, h('span', { class: 'sr-only' }, t('dash.network.name'))))),
-        h('tbody', {}, ...centers.map(centerRow)))));
+        h('tbody', {}, ...centers.map(row => centerRow(row, tableLabels))))));
 
     mount(host, h('div', { class: 'canvas dashboard' },
-      head, kpis, h('div', { class: 'dashboard-grid' }, trend, audience),
+      head,
+      h('div', { class: 'dashboard-overview' },
+        kpis,
+        h('div', { class: 'dashboard-grid' }, trend, audience)),
       alertsPanel(centers), table));
   }
 
@@ -119,21 +124,26 @@ export function renderDashboardLeadership(host) {
         icon('chev-r', { size: 20, cls: 'alert-row__chev' })))));
   }
 
-  /* Тонкая линия с точками и подписанной осью дней. Значения подписаны только
-     у четырёх точек — первой, минимальной, максимальной и последней: именно
-     они отвечают на вопросы «откуда», «худшее», «лучшее», «сейчас». Прежняя
-     легенда печатала все семь значений и порядковые номера, то есть рисовала
-     тот же ряд второй раз, ничего к нему не добавляя (правило 6). */
+  /* Кривая динамики: сетка, заливка и одна акцентная точка «сейчас» — без
+     wireframe-рамки и без дублирования всех семи значений (правило 6). */
   function trendChart(values) {
     const ns = 'http://www.w3.org/2000/svg';
-    const W = 700, H = 180, PAD = 14;
-    const min = Math.min(...values), max = Math.max(...values);
+    const W = 700;
+    const H = 160;
+    const padTop = 28;
+    const padBottom = 10;
+    const padX = 6;
+    const plotH = H - padTop - padBottom;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
     const span = max - min || 1;
-    const x = i => (i * W) / (values.length - 1);
-    const y = v => H - PAD - ((v - min) / span) * (H - PAD * 2);
+    const x = i => padX + (i * (W - padX * 2)) / (values.length - 1);
+    const y = v => padTop + plotH - ((v - min) / span) * plotH;
+    const pts = values.map((v, i) => ({ x: x(i), y: y(v), v }));
 
     const svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('class', 'line-chart__plot');
     svg.setAttribute('role', 'img');
     const deltaPct = ((values.at(-1) - values[0]) / values[0]) * 100;
     svg.setAttribute('aria-label', t('dash.network.trendAria', {
@@ -143,39 +153,76 @@ export function renderDashboardLeadership(host) {
       delta: `${deltaPct > 0 ? '+' : ''}${deltaPct.toFixed(1).replace('.', ',')}%`,
     }));
 
-    const line = document.createElementNS(ns, 'polyline');
-    line.setAttribute('points', values.map((v, i) => `${x(i)},${y(v)}`).join(' '));
-    line.setAttribute('fill', 'none');
-    line.setAttribute('stroke', 'currentColor');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('stroke-linejoin', 'round');
-    line.setAttribute('stroke-linecap', 'round');
-    svg.append(line);
+    const defs = document.createElementNS(ns, 'defs');
+    const grad = document.createElementNS(ns, 'linearGradient');
+    grad.setAttribute('id', 'dash-trend-area');
+    grad.setAttribute('x1', '0');
+    grad.setAttribute('y1', '0');
+    grad.setAttribute('x2', '0');
+    grad.setAttribute('y2', '1');
+    const stopA = document.createElementNS(ns, 'stop');
+    stopA.setAttribute('offset', '0%');
+    stopA.setAttribute('class', 'line-chart__grad-a');
+    const stopB = document.createElementNS(ns, 'stop');
+    stopB.setAttribute('offset', '100%');
+    stopB.setAttribute('class', 'line-chart__grad-b');
+    grad.append(stopA, stopB);
+    defs.append(grad);
+    svg.append(defs);
 
-    const labelled = new Set([0, values.length - 1, values.indexOf(min), values.indexOf(max)]);
-    values.forEach((v, i) => {
-      const dot = document.createElementNS(ns, 'circle');
-      dot.setAttribute('cx', x(i)); dot.setAttribute('cy', y(v)); dot.setAttribute('r', '3');
-      dot.setAttribute('fill', 'currentColor');
-      svg.append(dot);
+    const grid = document.createElementNS(ns, 'g');
+    grid.setAttribute('class', 'line-chart__grid');
+    grid.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < 4; i += 1) {
+      const gy = padTop + (i * plotH) / 3;
+      const line = document.createElementNS(ns, 'line');
+      line.setAttribute('x1', String(padX));
+      line.setAttribute('x2', String(W - padX));
+      line.setAttribute('y1', String(gy));
+      line.setAttribute('y2', String(gy));
+      grid.append(line);
+    }
+    svg.append(grid);
 
-      if (!labelled.has(i)) return;
-      const text = document.createElementNS(ns, 'text');
-      // Крайние подписи прижимаются к своей точке, но не к краю панели:
-      // без сдвига «2 010» упиралось в левую границу секции.
-      const edge = i === 0 ? 4 : i === values.length - 1 ? -4 : 0;
-      text.setAttribute('x', x(i) + edge);
-      text.setAttribute('y', y(v) - 10);
-      text.setAttribute('text-anchor', i === 0 ? 'start' : i === values.length - 1 ? 'end' : 'middle');
-      text.setAttribute('font-size', '12');
-      text.setAttribute('fill', 'currentColor');
-      text.setAttribute('opacity', '.75');
-      text.textContent = v.toLocaleString('ru-RU');
-      svg.append(text);
+    const baseline = padTop + plotH;
+    const lineD = smoothLinePath(pts);
+    const area = document.createElementNS(ns, 'path');
+    area.setAttribute('class', 'line-chart__area');
+    area.setAttribute('d', `${lineD} L ${pts.at(-1).x},${baseline} L ${pts[0].x},${baseline} Z`);
+
+    const line = document.createElementNS(ns, 'path');
+    line.setAttribute('class', 'line-chart__line');
+    line.setAttribute('d', lineD);
+
+    svg.append(area, line);
+
+    // Тихие подписи min/max у сетки — ориентир без второй легенды.
+    [min, max].forEach((v, i) => {
+      const label = document.createElementNS(ns, 'text');
+      label.setAttribute('class', 'line-chart__bound');
+      label.setAttribute('x', String(W - padX));
+      label.setAttribute('y', String(i === 0 ? padTop + plotH + 1 : padTop + 4));
+      label.setAttribute('text-anchor', 'end');
+      label.textContent = v.toLocaleString('ru-RU');
+      svg.append(label);
     });
 
-    // Ось X — реальные дни, локализованные средствами платформы, а не
-    // порядковые номера 1…7, которые ничего не называли.
+    const last = pts.at(-1);
+    const dot = document.createElementNS(ns, 'circle');
+    dot.setAttribute('class', 'line-chart__dot');
+    dot.setAttribute('cx', String(last.x));
+    dot.setAttribute('cy', String(last.y));
+    dot.setAttribute('r', '5');
+
+    const value = document.createElementNS(ns, 'text');
+    value.setAttribute('class', 'line-chart__value');
+    value.setAttribute('x', String(last.x));
+    value.setAttribute('y', String(last.y - 12));
+    value.setAttribute('text-anchor', 'end');
+    value.textContent = last.v.toLocaleString('ru-RU');
+
+    svg.append(dot, value);
+
     const today = new Date();
     const fmt = new Intl.DateTimeFormat(document.documentElement.lang || 'ru', { weekday: 'short' });
     const days = values.map((_, i) => {
@@ -186,10 +233,27 @@ export function renderDashboardLeadership(host) {
 
     return h('div', { class: 'line-chart' },
       svg,
-      h('div', { class: 'line-chart__axis', 'aria-hidden': 'true' }, ...days.map(x2 => h('span', {}, x2))));
+      h('div', { class: 'line-chart__axis tnum', 'aria-hidden': 'true' }, ...days.map(d => h('span', {}, d))));
   }
 
-  function centerRow(row) {
+  function smoothLinePath(points) {
+    if (points.length < 2) return '';
+    let d = `M ${points[0].x},${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i += 1) {
+      const p0 = points[i - 1] || points[i];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[i + 2] || p2;
+      const cp1x = p1.x + (p2.x - p0.x) / 6;
+      const cp1y = p1.y + (p2.y - p0.y) / 6;
+      const cp2x = p2.x - (p3.x - p1.x) / 6;
+      const cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    }
+    return d;
+  }
+
+  function centerRow(row, labels) {
     const tone = row.status === 'danger' ? 'danger' : row.status === 'warning' ? 'warning' : 'success';
     return h('tr', {
       class: 'data-row', tabindex: '0',
@@ -198,11 +262,11 @@ export function renderDashboardLeadership(host) {
       onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(row); } },
     },
       h('td', {}, h('b', {}, row.name), h('small', { class: 'ink-faint' }, row.region)),
-      h('td', { class: 'tnum' }, String(row.visits)),
-      h('td', { class: 'tnum' }, row.sla),
-      h('td', { class: 'tnum' }, row.wait),
-      h('td', { class: 'tnum' }, row.load),
-      h('td', {}, statusIcon(tone, t(`dash.network.${row.status}`))),
+      titleAlignedCell(labels.visits, String(row.visits), 'tnum'),
+      titleAlignedCell(labels.sla, row.sla, 'tnum'),
+      titleAlignedCell(labels.wait, row.wait, 'tnum'),
+      titleAlignedCell(labels.load, row.load, 'tnum'),
+      titleAlignedCell(labels.state, statusIcon(tone, t(`dash.network.${row.status}`))),
       // Строка ведёт в центр — и это должно быть видно до наведения мыши
       // (правило 20): шеврон стоит там же, где в строках каталога.
       h('td', { class: 'data-table__go' }, icon('chev-r', { size: 20 })));

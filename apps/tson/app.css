@@ -114,7 +114,16 @@ table { border-collapse: collapse; border-spacing: 0; }
 .row-start { display: flex; flex-direction: row; align-items: flex-start; }
 .between   { justify-content: space-between; }
 .center    { justify-content: center; align-items: center; }
-.wrap      { flex-wrap: wrap; }
+/* flex-wrap only. global.css .wrap is a page shell (--maxw, margin auto,
+   padding-inline); without reset, row.wrap inside .canvas centers at 1120px
+   and chips sit 16px right of their section label. */
+.wrap {
+  flex-wrap: wrap;
+  width: auto;
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}
 .grow      { flex: 1 1 auto; min-width: 0; }
 .spacer    { flex: 1 1 auto; }
 .center-text { text-align: center; }
@@ -167,6 +176,7 @@ table { border-collapse: collapse; border-spacing: 0; }
 
 /* ---------- canvas (§3.2) ---------- */
 .canvas {
+  --role-top-inset: calc(var(--s-12) + var(--s-2));
   padding: var(--s-6);
   max-width: var(--w-canvas);
   margin-inline: auto;
@@ -758,13 +768,15 @@ button.step:focus-visible {
   display:flex;align-items:center;flex-wrap:wrap;gap:var(--s-3);
   width:100%;
   padding-top:var(--s-4);
-  border-top:1px solid var(--line-in);
   text-align:left;
 }
 .guest-identify .audience-badge svg,.srv-row .audience-badge svg,.drawer .audience-badge svg,.sessionbar .audience-badge svg{width:14px;height:14px}
-.dashboard{display:grid;gap:var(--s-6);padding-block:var(--s-6) var(--s-10)}
-.dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-6)}
+.dashboard{display:grid;gap:var(--s-6);padding-block:var(--role-top-inset) var(--s-10)}
+.dashboard-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-6);margin-bottom:calc(var(--s-5) + var(--s-1) / 2)}
+/* Title + subtitle read as one header block (§5: tighter within a pair). */
+.dashboard-head .stack{gap:var(--s-1)}
 .dashboard-controls{display:flex;align-items:flex-end;justify-content:flex-end;gap:var(--s-5);flex-wrap:wrap}
+.dashboard-period-filter .ekh-filter__field{width:calc(var(--s-16) * 2 + var(--s-3))}
 
 /* KPI — отдельные карточки, значение первым (§3 «KPI / stat cards», правило 10).
    Раньше это была общая «метрика» дизайн-системы: сросшаяся полоса с
@@ -776,12 +788,18 @@ button.step:focus-visible {
 .dashboard-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--s-3)}
 .dashboard-kpis--small{grid-template-columns:repeat(2,minmax(0,1fr))}
 .dashboard-kpis--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+/* Value reads apart from label+context pair; the pair stays tight (§5). */
+.dashboard-kpis .kpi{gap:var(--s-2);padding-top:var(--s-5)}
+.dashboard-kpis .kpi__label{margin-top:auto}
+.dashboard-kpis .kpi__context{margin-top:calc(-1 * var(--s-2))}
+.dashboard-overview{display:grid;gap:var(--s-4);min-width:0}
 .kpi{
   display:flex;flex-direction:column;gap:var(--s-1);
   min-width:0;padding:var(--s-4);
   background:var(--panel);border:1px solid var(--line-in);border-radius:var(--r-l);
 }
 .kpi__value{font-size:var(--fs-28);line-height:var(--leading-tight);font-weight:620;font-variant-numeric:tabular-nums}
+.dashboard-kpis .kpi__value{margin-bottom:var(--s-2)}
 .kpi__label{font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2)}
 .kpi__context{font-size:var(--fs-12);font-weight:var(--weight-regular);color:var(--ink-faint)}
 .kpi--warn .kpi__context{color:var(--amber-ink)}
@@ -794,10 +812,14 @@ button.step:focus-visible {
 
 /* Зона очереди. Тревога — цветом числа и статус-иконкой, а не заливкой всей
    карточки: залитая красным карточка кричит там, где нужно сравнивать (§5). */
+.dashboard-queue-section{display:flex;flex-direction:column}
+.dashboard-queue-head{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s-1)}
+.dashboard-queue-section .queue-grid{margin-top:auto}
 .queue-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3)}
-.queue-card{display:grid;gap:var(--s-1);text-align:left;padding:var(--s-4);border:1px solid var(--line);border-radius:var(--r-m);background:var(--field);color:var(--ink);transition:border-color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
+.queue-card{display:flex;flex-direction:column;min-height:calc(var(--s-16) * 2 + var(--s-8));text-align:left;padding:var(--s-4);border:1px dashed var(--line);border-radius:var(--r-m);background:transparent;color:var(--ink);transition:border-color var(--t-fast) var(--ease),transform var(--t-fast) var(--ease)}
 .queue-card:hover{border-color:var(--blue)}.queue-card:active{transform:scale(.98)}
 .queue-card__head{display:flex;align-items:center;gap:var(--s-2)}
+.queue-card__metrics{display:grid;gap:var(--s-1);margin-top:auto}
 /* Число очереди — витринная цифра: 620 и tabular-nums, чтобы колонка не
    дёргалась при обновлении. Название зоны — обычный заголовок строки 500:
    680 на нём делал подпись тяжелее самого числа (§4). */
@@ -820,6 +842,11 @@ button.step:focus-visible {
    вправо. Она и есть видимый признак того, что строка кликабельна. */
 .data-table__go{width:44px;color:var(--ink-faint)}
 .data-table__go .icon{margin-left:auto}
+.table-title-align{position:relative;display:inline-block;white-space:nowrap}
+.table-title-align::before{content:attr(data-column-title);display:block;visibility:hidden;font-size:var(--fs-13);font-weight:var(--weight-medium)}
+.table-title-align__value{position:absolute;inset-block-start:50%;inset-inline-start:50%;transform:translate(-50%,-50%);white-space:nowrap}
+.window-table .status-icon,
+.dashboard-table-section .status-icon { background: transparent; }
 .table-wrap{overflow-x:auto}
 
 /* Строка-кнопка: вся строка и есть действие, поэтому отдельной колонки с
@@ -834,28 +861,75 @@ button.step:focus-visible {
 /* Динамика: тонкая линия с точками и подписанной осью. Толстая полилиния без
    осей и легенда, дублирующая те же числа под ней, — это один факт, нарисованный
    дважды, и ни разу не названный (правило 6, §9). */
-.line-chart{color:var(--blue)}
-.line-chart svg{width:100%;height:190px;overflow:visible}
-.line-chart polyline{vector-effect:non-scaling-stroke}
+.line-chart{--line-chart-fill:var(--blue)}
+.line-chart__plot{width:100%;height:190px;display:block;overflow:visible}
+.line-chart__grad-a{stop-color:var(--line-chart-fill);stop-opacity:.22}
+.line-chart__grad-b{stop-color:var(--line-chart-fill);stop-opacity:0}
+.line-chart__grid line{stroke:var(--line-in);stroke-width:1;vector-effect:non-scaling-stroke}
+.line-chart__area{fill:url(#dash-trend-area)}
+.line-chart__line{fill:none;stroke:var(--line-chart-fill);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.line-chart__dot{fill:var(--panel);stroke:var(--line-chart-fill);stroke-width:2;vector-effect:non-scaling-stroke}
+.line-chart__bound,.line-chart__value{font-size:var(--fs-12);fill:var(--ink-faint);font-variant-numeric:tabular-nums}
 .line-chart__axis{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:var(--s-2);margin-top:var(--s-2);color:var(--ink-faint);font-size:var(--fs-12);text-align:center}
 
 .audience-bars{display:grid;gap:var(--s-5);margin-top:var(--s-5)}.audience-bar{display:grid;gap:var(--s-2)}
-.audience-bar__track{height:12px;border-radius:var(--r-pill);background:var(--field);overflow:hidden}.audience-bar__track > span{display:block;height:100%;border-radius:inherit;background:var(--blue)}
-.dashboard-table-section{display:grid;gap:var(--s-4)}
+.audience-bar__track{height:var(--s-2);border-radius:var(--r-pill);background:var(--field);overflow:hidden}.audience-bar__track > span{display:block;height:100%;border-radius:inherit;background:var(--blue)}
+.audience-bar--person .audience-bar__track > span{background:var(--h-slate-fg)}
+.audience-bar--business .audience-bar__track > span{background:var(--h-amber-fg)}
+.audience-bar--guest .audience-bar__track > span{background:var(--h-violet-fg)}
+.dashboard-table-section{display:grid;gap:var(--s-4);padding-bottom:0;overflow:hidden}
+.dashboard-table-section > .h3,
+.dashboard-table-section > .row:first-child{margin-bottom:0}
+/* Table rows/hover/header bg bleed to panel edges; title keeps section pad (§5). */
+.dashboard-table-section .table-wrap{margin-inline:calc(-1 * var(--s-5))}
+.dashboard-table-section .data-table :is(th,td):first-child{padding-inline-start:var(--s-5)}
+.dashboard-table-section .data-table :is(th,td):last-child{padding-inline-end:var(--s-5)}
+.dashboard-table-section .data-table tbody tr:last-child td{border-bottom:0}
 
 /* Панель «Требует внимания» — строки-кнопки, ведущие в тот самый центр.
    Статичный баннер с двумя зашитыми строками называл проблему и не давал к ней
    перейти (§6: пустые и тревожные состояния отвечают «что делать дальше»). */
+/* Последняя строка несёт s-2 снизу; padding панели добивает до s-5 как сверху (§5). */
+.dashboard-section:has(.alerts) { padding-bottom: calc(var(--s-5) - var(--s-2)); }
 .alerts{display:flex;flex-direction:column;gap:var(--s-1)}
 .alert-row{
   display:flex;align-items:center;gap:var(--s-3);width:100%;
-  padding:var(--s-2) var(--s-3);border-radius:var(--r-m);
+  padding-block:var(--s-2);padding-inline:0 var(--s-3);
+  border:0;border-radius:var(--r-m);background:transparent;
   text-align:left;color:var(--ink);cursor:pointer;
   transition:background-color var(--t-fast) var(--ease);
 }
-.alert-row:hover{background:var(--hover)}
+/* Hover gains left inset via padding + matching negative margin — content stays put (§8). */
+@media(hover:hover) and (pointer:fine){
+  .alert-row:hover{
+    padding-inline-start:var(--s-3);
+    margin-inline-start:calc(-1 * var(--s-3));
+    background:var(--hover);
+  }
+}
+.alert-row:focus-visible{
+  padding-inline-start:var(--s-3);
+  margin-inline-start:calc(-1 * var(--s-3));
+  background:var(--hover);
+  outline:var(--focus-ring) solid var(--focus);outline-offset:var(--focus-offset);
+}
 .alert-row__text{flex:1 1 auto;min-width:0}
 .alert-row__chev{color:var(--ink-faint)}
+/* Статус без круглой подложки: цвет несёт состояние, штрих толще (§4.3). */
+.alert-row .status-icon {
+  flex: none;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+}
+.alert-row .status-icon--warning { color: var(--amber); }
+.alert-row .status-icon--danger { color: var(--red-ink); }
+.alert-row .status-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
 
 .menu__label{display:block;padding:var(--s-2) var(--s-3)}
 /* АРМ по спецификации живёт от 1280px, а канвас ограничен 1200 — пять карточек
@@ -1419,7 +1493,8 @@ button.step:focus-visible {
 
 /* Текущее значение справа от подписи: строка отвечает «язык — русский», а не
    только «язык». Тише подписи, потому что подпись — вопрос, а значение — уже
-   данный ответ (§4: размер = роль). */
+   данный ответ (§4: размер = роль). Глобуса слева нет: подпись уже называет
+   контроль, пустого колодца под иконку тоже нет. */
 .menu__value { font-size: var(--fs-13); color: var(--ink-2); }
 .menu__chev  { color: var(--ink-faint); }
 
@@ -1580,6 +1655,49 @@ button.step:focus-visible {
 .topbar__brand { display: flex; align-items: center; gap: var(--s-2); }
 .topbar__bind { color: var(--ink-2); }
 
+/* On the flat Figma login canvas only the pre-login preferences control
+   remains from the shell. The product brand belongs to the gate itself.
+   Prototype platform switching must not share this one-button slot — it
+   floats, same as on the host-less Ministry gate. */
+.shell.is-auth .topbar {
+  position: fixed;
+  top: var(--login-chrome-inset);
+  right: var(--s-6);
+  z-index: var(--z-sticky);
+  width: var(--h-btn-m);
+  height: var(--h-btn-m);
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.shell.is-auth .topbar__brand,
+.shell.is-auth .topbar__bind,
+.shell.is-auth .topbar > .spacer { display: none; }
+.shell.is-auth .topbar > .btn {
+  color: var(--ink-2);
+  background: transparent;
+}
+.shell.is-auth .topbar > .btn:hover,
+.shell.is-auth .topbar > .btn[aria-expanded='true'] {
+  color: var(--ink);
+  background: var(--hover);
+}
+.shell.is-auth .ekh-platforms {
+  position: fixed;
+  right: var(--s-4);
+  bottom: var(--s-4);
+  z-index: var(--z-sticky);
+  padding: 2px;
+  border-radius: var(--r-m);
+  background: var(--panel);
+  box-shadow: var(--shadow-layer);
+}
+.shell.is-auth .ekh-platforms .ekh-platforms__menu {
+  top: auto;
+  bottom: calc(100% + var(--s-2));
+}
+.shell.is-auth .screen > .login { min-height: 100dvh; }
+
 /* --- session bar 48 (§3.2) --- */
 .sessionbar {
   display: flex;
@@ -1635,7 +1753,7 @@ button.step:focus-visible {
 .s-idle {
   display: grid;
   gap: var(--s-6);
-  padding-top: var(--s-16); /* greeting needs room under the topbar — --s-6 read as flush */
+  padding-top: var(--role-top-inset);
 }
 .s-idle__head {
   display: flex;
@@ -1661,9 +1779,28 @@ button.step:focus-visible {
   grid-row: 1;
   grid-template-columns: 1fr;
 }
-/* Карточки тянутся до высоты панели заявлений — группа «число + подпись»
-   центрируется в этой высоте, порядок value-first не меняется (§3 KPI). */
-.s-idle__kpis .kpi { justify-content: center; }
+/* Карточки тянутся до высоты панели заявлений. Иконки — выбранные через
+   Hugeicons по смыслу (приём, время, выданный документ) стоят у правого края;
+   они остаются отдельными цветными штрихами без декоративных плиток, чтобы
+   число лидировало. */
+.s-idle__kpis .kpi {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--s-4);
+}
+.s-idle__kpi-icon { flex: none; margin-inline-start: auto; }
+.s-idle__kpi-icon--blue { color: var(--blue-ink); }
+.s-idle__kpi-icon--amber { color: var(--amber-ink); }
+.s-idle__kpi-icon--green { color: var(--green-ink); }
+.s-idle__kpi-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+.s-idle__kpis .kpi__value { margin-bottom: 0; }
+.s-idle__kpis .kpi__label { margin-top: 0; }
 .s-idle__recent {
   grid-column: 2;
   grid-row: 1;
@@ -1744,28 +1881,71 @@ button.step:focus-visible {
 .s-locked {
   position: fixed;
   inset: 0;
-  z-index: 70;                       /* выше слоёв: замок перекрывает всё */
+  z-index: var(--z-lock);            /* выше слоёв: замок перекрывает всё */
   display: grid;
-  place-items: center;
-  padding: var(--s-6);
-  background: color-mix(in srgb, var(--ink) 30%, transparent);
+  grid-template-rows: auto minmax(min-content, 1fr) auto;
+  gap: var(--s-8);
+  padding: var(--s-12) clamp(var(--s-6), 4vw, var(--s-16)) var(--s-10);
+  overflow: auto;
+  background: var(--field-on-panel);
+}
+.s-locked__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.s-locked__brand .icon { color: var(--brand-logo); }
+.s-locked__brand b { font-size: var(--fs-24); font-weight: var(--weight-medium); }
+.s-locked__legend {
+  justify-self: center;
+  max-width: 48ch;
+  color: var(--ink-faint);
+  text-align: center;
 }
 .s-locked__card {
-  width: var(--w-gate);
+  align-self: center;
+  justify-self: center;
+  width: var(--w-modal);
   max-width: 100%;
-  padding: var(--s-8);
+  padding: var(--s-12) var(--s-10) var(--s-10);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s-3);
+  gap: var(--s-8);
   text-align: center;
-  border-radius: var(--r-xl);
+  border-radius: var(--r-dialog);
+  box-shadow: none;
 }
+.s-locked__icon { color: var(--blue-ink); }
+.s-locked__copy { gap: var(--s-2); }
+.s-locked__copy .h3 { font-size: var(--fs-24); }
+.s-locked__copy .small { font-size: var(--fs-17); }
+.s-locked__controls { display: grid; gap: var(--s-3); width: 100%; }
 .s-locked__card .field__input,
-.s-locked__card .btn { width: 100%; }
-.s-locked__card .field__input { margin-top: var(--s-3); }
+.s-locked__card .btn {
+  width: 100%;
+  height: var(--h-login-control);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-20);
+}
+.s-locked__card .field__input {
+  padding-inline: var(--s-8);
+  background: var(--panel);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.s-locked__card .field__input:focus-visible { box-shadow: inset 0 0 0 1.5px var(--focus); }
 /* Gate primary is regular, matching .login__actions .btn--primary. */
 .s-locked__card .btn--primary { font-weight: var(--weight-regular); }
+@media (max-width: 640px) {
+  .s-locked { gap: var(--s-6); padding: var(--s-6); }
+  .s-locked__brand .icon { width: 28px; height: 28px; }
+  .s-locked__brand b { font-size: var(--fs-20); }
+  .s-locked__card { padding: var(--s-8) var(--s-6); gap: var(--s-6); }
+  .s-locked__copy .h3 { font-size: var(--fs-20); }
+  .s-locked__copy .small { font-size: var(--fs-15); }
+  .s-locked__card .field__input,
+  .s-locked__card .btn { height: calc(var(--s-12) + var(--s-3)); font-size: var(--fs-17); }
+}
 
 /* ============================================================
    Демо-панель (§11.5)
@@ -1839,6 +2019,12 @@ body.is-too-small .too-small {
 }
 body.is-too-small .too-small .icon { color: var(--ink-faint); }
 
+/* The workstation itself still requires 1280px, but signing in is a portable
+   gate: it must remain usable on a narrow screen before that requirement is
+   relevant. After authentication the normal “expand the window” guard returns. */
+body.is-too-small.is-auth-route #shell { display: flex; }
+body.is-too-small.is-auth-route .too-small { display: none; }
+
 /* ============================================================
    Общее для «ворот» — S2, S3 (§3.3)
    «Одна колонка 440–560 по центру, сверху свободно ≥15% высоты.
@@ -1892,6 +2078,13 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 .s-identify__banner:empty { display: none; }
 .s-identify__banner:not(:empty) { width: 100%; }
+.s-identify__new-citizen {
+  align-items: flex-start;
+  background: transparent;
+  border: 1px solid var(--blue);
+  font-weight: var(--weight-regular);
+}
+.s-identify__new-citizen .icon { margin-top: var(--s-1); }
 
 .s-identify__body {
   display: flex;
@@ -1901,6 +2094,17 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 .s-identify__form { width: 100%; }
 .s-identify__form .btn--primary { width: 100%; }
+.s-identify__code { align-items: center; }
+.s-identify__code > .label,
+.s-identify__code > .field__error {
+  width: 100%;
+  text-align: center;
+}
+.s-identify__confirm {
+  height: auto;
+  padding-block: var(--s-4);
+  font-weight: var(--weight-medium);
+}
 .s-identify__status:empty { display: none; }
 .s-identify__status { display: flex; flex-direction: column; gap: var(--s-3); }
 
@@ -1997,6 +2201,12 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 
 .s-enroll__banner:empty { display: none; }
 .s-enroll__banner { display: flex; flex-direction: column; gap: var(--s-2); }
+/* Предупреждение без заливки: обводка по семантике (как admin .note-warn). */
+.s-enroll__banner .banner--warn {
+  background: transparent;
+  border: 1px solid var(--amber);
+  color: var(--amber-ink);
+}
 
 .s-enroll__cols {
   flex: 1 1 auto;
@@ -2244,8 +2454,18 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    ============================================================ */
 /* 32 между секциями, а не 24 (§3.3): «ЖИЗНЕННЫЕ СИТУАЦИИ» и «КАТЕГОРИИ» —
    два разных входа в каталог, и на 24 подпись второго липнет к чипам первого. */
-.s-catalog { display: flex; flex-direction: column; gap: var(--s-8); }
-.s-catalog__situation { cursor: pointer; }
+.s-catalog { display: flex; flex-direction: column; gap: var(--s-6); }
+/* Витрина — две секции подряд (ситуации, затем категории+частое). Без gap
+   здесь подпись «Категории» липнет к чипам «Жизненные ситуации» (§3.3). */
+.s-catalog__browse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  /* Сохраняем 32px между поиском и витриной, но связываем заголовок с
+     поиском более тесными 24px: поле относится именно к вводному блоку. */
+  margin-top: var(--s-2);
+}
+.s-catalog__situation { cursor: pointer; font-weight: var(--weight-regular); }
 
 /* Категории слева, «часто оформляете» справа — та же контекст-колонка 340,
    что и везде (§3.3), чтобы глаз не переучивался между экранами. */
@@ -2267,7 +2487,7 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--s-2);
+  gap: var(--s-3);
   padding: var(--s-4);
   text-align: left;
   cursor: pointer;
@@ -2284,22 +2504,41 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 }
 /* Название категории переносится, а не обрезается: «Паспорт и гражданство»
    в одну строку не влезет ни при какой ширине карточки. */
-.s-catalog__catname { overflow-wrap: anywhere; }
+.s-catalog__catname {
+  overflow-wrap: anywhere;
+  font-weight: var(--weight-medium);
+}
 
-.s-catalog__frequent { counter-reset: freq; }
+.s-catalog__frequent {
+  counter-reset: freq;
+  /* Равный inset оставляет hover-поверхности воздух у рамки панели. */
+  padding: var(--s-2);
+}
 .s-catalog__freq {
   display: flex;
   align-items: center;
   gap: var(--s-3);
   width: 100%;
-  padding: var(--s-3) var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border: 0;
   border-radius: var(--r-m);
+  background: transparent;
   text-align: left;
   font-size: var(--fs-15);
   cursor: pointer;
-  transition: background-color var(--t-fast) var(--ease);
+  transition:
+    background-color var(--t-fast) var(--ease),
+    transform var(--t-fast) var(--ease);
 }
-.s-catalog__freq:hover { background: var(--hover); }
+@media (hover: hover) and (pointer: fine) {
+  .s-catalog__freq:hover { background: var(--hover); }
+}
+.s-catalog__freq:focus-visible {
+  background: var(--hover);
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
+.s-catalog__freq:active { transform: scale(.98); }
 
 .s-catalog__results { display: flex; flex-direction: column; gap: var(--s-3); }
 .s-catalog__filter { padding-bottom: var(--s-1); }

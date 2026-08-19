@@ -65,7 +65,6 @@ export function renderIdentify(host) {
         // Гостевой вход — тихая строка внутри карточки, не вторая панель.
         // Ворота отвечают на один вопрос; бейдж «Гость» дублировал CTA (§10.6).
         h('div', { class: 'guest-identify' },
-          h('span', { class: 'grow small ink-2' }, t('identify.guestHint')),
           h('button', { class: 'btn btn--ghost btn--s', onClick: () => dispatch('GUEST') },
             t('identify.guestCta')))),
       h('div', { class: 'row center s-identify__foot' },
@@ -213,7 +212,7 @@ export function renderIdentify(host) {
      инструкция: нумерованный скрипт рядом врал, что оператор «запускает»
      распознавание — оно стартует само. */
   function mountFace() {
-    const frame = facescanFrame();
+    const frame = facescanFrame({ showStroke: false });
     const caption = h('span', { class: 'facescan__caption' }, t('common.loading'));
     const tile = h('div', { class: 'facescan facescan--embed' }, frame, caption);
 
@@ -229,7 +228,7 @@ export function renderIdentify(host) {
         await identify.face();
         if (dead || method !== 'face') return;
 
-        tile.classList.add('facescan--scanning');    // пунктирный штрих — «идёт съёмка» (§8)
+        tile.classList.add('facescan--scanning');
         caption.textContent = t('identify.faceScan');
 
         done(await identify.wait('face'));
@@ -242,9 +241,12 @@ export function renderIdentify(host) {
   /* ---------- метод: OTP-резерв (§6/S2) ---------- */
   function mountOtp() {
     const contact = maskedField({ label: t('identify.phone'), kind: 'phone' });
+    // The placeholder identifies this single phone field visually; keep the
+    // real label in the accessibility tree without repeating it on screen.
+    contact.labelEl.classList.add('sr-only');
     const send = h('button', { class: 'btn btn--primary', type: 'submit' }, t('identify.smsSend'));
 
-    const codeBox = h('div', { class: 'stack g-4', hidden: true });
+    const codeBox = h('div', { class: 'stack g-4 s-identify__code', hidden: true });
 
     const form = h('form', {
       class: 'stack g-4 s-identify__form', novalidate: true,
@@ -258,31 +260,28 @@ export function renderIdentify(host) {
           askCode(r);
         } catch (e2) { fail(e2); } finally { if (!dead) setLoading(send, false); }
       },
-    },
-      // §6/S2 — «Явно помечен как резервный».
-      h('p', { class: 'small ink-faint' }, t('identify.otpFallback')),
-      contact.el, send, codeBox);
+    }, contact.el, send, codeBox);
 
     mount(body, form);
     contact.input.focus();
 
     function askCode(r) {
       send.hidden = true;
-      contact.input.readOnly = true;
+      contact.el.hidden = true;
 
       // §6/S2b — оператор узнаёт о регистрации ДО того, как гражданин
       // продиктует код, а не после. Иначе он говорит «сейчас войдём», а
       // экран через десять секунд отвечает «заполняйте паспорт»: обещание,
       // данное вслух живому человеку, дороже одного лишнего банера.
       if (r.registered === false) {
-        mount(banner, h('div', { class: 'banner banner--info' },
+        mount(banner, h('div', { class: 'banner banner--info s-identify__new-citizen' },
           icon('user-add'),
           h('span', { class: 'banner__text' }, t('identify.newCitizen'))));
       }
 
       const cells = otpInput(code => confirm(code));
       const confirmBtn = h('button', {
-        class: 'btn btn--primary', type: 'button',
+        class: 'btn btn--primary s-identify__confirm', type: 'button',
         onClick: () => confirm(cells.value()),
       }, r.registered === false ? t('identify.otpConfirmNew') : t('identify.otpConfirm'));
 

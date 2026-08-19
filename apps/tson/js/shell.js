@@ -5,7 +5,7 @@
    отсутствуют в DOM (P1: «Нет сессии — в интерфейсе физически нет данных
    (не скрыты, а отсутствуют в DOM и памяти)»).
    ============================================================ */
-import { h, mount, icon, maskName, maskInn, mmss, openLayer, confirmDanger } from './ui.js';
+import { h, mount, icon, maskName, maskInn, mmss, openLayer, closeTopLayer, confirmDanger } from './ui.js';
 import { t, getLang, setLang } from './i18n.js';
 import { getState, dispatch, __reset, ST, STEP } from './store.js';
 import { endVisit } from './session.js';
@@ -67,42 +67,85 @@ export function renderTopbar(host) {
     // оператора (§3 «Global preferences», правило 12) — их ставят раз в смену,
     // и постоянное место в раме они не окупали. До входа карточки оператора
     // нет, поэтому там остаётся одна тихая иконка с теми же настройками:
-    // сменить язык до логина оператор обязан уметь (§9).
+    // сменить язык до логина оператор обязан уметь (§9). Ghost (синий)
+    // здесь нельзя: blue на воротах — действие «Продолжить», а не шестерёнка.
     st.operator ? operatorMenu(st) : preferencesButton());
 }
 
 /* Кнопка настроек на экране входа. Тот же поповер, только без личной карточки
-   и действий смены — их не к чему привязать, пока никто не вошёл. */
+   и действий смены — их не к чему привязать, пока никто не вошёл.
+
+   Открытие — как у меню оператора: повторный клик по шестерёнке закрывает,
+   клик снаружи закрывает, Esc закрывает верхний слой. Раньше onClick только
+   открывал ещё один слой: второй клик по триггеру не переключал, а стопкой
+   клал второе меню, и снаружи закрыть было нечем. */
 function preferencesButton() {
+  let closeMenu = null;
   const btn = h('button', {
-    class: 'btn btn--ghost btn--icon', 'aria-label': t('shell.preferences'),
-    'aria-haspopup': 'menu',
+    class: 'btn btn--icon', 'aria-label': t('shell.preferences'),
+    'aria-haspopup': 'menu', 'aria-expanded': 'false',
     onClick: () => {
-      const rect = btn.getBoundingClientRect();
-      openLayer(h('div', {
-        class: 'popover menu', role: 'menu', 'aria-label': t('shell.preferences'),
-        style: {
-          top: `${rect.bottom + 8}px`,
-          right: `${Math.round(innerWidth - rect.right)}px`,
-          transformOrigin: 'top right',
-        },
-      }, ...preferencesGroup()));
+      if (closeMenu) { closeMenu(); return; }
+      closeMenu = openPreferencesMenu(btn, () => { closeMenu = null; });
     },
   }, icon('gear', { size: 20 }));
   return btn;
 }
 
+function openPreferencesMenu(anchor, onClose) {
+  const rect = anchor.getBoundingClientRect();
+  const node = h('div', {
+    class: 'popover menu', role: 'menu', 'aria-label': t('shell.preferences'),
+    style: {
+      top: `${rect.bottom + 8}px`,
+      right: `${Math.round(innerWidth - rect.right)}px`,
+      transformOrigin: 'top right',
+    },
+  }, ...preferencesGroup());
+  return openAnchoredPopover(anchor, node, { onClose });
+}
+
+/* Поповер, привязанный к кнопке: клик по триггеру не считается «снаружи»
+   (иначе pointerdown закрыл бы меню, а click сразу открыл бы его снова),
+   а выносной список языков — сосед в #layers, не потомок, поэтому его тоже
+   не считаем кликом мимо. Закрытие родителя убирает и живой flyout. */
+function openAnchoredPopover(anchor, node, { onClose } = {}) {
+  let close = () => {};
+  anchor.setAttribute('aria-expanded', 'true');
+
+  const onPointerDown = e => {
+    const el = e.target instanceof Element ? e.target : e.target?.parentElement;
+    if (el && (node.contains(el) || anchor.contains(el) || el.closest('#layers .menu--flyout'))) return;
+    close();
+  };
+  document.addEventListener('pointerdown', onPointerDown);
+  close = openLayer(node, {
+    onClose: () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      anchor.setAttribute('aria-expanded', 'false');
+      if (document.querySelector('#layers .menu--flyout:not([inert])')) closeTopLayer();
+      onClose?.();
+    },
+  });
+  return close;
+}
+
 /* ---------- настройки (§3 «Global preferences», правило 12) ----------
    Язык и тема живут за личностью, а не в постоянной раме: их ставят раз в
    смену, и место в топбаре они не окупали. Анатомия — как у профиля админки:
-   строка языка с выносным списком и трёхпозиционный выбор темы. */
+   строка языка с выносным списком и трёхпозиционный выбор темы. Глобуса
+   в строке языка нет: подпись уже называет контроль, икона была вторым
+   представлением того же факта (§10 правила 5–6). */
 function preferencesGroup() {
+  let closeFlyout = null;
   const langRow = h('button', {
     class: 'menu__item menu__row', role: 'menuitem',
     'aria-haspopup': 'menu', 'aria-expanded': 'false',
-    onClick: () => openLangFlyout(langRow),
+    onClick: () => {
+      if (closeFlyout) { closeFlyout(); return; }
+      closeFlyout = openLangFlyout(langRow, () => { closeFlyout = null; });
+    },
   },
-    icon('globe', { size: 20 }),
     h('span', { class: 'grow' }, t('shell.lang')),
     h('span', { class: 'menu__value' }, t(`lang.${getLang()}`)),
     icon('chev-r', { size: 16, cls: 'menu__chev' }));
@@ -150,10 +193,8 @@ function themeRow() {
 /* Выносной список языков. Отдельный слой, а не раскрывающийся блок: Esc тогда
    закрывает сначала его, а фокус возвращается на строку языка — это уже умеет
    openLayer, и второй такой механизм заводить незачем (§6). */
-function openLangFlyout(row) {
+function openLangFlyout(row, onClose) {
   const rect = row.getBoundingClientRect();
-  row.setAttribute('aria-expanded', 'true');
-
   const langs = ['ru', 'tg'];
   let close = () => {};
 
@@ -167,12 +208,17 @@ function openLangFlyout(row) {
   }, ...langs.map(code => h('button', {
     class: 'menu__item', role: 'menuitemradio',
     'aria-checked': String(getLang() === code),
-    onClick: () => { close(); setLang(code); },
+    onClick: () => {
+      close();
+      closeTopLayer();
+      setLang(code);
+    },
   },
     h('span', { class: 'grow' }, t(`lang.${code}`)),
     getLang() === code ? icon('check', { size: 16 }) : null)));
 
-  close = openLayer(node, { onClose: () => row.setAttribute('aria-expanded', 'false') });
+  close = openAnchoredPopover(row, node, { onClose });
+  return close;
 }
 
 /* §3.2 — «меню оператора (смена, блокировка, выход)».
@@ -195,7 +241,6 @@ function operatorMenu(st) {
 function openOperatorMenu(anchor, st, onClose) {
   const rect = anchor.getBoundingClientRect();
   let close = () => {};
-  anchor.setAttribute('aria-expanded', 'true');
 
   // Смену и выход в сессии не предлагаем: у окна сидит гражданин, и уйти,
   // не закрыв приём, значит бросить его данные в памяти. Сначала «Завершить
@@ -238,26 +283,16 @@ function openOperatorMenu(anchor, st, onClose) {
     !inVisit ? h('span', { class: 'menu__label small ink-faint' }, t('shell.demoRole')) : null,
     !inVisit ? roleItem('role', ROLE.OPERATOR) : null,
     !inVisit ? roleItem('building', ROLE.SUPERVISOR) : null,
-    !inVisit ? roleItem('history', ROLE.LEADERSHIP) : null,
+    !inVisit ? roleItem('manager', ROLE.LEADERSHIP) : null,
     h('hr', { class: 'rule' }),
     ...preferencesGroup(),
     h('hr', { class: 'rule' }),
     item('lock', t('shell.lock'), 'Ctrl+L', () => dispatch('LOCK')),
-    item('history', t('shell.endShift'), null, endShift, inVisit),
+    item('clock-check', t('shell.endShift'), null, endShift, inVisit),
     item('out', t('shell.logout'), null, logout, inVisit),
     inVisit ? h('p', { class: 'small ink-faint menu__note' }, t('shell.busyHint')) : null);
 
-  const onPointerDown = e => {
-    if (!node.contains(e.target) && !anchor.contains(e.target)) close();
-  };
-  document.addEventListener('pointerdown', onPointerDown);
-  close = openLayer(node, {
-    onClose: () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      anchor.setAttribute('aria-expanded', 'false');
-      onClose?.();
-    },
-  });
+  close = openAnchoredPopover(anchor, node, { onClose });
   return close;
 
   function switchRole(next) {

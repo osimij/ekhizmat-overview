@@ -17,14 +17,46 @@ const rawColor = /(?<![\w-])#[0-9a-f]{3,8}\b|\brgba?\([^)]*\)/gi;
 const negativeLetterSpacing = /letter-spacing\s*:\s*-(?:\d|\.)/i;
 const positiveLetterSpacing = /letter-spacing\s*:\s*\+?(?:(?:0?\.\d+)|(?:[1-9]\d*(?:\.\d+)?))(?:em|px|rem|%)/i;
 const uppercaseTextTransform = /text-transform\s*:\s*uppercase\b/i;
+const loginWordmarkFile = 'design-system/css/patterns.css';
+const loginWordmarkTracking = /\.login__brand\s+b[\s\S]{0,120}\{[^}]*letter-spacing\s*:\s*-0\.02em(?:\s*!important)?\s*;/;
+const heroTitleFile = 'apps/citizen/app.css';
+const heroTitleTracking = /#heroTitle[\s\S]{0,80}\{[^}]*letter-spacing\s*:\s*-0\.02em\s*;/;
+const trackingExceptions = [
+  { file: loginWordmarkFile, selector: /\.login__brand\s+b\b/ },
+  { file: heroTitleFile, selector: /#heroTitle\b/ },
+];
+
+function stripTrackingExceptions(file, source) {
+  const normalized = file.replaceAll('\\', '/');
+  const allowed = trackingExceptions.filter(({ file: path }) => normalized === path || normalized.endsWith(`/${path}`));
+  if (!allowed.length) return source;
+  return source.replace(/letter-spacing\s*:\s*-0\.02em(?:\s*!important)?\s*;/g, (match, offset) => {
+    const before = source.slice(0, offset);
+    const open = before.lastIndexOf('{');
+    const prevClose = before.lastIndexOf('}', open);
+    const selector = before.slice(prevClose + 1, open);
+    return allowed.some(({ selector: pattern }) => pattern.test(selector)) ? '' : match;
+  });
+}
+
 for (const file of activeCss) {
   const source = await readFile(file, 'utf8');
+  const spacingSource = stripTrackingExceptions(file, source);
   for (const match of source.matchAll(rawColor)) errors.push(`${file}: raw color ${match[0]}`);
-  if (negativeLetterSpacing.test(source)) errors.push(`${file}: negative letter-spacing is forbidden`);
-  if (positiveLetterSpacing.test(source)) errors.push(`${file}: positive letter-spacing is forbidden`);
+  if (negativeLetterSpacing.test(spacingSource)) errors.push(`${file}: negative letter-spacing is forbidden`);
+  if (positiveLetterSpacing.test(spacingSource)) errors.push(`${file}: positive letter-spacing is forbidden`);
   if (uppercaseTextTransform.test(source)) errors.push(`${file}: uppercase text transforms are forbidden`);
   if (/transition\s*:\s*all\b/i.test(source)) errors.push(`${file}: transition: all is forbidden`);
   if (/cubic-bezier\s*\(/i.test(source)) errors.push(`${file}: raw cubic-bezier is forbidden; use a motion token`);
+}
+
+const patternsCss = await readFile(loginWordmarkFile, 'utf8');
+if (!loginWordmarkTracking.test(patternsCss)) {
+  errors.push(`${loginWordmarkFile}: .login__brand b must keep letter-spacing: -0.02em (logotype exception)`);
+}
+const citizenCss = await readFile(heroTitleFile, 'utf8');
+if (!heroTitleTracking.test(citizenCss)) {
+  errors.push(`${heroTitleFile}: #heroTitle must keep letter-spacing: -0.02em (display-title exception)`);
 }
 
 const sharedTypeTokens = await readFile('design-system/tokens/type.css', 'utf8');

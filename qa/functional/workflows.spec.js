@@ -148,6 +148,37 @@ test('Authentication never pre-fills a password or verification code', async ({ 
   for (const cell of await page.locator('.otp__cell').all()) await expect(cell).toHaveValue('');
 });
 
+test('TSON login settings menu toggles closed and has no globe on the language row', async ({ page }) => {
+  await page.goto('/tson/?lang=ru&theme=light');
+  const prefs = page.getByRole('button', { name: 'Настройки' });
+  await prefs.click();
+  await expect(prefs).toHaveAttribute('aria-expanded', 'true');
+  const menu = page.locator('#layers .popover.menu:not(.menu--flyout):not([inert])');
+  await expect(menu).toBeVisible();
+  const langRow = menu.locator('.menu__item.menu__row');
+  await expect(langRow).toContainText('Язык');
+  await expect(langRow.locator('.menu__value')).toHaveText('Русский');
+  await expect(langRow.locator('use[href$="#i-globe"]')).toHaveCount(0);
+  await expect(langRow.locator('use[href$="#i-chev-r"]')).toHaveCount(1);
+
+  await prefs.click();
+  await expect(prefs).toHaveAttribute('aria-expanded', 'false');
+
+  await prefs.click();
+  await page.locator('.login__heading h1').click();
+  await expect(prefs).toHaveAttribute('aria-expanded', 'false');
+
+  await prefs.click();
+  await page.keyboard.press('Escape');
+  await expect(prefs).toHaveAttribute('aria-expanded', 'false');
+
+  await prefs.click();
+  await langRow.click();
+  await expect(langRow).toHaveAttribute('aria-expanded', 'true');
+  await langRow.click();
+  await expect(langRow).toHaveAttribute('aria-expanded', 'false');
+});
+
 test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page }) => {
   await page.goto('/ministry/?lang=ru&theme=light');
   const legendGeometry = await page.locator('.login__legend').evaluate((legend) => {
@@ -374,6 +405,13 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expect(operatorMenu).toHaveAttribute('aria-expanded', 'true');
   const menu = page.locator('#layers [role="menu"]');
   await expect(menu).toBeVisible();
+  await expect(menu.getByRole('menuitemradio', { name: /^Руководство/ }).locator('use').first())
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-manager');
+  await expect(menu.getByRole('menuitem', { name: 'Завершить смену' }).locator('use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-clock-check');
+  const systemThemeChoice = menu.getByRole('button', { name: 'Как в системе' });
+  await expect(systemThemeChoice.locator('use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-theme-system');
   const menuGeometry = await menu.evaluate((element) => {
     const style = (node) => getComputedStyle(node);
     const systemIcon = element.querySelector('.menu__theme-system-icon');
@@ -420,7 +458,8 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await page.getByRole('tab', { name: 'Face ID' }).click();
   const faceTile = identify.locator('.facescan--embed');
   await expect(faceTile).toBeVisible();
-  await expect(faceTile.locator('.facescan__stroke')).toHaveCount(1);
+  await expect(faceTile.locator('.facescan__stroke')).toHaveCount(0);
+  await expect(faceTile.locator('use')).toHaveAttribute('href', /#i-face$/);
   await expect(faceTile).toHaveClass(/facescan--scanning/, { timeout: 5000 });
   await expect(identify.locator('.facescan__caption')).toContainText('Наведите камеру');
 
@@ -428,6 +467,12 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   const lockCopy = page.locator('.s-locked__copy');
   await expect(lockCopy).toBeVisible();
   await expect(lockCopy).toHaveCSS('gap', '8px');
+  await expect(page.locator('.s-locked__brand')).toBeVisible();
+  await expect(page.locator('.s-locked__legend')).toContainText('Сессия действует только на этом рабочем месте');
+  await expect(page.locator('.s-locked__card')).toHaveCSS('width', '480px');
+  await expect(page.locator('.s-locked__card')).toHaveCSS('border-radius', '40px');
+  await expect(page.locator('.s-locked__card .field__input')).toHaveCSS('height', '70px');
+  await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('height', '70px');
   await expect(page.locator('.s-locked__card .btn--primary')).toHaveCSS('font-weight', '400');
 });
 
@@ -474,11 +519,131 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
+  await expect(page.locator('.s-idle')).toHaveCSS('padding-top', '56px');
+  const idleKpis = page.locator('.s-idle__kpi');
+  await expect(idleKpis).toHaveCount(3);
+  for (const [index, iconName] of ['calendar', 'clock', 'cat-cert'].entries()) {
+    await expect(idleKpis.nth(index).locator('.s-idle__kpi-icon use'))
+      .toHaveAttribute('href', `/design-system/assets/icons.svg#i-${iconName}`);
+  }
+  const idleKpiColors = await idleKpis.locator('.s-idle__kpi-icon').evaluateAll((icons) =>
+    icons.map(icon => getComputedStyle(icon).color));
+  expect(new Set(idleKpiColors).size).toBe(3);
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
   await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();
   await expect(page).toHaveURL(/#\/dashboard-center/);
   await expect(page.locator('.dashboard-kpis .kpi')).toHaveCount(5);
+  await expect(page.locator('.dashboard')).toHaveCSS('padding-top', '56px');
+  await expect(page.getByText(/Демо-данные/)).toHaveCount(0);
+  await expect(page.locator('.dashboard-period-filter .ekh-filter__field')).toHaveCSS('width', '140px');
+  const centerOverviewGaps = await page.locator('.dashboard-overview').evaluate((overview) => {
+    const kpis = overview.querySelector(':scope > .dashboard-kpis');
+    const grid = overview.querySelector(':scope > .dashboard-grid');
+    const panels = [...grid.children];
+    return {
+      vertical: grid.getBoundingClientRect().top - kpis.getBoundingClientRect().bottom,
+      horizontal: panels[1].getBoundingClientRect().left - panels[0].getBoundingClientRect().right,
+    };
+  });
+  expect(centerOverviewGaps.vertical).toBeCloseTo(centerOverviewGaps.horizontal, 0);
+  expect(centerOverviewGaps.vertical).toBeCloseTo(16, 0);
+  const centerKpiAlignment = await page.locator('.dashboard-kpis .kpi').evaluateAll((cards) => ({
+    heights: cards.map(card => card.getBoundingClientRect().height),
+    contextBottoms: cards.map(card => card.querySelector('.kpi__context').getBoundingClientRect().bottom),
+  }));
+  expect(new Set(centerKpiAlignment.heights).size).toBe(1);
+  expect(Math.max(...centerKpiAlignment.contextBottoms) - Math.min(...centerKpiAlignment.contextBottoms))
+    .toBeLessThan(0.5);
+  await expect(page.locator('.dashboard-table-section > .h3'))
+    .toHaveCSS('margin-bottom', '0px');
+  const centerTableGeometry = await page.locator('.dashboard-table-section').evaluate((section) => {
+    const table = section.querySelector('.window-table');
+    const lastCells = [...table.querySelectorAll('tbody tr:last-child td')];
+    const sectionRect = section.getBoundingClientRect();
+    const tableRect = table.getBoundingClientRect();
+    const firstCellStyle = getComputedStyle(table.querySelector('tbody td'));
+    const lastCellStyle = getComputedStyle(lastCells[0]);
+    return {
+      sectionLeft: sectionRect.left,
+      sectionRight: sectionRect.right,
+      tableLeft: tableRect.left,
+      tableRight: tableRect.right,
+      sectionPaddingTop: getComputedStyle(section).paddingTop,
+      sectionPaddingBottom: getComputedStyle(section).paddingBottom,
+      sectionOverflow: getComputedStyle(section).overflow,
+      rowPaddingBottom: firstCellStyle.paddingBottom,
+      lastBorderBottom: lastCellStyle.borderBottomWidth,
+    };
+  });
+  expect(centerTableGeometry.tableLeft).toBeCloseTo(centerTableGeometry.sectionLeft + 1, 0);
+  expect(centerTableGeometry.tableRight).toBeCloseTo(centerTableGeometry.sectionRight - 1, 0);
+  expect(centerTableGeometry.sectionPaddingTop).toBe('20px');
+  expect(centerTableGeometry.sectionPaddingBottom).toBe('0px');
+  expect(centerTableGeometry.sectionOverflow).toBe('hidden');
+  expect(centerTableGeometry.rowPaddingBottom).toBe('12px');
+  expect(centerTableGeometry.lastBorderBottom).toBe('0px');
+  const columnAlignment = await page.locator('.window-table').evaluate((table) => {
+    const headers = [...table.querySelectorAll('thead th:not(.data-table__go)')];
+    const cells = [...table.querySelectorAll('tbody tr:first-child td:not(.data-table__go)')];
+    return headers.map((header, index) => {
+      const titleRange = document.createRange();
+      titleRange.selectNodeContents(header);
+      const titleRect = titleRange.getBoundingClientRect();
+      const valueRect = cells[index].querySelector('.table-title-align__value').getBoundingClientRect();
+      return {
+        headerAlign: getComputedStyle(header).textAlign,
+        cellAlign: getComputedStyle(cells[index]).textAlign,
+        centerDifference: Math.abs(
+          (titleRect.left + titleRect.width / 2) - (valueRect.left + valueRect.width / 2),
+        ),
+      };
+    });
+  });
+  for (const column of columnAlignment) {
+    expect(column.headerAlign).toBe('left');
+    expect(column.cellAlign).toBe('left');
+    expect(column.centerDifference).toBeLessThan(0.5);
+  }
+  const queueGeometry = await page.locator('.dashboard-queue-section').evaluate((section) => {
+    const grid = section.querySelector('.queue-grid');
+    const card = section.querySelector('.queue-card');
+    const metrics = card.querySelector('.queue-card__metrics');
+    const sectionRect = section.getBoundingClientRect();
+    const gridRect = grid.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    return {
+      background: getComputedStyle(card).backgroundColor,
+      borderStyle: getComputedStyle(card).borderStyle,
+      cardHeight: cardRect.height,
+      cardsBottomInset: sectionRect.bottom - gridRect.bottom,
+      sectionBottomPadding: parseFloat(getComputedStyle(section).paddingBottom),
+      metricsBelowTitle: metrics.getBoundingClientRect().top > card.querySelector('.queue-card__head').getBoundingClientRect().bottom,
+    };
+  });
+  expect(queueGeometry.background).toBe('rgba(0, 0, 0, 0)');
+  expect(queueGeometry.borderStyle).toBe('dashed');
+  expect(queueGeometry.cardHeight).toBeGreaterThanOrEqual(160);
+  expect(queueGeometry.cardsBottomInset).toBeCloseTo(queueGeometry.sectionBottomPadding + 1, 0);
+  expect(queueGeometry.metricsBelowTitle).toBe(true);
+  const queueHeadAlignment = await page.locator('.dashboard-queue-head').evaluate((head) => {
+    const title = head.querySelector('h2').getBoundingClientRect();
+    const caption = head.querySelector('span').getBoundingClientRect();
+    return {
+      direction: getComputedStyle(head).flexDirection,
+      leftDifference: Math.abs(title.left - caption.left),
+      captionGap: caption.top - title.bottom,
+    };
+  });
+  expect(queueHeadAlignment.direction).toBe('column');
+  expect(queueHeadAlignment.leftDifference).toBeLessThan(0.5);
+  expect(queueHeadAlignment.captionGap).toBeCloseTo(4, 0);
+  await expect(page.locator('.window-table .status-icon').first())
+    .toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await expect(page.locator('.window-table .status-icon[aria-label="Перерыв"] use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-pause');
+  await expect(page.locator('.window-table .status-icon[aria-label="Закрыто"] use'))
+    .toHaveAttribute('href', '/design-system/assets/icons.svg#i-x-strong');
   const scenario = async (name) => {
     await page.keyboard.press('`');
     await page.locator('.demo').getByRole('button', { name, exact: true }).click();
@@ -496,7 +661,51 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   await page.getByRole('button', { name: /меню оператора/i }).click();
   await page.getByRole('menuitemradio', { name: /^Руководство/ }).click();
   await expect(page).toHaveURL(/#\/dashboard-leadership/);
-  const trend = await page.locator('.line-chart polyline').evaluate((line) => ({
+  await expect(page.locator('.dashboard')).toHaveCSS('padding-top', '56px');
+  await expect(page.locator('.dashboard-head')).toHaveCSS('align-items', 'center');
+  await expect(page.locator('.dashboard-period-filter .ekh-filter__field')).toHaveCSS('width', '140px');
+  // Cross-document view transitions briefly overlay the old and new dashboard
+  // geometry. Wait for the final 16px overview gap before measuring both axes.
+  await page.waitForFunction(() => {
+    const overview = document.querySelector('.dashboard-overview');
+    const kpis = overview?.querySelector(':scope > .dashboard-kpis');
+    const grid = overview?.querySelector(':scope > .dashboard-grid');
+    if (!kpis || !grid) return false;
+    return Math.abs(grid.getBoundingClientRect().top - kpis.getBoundingClientRect().bottom - 16) < 0.5;
+  });
+  const overviewGaps = await page.locator('.dashboard-overview').evaluate((overview) => {
+    const kpis = overview.querySelector(':scope > .dashboard-kpis');
+    const grid = overview.querySelector(':scope > .dashboard-grid');
+    const panels = [...grid.children];
+    return {
+      vertical: grid.getBoundingClientRect().top - kpis.getBoundingClientRect().bottom,
+      horizontal: panels[1].getBoundingClientRect().left - panels[0].getBoundingClientRect().right,
+    };
+  });
+  expect(overviewGaps.vertical).toBeCloseTo(overviewGaps.horizontal, 0);
+  expect(overviewGaps.vertical).toBeCloseTo(16, 0);
+  const leadershipHeaderGap = await page.locator('.dashboard-head').evaluate((header) =>
+    header.nextElementSibling.getBoundingClientRect().top - header.getBoundingClientRect().bottom);
+  expect(leadershipHeaderGap).toBeCloseTo(46, 0);
+  await expect(page.locator('.dashboard-table-section > .row:first-child'))
+    .toHaveCSS('margin-bottom', '0px');
+  const networkColumnAlignment = await page.locator('.dashboard-table-section .data-table').evaluate((table) => {
+    const headers = [...table.querySelectorAll('thead th:not(.data-table__go)')].slice(1);
+    const cells = [...table.querySelectorAll('tbody tr:first-child td:not(.data-table__go)')].slice(1);
+    return {
+      identityColumnIsLeftAligned: !table.querySelector('tbody tr:first-child td:first-child .table-title-align'),
+      columns: headers.map((header, index) => {
+        const titleRange = document.createRange();
+        titleRange.selectNodeContents(header);
+        const titleRect = titleRange.getBoundingClientRect();
+        const valueRect = cells[index].querySelector('.table-title-align__value').getBoundingClientRect();
+        return Math.abs((titleRect.left + titleRect.width / 2) - (valueRect.left + valueRect.width / 2));
+      }),
+    };
+  });
+  expect(networkColumnAlignment.identityColumnIsLeftAligned).toBe(true);
+  for (const difference of networkColumnAlignment.columns) expect(difference).toBeLessThan(0.5);
+  const trend = await page.locator('.line-chart .line-chart__line').evaluate((line) => ({
     namespace: line.namespaceURI,
     length: line.getTotalLength(),
   }));

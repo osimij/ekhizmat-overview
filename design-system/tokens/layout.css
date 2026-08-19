@@ -15,7 +15,10 @@
   --w-canvas: 1200px;
   --w-gate: 440px;
   --w-gate-wide: 560px;
-  --w-login-card: 420px;
+  --w-login-card: 400px;
+  --w-login-mfa: 488px;
+  --h-login-control: 70px;
+  --login-scale: .8;
   --w-form: 680px;
   --w-context: 340px;
   --w-builder-pipeline: 280px;

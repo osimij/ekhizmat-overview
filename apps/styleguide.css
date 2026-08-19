@@ -29,11 +29,12 @@
   justify-items: center;
   min-width: 0;
   max-width: 100%;
-  padding: var(--s-8);
+  padding: var(--s-10);
   border-radius: var(--r-xl);
   background: var(--login-bg);
 }
-.sg-login-gate .login__card { width: min(100%, var(--w-login-card)); }
+.sg-login-gate .login__card { grid-row:auto; width:min(100%,var(--w-login-card)); }
+.sg-login-gate .login__heading h3 { font-size:var(--fs-24); }
 .sg-auth .panel__body { display:grid; gap:14px; }
 .sg-auth p { color:var(--ink-3); }
 .otp-demo { display:flex; gap:8px; }

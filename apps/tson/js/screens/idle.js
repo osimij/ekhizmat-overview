@@ -41,9 +41,9 @@ export function renderIdle(host) {
     const s = await shift.stats();
     mount(body, idleMain(
       h('section', { class: 'dashboard-kpis s-idle__kpis', 'aria-label': t('idle.today') },
-        kpi(String(s.served), t('idle.served')),
-        kpi(mmss(s.avgMs), t('idle.avg')),
-        kpi(String(s.issued), t('idle.issued'))),
+        kpi(String(s.served), t('idle.served'), 'calendar', 'blue'),
+        kpi(mmss(s.avgMs), t('idle.avg'), 'clock', 'amber'),
+        kpi(String(s.issued), t('idle.issued'), 'cat-cert', 'green')),
       recentPanel(
         s.recent.length
           ? recentList(s.recent.map(r =>
@@ -145,10 +145,12 @@ function openHelp() {
   });
 }
 
-function kpi(value, label) {
-  return h('article', { class: 'kpi' },
-    h('strong', { class: 'kpi__value' }, value),
-    h('span', { class: 'kpi__label' }, label));
+function kpi(value, label, iconName, tone) {
+  return h('article', { class: 'kpi s-idle__kpi' },
+    h('div', { class: 's-idle__kpi-copy' },
+      h('strong', { class: 'kpi__value' }, value),
+      h('span', { class: 'kpi__label' }, label)),
+    icon(iconName, { cls: `s-idle__kpi-icon s-idle__kpi-icon--${tone}` }));
 }
 
 function skeletonStats() {

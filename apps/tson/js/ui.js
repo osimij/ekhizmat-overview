@@ -63,7 +63,7 @@ export function icon(name, { size = 24, label = null, cls = '' } = {}) {
    stroke (design-guide §3 live-scan). Markup is shared so identify and enroll
    cannot fork a second language. SVG uses createElementNS — h() would emit
    HTML-namespace tags that do not stroke. */
-export function facescanFrame({ size = 72 } = {}) {
+export function facescanFrame({ size = 72, showStroke = true } = {}) {
   const stroke = document.createElementNS(SVG_NS, 'svg');
   stroke.setAttribute('class', 'facescan__stroke');
   stroke.setAttribute('viewBox', '0 0 100 100');
@@ -79,7 +79,7 @@ export function facescanFrame({ size = 72 } = {}) {
   rect.setAttribute('pathLength', '100');
   rect.setAttribute('fill', 'none');
   stroke.append(rect);
-  return h('div', { class: 'facescan__frame' }, stroke, icon('face', { size }));
+  return h('div', { class: 'facescan__frame' }, showStroke ? stroke : null, icon('face', { size }));
 }
 
 /* Statuses use the shared Hugeicons sprite without repeating the label in
@@ -88,6 +88,15 @@ export function statusIcon(tone, label, { iconName = null } = {}) {
   const names = { success:'check', warning:'clock', danger:'x', info:'info', neutral:'dots' };
   return h('span', { class:`status-icon status-icon--${tone}`, role:'img', 'aria-label':label, title:label },
     icon(iconName || names[tone] || names.neutral, { size:16 }));
+}
+
+/* Keeps a table heading at its normal left edge while centering the row value
+   on the heading text itself. The hidden ruler uses the localized title, so
+   the axis remains correct when Russian and Tajik labels have different widths. */
+export function titleAlignedCell(columnTitle, content, cls = '') {
+  return h('td', { class: cls },
+    h('span', { class: 'table-title-align', 'data-column-title': columnTitle },
+      h('span', { class: 'table-title-align__value' }, content)));
 }
 
 /* ---------- клавиатурная модель таб-листа (§6, §9) ----------
@@ -142,8 +151,8 @@ export function makeTablist(container, { onSelect = null, selector = '[role="tab
    нужна обеим управленческим панелям. Именно этот вид §3 называет стандартом:
    набор значений фильтра растёт, а подписи по-таджикски длиннее русских —
    выпадающий список держит любое их число в постоянной ширине. */
-export function filterSelect(id, iconName, label, options, value, onChange) {
-  return h('label', { class: 'ekh-filter', for: id },
+export function filterSelect(id, iconName, label, options, value, onChange, cls = '') {
+  return h('label', { class: `ekh-filter${cls ? ` ${cls}` : ''}`, for: id },
     h('span', { class: 'ekh-filter__label' }, icon(iconName, { size: 16 }), label),
     h('span', { class: 'ekh-filter__field' },
       h('select', { id, 'aria-label': label, onChange: e => onChange(e.target.value) },

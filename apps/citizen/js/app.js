@@ -115,11 +115,6 @@ function setTheme(){
 }
 setTheme();
 themeMq.addEventListener("change", setTheme);
-$("#themeBtn").addEventListener("click", () => {
-  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-  try { localStorage.setItem(THEME_KEY, next); } catch(e){}
-  document.documentElement.dataset.theme = next;
-});
 
 /* ---------- mock auth ----------
    Signed out: pitch + search, no personal feed.

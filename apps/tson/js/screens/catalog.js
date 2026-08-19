@@ -229,8 +229,9 @@ export function renderCatalog(host, { readonly = false } = {}) {
       onClick: () => setFilter({ kind: 'cat', id: c.id, name: c.name }),
     },
       h('span', { class: 's-catalog__glyph' }, icon(c.icon)),
-      h('span', { class: 'h3 s-catalog__catname' }, c.name),
-      h('span', { class: 'small ink-faint tnum' }, `${c.count} ${plural(c.count, 'plural.services')}`));
+      h('span', { class: 'stack g-1' },
+        h('span', { class: 'h3 s-catalog__catname' }, c.name),
+        h('span', { class: 'small ink-faint tnum' }, `${c.count} ${plural(c.count, 'plural.services')}`)));
   }
 
   /* Счётчики на карточках — витринные (mock/data.js). Каталог грузим, чтобы

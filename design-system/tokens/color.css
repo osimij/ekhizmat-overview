@@ -11,10 +11,9 @@
   --hero-light: #e7eef5;
   --hero-dark: #090d15;
   --hero: var(--hero-light);
-  /* Workstation login canvas. Light keeps the cool hero wash; dark is full
-     black so the panel card sits on a true void, not the navy `--hero-dark`
-     sky used by citizen artwork. */
-  --login-bg: var(--hero);
+  /* Workstation login is a flat canvas: the controls provide hierarchy, not
+     a card-on-wash composition. The semantic alias keeps both themes aligned. */
+  --login-bg: var(--panel);
   --field: #efefef;
   --field-on-panel: #f4f4f5;
   --line: #e8e8e8;
@@ -116,7 +115,7 @@
   --panel: #1a1a1b;
   --raised: #1a1a1b;
   --hero: var(--hero-dark);
-  --login-bg: var(--pure-black);
+  --login-bg: var(--panel);
   --field: #26272b;
   --field-on-panel: #26272b;
   --line: #2a2b2f;

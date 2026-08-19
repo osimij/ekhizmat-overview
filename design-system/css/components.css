@@ -322,14 +322,15 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 }
 .overlay.open{display:grid}
 .modal{
-  background:var(--panel); border-radius:var(--r-xl); box-shadow:var(--veil);
-  max-width:380px; width:100%; padding:var(--s-8) var(--s-6) var(--s-6); text-align:center;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-dialog); box-shadow:var(--shadow-1);
+  max-width:var(--w-modal); width:100%; padding:var(--s-10); text-align:center;
   animation:screenIn var(--t-med) var(--ease) both;
 }
 .modal h3{font-size:var(--fs-20)}
 .modal .sub{color:var(--ink-3); font-size:var(--fs-14); margin:var(--s-2) 0 var(--s-5)}
 .modal .field{text-align:left}
 .modal .btn + .btn{margin-top:var(--s-2)}
+@media (max-width:640px){.modal{padding:var(--s-6);border-radius:var(--r-xl)}}
 .qr-box{
   width:216px; height:216px; margin:0 auto var(--s-5); background:var(--pure-white);
   border-radius:var(--r-l); display:grid; place-items:center; position:relative;

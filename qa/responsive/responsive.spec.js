@@ -34,9 +34,16 @@ for (const item of cases) {
   }
 }
 
-test('TSON explains its intentional minimum width below 1280px', async ({ page }) => {
+test('TSON keeps login usable below 1280px, then explains the workstation minimum', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto('/tson/?present=1&theme=light&lang=ru');
   await expect(page.locator('body')).toHaveClass(/is-too-small/);
+  await expect(page.locator('.login')).toBeVisible();
+  await expect(page.locator('.too-small')).toBeHidden();
+
+  await page.locator('#l-pass').fill('demo');
+  await page.locator('[data-act="login-next"]').click();
+  const otp = page.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
   await expect(page.locator('.too-small')).toBeVisible();
 });

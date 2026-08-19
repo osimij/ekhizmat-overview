@@ -52,18 +52,19 @@ export function renderLocked(host) {
       }
     },
   },
-    icon('lock', { size: 48, cls: 'ink-faint' }),
+    icon('lock', { size: 48, cls: 's-locked__icon' }),
     // Заголовок и подсказка — одна подпись, не два блока карточки: --s-2
     // вместо карточного --s-3 (design-guide §5, связанные подписи 4–8px).
     h('div', { class: 'stack g-2 s-locked__copy' },
       h('h2', { class: 'h3' }, t('locked.title')),
       h('p', { class: 'small ink-2' }, t('locked.hint'))),
     running ? h('p', { class: 'chip' }, icon('clock', { size: 16 }), t('locked.sessionRunning')) : null,
-    input,
-    err,
-    submit);
+    h('div', { class: 's-locked__controls' }, input, err, submit));
 
-  mount(host, h('div', { class: 's-locked' }, card));
+  mount(host, h('div', { class: 's-locked' },
+    h('div', { class: 's-locked__brand' }, icon('logo', { size: 32 }), h('b', {}, t('app.name'))),
+    card,
+    h('p', { class: 's-locked__legend small' }, t('login.legend'))));
 
   // Фокус ставим синхронно, а не через requestAnimationFrame: rAF не
   // выполняется, пока вкладка не отрисовывается, — а заблокировать АРМ

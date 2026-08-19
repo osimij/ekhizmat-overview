@@ -135,6 +135,9 @@ function renderRoute(route, { locked }) {
   const screenRoot = document.getElementById('screen');
   const lockRoot = document.getElementById('lock-root');
   const shell = document.getElementById('shell');
+  const authRoute = route === '#/login' || route === '#/bind';
+  shell.classList.toggle('is-auth', authRoute);
+  document.body.classList.toggle('is-auth-route', authRoute);
 
   // LOCKED — слой поверх; канвас размывается, но остаётся смонтирован и жив:
   // сессия гражданина продолжает тикать (§6/S9c). Экран НЕ размонтируем —

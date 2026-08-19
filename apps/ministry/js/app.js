@@ -262,27 +262,26 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var body =
       '<div class="login">' +
         '<div class="login__inner"><div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
-        '<div class="login__subtitle body-l">' + esc(t('login_sub')) + '</div>' +
         '<div class="panel login__card' + (loginErr ? ' is-shake' : '') + '">' +
           (step === 1 ?
-            '<div class="stack g-4">' +
+            '<div class="stack login__form login__form--credentials">' +
+              '<div class="login__heading"><h1>' + esc(t('login_title')) + '</h1></div>' +
               '<div class="login__fields">' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
                   '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" placeholder=" " autocomplete="username" spellcheck="false"></div>' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
-                  '<div class="field__wrap"><input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '>' +
-                  '<span class="field__affix">' + ic('i-lock', 'icon--20') + '</span></div></div>' +
+                  '<input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '></div>' +
                 (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
               '</div>' +
               '<button class="btn btn--primary btn--l" type="button" data-act="login-next">' + esc(t('login_next')) + '</button>' +
             '</div>'
           :
-            '<div class="stack g-4">' +
-              '<div class="field login__mfa-field"><span class="field__label" id="l-otp-label">' + esc(t('login_mfa')) + '</span>' +
-                '<div class="otp" id="l-otp">' +
+            '<div class="stack login__form login__form--mfa">' +
+              '<div class="login__heading"><h1 id="l-otp-label">' + esc(t('login_mfa')) + '</h1>' +
+                '<p>' + esc(t('login_mfa_hint')) + '</p></div>' +
+              '<div class="otp" id="l-otp" role="group" aria-labelledby="l-otp-label">' +
                   [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" name="otp-'+(i+1)+'" inputmode="numeric" maxlength="1" data-otp="'+i+'" autocomplete="one-time-code" aria-label="'+esc(t('login_mfa'))+' '+(i+1)+'"'+(loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '')+'>';}).join('') +
-                '</div></div>' +
-              '<div class="login__step login__mfa-hint small">' + esc(t('login_mfa_hint')) + ' <span class="login__mfa-target">•••• 40 22</span></div>' +
+              '</div>' +
               (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
               '<div class="login__actions">' +
                 '<button class="btn btn--primary btn--l" type="button" data-act="login-enter">' + esc(t('login_enter')) + '</button>' +
@@ -291,7 +290,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
             '</div>'
           ) +
         '</div>' +
-        '<div class="login__legend small"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '<br>' + esc(t('login_legend_secondary')) + '</span></div></div>' +
+        '<div class="login__legend"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '</span></div></div>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
     S._loginErr = false;

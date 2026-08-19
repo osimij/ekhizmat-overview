@@ -650,6 +650,10 @@ export const TSON_DASHBOARD = {
       { id:'tursunzoda-1', name:'ЦОН №1, Турсунзаде', regionId:'rrp', region:'РРП', visits:361, sla:'86,7%', wait:'16:12', load:'103%', status:'danger' },
       { id:'khorugh-1', name:'ЦОН №1, Хорог', regionId:'gbao', region:'ГБАО', visits:320, sla:'92,2%', wait:'08:04', load:'69%', status:'normal' },
     ],
-    audiences:[{label:'ФЛ',value:69},{label:'ЮЛ',value:23},{label:'Гость',value:8}],
+    audiences:[
+      { id:'person', label:'ФЛ', value:69 },
+      { id:'business', label:'ЮЛ', value:23 },
+      { id:'guest', label:'Гость', value:8 },
+    ],
   },
 };

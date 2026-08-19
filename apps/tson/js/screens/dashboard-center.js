@@ -6,13 +6,13 @@
    раз (design-guide §10 правило 6), а всё, что можно открыть, открывается там,
    где по нему кликнули (§5).
    ============================================================ */
-import { h, mount, icon, statusIcon, drawerLayer, filterSelect } from '../ui.js';
+import { h, mount, icon, statusIcon, titleAlignedCell, drawerLayer, filterSelect } from '../ui.js';
 import { t } from '../i18n.js';
 import { TSON_DASHBOARD } from '../mock/data.js';
 import { getCenterContext } from '../role.js';
 
 const statusTone = { serving: 'success', break: 'warning', closed: 'danger' };
-const statusGlyph = { serving: 'check', break: 'clock', closed: 'x' };
+const statusGlyph = { serving: 'check', break: 'pause', closed: 'x-strong' };
 
 /* Период — не персональные данные, поэтому его можно держать в адресе (§7):
    перезагрузка и ссылка возвращают на то, что человек смотрел. Разрешён
@@ -56,8 +56,9 @@ export function renderDashboardCenter(host) {
     if (mode === 'loading') {
       mount(host, h('div', { class: 'canvas dashboard' },
         dashboardHeader(d),
-        h('div', { class: 'dashboard-kpis' }, ...d.kpis.map(() => h('div', { class: 'skel skel--card' }))),
-        h('div', { class: 'skel skel--card' })));
+        h('div', { class: 'dashboard-overview' },
+          h('div', { class: 'dashboard-kpis' }, ...d.kpis.map(() => h('div', { class: 'skel skel--card' }))),
+          h('div', { class: 'skel skel--card' }))));
       return;
     }
 
@@ -80,24 +81,25 @@ export function renderDashboardCenter(host) {
 
     const nodes = [
       dashboardHeader(d),
-      h('section', { class: 'dashboard-kpis', 'aria-label': 'KPI' },
-        ...d.kpis.map(k => kpiCard(k, high))),
-      // Баннер остаётся: это действенная сводка, а не четвёртая перекраска
-      // того же числа — карточка KPI и зона показывают «сколько», баннер
-      // говорит «и это уже дольше нормы».
-      high ? h('div', { class: 'banner banner--error' },
-        icon('info'),
-        h('span', { class: 'banner__text' }, t('dash.center.alertLong', { n: longWait }))) : null,
-      h('div', { class: 'dashboard-grid' },
-        h('section', { class: 'panel dashboard-section' },
-          h('div', { class: 'row between' },
-            h('h2', { class: 'h3' }, t('dash.center.queue')),
-            h('span', { class: 'small ink-faint' }, t(period === 'today' ? 'dash.center.today' : 'dash.center.week'))),
-          h('div', { class: 'queue-grid' }, ...d.queues.map((q, i) => queueCard(q, high && i === 0)))),
-        h('section', { class: 'panel dashboard-section' },
-          h('h2', { class: 'h3' }, t('dash.center.load')),
-          barChart(d.hours, high))),
-      h('section', { class: 'panel dashboard-section' },
+      h('div', { class: 'dashboard-overview' },
+        h('section', { class: 'dashboard-kpis', 'aria-label': 'KPI' },
+          ...d.kpis.map(k => kpiCard(k, high))),
+        // Баннер остаётся: это действенная сводка, а не четвёртая перекраска
+        // того же числа — карточка KPI и зона показывают «сколько», баннер
+        // говорит «и это уже дольше нормы».
+        high ? h('div', { class: 'banner banner--error' },
+          icon('info'),
+          h('span', { class: 'banner__text' }, t('dash.center.alertLong', { n: longWait }))) : null,
+        h('div', { class: 'dashboard-grid' },
+          h('section', { class: 'panel dashboard-section dashboard-queue-section' },
+            h('div', { class: 'dashboard-queue-head' },
+              h('h2', { class: 'h3' }, t('dash.center.queue')),
+              h('span', { class: 'small ink-faint' }, t(period === 'today' ? 'dash.center.today' : 'dash.center.week'))),
+            h('div', { class: 'queue-grid' }, ...d.queues.map((q, i) => queueCard(q, high && i === 0)))),
+          h('section', { class: 'panel dashboard-section' },
+            h('h2', { class: 'h3' }, t('dash.center.load')),
+            barChart(d.hours, high)))),
+      h('section', { class: 'panel dashboard-section dashboard-table-section' },
         h('h2', { class: 'h3' }, t('dash.center.windows')),
         windowTable(d.windows)),
     ];
@@ -108,16 +110,14 @@ export function renderDashboardCenter(host) {
     const context = getCenterContext();
     return h('header', { class: 'dashboard-head' },
       h('div', { class: 'stack g-2' },
-        // Один тихий заголовок вместо значка «Демо-данные» и отдельной
-        // строки «Обновлено 14:32»: два объекта хрома описывали один факт.
-        h('span', { class: 'small ink-faint' }, t('dash.center.demo', { t: d.updated })),
         h('h1', { class: 'page-title' }, context?.name || d.name),
         h('p', { class: 'ink-2' }, t('dash.center.lead'))),
       h('div', { class: 'dashboard-controls' },
         filterSelect('dash-period', 'calendar', t('dash.center.period'),
           [['today', t('dash.center.today')], ['week', t('dash.center.week')]],
           period,
-          v => { period = v; writePeriod(v); draw(); })));
+          v => { period = v; writePeriod(v); draw(); },
+          'dashboard-period-filter')));
   }
 
   function kpiCard(k, high) {
@@ -148,9 +148,10 @@ export function renderDashboardCenter(host) {
         // из общей карты означает «закрыто», и на очереди он читался как
         // «зона не работает».
         isHigh ? statusIcon('danger', t('dash.center.long'), { iconName: 'clock' }) : null),
-      h('strong', {}, String(waiting)),
-      h('span', { class: 'small ink-2' }, t('dash.center.waiting')),
-      h('span', { class: 'small ink-faint' }, `${t('dash.center.avg')}: ${q.wait}`));
+      h('span', { class: 'queue-card__metrics' },
+        h('strong', {}, String(waiting)),
+        h('span', { class: 'small ink-2' }, t('dash.center.waiting')),
+        h('span', { class: 'small ink-faint' }, `${t('dash.center.avg')}: ${q.wait}`)));
   }
 
   /* Столбики нагрузки. Значение раньше жило только в title — то есть было
@@ -184,9 +185,10 @@ export function renderDashboardCenter(host) {
      учит не доверять контролам (§6). */
   function windowTable(rows) {
     const cols = ['window', 'operator', 'state', 'served'];
-    return h('div', { class: 'table-wrap' }, h('table', { class: 'data-table' },
+    const labels = Object.fromEntries(cols.map(key => [key, t(`dash.center.${key}`)]));
+    return h('div', { class: 'table-wrap' }, h('table', { class: 'data-table window-table' },
       h('thead', {}, h('tr', {},
-        ...cols.map(key => h('th', {}, t(`dash.center.${key}`))),
+        ...cols.map(key => h('th', {}, labels[key])),
         h('th', { class: 'data-table__go' }, h('span', { class: 'sr-only' }, t('dash.center.state'))))),
       h('tbody', {}, ...rows.map(row => {
         const open = () => openWindowDrawer(row);
@@ -196,10 +198,10 @@ export function renderDashboardCenter(host) {
           onClick: open,
           onKeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } },
         },
-          h('td', { class: 'tnum' }, String(row.no)),
-          h('td', {}, row.operator),
-          h('td', {}, statusIcon(statusTone[row.status], t(`dash.center.${row.status}`), { iconName: statusGlyph[row.status] })),
-          h('td', { class: 'tnum' }, String(row.served)),
+          titleAlignedCell(labels.window, String(row.no), 'tnum'),
+          titleAlignedCell(labels.operator, row.operator),
+          titleAlignedCell(labels.state, statusIcon(statusTone[row.status], t(`dash.center.${row.status}`), { iconName: statusGlyph[row.status] })),
+          titleAlignedCell(labels.served, String(row.served), 'tnum'),
           h('td', { class: 'data-table__go' }, icon('chev-r', { size: 20 })));
       }))));
   }

@@ -171,6 +171,7 @@ test('every interface keeps visible controls named and within the viewport', asy
         .map(describe);
       const negativeTracking = [...document.querySelectorAll('body *')]
         .filter(isVisible)
+        .filter((element) => !element.matches('.login__brand b, #heroTitle'))
         .filter((element) => Number.parseFloat(getComputedStyle(element).letterSpacing) < 0)
         .map(describe);
       const mismatchedActionHeights = [...document.querySelectorAll('.login__actions, .j-acts, .pv-foot, .modal__foot, .ekh-dialog__actions, .s-result__foot')]

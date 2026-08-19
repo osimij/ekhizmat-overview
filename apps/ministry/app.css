@@ -55,6 +55,10 @@ body[data-platform="ministry"] :is(
 ) {
   font-weight: 600;
 }
+/* Shared .login step title stays --weight-medium (patterns.css). */
+body[data-platform="ministry"] .login__heading :is(h1, h3) {
+  font-weight: var(--weight-medium);
+}
 
 /* Medium emphasis: labels, tabs, tags, and statuses. */
 body[data-platform="ministry"] :is(
@@ -683,9 +687,10 @@ button.step:focus-visible {
   min-width: 0;
   max-height: 100%;
   overflow: auto;
-  padding: var(--s-6);
+  padding: var(--s-10);
+  border: 1px solid var(--line);
   background: var(--panel);
-  border-radius: var(--r-xl);
+  border-radius: var(--r-dialog);
 }
 .modal--wide { --w-modal: var(--w-modal-wide); }  /* запрос скоупа */
 
@@ -697,6 +702,9 @@ button.step:focus-visible {
   justify-content: flex-end;
   gap: var(--s-3);
   margin-top: var(--s-6);
+}
+@media (max-width: 640px) {
+  .modal { padding: var(--s-6); border-radius: var(--r-xl); }
 }
 
 /* ============================================================
@@ -1557,7 +1565,8 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
 /* 32 между секциями, а не 24 (§3.3): «ЖИЗНЕННЫЕ СИТУАЦИИ» и «КАТЕГОРИИ» —
    два разных входа в каталог, и на 24 подпись второго липнет к чипам первого. */
 .s-catalog { display: flex; flex-direction: column; gap: var(--s-8); }
-.s-catalog__situation { cursor: pointer; }
+.s-catalog__browse { display: flex; flex-direction: column; gap: var(--s-8); }
+.s-catalog__situation { cursor: pointer; font-weight: var(--weight-regular); }
 
 /* Категории слева, «часто оформляете» справа — та же контекст-колонка 340,
    что и везде (§3.3), чтобы глаз не переучивался между экранами. */
@@ -1598,20 +1607,41 @@ body.is-too-small .too-small .icon { color: var(--ink-faint); }
    в одну строку не влезет ни при какой ширине карточки. */
 .s-catalog__catname { overflow-wrap: anywhere; }
 
-.s-catalog__frequent { counter-reset: freq; }
+.s-catalog__frequent {
+  counter-reset: freq;
+  /* Внутренний отступ панели — строки на hover расширяются до края (§8). */
+  padding: var(--s-2) var(--s-3);
+}
 .s-catalog__freq {
   display: flex;
   align-items: center;
   gap: var(--s-3);
   width: 100%;
-  padding: var(--s-3) var(--s-2);
+  padding-block: var(--s-2);
+  padding-inline: 0;
+  border: 0;
   border-radius: var(--r-m);
+  background: transparent;
   text-align: left;
   font-size: 15px;
   cursor: pointer;
   transition: background-color var(--t-fast) var(--ease);
 }
-.s-catalog__freq:hover { background: var(--hover); }
+/* Hover до краёв панели: padding + отрицательный margin — контент не сдвигается (§8). */
+@media (hover: hover) and (pointer: fine) {
+  .s-catalog__freq:hover {
+    padding-inline: var(--s-3);
+    margin-inline: calc(-1 * var(--s-3));
+    background: var(--hover);
+  }
+}
+.s-catalog__freq:focus-visible {
+  padding-inline: var(--s-3);
+  margin-inline: calc(-1 * var(--s-3));
+  background: var(--hover);
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: var(--focus-offset);
+}
 
 .s-catalog__results { display: flex; flex-direction: column; gap: var(--s-3); }
 .s-catalog__filter { padding-bottom: var(--s-1); }
