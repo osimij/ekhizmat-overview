@@ -617,6 +617,29 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .metric--warning .metric__context { color:var(--amber); }
 .metric--danger .metric__context { color:var(--red-ink); }
 
+/* Library list header — the column labels a repeated row list is read under.
+   The header and its rows share ONE `--list-columns` definition (rule 18), set
+   by the list's container, so the two grids can never drift apart. Identity
+   column reads like text and stays left; every other column is compared as an
+   isolated value and is centred, header included (§5 / rule 41).
+   Consumers: admin service registry, admin form library. */
+.ekh-list-head {
+  display:grid;
+  grid-template-columns:var(--list-columns);
+  column-gap:var(--list-gap, var(--s-8));
+  align-items:end;
+  min-width:0;
+  min-height:36px;
+  padding:var(--s-1) var(--s-5) var(--s-2);
+  border-bottom:1px solid var(--line-in);
+  color:var(--ink-3);
+  font-size:var(--fs-13);
+  font-weight:var(--weight-medium);
+  letter-spacing:0;
+}
+.ekh-list-head > * { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ekh-list-head > :not(:first-child) { justify-self:center; text-align:center; }
+
 .data-table-wrap { overflow:auto; border:1px solid var(--line-in); border-radius:var(--r-l); background:var(--panel); }
 .data-table { width:100%; border-collapse:collapse; text-align:left; }
 .data-table th { padding:var(--s-3) var(--s-4); color:var(--ink-3); font-size:var(--fs-12); font-weight:var(--weight-medium); letter-spacing:0; background:var(--field-on-panel); }
@@ -677,25 +700,34 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .pagination button { display:grid; place-items:center; min-width:40px; height:40px; border-radius:var(--r-s); }
 .pagination button:hover,.pagination button[aria-current='page'] { background:var(--hover); }
 
-.banner { display:flex; gap:var(--s-3); padding:var(--s-4); border-radius:var(--r-m); background:var(--blue-tint); color:var(--blue-ink); }
-.banner > svg { width:20px; height:20px; flex:none; color:var(--blue-ink); }
+/* Note / banner — outlined, never a solid tint block (design-guide §3 «Notes &
+   banners», rule 40). A filled block competes with the content it annotates and
+   reads as a second surface; a transparent box with a border mixed from its own
+   semantic color reads as the quiet aside it is, in both themes. The icon is
+   bare and inherits the state color; text always uses the `--*-ink` pair, which
+   is what the contrast suite guarantees. */
+.banner {
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-4);
+  border:1px solid color-mix(in srgb, var(--blue) 20%, var(--line));
+  border-radius:var(--r-m);
+  background:transparent;
+  color:var(--blue-ink);
+  font-size:var(--fs-15);
+}
+.banner > svg,
+.banner > .icon { width:20px; height:20px; flex:none; color:currentColor; }
+.banner__text { flex:1 1 auto; min-width:0; }
 
 /* One semantic vocabulary for every platform, including the short aliases used
-   by the operational apps. The icon always inherits the banner's state color. */
-.banner--info { background:var(--blue-tint); color:var(--blue-ink); }
+   by the operational apps. */
+.banner--info { border-color:color-mix(in srgb, var(--blue) 20%, var(--line)); color:var(--blue-ink); }
 .banner--warning,
-.banner--warn { background:var(--amber-tint); color:var(--amber); }
+.banner--warn { border-color:color-mix(in srgb, var(--amber) 20%, var(--line)); color:var(--amber-ink); }
 .banner--danger,
-.banner--error { background:var(--red-tint); color:var(--red-ink); }
+.banner--error { border-color:color-mix(in srgb, var(--red) 20%, var(--line)); color:var(--red-ink); }
 .banner--success,
-.banner--ok { background:var(--green-tint); color:var(--green); }
-.banner--info > svg,
-.banner--warning > svg,
-.banner--warn > svg,
-.banner--danger > svg,
-.banner--error > svg,
-.banner--success > svg,
-.banner--ok > svg { color:currentColor; }
+.banner--ok { border-color:color-mix(in srgb, var(--green) 20%, var(--line)); color:var(--green-ink); }
 .empty-state { display:grid; justify-items:center; gap:var(--s-3); padding:var(--s-12) var(--s-5); text-align:center; }
 .empty-state > svg { width:40px; height:40px; color:var(--ink-3); }
 .empty-state p { max-width:44ch; color:var(--ink-3); }

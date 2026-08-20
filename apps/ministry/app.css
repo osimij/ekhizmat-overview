@@ -243,9 +243,6 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
   font-size: var(--fs-12);
 }
 
-/* Banner body — the shared `.banner` is a flex row; this is its text cell. */
-.banner__text { flex: 1 1 auto; min-width: 0; }
-
 /* ============================================================
    Экраны ведомства (§7Б ТЗ): шелл, очередь, карточка, отчётность,
    формы. Только композиция — компоненты приходят из дизайн-системы.

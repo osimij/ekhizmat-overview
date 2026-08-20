@@ -1180,24 +1180,8 @@ button.step:focus-visible {
    снимает `is-open`, а переходы описаны рядом с самим компонентом. */
 .ekh-dialog-backdrop.is-exiting { pointer-events: none; }
 
-/* ============================================================
-   5.3 Банер — full-width внутри canvas, тинт по семантике
-   ============================================================ */
-.banner {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-m);
-  font-size: var(--fs-15);
-}
-.banner__text  { flex: 1 1 auto; min-width: 0; }
-.banner .icon  { flex: none; }
-
-.banner--info  { background: var(--blue-tint);  color: var(--blue-ink); }
-.banner--warn  { background: var(--amber-tint); color: var(--amber-ink); }
-.banner--error { background: var(--red-tint);   color: var(--red-ink); }
-.banner--ok    { background: var(--green-tint); color: var(--green-ink); }
+/* Банер — общий компонент (design-system/css/components.css): очерченная
+   заметка, а не заливка (правило 40). Здесь остаётся только композиция. */
 
 /* Offline — липкий сверху (§7). */
 .banner--sticky {
@@ -2192,12 +2176,8 @@ body.is-too-small.is-auth-route .too-small { display: none; }
 
 .s-enroll__banner:empty { display: none; }
 .s-enroll__banner { display: flex; flex-direction: column; gap: var(--s-2); }
-/* Предупреждение без заливки: обводка по семантике (как admin .note-warn). */
-.s-enroll__banner .banner--warn {
-  background: transparent;
-  border: 1px solid var(--amber);
-  color: var(--amber-ink);
-}
+/* Обводка вместо заливки теперь у самого `.banner` (правило 40) — местное
+   переопределение больше не нужно. */
 
 .s-enroll__cols {
   flex: 1 1 auto;
