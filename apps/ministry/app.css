@@ -731,19 +731,26 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 /* ============================================================
    Отчётность (§7Б.3 → §14): SLA по специалистам
    ============================================================ */
-.report-table { width: 100%; }
+/* Одна сетка на шапку и строки (правило 18): две независимые разъедутся. */
+.report-table { --report-columns: minmax(0, 1.4fr) 90px 90px minmax(120px, 1fr); width: 100%; }
 .report-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) 90px 90px 1fr;
+  grid-template-columns: var(--report-columns);
   gap: var(--s-4); align-items: center;
   padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line-in);
 }
-.report-row--head { font-size: 14px; text-transform: none; letter-spacing: 0; color: var(--ink-3); font-weight: 550; border-bottom: 1px solid var(--line); }
+.report-row--head { font-size: var(--fs-13); color: var(--ink-3); font-weight: 550; border-bottom: 1px solid var(--line); }
 .report-row:last-child { border-bottom: 0; }
+/* Имя и услуга читаются как текст — слева; всего, просрочено и процент
+   сравнивают по столбцу, поэтому центрируются вместе с заголовками (§5). */
+.report-row > :nth-child(n+2) { justify-self: center; text-align: center; }
+.report-row--head > :nth-child(n+2) { justify-self: center; }
 .report-row__who { display: flex; align-items: center; gap: var(--s-3); min-width: 0; font-size: var(--fs-14); font-weight: 550; }
+.report-row__service { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .report-row__num { font-variant-numeric: tabular-nums; font-weight: 550; }
 .report-row__num--breach { color: var(--red-ink); }
+.report-row__rate { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-width: 0; }
 .meter { display: block; height: 8px; border-radius: var(--r-pill); background: var(--field); overflow: hidden; }
 .meter__fill { display: block; height: 100%; border-radius: var(--r-pill); background: var(--ink); }
 
@@ -1264,9 +1271,9 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
     row-gap: var(--s-2);
   }
   .report-row__who { grid-area: who; }
-  .report-row > *:nth-child(2) { grid-area: total; }
-  .report-row > *:nth-child(3) { grid-area: breach; }
-  .report-row > *:nth-child(4) { grid-area: meter; }
+  .report-row > *:nth-child(2) { grid-area: total; justify-self: start; }
+  .report-row > *:nth-child(3) { grid-area: breach; justify-self: start; }
+  .report-row > *:nth-child(4) { grid-area: meter; justify-self: stretch; }
   .q-row {
     grid-template-columns: 24px 1fr auto;
     grid-template-areas:

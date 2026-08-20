@@ -352,6 +352,33 @@
     { name: 'Шарипов Т. А.',  initials: 'ШТ', total: 61,  onTime: 60 }
   ];
 
+  /* ---------- Отчётность: периоды и демо-показатели ----------
+     Всё, что в проде считает бэкенд по закрытому периоду, здесь — именованные
+     демо-константы, а не литералы внутри вида: тогда видно, где живые числа
+     (их вид считает по S.apps), а где макетные. */
+  var REPORT_PERIODS = [
+    { id: '2026-07', ru: 'июль 2026',      tg: 'июли 2026' },
+    { id: '2026-06', ru: 'июнь 2026',      tg: 'июни 2026' },
+    { id: '2026-q2', ru: 'II квартал 2026', tg: 'семоҳаи II-и 2026' }
+  ];
+  var REPORT_DEMO = {
+    '2026-07': {
+      total: 428, onTimeRate: 94, avgDays: { ru: '2,4 дн', tg: '2,4 рӯз' },
+      week: [64, 71, 58, 82, 77, 39, 12],
+      services: { nko: [96, 8], notary: [54, 6], apostille: [83, 2], extract: [61, 1], marriage: [44, 3], rename: [27, 0], legal: [31, 4], accred: [19, 2], consult: [13, 0] }
+    },
+    '2026-06': {
+      total: 391, onTimeRate: 91, avgDays: { ru: '2,8 дн', tg: '2,8 рӯз' },
+      week: [58, 63, 66, 70, 61, 34, 9],
+      services: { nko: [88, 11], notary: [49, 7], apostille: [76, 4], extract: [55, 3], marriage: [39, 2], rename: [24, 1], legal: [28, 5], accred: [21, 3], consult: [11, 0] }
+    },
+    '2026-q2': {
+      total: 1164, onTimeRate: 92, avgDays: { ru: '2,6 дн', tg: '2,6 рӯз' },
+      week: [61, 68, 62, 76, 70, 37, 11],
+      services: { nko: [268, 27], notary: [151, 18], apostille: [232, 9], extract: [168, 7], marriage: [121, 6], rename: [72, 2], legal: [86, 12], accred: [58, 7], consult: [38, 1] }
+    }
+  };
+
   /* ---------- Демо-показатели межведомственного обмена ----------
      Средний срок ответа считается на бэкенде по всей истории обменов; в
      прототипе он — именованная демо-константа, а не литерал внутри вида. */
@@ -635,7 +662,7 @@
       t_locked: 'Рабочее место заблокировано',
       // reports
       rep_title: 'Отчётность по срокам (SLA)',
-      rep_sub: 'Соблюдение сроков по ведомству и специалистам · период: июль 2026',
+      rep_sub: 'Соблюдение сроков по ведомству, услугам и специалистам',
       rep_total: 'Всего заявлений',
       rep_ontime: 'В срок',
       rep_breach: 'С нарушением',
@@ -658,6 +685,14 @@
       ij_state_pending: 'Ожидает ответа',
       ij_state_received: 'Получено',
       ij_count: 'запросов',
+      rep_period: 'Период',
+      rep_by_service: 'По услугам',
+      rep_by_specialist: 'По специалистам',
+      rep_col_service: 'Услуга',
+      rep_intake: 'Поступление за неделю',
+      rep_intake_aria: 'Поступление заявлений по дням недели, понедельник — воскресенье',
+      rep_week_mon: 'пн', rep_week_tue: 'вт', rep_week_wed: 'ср', rep_week_thu: 'чт',
+      rep_week_fri: 'пт', rep_week_sat: 'сб', rep_week_sun: 'вс',
       awaiting_reply: 'Ожидают сведений',
       // misc
       of_agency: 'Заявлений ведомства',
@@ -974,7 +1009,7 @@
       t_batch_done: 'Қарори гурӯҳӣ татбиқ шуд',
       t_locked: 'Ҷои кор қулф карда шуд',
       rep_title: 'Ҳисобот оид ба мӯҳлатҳо (SLA)',
-      rep_sub: 'Риояи мӯҳлат аз рӯи идора ва мутахассисон · давра: июли 2026',
+      rep_sub: 'Риояи мӯҳлат аз рӯи идора, хизматҳо ва мутахассисон',
       rep_total: 'Ҳамаи аризаҳо',
       rep_ontime: 'Дар мӯҳлат',
       rep_breach: 'Бо вайронкунӣ',
@@ -996,6 +1031,14 @@
       ij_state_pending: 'Дар интизори ҷавоб',
       ij_state_received: 'Гирифта шуд',
       ij_count: 'дархост',
+      rep_period: 'Давра',
+      rep_by_service: 'Аз рӯи хизматҳо',
+      rep_by_specialist: 'Аз рӯи мутахассисон',
+      rep_col_service: 'Хизмат',
+      rep_intake: 'Воридшавӣ дар як ҳафта',
+      rep_intake_aria: 'Воридшавии аризаҳо аз рӯи рӯзҳои ҳафта, душанбе — якшанбе',
+      rep_week_mon: 'дш', rep_week_tue: 'сш', rep_week_wed: 'чш', rep_week_thu: 'пш',
+      rep_week_fri: 'ҷм', rep_week_sat: 'шб', rep_week_sun: 'яш',
       awaiting_reply: 'Интизори маълумот',
       of_agency: 'Аризаҳои идора',
       overdue_title: 'Аризаҳои мӯҳлаташон гузашта',
@@ -1068,6 +1111,7 @@
   global.DATA = {
     STATUS: STATUS, SERVICE: SERVICE, ME: ME, COLLEAGUES: COLLEAGUES,
     I18N: I18N, REPORT_SPECIALISTS: REPORT_SPECIALISTS, INTEROP_DEMO: INTEROP_DEMO,
+    REPORT_PERIODS: REPORT_PERIODS, REPORT_DEMO: REPORT_DEMO,
     SOURCE_AGENCIES: SOURCE_AGENCIES, INFO_TYPES: INFO_TYPES,
     seed: seed, seedNotifs: seedNotifs,
     MIN: MIN, HOUR: HOUR

@@ -837,38 +837,10 @@ button.step:focus-visible {
 .bar-chart__item--peak .bar-chart__bar{opacity:1}
 .bar-chart small{font-size:var(--fs-12);color:var(--ink-faint);font-variant-numeric:tabular-nums}
 
-/* Неделя сети: горизонтальные полосы пн→вс. Один грид на все строки
-   (display:contents у ряда), иначе ширина «пн» vs «вт» сдвинет дорожки
-   (правило 18). */
+/* Неделя сети — общий компонент `.week-chart` (design-system/css/components.css,
+   правило 44): ведомство рисует поступление той же формой. Здесь остаётся
+   только то, как секция дашборда его вмещает. */
 .dashboard-section:has(.week-chart){display:flex;flex-direction:column}
-.week-chart{
-  display:grid;
-  grid-template-columns:max-content minmax(0, 1fr) var(--s-16);
-  grid-template-rows:repeat(7, minmax(0, 1fr));
-  /* Day→track sits one step above label-to-bar so the pill doesn’t crowd the weekday. */
-  column-gap:var(--s-3);row-gap:var(--s-2);
-  flex:1;min-width:0;min-height:190px;
-}
-.week-chart__row{display:contents}
-.week-chart__day{
-  font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2);
-  line-height:1.4;align-self:center;
-}
-.week-chart__track{
-  height:var(--s-3);border-radius:var(--r-pill);background:var(--field);overflow:hidden;min-width:0;
-  align-self:center;
-}
-.week-chart__fill{
-  display:block;height:100%;min-width:var(--s-2);border-radius:inherit;background:var(--blue);opacity:.82;
-}
-/* Dark keeps --blue as the action fill, which sinks into --panel.
-   --blue-ink is the visible blue on dark surfaces. */
-[data-theme='dark'] .week-chart__fill{background:var(--blue-ink)}
-.week-chart__row--peak .week-chart__fill{opacity:1}
-.week-chart__value{
-  font-size:var(--fs-12);color:var(--ink-faint);font-variant-numeric:tabular-nums;text-align:end;
-  align-self:center;
-}
 
 .data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:var(--s-3);text-align:left;border-bottom:1px solid var(--line-in);font-size:var(--fs-14)}
 .data-table th{color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-medium);text-transform:none;letter-spacing:0}

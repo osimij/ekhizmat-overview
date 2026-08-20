@@ -32,7 +32,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     cardTab: 'overview',
     apps: [],
     notifs: [],
-    filters: { svc: '', status: '', sla: 'all', priority: '', io: '', q: '' },
+    filters: { svc: '', status: '', sla: 'all', priority: '', io: '', period: '', q: '' },
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
     batchSvc: '',                       // услуга для экрана массовой обработки
@@ -53,7 +53,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
      попадает никогда: в ней бывает ФИО заявителя, а приватный контракт рабочего
      места запрещает персональные данные в адресной строке (§7, платформенное
      исключение). Восстанавливаем только по явному списку значений. */
-  var URL_FILTERS = ['svc', 'status', 'sla', 'priority', 'io'];
+  var URL_FILTERS = ['svc', 'status', 'sla', 'priority', 'io', 'period'];
   function filterAllowed(key, value) {
     if (!value) return key !== 'sla';
     if (key === 'svc') return Object.prototype.hasOwnProperty.call(D.SERVICE, value);
@@ -61,6 +61,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (key === 'sla') return value === 'all' || value === 'warn' || value === 'breach';
     if (key === 'priority') return value === 'high';
     if (key === 'io') return value === 'pending' || value === 'received';
+    if (key === 'period') return D.REPORT_PERIODS.some(function (x) { return x.id === value; });
     return false;
   }
   function readFiltersFromUrl() {
@@ -1160,30 +1161,72 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       '<div class="panel panel--pad" aria-live="polite">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
   }
 
-  /* ---- отчётность по SLA (§7Б.3 → §14) ---- */
+  /* ---- отчётность по SLA (§7Б.3 → §14) ----
+     Читается сверху вниз как один вопрос: сводка → по услугам → по
+     специалистам → ритм поступления. Живые числа считаются по S.apps, всё
+     периодическое приходит из именованных демо-констант data.js. */
+  function reportPeriod() {
+    var id = S.filters.period || D.REPORT_PERIODS[0].id;
+    return D.REPORT_DEMO[id] ? id : D.REPORT_PERIODS[0].id;
+  }
+  function reportRow(name, total, breach, extraClass) {
+    var rate = total ? Math.round((total - breach) / total * 100) : 0;
+    return '<div class="report-row' + (extraClass ? ' ' + extraClass : '') + '">' +
+      '<span class="report-row__who">' + name + '</span>' +
+      '<span class="report-row__num">' + total + '</span>' +
+      '<span class="report-row__num' + (breach ? ' report-row__num--breach' : '') + '">' + breach + '</span>' +
+      '<span class="report-row__rate"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
+  }
+  function reportHead(firstColumn) {
+    return '<div class="report-row report-row--head"><span>' + esc(firstColumn) + '</span>' +
+      '<span>' + esc(t('rep_col_total')) + '</span><span>' + esc(t('rep_col_breach')) + '</span>' +
+      '<span>' + esc(t('rep_col_rate')) + '</span></div>';
+  }
+  /* Правило 44: полноширинные горизонтальные строки дней, календарная неделя
+     пн→вс, число на каждой строке. Компонент общий с ЦОН. */
+  function weekChart(values) {
+    var days = ['rep_week_mon','rep_week_tue','rep_week_wed','rep_week_thu','rep_week_fri','rep_week_sat','rep_week_sun'].map(t);
+    var peak = Math.max.apply(null, values);
+    return '<div class="week-chart" role="img" aria-label="' + esc(t('rep_intake_aria')) + '">' +
+      values.map(function (v, i) {
+        return '<div class="week-chart__row' + (v === peak ? ' week-chart__row--peak' : '') + '">' +
+          '<span class="week-chart__day">' + esc(days[i]) + '</span>' +
+          '<span class="week-chart__track" aria-hidden="true"><span class="week-chart__fill" style="width:' + Math.round(v / peak * 100) + '%"></span></span>' +
+          '<span class="week-chart__value tnum">' + v + '</span></div>';
+      }).join('') + '</div>';
+  }
   function viewReports() {
-    var all = S.apps.length;
+    var periodId = reportPeriod(), demo = D.REPORT_DEMO[periodId];
     var breachN = S.apps.filter(function (a) { return ACTIVE[a.status] && slaState(a) === 'breach'; }).length;
-    var doneN = S.apps.filter(function (a) { return a.status === 'done' || a.status === 'denied'; }).length;
     var h = '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('rep_title')) + '</h1>' +
-      '<div class="view__sub">' + esc(t('rep_sub')) + '</div></div></div>';
+      '<div class="view__sub">' + esc(t('rep_sub')) + '</div></div>' +
+      '<div class="view__actions">' +
+        selectFilter('period', localValue(D.REPORT_PERIODS[0]), D.REPORT_PERIODS.map(function (x) { return { v: x.id, l: localValue(x) }; }), periodId, t('rep_period')) +
+      '</div></div>';
     h += '<div class="stat-grid">' +
-      statTile('i-inbox', 428, t('rep_total'), '') +
-      statTile('i-check', '94%', t('rep_ontime'), 'ok') +
-      statTile('i-clock', breachN, t('rep_breach'), breachN ? 'alert' : 'ok') +
-      statTile('i-history', S.lang === 'tg' ? '2,4 рӯз' : '2,4 дн', t('rep_avg'), '') +
+      statTile('', demo.total, t('rep_total'), '') +
+      statTile('', demo.onTimeRate + '%', t('rep_ontime'), 'ok') +
+      statTile('', breachN, t('rep_breach'), breachN ? 'alert' : 'ok') +
+      statTile('', esc(localValue(demo.avgDays)), t('rep_avg'), '') +
       '</div>';
-    h += '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('rep_spec')) + '</h3><div class="report-table">' +
-      '<div class="report-row report-row--head"><span>' + esc(t('rep_spec')) + '</span><span>' + esc(t('rep_col_total')) + '</span>' +
-      '<span>' + esc(t('rep_col_breach')) + '</span><span>' + esc(t('rep_col_rate')) + '</span></div>';
-    D.REPORT_SPECIALISTS.forEach(function (sp) {
-      var rate = Math.round(sp.onTime / sp.total * 100), breach = sp.total - sp.onTime;
-      h += '<div class="report-row"><span class="report-row__who"><span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name) + '</span>' +
-        '<span class="report-row__num">' + sp.total + '</span><span class="report-row__num' + (breach ? ' report-row__num--breach' : '') + '">' + breach + '</span>' +
-        '<span class="row g-3"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
+
+    h += '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('rep_by_service')) + '</h3><div class="report-table">' +
+      reportHead(t('rep_col_service'));
+    Object.keys(D.SERVICE).forEach(function (key) {
+      var pair = demo.services[key]; if (!pair) return;
+      h += reportRow('<span class="report-row__service">' + esc(serviceName(D.SERVICE[key])) + '</span>', pair[0], pair[1]);
     });
-    h += '</div></div></div>';
-    return h;
+    h += '</div></div>';
+
+    h += '<div class="panel panel--pad mt-4"><h3 class="h3 panel__title">' + esc(t('rep_by_specialist')) + '</h3><div class="report-table">' +
+      reportHead(t('rep_spec'));
+    D.REPORT_SPECIALISTS.forEach(function (sp) {
+      h += reportRow('<span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name), sp.total, sp.total - sp.onTime);
+    });
+    h += '</div></div>';
+
+    h += '<div class="panel panel--pad mt-4"><h3 class="h3 panel__title">' + esc(t('rep_intake')) + '</h3>' + weekChart(demo.week) + '</div>';
+    return h + '</div>';
   }
 
   /* ================================================================== */

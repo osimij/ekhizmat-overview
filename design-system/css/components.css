@@ -324,6 +324,45 @@ button.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 button.chip[aria-pressed="true"] b{color:var(--bg)}
 [data-theme="dark"] button.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 
+/* ============ WEEK LOAD ROWS (rule 44) ============
+   Full-width horizontal day rows, calendar week Monday→Sunday, a value on
+   every row. Vertical columns leave emptiness at the sides and a spline leaves
+   it above and below; a rolling "today minus six" window puts Monday in the
+   middle of the axis. One grid carries every row (`display:contents` on the
+   row), so a wide «пн» cannot shift the tracks out of line (rule 18).
+
+   Promoted from ЦОН's leadership dashboard when Ministry reporting became the
+   second consumer (§1 rule 9, rule 21). */
+.week-chart{
+  display:grid;
+  grid-template-columns:max-content minmax(0, 1fr) var(--s-16);
+  grid-template-rows:repeat(7, minmax(0, 1fr));
+  /* Day→track sits one step above label-to-bar so the pill doesn’t crowd the weekday. */
+  column-gap:var(--s-3);row-gap:var(--s-2);
+  flex:1;min-width:0;min-height:190px;
+}
+.week-chart__row{display:contents}
+.week-chart__day{
+  font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2);
+  line-height:1.4;align-self:center;
+}
+.week-chart__track{
+  height:var(--s-3);border-radius:var(--r-pill);background:var(--field);overflow:hidden;min-width:0;
+  align-self:center;
+}
+.week-chart__fill{
+  display:block;height:100%;min-width:var(--s-2);border-radius:inherit;background:var(--blue);opacity:.82;
+}
+/* Dark keeps --blue as the action fill, which sinks into --panel.
+   --blue-ink is the visible blue on dark surfaces. */
+[data-theme='dark'] .week-chart__fill{background:var(--blue-ink)}
+.week-chart__row--peak .week-chart__fill{opacity:1}
+.week-chart__value{
+  font-size:var(--fs-12);color:var(--ink-faint);font-variant-numeric:tabular-nums;text-align:end;
+  align-self:center;
+}
+
+
 /* ============ DROPDOWNS (Grok-style menus) ============ */
 .dd{position:relative; display:inline-flex}
 .dd-btn{
@@ -639,6 +678,38 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 }
 .ekh-list-head > * { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ekh-list-head > :not(:first-child) { justify-self:center; text-align:center; }
+
+/* …and the record rows beneath it. Records bleed edge-to-edge on hover with
+   square corners — the highlight touching the edges says "this whole record"
+   (§5 casebook 2). One hairline between consecutive rows. */
+.ekh-list-row {
+  display:grid;
+  grid-template-columns:var(--list-columns);
+  column-gap:var(--list-gap, var(--s-8));
+  align-items:center;
+  min-width:0;
+  min-height:68px;
+  padding:var(--s-3) var(--s-5);
+  color:inherit;
+  text-decoration:none;
+  transition:background var(--t-fast) var(--ease);
+}
+.ekh-list-row > * { min-width:0; }
+.ekh-list-row:hover { background:var(--hover); }
+.ekh-list-row:focus-visible { outline:2px solid var(--focus); outline-offset:-2px; }
+.ekh-list-row + .ekh-list-row { border-top:1px solid var(--line-in); }
+.ekh-list-cell {
+  justify-self:center;
+  max-width:100%;
+  color:var(--ink-3);
+  font-size:var(--fs-13);
+  font-weight:var(--weight-regular);
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.ekh-list-cell b { color:var(--ink-2); font-weight:var(--weight-regular); }
 
 .data-table-wrap { overflow:auto; border:1px solid var(--line-in); border-radius:var(--r-l); background:var(--panel); }
 .data-table { width:100%; border-collapse:collapse; text-align:left; }
