@@ -50,7 +50,7 @@ export function renderLocked(host) {
   const running = getState().lockedFrom === ST.SESSION;
 
   const body = h('div', { class: 's-locked__body' },
-    icon('lock', { size: 48, cls: 's-locked__icon' }),
+    icon('lock-pass', { size: 48, cls: 's-locked__icon' }),
     h('div', { class: 's-locked__copy' },
       h('div', { class: 'login__heading' },
         h('h1', { id: 'locked-title' }, t('locked.title')),

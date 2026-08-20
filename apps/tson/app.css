@@ -872,6 +872,10 @@ button.step:focus-visible {
 .data-table{width:100%;border-collapse:collapse}.data-table th,.data-table td{padding:var(--s-3);text-align:left;border-bottom:1px solid var(--line-in);font-size:var(--fs-14)}
 .data-table th{color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-medium);text-transform:none;letter-spacing:0}
 .data-table td small{display:block;margin-top:2px}
+[data-theme='dark'] .data-table .status-icon--success{background:color-mix(in srgb,var(--green-tint) 50%,transparent)}
+[data-theme='dark'] .data-table .status-icon--warning{background:color-mix(in srgb,var(--amber-tint) 50%,transparent)}
+[data-theme='dark'] .data-table .status-icon--danger{background:color-mix(in srgb,var(--red-tint) 50%,transparent)}
+[data-theme='dark'] .data-table .status-icon--info{background:color-mix(in srgb,var(--blue-tint) 50%,transparent)}
 /* Колонка-шеврон: только ширина под иконку 20 + отступы ячейки, прижата
    вправо. Она и есть видимый признак того, что строка кликабельна. */
 .data-table__go{width:44px;color:var(--ink-faint)}
@@ -921,9 +925,16 @@ button.step:focus-visible {
   font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2);
   line-height:1.4;white-space:nowrap;
 }
-.audience-bar--person .audience-bar__fill{background:var(--h-slate-fg)}
-.audience-bar--business .audience-bar__fill{background:var(--h-amber-fg)}
-.audience-bar--guest .audience-bar__fill{background:var(--h-violet-fg)}
+/* Light uses fill-strength hues, not --h-*-fg text-on-tint inks (those read as
+   muddy slate / olive / purple on --panel). Mix toward the matching tint to
+   lift the bar; keep ≥3:1 on --panel. Dark keeps the inks — the same split as
+   .week-chart__fill. */
+.audience-bar--person .audience-bar__fill{background:color-mix(in srgb,var(--blue) 75%,var(--h-blue-bg))}
+.audience-bar--business .audience-bar__fill{background:color-mix(in srgb,var(--h-amber-fg) 70%,var(--h-amber-bg))}
+.audience-bar--guest .audience-bar__fill{background:color-mix(in srgb,var(--h-violet-fg) 65%,var(--h-violet-bg))}
+[data-theme='dark'] .audience-bar--person .audience-bar__fill{background:var(--h-slate-fg)}
+[data-theme='dark'] .audience-bar--business .audience-bar__fill{background:var(--h-amber-fg)}
+[data-theme='dark'] .audience-bar--guest .audience-bar__fill{background:var(--h-violet-fg)}
 .dashboard-table-section{display:grid;gap:var(--s-4);padding-bottom:0;overflow:hidden}
 .dashboard-table-section > .h3,
 .dashboard-table-section > .row:first-child{margin-bottom:0}
@@ -1505,13 +1516,13 @@ button.step:focus-visible {
    Меню оператора (§3.2) — поповер со списком действий
    ============================================================ */
 .menu { min-width: 260px; padding: var(--s-3); }
-.menu__head { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2) var(--s-3) var(--s-3); }
+.menu__head { display: flex; flex-direction: column; gap: 2px; padding: var(--s-2) var(--s-3) var(--s-3); letter-spacing: 0; }
 .menu__item {
   display: flex;
   align-items: center;
   gap: var(--s-3);
   width: 100%;
-  padding: var(--s-3);
+  padding: var(--s-2) var(--s-3);
   border-radius: var(--r-m);
   font-size: var(--fs-15);
   text-align: left;

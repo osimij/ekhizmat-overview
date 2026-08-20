@@ -85,7 +85,7 @@ export function facescanFrame({ size = 72, showStroke = true } = {}) {
 /* Statuses use the shared Hugeicons sprite without repeating the label in
    dense rows. The label remains available to assistive tech and on hover. */
 export function statusIcon(tone, label, { iconName = null } = {}) {
-  const names = { success:'check', warning:'clock', danger:'x', info:'info', neutral:'dots' };
+  const names = { success:'check', warning:'clock', danger:'x-strong', info:'info', neutral:'dots' };
   return h('span', { class:`status-icon status-icon--${tone}`, role:'img', 'aria-label':label, title:label },
     icon(iconName || names[tone] || names.neutral, { size:16 }));
 }

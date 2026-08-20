@@ -426,6 +426,7 @@ html body .login__brand b {
 .login__form--credentials .login__heading { margin-bottom: var(--s-6); }
 .login__fields { display: grid; gap: var(--s-3); }
 .login__fields .field { margin-bottom: 0; }
+.panel.login__card .login__fields .field__error { font-size: var(--fs-15); }
 .panel.login__card .field { gap: var(--s-1); }
 .panel.login__card .login-field--floating {
   /* Legend-on-border float: idle label sits inside the pill; on focus/fill

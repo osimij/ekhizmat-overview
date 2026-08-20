@@ -400,6 +400,10 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expect(page.locator('.s-idle__start')).toBeVisible();
   await expect(page).toHaveURL(/#\/idle/);
   await expect(page.locator('.topbar__bind')).toHaveText('Окно 1 - ЦОН район Сино');
+  await page.goto('/tson/?lang=tg&theme=light');
+  await expect(page.locator('.topbar__bind')).toHaveText('Тирезаи 1 - ЦОН ноҳияи Сино');
+  await page.goto('/tson/?lang=ru&theme=light');
+  await expect(page.locator('.topbar__bind')).toHaveText('Окно 1 - ЦОН район Сино');
 
   const operatorMenu = page.getByRole('button', { name: /меню оператора/i });
   await operatorMenu.click();
