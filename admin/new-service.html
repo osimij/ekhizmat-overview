@@ -94,12 +94,15 @@
           <section data-step="3" hidden>
             <h2>Маълумоти асосӣ</h2>
             <p class="lead">Ин дар феҳрист ва дар сарлавҳаи шакли шаҳрванд намоиш меёбад. Имзои электронӣ ва пайгирӣ худкор илова мешаванд.</p>
+
+            <h3 class="edit-sub">Ном ва идора</h3>
             <div class="fld-grid adm-mb-4">
               <div class="field"><label for="ntg">Номи хизмат (тоҷикӣ)</label><input class="input" id="ntg" placeholder="Масалан: Маълумотнома дар бораи…" value="Маълумотнома дар бораи маҳалли истиқомат"></div>
               <div class="field"><label for="nru">Номи хизмат (русӣ)</label><input class="input" id="nru" placeholder="Справка о…" value="Справка о месте жительства"></div>
             </div>
             <div class="field"><label for="org">Идораи масъул</label><div class="select"><select id="org"><option value="sahsh">САҲШ — сабти асноди ҳолати шаҳрвандӣ</option><option value="tax">Кумитаи андоз</option><option value="passport">ВКД — хадамоти шиносномавӣ</option><option value="land">Кумитаи замин ва геодезия</option><option value="labor">Вазорати меҳнат</option></select></div></div>
 
+            <h3 class="edit-sub">Намоиш дар феҳрист</h3>
             <div class="field"><label for="serviceCategory">Категорияи хизмат</label>
               <div class="select"><select id="serviceCategory" name="category">
                 <option value="docs">Ҳуҷҷатҳо ва шиноснома</option>
@@ -134,6 +137,7 @@
               <p class="help">Нишона ва ранг дар рӯйхати хизматҳо ва кортҳои шаҳрванд истифода мешаванд.</p>
             </div>
 
+            <h3 class="edit-sub">Шароит</h3>
             <div class="field audience-field"><label>Барои кӣ</label>
               <div class="audience-selector adm-w-full">
                 <label><input type="checkbox" name="audience" data-lc-audience="person" checked><span>Шахси воқеӣ</span></label>
@@ -142,7 +146,17 @@
               </div>
               <p class="help">Як ё якчанд аудиторияро интихоб кунед.</p>
             </div>
-            <div class="field service-sla-field"><label for="sla">Мӯҳлати иҷро</label><input class="input" id="sla" value="1 рӯзи корӣ"></div>
+            <div class="field service-sla-field"><label for="slaChoice">Мӯҳлати иҷро</label>
+              <div class="select"><select id="slaChoice">
+                <option value="2 соат">2 соат</option>
+                <option value="1 рӯзи корӣ" selected>1 рӯзи корӣ</option>
+                <option value="3 рӯзи корӣ">3 рӯзи корӣ</option>
+                <option value="5 рӯзи корӣ">5 рӯзи корӣ</option>
+                <option value="other">Дигар…</option>
+              </select></div>
+              <input class="input adm-mt-3" id="sla" value="1 рӯзи корӣ" aria-label="Мӯҳлати иҷро — қимати худӣ" hidden>
+              <p class="help">Ҳамин мӯҳлат баъдтар дар қадами «Масир»-и конструктор нишон дода мешавад.</p>
+            </div>
 
             <div class="field cost-field"><label>Нарх</label>
               <div class="cost-options" id="costSeg">
@@ -158,7 +172,7 @@
           <!-- 4 review → open builder -->
           <section data-step="4" hidden>
             <h2>Тайёр барои сохтан</h2>
-            <p class="lead">Ҳамаашро санҷед. Хизматро ҳамчун сиёҳнавис захира кунед ё барои он шакли дархост созед.</p>
+            <p class="lead">Ҳамаашро санҷед. Хизматро дар конструктор кушоед ё ҳамчун сиёҳнавис захира кунед — шакли дархостро дар қадами «Шакли дархост» пайваст мекунед.</p>
             <div class="review review--creation-summary">
               <div class="rv"><span class="k">Ном</span><span class="v" id="rvName">Маълумотнома дар бораи маҳалли истиқомат</span></div>
               <div class="rv"><span class="k">Асос (қолаб)</span><span class="v" id="rvBase">Маълумотнома / справка</span></div>
@@ -172,7 +186,7 @@
             <div class="j-acts j-acts--split">
               <button class="btn btn-sec btn-lg" data-back>Бозгашт</button>
               <button class="btn btn-sec btn-lg" id="saveServiceDraft" type="button"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>Захира ҳамчун сиёҳнавис</button>
-              <a class="btn btn-pri btn-lg" id="createServiceForm" href="form-builder.html?new=1"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg>Сохтани шакл</a>
+              <a class="btn btn-pri btn-lg" id="openServiceBuilder" href="builder.html"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg>Кушодани конструктор</a>
             </div>
           </section>
         </div>
@@ -190,7 +204,7 @@
   var $=function(s){return document.querySelector(s);};
   var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
   var methodNext=$('#methodNext'), basisStep=$('#basisStep'), copyPicker=$('#copyPicker');
-  var metaBack=$('[data-step="3"] [data-back]'), createForm=$('#createServiceForm');
+  var metaBack=$('[data-step="3"] [data-back]'), openBuilder=$('#openServiceBuilder');
   var selectedCopy=null, runtimeLang=null;
   function activeLang(){
     if(runtimeLang) return runtimeLang;
@@ -202,16 +216,18 @@
     $('#rvName').textContent=value||(activeLang()==='ru'?'Услуга без названия':'Хизмати беном');
   }
   function setNames(tg,ru){ $('#ntg').value=tg; $('#nru').value=ru; syncName(); }
-  function setFormHref(source,service){
-    var q=new URLSearchParams();q.set('new','1');q.set('source',source);q.set('lang',activeLang());q.set('theme',document.documentElement.dataset.theme||'light');
+  /* The service process is the product; the request form is a library
+     dependency attached from the builder's «Шакли дархост» step. */
+  function setBuilderHref(source,service){
+    var q=new URLSearchParams();q.set('source',source);q.set('lang',activeLang());q.set('theme',document.documentElement.dataset.theme||'light');
     if(service) q.set('service',service);
     if($('#serviceCategory')) q.set('category',$('#serviceCategory').value);
-    createForm.href='form-builder.html?'+q.toString();
+    openBuilder.href='builder.html?'+q.toString();
   }
   function configureMethod(preserveNames){
     var method=($('[name="method"]:checked')||{}).value||'template';
     var usesTemplate=method==='template';
-    $('#sla').value=activeLang()==='ru'?'1 рабочий день':'1 рӯзи корӣ';
+    syncSlaLanguage();
     copyPicker.hidden=method!=='copy';
     basisStep.hidden=!usesTemplate;
     $$('[data-basis-line]').forEach(function(line){ line.hidden=!usesTemplate; });
@@ -226,17 +242,17 @@
     if(method==='blank'){
       $('#rvBase').textContent=activeLang()==='ru'?'С нуля':'Аз сафед';
       $('#rvProcess').textContent=activeLang()==='ru'?'Пустой процесс — готовых шагов нет.':'Раванди холӣ — қадамҳои тайёр нестанд.';
-      setFormHref('blank');
+      setBuilderHref('blank');
       if(!preserveNames) setNames('',''); else syncName();
     }else if(method==='copy'){
       $('#rvBase').textContent=selectedCopy?selectedCopy.getAttribute(activeLang()==='ru'?'data-name-ru':'data-name-tg'):(activeLang()==='ru'?'Услуга не выбрана':'Хизмат интихоб нашудааст');
       $('#rvProcess').textContent=activeLang()==='ru'?'Полная копия процесса выбранной услуги':'Нусхаи пурраи раванди хизмати интихобшуда';
-      setFormHref('copy',selectedCopy&&selectedCopy.value);
+      setBuilderHref('copy',selectedCopy&&selectedCopy.value);
       if(selectedCopy&&!preserveNames) setNames('Нусха — '+selectedCopy.getAttribute('data-name-tg'),'Копия — '+selectedCopy.getAttribute('data-name-ru'));
       else syncName();
     }else{
       $('#rvProcess').textContent=activeLang()==='ru'?'подтверждение → поля → доставка → рассмотрение → документ':'тасдиқ → майдонҳо → расондан → баррасӣ → ҳуҷҷат';
-      setFormHref('template');
+      setBuilderHref('template');
       if(!preserveNames) setNames('Маълумотнома дар бораи маҳалли истиқомат','Справка о месте жительства');
       else syncName();
     }
@@ -265,11 +281,29 @@
   function syncCategory(){
     var category=$('#serviceCategory'), selected=category.options[category.selectedIndex];
     $('#rvCat').textContent=selected?selected.textContent:'';
-    var href=new URL(createForm.href,location.href);
+    var href=new URL(openBuilder.href,location.href);
     href.searchParams.set('category',category.value);
-    createForm.href=href.pathname.split('/').pop()+'?'+href.searchParams.toString();
+    openBuilder.href=href.pathname.split('/').pop()+'?'+href.searchParams.toString();
   }
   $('#serviceCategory').addEventListener('change',syncCategory);
+  /* the SLA is a bounded choice; "Дигар…" reveals the free-text escape hatch */
+  var slaChoice=$('#slaChoice'), slaCustom=$('#sla');
+  var SLA_RU={'2 соат':'2 часа','1 рӯзи корӣ':'1 рабочий день','3 рӯзи корӣ':'3 рабочих дня','5 рӯзи корӣ':'5 рабочих дней','other':'Другое…'};
+  function syncSla(){
+    var custom=slaChoice.value==='other';
+    slaCustom.hidden=!custom;
+    if(!custom) slaCustom.value=slaChoice.options[slaChoice.selectedIndex].textContent;
+    else if(slaCustom.value===slaChoice.options[slaChoice.selectedIndex-1]?.textContent) slaCustom.value='';
+  }
+  function syncSlaLanguage(){
+    var ru=activeLang()==='ru';
+    Array.prototype.forEach.call(slaChoice.options,function(option){
+      if(ru&&SLA_RU[option.value]) option.textContent=SLA_RU[option.value];
+      else if(!ru) option.textContent=option.value==='other'?'Дигар…':option.value;
+    });
+    if(slaChoice.value!=='other') slaCustom.value=slaChoice.options[slaChoice.selectedIndex].textContent;
+  }
+  slaChoice.addEventListener('change',syncSla);
   function syncAudience(){
     var labels={person:'Шахси воқеӣ',business:'Шахси ҳуқуқӣ',guest:'Меҳмон'};
     var out=Array.from(document.querySelectorAll('[name="audience"]:checked')).map(function(i){var a=i.getAttribute('data-lc-audience');return '<span class="audience-badge audience-badge--'+a+'">'+labels[a]+'</span>';});
@@ -283,6 +317,7 @@
     copySearch.dispatchEvent(new Event('input'));
   });
   configureMethod(false);
+  syncSla();
   syncCategory();
   syncAudience();
   syncCost();

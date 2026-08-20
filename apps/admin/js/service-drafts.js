@@ -82,16 +82,19 @@ function targetUrl(path,params={}){
 }
 
 function initWizard(){
-  const saveButton=document.querySelector('#saveServiceDraft'),createForm=document.querySelector('#createServiceForm');
-  if(!saveButton||!createForm)return;
+  const saveButton=document.querySelector('#saveServiceDraft'),openBuilder=document.querySelector('#openServiceBuilder');
+  if(!saveButton||!openBuilder)return;
   let draftId=new URLSearchParams(location.search).get('draft')||null;
   const persist=()=>{const draft=saveServiceDraft(serviceFromWizard(draftId));draftId=draft.id;return draft;};
+  /* the saved draft has to be visible somewhere: the registry, filtered to drafts */
   saveButton.addEventListener('click',()=>{
-    const draft=persist();location.href=targetUrl('services.html',{saved:draft.id})+'#serviceRegistry';
+    const draft=persist();location.href=targetUrl('services.html',{status:'draft',saved:draft.id})+'#serviceRegistry';
   });
-  createForm.addEventListener('click',event=>{
+  /* the primary action opens the object the wizard just created */
+  openBuilder.addEventListener('click',event=>{
     event.preventDefault();const draft=persist();
-    location.href=targetUrl('form-builder.html',{new:'1',service:draft.id});
+    const source=document.querySelector('[name="method"]:checked')?.value||'template';
+    location.href=targetUrl('builder.html',{source,service:draft.id});
   });
 }
 
