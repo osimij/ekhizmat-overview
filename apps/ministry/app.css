@@ -389,14 +389,16 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
   flex-wrap: wrap;
   margin-bottom: var(--s-4);
 }
-.toolbar .field__wrap--search { flex: 1 1 240px; max-width: 360px; }
-.toolbar .field__input { height: var(--h-btn-s); }
-.toolbar .field__wrap--search .field__input { border-radius: var(--r-pill); font-size: 14px; }
-.toolbar .seg { height: var(--h-btn-s); padding: 2px; }
-.toolbar .seg__item { height: 100%; }
 .filter-select { position: relative; min-width: 180px; }
 .filter-select--svc { flex: 1 1 280px; max-width: 360px; }
 .filter-select--status { flex: 0 1 200px; }
+/* Подпись перед полем — анатомия канонического фильтра (§3, §6): «Срок»
+   называет контроль, а значение внутри отвечает. Услуга и статус называют себя
+   сами первым пунктом списка («Все услуги»). */
+.filter-select--sla { display: flex; align-items: center; gap: var(--s-2); min-width: 0; flex: 0 1 260px; }
+.filter-select__label { flex: none; color: var(--ink-2); font-size: var(--fs-13); white-space: nowrap; }
+.filter-select--sla .filter-select__trigger { flex: 1 1 auto; }
+.filter-select--sla .filter-select__menu { left: auto; right: 0; transform-origin: top right; }
 .filter-select__trigger {
   width: 100%; height: var(--h-btn-s);
   display: flex; align-items: center; gap: var(--s-2);
@@ -476,8 +478,9 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
 .stat--ok    .stat__v { color: var(--ink); }
 .stat__foot  { font-size: 13px; color: var(--ink-faint); }
 button.stat { text-align: left; cursor: pointer; transition: box-shadow var(--t-fast) var(--ease); }
+button.stat .stat__v, button.stat .stat__k { display: block; }
 button.stat:hover { box-shadow: inset 0 0 0 2px var(--line); }
-button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
+button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 
 /* ============================================================
    Очередь заданий — список заявлений (§7Б.2)
@@ -512,6 +515,7 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
 }
 .q-head button .icon { width: 14px; height: 14px; opacity: 0.5; }
 .q-head button.is-sorted .icon { opacity: 1; color: var(--blue-ink); }
+.q-head button.is-asc .icon { rotate: 180deg; }
 
 .q-list {
   background: var(--panel);
@@ -560,16 +564,8 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
 .sla__ico { display: none; }
 .sla__time { font-variant-numeric: tabular-nums; }
 
-/* Status pills use their text and tint without an additional leading dot. */
-.pill > .dot { display: none; }
+/* Статус в строке — только .status-icon (§3 «Status in repeated rows»). */
 .q-status { min-width: 0; }
-.q-status .pill { max-width: 100%; padding-inline: var(--s-2); }
-.q-status__label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
 .q-checkbox { display: grid; place-items: center; }  /* стиль чекбокса — из .check__input дизайн-системы */
 
@@ -580,6 +576,12 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
      optical gutter than the other desktop columns. */
   .q-head > :nth-child(3),
   .q-row > .q-service { padding-inline-start: var(--s-1); }
+  /* №, услуга и заявитель читаются как текст — они слева. Подана, статус и
+     срок сравнивают между строками, поэтому центрируются вместе со своими
+     заголовками (§5 «Column alignment in data tables»). */
+  .q-head > :nth-child(n+5),
+  .q-row > :nth-child(n+5) { justify-self: center; text-align: center; }
+  .q-head > :nth-child(n+5) { display: inline-flex; justify-content: center; }
 }
 
 /* полоса массовых операций (§7Б.2) */
@@ -590,7 +592,7 @@ button.stat.is-active { box-shadow: inset 0 0 0 2px var(--blue); }
   padding: var(--s-3) var(--s-4);
   background: var(--ink); color: var(--bg);
   border-radius: var(--r-pill);
-  box-shadow: 0 8px 24px -8px var(--line-in);
+  box-shadow: var(--shadow-1);
 }
 [data-theme="dark"] .batchbar { background: var(--panel); color: var(--ink); border: 1px solid var(--line); }
 .batchbar__count { font-weight: 550; flex: none; }

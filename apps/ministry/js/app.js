@@ -32,7 +32,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     cardTab: 'overview',
     apps: [],
     notifs: [],
-    filters: { svc: '', status: '', sla: 'all', q: '' },
+    filters: { svc: '', status: '', sla: 'all', priority: '', q: '' },
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
     batchSvc: '',                       // услуга для экрана массовой обработки
@@ -47,6 +47,43 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     modal: null,                        // объект текущей модалки
     pop: null                           // 'notif' | 'user' | null
   };
+
+  /* §7 — фильтры живут в адресе: перезагрузка, «назад» и присланная ссылка
+     должны открывать то, на что оператор смотрел. Строка поиска `q` в адрес не
+     попадает никогда: в ней бывает ФИО заявителя, а приватный контракт рабочего
+     места запрещает персональные данные в адресной строке (§7, платформенное
+     исключение). Восстанавливаем только по явному списку значений. */
+  var URL_FILTERS = ['svc', 'status', 'sla', 'priority'];
+  function filterAllowed(key, value) {
+    if (!value) return key !== 'sla';
+    if (key === 'svc') return Object.prototype.hasOwnProperty.call(D.SERVICE, value);
+    if (key === 'status') return Object.prototype.hasOwnProperty.call(D.STATUS, value);
+    if (key === 'sla') return value === 'all' || value === 'warn' || value === 'breach';
+    if (key === 'priority') return value === 'high';
+    return false;
+  }
+  function readFiltersFromUrl() {
+    var params = new URLSearchParams(location.search);
+    URL_FILTERS.forEach(function (key) {
+      var value = params.get(key);
+      if (value != null && filterAllowed(key, value)) S.filters[key] = value;
+    });
+  }
+  function writeFiltersToUrl() {
+    var params = new URLSearchParams(location.search);
+    URL_FILTERS.forEach(function (key) {
+      var value = S.filters[key];
+      var isDefault = key === 'sla' ? value === 'all' : !value;
+      if (isDefault) params.delete(key); else params.set(key, value);
+    });
+    var query = params.toString();
+    try { history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + location.hash); } catch (e) {}
+  }
+  function setFilter(key, value) {
+    S.filters[key] = value;
+    writeFiltersToUrl();
+    renderMain();
+  }
 
   /* Сессия оператора в этой вкладке. F5 оставляет на месте; Cmd+Shift+R /
      Ctrl+F5 / выход / закрытие вкладки возвращают на вход. Заявки ведомства
@@ -235,6 +272,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       if (f.svc && a.svc !== f.svc) return false;
       if (f.status && a.status !== f.status) return false;
       if (f.sla !== 'all') { var st = slaState(a); if (f.sla === 'warn' && st === 'ok') return false; if (f.sla === 'breach' && st !== 'breach') return false; }
+      if (f.priority === 'high' && a.priority !== 'Высокий') return false;
       if (q) {
         var hay = (a.number + ' ' + serviceName(svc(a)) + ' ' + a.applicant.name + ' ' + (a.applicant.tin || '')).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
@@ -688,32 +726,31 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
            '<span class="banner__text">' + esc(t('overdue_banner')) + '</span></div>';
     }
 
-    // метрики очереди
+    // метрики очереди — каждая плитка включает состояние, которое называет
     if (scope !== 'all') {
       var mine = mineActive();
+      var f = S.filters;
+      var noFilters = !f.svc && !f.status && f.sla === 'all' && !f.priority;
       h += '<div class="stat-grid' + (S.statIntroPending ? ' stat-grid--intro' : '') + '">' +
-        statTile('i-inbox', mine.length, t('nav_queue'), '') +
-        statTile('i-clock', overdue().length, t('rep_breach'), overdue().length ? 'alert' : 'ok') +
-        statTile('i-refresh', pendingInterop(), t('awaiting_reply'), pendingInterop() ? 'warn' : '') +
-        statTile('i-fire', mine.filter(function(a){return a.priority==='Высокий';}).length, t('priority'), '') +
+        statFilter(mine.length, t('nav_queue'), '', noFilters, 'stat-clear') +
+        statFilter(overdue().length, t('rep_breach'), overdue().length ? 'alert' : 'ok', f.sla === 'breach', 'stat-sla') +
+        statFilter(mine.filter(function (a) { return a.status === 'info_requested'; }).length, t('awaiting_reply'), f.status === 'info_requested' ? 'warn' : '', f.status === 'info_requested', 'stat-status') +
+        statFilter(mine.filter(function (a) { return a.priority === 'Высокий'; }).length, t('priority'), '', f.priority === 'high', 'stat-priority') +
         '</div>';
     }
 
-    // тулбар фильтров
+    // тулбар фильтров. Поиск — только в топбаре: два поля на одно состояние
+    // читаются как два разных поиска (правило 7).
     h += '<div class="toolbar">' +
-      '<div class="field__wrap field__wrap--search"><span class="field__affix">' + ic('i-search','icon--20') + '</span>' +
-        '<input class="field__input" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q"></div>' +
       selectFilter('svc', t('f_all_services'), Object.keys(D.SERVICE).map(function (k) { return { v: k, l: serviceName(D.SERVICE[k]) }; }), S.filters.svc) +
       selectFilter('status', t('f_all_statuses'), Object.keys(D.STATUS).map(function (k) { return { v: k, l: statusLabel(k) }; }), S.filters.status) +
-      '<div class="seg" role="tablist" aria-label="' + esc(t('deadline')) + '">' +
-        segItem('sla', 'all', t('sla_all')) + segItem('sla', 'warn', t('sla_warn')) + segItem('sla', 'breach', t('sla_breach')) +
-      '</div>' +
+      selectFilter('sla', t('sla_all'), [{ v: 'warn', l: t('sla_warn') }, { v: 'breach', l: t('sla_breach') }], S.filters.sla === 'all' ? '' : S.filters.sla, t('deadline')) +
       '<div class="toolbar__spacer"></div>' +
-      '<span class="small nowrap">' + list.length + ' ' + esc(t('applications_short')) + '</span>' +
+      '<span class="small nowrap" aria-live="polite">' + list.length + ' ' + esc(t('applications_short')) + '</span>' +
     '</div>';
 
     if (!list.length) {
-      var empty = (scope === 'queue' && !S.filters.q && !S.filters.svc && !S.filters.status && S.filters.sla === 'all');
+      var empty = (scope === 'queue' && !S.filters.q && !S.filters.svc && !S.filters.status && S.filters.sla === 'all' && !S.filters.priority);
       h += '<div class="panel panel--pad"><div class="empty">' + ic('i-check','icon--48') +
         '<div class="empty__title">' + esc(empty ? t('empty_queue_title') : t('empty_title')) + '</div>' +
         '<div class="empty__hint">' + esc(empty ? t('empty_queue_hint') : t('empty_hint')) + '</div></div></div>';
@@ -730,9 +767,9 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       '<span>' + esc(t('col_num')) + '</span>' +
       '<span>' + esc(t('col_service')) + '</span>' +
       '<span>' + esc(t('col_applicant')) + '</span>' +
-      '<button data-act="sort" data-key="submitted" class="' + (S.sort.key==='submitted'?'is-sorted':'') + '" aria-label="' + esc(sortLabel('submitted', t('col_submitted'))) + '">' + esc(t('col_submitted')) + ic('i-chev-d','') + '</button>' +
+      sortHead('submitted', t('col_submitted'), sortLabel) +
       '<span>' + esc(t('col_status')) + '</span>' +
-      '<button data-act="sort" data-key="sla" class="' + (S.sort.key==='sla'?'is-sorted':'') + '" aria-label="' + esc(sortLabel('sla', t('col_sla'))) + '">' + esc(t('col_sla')) + ic('i-chev-d','') + '</button>' +
+      sortHead('sla', t('col_sla'), sortLabel) +
     '</div><div class="q-list">';
 
     list.forEach(function (a) { h += rowQueue(a); });
@@ -743,7 +780,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       var bs = batchStatus(list);
       var hint = bs === 'mixed' ? t('batch_only_same') : bs === 'critical' ? t('batch_critical') : '';
       h += '<div class="batchbar">' +
-        '<span class="batchbar__count">' + esc(t('selected')) + ': <b>' + selCount + '</b></span>' +
+        '<span class="batchbar__count" aria-live="polite">' + esc(t('selected')) + ': <b>' + selCount + '</b></span>' +
         (hint ? '<span class="batchbar__hint small">' + esc(hint) + '</span>' : '') +
         '<div class="batchbar__spacer"></div>' +
         '<button class="btn btn--secondary btn--s" data-act="sel-clear">' + esc(t('clear_sel')) + '</button>' +
@@ -760,7 +797,14 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     return '<div class="stat' + (mod ? ' stat--' + mod : '') + '"><div class="stat__v tnum">' + val + '</div>' +
       '<div class="stat__k">' + esc(label) + '</div></div>';
   }
-  function selectFilter(name, allLabel, opts, cur) {
+  /* §3 «KPI / stat cards»: когда плитка называет состояние списка, она и есть
+     переключатель этого состояния — <button> с aria-pressed, а не декорация
+     над таблицей. */
+  function statFilter(val, label, mod, pressed, act, value) {
+    return '<button type="button" class="stat' + (mod ? ' stat--' + mod : '') + '" aria-pressed="' + (pressed ? 'true' : 'false') + '" data-act="' + act + '"' + (value != null ? ' data-val="' + esc(value) + '"' : '') + '>' +
+      '<span class="stat__v tnum">' + val + '</span><span class="stat__k">' + esc(label) + '</span></button>';
+  }
+  function selectFilter(name, allLabel, opts, cur, label) {
     var items = [{ v: '', l: allLabel }].concat(opts);
     var selected = items.filter(function (x) { return x.v === cur; })[0] || items[0];
     var open = S.filterOpen === name;
@@ -772,20 +816,24 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
         '<span>' + esc(x.l) + '</span>' + (isSelected ? ic('i-check','icon--16') : '') + '</button>';
     });
     return '<div class="filter-select filter-select--' + name + (open ? ' is-open' : '') + '">' +
-      '<button class="filter-select__trigger" type="button" data-act="filter-toggle" data-filter-name="' + name + '" aria-label="' + esc(allLabel) + '" aria-haspopup="listbox" aria-expanded="' + open + '" aria-controls="' + listId + '">' +
+      (label ? '<span class="filter-select__label">' + esc(label) + '</span>' : '') +
+      '<button class="filter-select__trigger" type="button" data-act="filter-toggle" data-filter-name="' + name + '" aria-label="' + esc(label ? label + ': ' + selected.l : allLabel) + '" aria-haspopup="listbox" aria-expanded="' + open + '" aria-controls="' + listId + '">' +
         '<span>' + esc(selected.l) + '</span>' + ic('i-chev-d','icon--16') + '</button>' +
       '<div class="filter-select__menu" id="' + listId + '" role="listbox" aria-label="' + esc(allLabel) + '"' + (open ? '' : ' hidden') + '>' + o + '</div></div>';
   }
-  function segItem(name, val, label) {
-    return '<button class="seg__item" role="tab" aria-selected="' + (S.filters[name] === val) + '" data-filter="' + name + '" data-val="' + val + '">' + esc(label) + '</button>';
+  /* Направление сортировки объявлено в aria-label — рисунок обязан совпадать
+     с объявлением (§9): по возрастанию шеврон переворачивается. */
+  function sortHead(key, label, sortLabel) {
+    var active = S.sort.key === key;
+    var cls = (active ? 'is-sorted' : '') + (active && S.sort.dir === 1 ? ' is-asc' : '');
+    return '<button data-act="sort" data-key="' + key + '" class="' + cls.trim() + '" aria-label="' + esc(sortLabel(key, label)) + '">' + esc(label) + ic('i-chev-d','') + '</button>';
   }
-
   function slaWord(st) { return st === 'breach' ? t('sla_word_breach') : st === 'warn' ? t('sla_word_warn') : t('sla_word_ok'); }
   function rowQueue(a) {
     var s = svc(a), st = slaState(a), sel = !!S.sel[a.id];
     var appTin = a.applicant.tin ? t('tin_abbr') + ' ' + a.applicant.tin : '';
     var aria = serviceName(s) + ', ' + a.applicant.name + ', ' + statusLabel(a.status) + ', ' + slaWord(st);
-    return '<div class="q-row ' + s.hue + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" tabindex="0" role="button" aria-label="' + esc(aria) + '">' +
+    return '<div class="q-row' + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" tabindex="0" role="button" aria-label="' + esc(aria) + '">' +
       '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></span>' +
       '<span class="q-num">' + esc(a.number) + '</span>' +
       '<span class="q-service"><span class="stack"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
@@ -1652,9 +1700,15 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       }
       case 'filter-option': {
         var optionFilter = tgt.getAttribute('data-filter-name');
-        S.filters[optionFilter] = tgt.getAttribute('data-val');
-        S.filterOpen = null; renderMain(); return;
+        var optionValue = tgt.getAttribute('data-val');
+        S.filterOpen = null;
+        setFilter(optionFilter, optionFilter === 'sla' && !optionValue ? 'all' : optionValue);
+        return;
       }
+      case 'stat-clear': S.filters.svc = ''; S.filters.status = ''; S.filters.priority = ''; setFilter('sla', 'all'); return;
+      case 'stat-sla': setFilter('sla', S.filters.sla === 'breach' ? 'all' : 'breach'); return;
+      case 'stat-status': setFilter('status', S.filters.status === 'info_requested' ? '' : 'info_requested'); return;
+      case 'stat-priority': setFilter('priority', S.filters.priority === 'high' ? '' : 'high'); return;
 
       case 'form-create':
         S._lowCodeBusy = true; dispatchLowCode('RESET'); S._lowCodeBusy = false;
@@ -1856,9 +1910,14 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (!f) return;
     if (f === 'q') {
       S.filters.q = e.target.value;
-      // синхронизировать оба поля поиска, не теряя фокус
-      document.querySelectorAll('[data-filter="q"]').forEach(function (el) { if (el !== e.target) el.value = e.target.value; });
-      if (S.view !== 'card') renderMainKeepFocus(e.target);
+      /* Поиск живёт только в топбаре, поэтому синхронизировать нечего —
+         достаточно вернуть каретку после перерисовки списка. */
+      if (S.view !== 'card') {
+        var caret = e.target.selectionStart;
+        renderMain();
+        var again = document.getElementById('top-search');
+        if (again) { again.focus(); again.setSelectionRange(caret, caret); }
+      }
     }
   });
   document.addEventListener('change', function (e) {
@@ -1893,21 +1952,6 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (!f) return;
     if (f === 'svc' || f === 'status') { S.filters[f] = e.target.value; renderMain(); }
   });
-  // seg-фильтр SLA (клик по кнопке)
-  document.addEventListener('click', function (e) {
-    var seg = closest(e.target, '.seg__item[data-filter]');
-    if (!seg) return;
-    S.filters[seg.getAttribute('data-filter')] = seg.getAttribute('data-val'); renderMain();
-  });
-
-  function renderMainKeepFocus(srcInput) {
-    // при вводе в тулбаре перерисовываем список, но сохраняем фокус/каретку в верхнем поиске
-    var isTop = srcInput.id === 'top-search';
-    renderMain();
-    var again = isTop ? document.getElementById('top-search') : document.querySelector('.toolbar [data-filter="q"]');
-    if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
-  }
-
   // Esc закрывает слои; ↑/↓ навигация по очереди опущена ради простоты
   document.addEventListener('keydown', function (e) {
     if (S.locked) {
@@ -2105,6 +2149,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       if (S.authed) { refreshChrome(); toast(t('t_received'), 'success'); }
     }, 9000);
 
+    readFiltersFromUrl();
     var snap = readArm();
     if (snap) {
       S.authed = true;
