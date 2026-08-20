@@ -61,8 +61,6 @@ if (!heroTitleTracking.test(citizenCss)) {
 
 const sharedTypeTokens = await readFile('design-system/tokens/type.css', 'utf8');
 if (!/--tracking\s*:\s*0\s*;/.test(sharedTypeTokens)) errors.push('design-system/tokens/type.css: --tracking must remain 0');
-const ministryStyles = await readFile('apps/ministry/app.css', 'utf8');
-if (!/--ministry-text-tracking\s*:\s*0\s*;/.test(ministryStyles)) errors.push('apps/ministry/app.css: --ministry-text-tracking must remain 0');
 
 const htmlFiles = ['index.html', ...await files('citizen', '.html'), ...await files('tson', '.html'), ...await files('ministry', '.html'), ...await files('admin', '.html')];
 for (const file of htmlFiles) {

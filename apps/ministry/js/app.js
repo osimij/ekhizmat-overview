@@ -331,7 +331,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
               (unreadNotifs() ? '<span class="badge-dot">' + unreadNotifs() + '</span>' : '') + '</button>' +
             '<button class="btn btn--icon iconbtn" data-act="lang" aria-label="' + esc(t('language')) + ' · ' + (S.lang === 'ru' ? 'русский' : 'тоҷикӣ') + '">' + ic('i-globe','icon--20') + '</button>' +
             '<button class="btn btn--icon iconbtn" data-act="theme" aria-label="' + esc(t('theme')) + '">' + ic(S.theme === 'dark' ? 'i-sun' : 'i-moon','icon--20') + '</button>' +
-            '<button class="btn btn--icon" data-act="user-open" aria-label="' + esc(t('profile')) + '" aria-haspopup="menu" aria-expanded="false" style="padding:0"><span class="avatar">' + esc(D.ME.initials) + '</span></button>' +
+            '<button class="btn btn--icon" data-act="user-open" aria-label="' + esc(t('profile')) + '" aria-haspopup="menu" aria-expanded="false"><span class="avatar">' + esc(D.ME.initials) + '</span></button>' +
           '</div>' +
         '</header>' +
 
@@ -357,7 +357,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<main class="app__main" id="main" tabindex="-1"></main>' +
       '</div>' +
       '<div id="overlay"></div>' +
-      '<div class="toasts" id="toasts" aria-live="polite"></div>';
+      '<div class="ekh-toast-region ekh-toast-region--top ekh-toast-region--stack" id="toasts" aria-live="polite"></div>';
     document.getElementById('root').innerHTML = shell;
     renderMain();
   }
@@ -671,7 +671,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
          '<div class="view__sub">' + esc(sub) + '</div></div></div>';
 
     if (scope === 'overdue') {
-      h += '<div class="banner banner--error mt-2" style="margin-bottom:var(--s-4)">' + ic('i-clock','icon--20') +
+      h += '<div class="banner banner--error queue-note">' + ic('i-clock','icon--20') +
            '<span class="banner__text">' + esc(t('overdue_banner')) + '</span></div>';
     }
 
@@ -701,7 +701,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
     if (!list.length) {
       var empty = (scope === 'queue' && !S.filters.q && !S.filters.svc && !S.filters.status && S.filters.sla === 'all');
-      h += '<div class="panel"><div class="empty">' + ic('i-check','icon--48') +
+      h += '<div class="panel panel--pad"><div class="empty">' + ic('i-check','icon--48') +
         '<div class="empty__title">' + esc(empty ? t('empty_queue_title') : t('empty_title')) + '</div>' +
         '<div class="empty__hint">' + esc(empty ? t('empty_queue_hint') : t('empty_hint')) + '</div></div></div>';
       h += '</div>';
@@ -775,7 +775,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     return '<div class="q-row ' + s.hue + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" tabindex="0" role="button" aria-label="' + esc(aria) + '">' +
       '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></span>' +
       '<span class="q-num">' + esc(a.number) + '</span>' +
-      '<span class="q-service"><span class="stack" style="min-width:0"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
+      '<span class="q-service"><span class="stack"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
         '<span class="q-service__cat">' + esc(serviceCategory(s)) + (s.critical ? ' · <span class="q-flag">' + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
       '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
@@ -809,14 +809,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
     // правая колонка: SLA-кольцо (или итог) + реквизиты + действия
     var slaPanel = decided
-      ? '<div class="panel"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
+      ? '<div class="panel panel--pad"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
           '<div class="label">' + esc(t('col_status')) + '</div><div class="sla-caption"><b>' + esc(statusLabel(a.status)) + '</b></div></div></div>'
-      : '<div class="panel ' + s.hue + '"><div class="sla-ring-wrap">' + ringSvg(a) +
+      : '<div class="panel panel--pad ' + s.hue + '"><div class="sla-ring-wrap">' + ringSvg(a) +
           '<div class="label">' + esc(t('deadline')) + '</div>' +
           '<div class="sla-caption" data-sla-cap data-due="' + a.dueAt + '">' + slaCaption(a) + '</div></div></div>';
     var side =
       slaPanel +
-      '<div class="panel">' +
+      '<div class="panel panel--pad">' +
         '<div class="def">' +
           defRow(t('col_status'), appStatusIcon(a.status)) +
           (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
@@ -883,12 +883,12 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<span class="def__val">' + esc(f.v) + ' &nbsp;' + src + '</span></div>';
     }).join('');
 
-    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('applicant')) + '</h3><div class="def">' + appRows + '</div></div>' +
-      '<div class="panel mt-4"><h3 class="h3 panel__title">' + esc(t('app_data')) + '</h3><div class="def">' + formRows + '</div></div>';
+    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('applicant')) + '</h3><div class="def">' + appRows + '</div></div>' +
+      '<div class="panel panel--pad mt-4"><h3 class="h3 panel__title">' + esc(t('app_data')) + '</h3><div class="def">' + formRows + '</div></div>';
   }
 
   function tabDocs(a) {
-    if (!(a.docs || []).length) return '<div class="panel"><div class="empty">' + ic('i-paperclip','icon--48') +
+    if (!(a.docs || []).length) return '<div class="panel panel--pad"><div class="empty">' + ic('i-paperclip','icon--48') +
       '<div class="empty__title">' + esc(t('no_docs')) + '</div></div></div>';
     var rows = a.docs.map(function (d) {
       return '<div class="doc-row"><span class="doc-row__ico">' + ic('i-doc','') + '</span>' +
@@ -897,7 +897,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         (d.checked ? statusIcon('success', t('checked'), 'i-check') : statusIcon('warning', t('unchecked'), 'i-clock')) +
         '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
     }).join('');
-    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
+    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
   }
 
   function tabInterop(a) {
@@ -915,8 +915,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '</div>';
       }).join('');
     }
-    return '<div class="panel"><div class="row between" style="align-items:flex-start"><div><h3 class="h3">' + esc(t('interop_title')) + '</h3>' +
-      '<div class="small mt-2" style="max-width:52ch">' + esc(t('interop_hint')) + '</div></div>' +
+    return '<div class="panel panel--pad"><div class="panel__head-row"><div><h3 class="h3">' + esc(t('interop_title')) + '</h3>' +
+      '<div class="small panel__hint">' + esc(t('interop_hint')) + '</div></div>' +
       '<button class="btn btn--secondary btn--s" data-act="act-request">' + ic('i-plus','icon--20') + esc(t('request_info')) + '</button></div>' +
       '<div class="mt-4">' + body + '</div></div>';
   }
@@ -929,17 +929,17 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<div class="trail__body"><div class="trail__action"><b>' + esc(localValue(h.actor)) + '</b> — ' + esc(localValue(h.action)) + '</div>' +
         '<div class="trail__meta">' + esc(fmtDateTime(h.at)) + ' · ' + esc(statusLabel(h.status)) + '</div></div></div>';
     }).join('');
-    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('tab_history')) + '</h3><div class="trail">' + rows + '</div>' +
+    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('tab_history')) + '</h3><div class="trail">' + rows + '</div>' +
       '<div class="def__source mt-2">' + ic('i-lock','icon--16') + ' ' + esc(t('audit_immutable')) + '</div></div>';
   }
 
   function lockedPanel(a) {
     var reason = a.assignee !== 'me' ? t('lp_not_assigned') : t('lp_not_active');
-    return '<div class="panel"><div class="banner banner--info">' + ic('i-lock', 'icon--20') +
+    return '<div class="panel panel--pad"><div class="banner banner--info">' + ic('i-lock', 'icon--20') +
       '<span class="banner__text">' + esc(reason) + '</span></div></div>';
   }
   function actionsPanel(a) {
-    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('actions')) + '</h3><div class="actions-stack">' +
+    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('actions')) + '</h3><div class="actions-stack">' +
       '<button class="btn btn--primary" data-act="act-decide">' + ic('i-check','icon--20') + esc(t('decide')) + '</button>' +
       '<button class="btn btn--secondary" data-act="act-return">' + ic('i-arrow-ur','icon--20') + esc(t('return_clarify')) + '</button>' +
       '<button class="btn btn--secondary" data-act="act-request">' + ic('i-refresh','icon--20') + esc(t('request_info')) + '</button>' +
@@ -948,14 +948,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
   function resultPanel(a) {
     if (a.status === 'denied') {
-      return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
+      return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
         '<div class="banner banner--error">' + ic('i-x','icon--20') + '<span class="banner__text">' + esc(t('result_denied')) + '</span></div>' +
         '<div class="def__source mt-4">' + esc(t('result_reason')) + ': ' + esc(a.decision ? a.decision.reason : '—') + '</div></div>';
     }
-    return '<div class="panel"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
+    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
       '<div class="banner banner--ok">' + ic('i-sign','icon--20') + '<span class="banner__text"><b>' + esc(t('result_signed')) + '</b><br>' + esc(t('result_available')) + '</span></div>' +
       resultDoc(a) +
-      '<button class="btn btn--secondary mt-4" style="width:100%" data-act="noop">' + ic('i-download','icon--20') + esc(t('download_result')) + '</button></div>';
+      '<button class="btn btn--secondary btn-block mt-4" data-act="noop">' + ic('i-download','icon--20') + esc(t('download_result')) + '</button></div>';
   }
 
   function resultDoc(a) {
@@ -987,7 +987,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function slaCaption(a) {
     var rem = a.dueAt - now();
-    if (rem <= 0) return '<b style="color:var(--red-ink)">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
+    if (rem <= 0) return '<b class="sla-caption__breach">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
     return esc(t('sla_left')) + ' <b>' + fmtDur(rem) + '</b> · ' + esc(t('until')) + ' ' + esc(fmtDateTime(a.dueAt));
   }
   function payLabel(a) {
@@ -1016,11 +1016,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     h += '</div>';
     h += '<div class="banner banner--info" style="margin-bottom:var(--s-5)">' + ic('i-shield','icon--20') +
       '<span class="banner__text">' + esc(t('batch_no_critical')) + '</span></div>';
-    if (!anySvc) { h += '<div class="panel"><div class="empty">' + ic('i-users','icon--48') +
+    if (!anySvc) { h += '<div class="panel panel--pad"><div class="empty">' + ic('i-users','icon--48') +
       '<div class="empty__title">' + esc(t('empty_queue_title')) + '</div>' +
       '<div class="empty__hint">' + esc(t('batch_no_batchable')) + '</div></div></div></div>'; return h; }
 
-    if (!S.batchSvc) { h += '<div class="panel"><div class="empty">' + ic('i-users','icon--48') +
+    if (!S.batchSvc) { h += '<div class="panel panel--pad"><div class="empty">' + ic('i-users','icon--48') +
       '<div class="empty__title">' + esc(t('pick_service')) + '</div></div></div></div>'; return h; }
 
     var list = mineActive().filter(function (a) { return a.svc === S.batchSvc; });
@@ -1051,7 +1051,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     rows.sort(function (x, y) { return y.r.at - x.r.at; });
     var body = rows.map(function (x) {
       var pend = x.r.status === 'pending';
-      return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '" style="cursor:pointer">' +
+      return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '">' +
         '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
         '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(x.r.type)) + '</span>' +
         '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
@@ -1059,7 +1059,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     }).join('');
     return '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('ij_title')) + '</h1>' +
       '<div class="view__sub">' + esc(t('ij_sub')) + '</div></div></div>' +
-      '<div class="panel">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
+      '<div class="panel panel--pad">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
   }
 
   /* ---- отчётность по SLA (§7Б.3 → §14) ---- */
@@ -1075,13 +1075,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       statTile('i-clock', breachN, t('rep_breach'), breachN ? 'alert' : 'ok') +
       statTile('i-history', S.lang === 'tg' ? '2,4 рӯз' : '2,4 дн', t('rep_avg'), '') +
       '</div>';
-    h += '<div class="panel"><h3 class="h3 panel__title">' + esc(t('rep_spec')) + '</h3><div class="report-table">' +
+    h += '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('rep_spec')) + '</h3><div class="report-table">' +
       '<div class="report-row report-row--head"><span>' + esc(t('rep_spec')) + '</span><span>' + esc(t('rep_col_total')) + '</span>' +
       '<span>' + esc(t('rep_col_breach')) + '</span><span>' + esc(t('rep_col_rate')) + '</span></div>';
     D.REPORT_SPECIALISTS.forEach(function (sp) {
       var rate = Math.round(sp.onTime / sp.total * 100), breach = sp.total - sp.onTime;
       h += '<div class="report-row"><span class="report-row__who"><span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name) + '</span>' +
-        '<span class="report-row__num">' + sp.total + '</span><span class="report-row__num" style="color:' + (breach ? 'var(--red-ink)' : 'inherit') + '">' + breach + '</span>' +
+        '<span class="report-row__num">' + sp.total + '</span><span class="report-row__num' + (breach ? ' report-row__num--breach' : '') + '">' + breach + '</span>' +
         '<span class="row g-3"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
     });
     h += '</div></div></div>';
@@ -1317,19 +1317,19 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     var box = document.getElementById('toasts'); if (!box) return;
     bindToastRegion(box);
     var slot = document.createElement('div');
-    slot.className = 'toast-slot';
+    slot.className = 'ekh-toast-slot';
     var inner = document.createElement('div');
-    inner.className = 'toast-slot__inner';
+    inner.className = 'ekh-toast-slot__inner';
     var el = document.createElement('div');
-    el.className = 'toast' + (kind ? ' toast--' + kind : '');
+    el.className = 'ekh-toast' + (kind ? ' ekh-toast--' + kind : '');
     el.setAttribute('role', 'status');
     var icon = kind === 'success' ? 'i-check' : kind === 'error' ? 'i-x' : kind === 'warn' ? 'i-info' : 'i-info';
     el.innerHTML = ic(icon, 'icon--20') + '<span class="grow">' + esc(msg) + '</span>' +
-      '<button class="toast__close" type="button" aria-label="' + esc(t('close_notification')) + '">' + ic('i-x','icon--16') + '</button>';
+      '<button class="ekh-toast__close" type="button" aria-label="' + esc(t('close_notification')) + '">' + ic('i-x','icon--16') + '</button>';
     inner.appendChild(el); slot.appendChild(inner); box.appendChild(slot);
     var record = { slot:slot, toast:el, remaining:3600, startedAt:0, timer:null, closing:false };
     toastRecords.push(record);
-    el.querySelector('.toast__close').addEventListener('click', function () { dismissToast(record); });
+    el.querySelector('.ekh-toast__close').addEventListener('click', function () { dismissToast(record); });
     requestAnimationFrame(function () { if (el.isConnected) el.classList.add('is-in'); });
     syncToastTimers();
   }
@@ -1351,7 +1351,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     overlayEl().insertAdjacentHTML('beforeend',
       '<div class="popover notif-pop" id="pop" role="dialog" aria-label="' + esc(t('notifications')) + '">' +
         '<div class="notif-pop__head"><b>' + esc(t('notifications')) + '</b><button class="btn btn--ghost btn--s" data-act="notif-read">' + esc(t('notifications_read_all')) + '</button></div>' +
-        '<div class="notif-list">' + (items || '<div class="empty" style="padding:var(--s-8)">' + ic('i-bell','icon--48') + '<div class="empty__title">' + esc(t('notifications_empty')) + '</div></div>') + '</div></div>');
+        '<div class="notif-list">' + (items || '<div class="empty">' + ic('i-bell','icon--48') + '<div class="empty__title">' + esc(t('notifications_empty')) + '</div></div>') + '</div></div>');
     revealPop();
   }
   function openUser() {

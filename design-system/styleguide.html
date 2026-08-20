@@ -15,7 +15,7 @@
     <div class="sg-actions"><button class="btn btn-sec btn-sm" id="density">Compact</button><button class="btn btn-sec btn-sm" id="language">RU</button><button class="btn btn-sec btn-sm" id="theme">Dark</button></div>
   </header>
   <main class="sg-main" id="main">
-    <aside class="sg-nav" aria-label="Мундариҷа"><a href="#foundations">Foundations</a><a href="#actions">Actions</a><a href="#forms">Forms & auth</a><a href="#data">Data</a><a href="#patterns">Product patterns</a><a href="#feedback">Feedback</a><a href="#workflow">Workflow</a></aside>
+    <aside class="sg-nav" aria-label="Мундариҷа"><a href="#foundations">Foundations</a><a href="#actions">Actions</a><a href="#forms">Forms & auth</a><a href="#data">Data</a><a href="#patterns">Product patterns</a><a href="#preferences">Preferences</a><a href="#feedback">Feedback</a><a href="#workflow">Workflow</a></aside>
     <div class="sg-content">
       <section class="sg-intro"><span class="launch-eyebrow">Canonical source</span><h1>eKhizmat UI</h1><p>Як забони визуалӣ барои шаҳрванд, оператори ЦОН, мутахассиси идора ва маъмури хизмат.</p></section>
 
@@ -24,6 +24,7 @@
       <section class="sg-section" id="actions"><div class="sg-title"><h2>Actions</h2><p>Як анатомия дар ҳамаи платформаҳо; fill-и амал бо матни сафед AA аст.</p></div><div class="sg-demo"><div class="sg-row"><button class="btn btn-pri">Амали асосӣ</button><button class="btn btn-sec">Дуюмдараҷа</button><button class="btn btn-ghost">Бе замина</button><button class="btn btn-danger">Нест кардан</button></div><div class="sg-row"><button class="btn btn-pri" aria-busy="true">Сабт мешавад</button><button class="btn btn-pri" disabled>Ғайрифаъол</button><button class="btn btn-sec btn-sm">Compact</button><button class="btn btn-pri btn-lg">Large touch</button></div><div class="mobile-preview-actions sg-mobile-preview-actions" aria-label="Амали пешнамоиши мобилӣ"><button class="btn btn-sec">Бозгашт</button><button class="btn btn-pri">Фиристодани ариза</button></div></div></section>
 
       <section class="sg-section" id="forms"><div class="sg-title"><h2>Forms & auth</h2><p>Майдон, хато, OTP ва амали вуруд дар ҳама flow-ҳо як хеланд.</p></div><div class="sg-demo sg-form-grid"><div class="field"><label for="sg-name">Номи пурраи аризадиҳанда</label><input class="input" id="sg-name" name="full_name" autocomplete="name" value="Фируза Абдураҳмонова"><p class="help">Аз профили тасдиқшуда гирифта шудааст</p></div><div class="field err"><label for="sg-phone">Рақами телефон</label><input class="input" id="sg-phone" name="phone" type="tel" autocomplete="tel" aria-invalid="true" value="+992 00"><p class="err-msg">Рақамро пурра ворид кунед</p></div><div class="field"><label for="sg-select">Идораи масъул</label><select class="input" id="sg-select" name="agency"><option>Вазорати адлияи Ҷумҳурии Тоҷикистон</option></select></div><div class="field"><label for="sg-note">Шарҳ</label><textarea class="input" id="sg-note" name="note">Матни дароз барои санҷиши забони тоҷикӣ ва сатри дуюм.</textarea></div><div class="sg-auth panel"><div class="panel__body"><span class="tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-lock"></use></svg></span><h3>Тасдиқи воридшавӣ</h3><p>Рамзи шашрақамаи ба дастгоҳи хизматӣ фиристодашударо ворид кунед.</p><div class="otp-demo" aria-label="Рамзи тасдиқ"><input value="1" aria-label="Рақами 1"><input value="4" aria-label="Рақами 2"><input value="8" aria-label="Рақами 3"><input value="2" aria-label="Рақами 4"><input value="7" aria-label="Рақами 5"><input value="5" aria-label="Рақами 6"></div><button class="btn btn-pri btn-block">Тасдиқ</button></div></div></div>
+        <div class="sg-demo sg-form-grid"><div class="field"><span class="field__label">Намуди дархост</span><div class="field__wrap"><select class="field__input"><option>Иқтибос аз феҳрист</option></select><span class="field__affix"><svg class="icon icon--16" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"></use></svg></span></div></div><div class="field field--error"><span class="field__label">Асоси қарор</span><input class="field__input" value="" placeholder="Ҳатмӣ"><span class="field__error">Асосро нависед</span></div><div class="field"><span class="field__label">Ҷустуҷӯ</span><div class="field__wrap field__wrap--search"><span class="field__affix"><svg class="icon icon--20" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"></use></svg></span><input class="field__input" placeholder="Рақами ариза, ному насаб…"></div></div><div class="field"><span class="field__label">Манбаи қиймат</span><div class="sg-row"><span class="src src--profile">Аз феҳрист</span><span class="src src--manual">Дастӣ ворид шуд</span></div></div></div>
         <div class="sg-login-gate"><div class="panel login__card"><div class="stack login__form login__form--credentials"><div class="login__heading"><h3>Воридшавӣ ба сессия</h3></div><div class="login__fields"><div class="field login-field--floating"><label class="field__label" for="sg-login-user">Логин</label><input class="field__input" id="sg-login-user" value="a.azizov" placeholder=" " readonly></div><div class="field login-field--floating"><label class="field__label" for="sg-login-pass">Гузарвожа</label><input class="field__input" id="sg-login-pass" type="password" placeholder=" " readonly></div></div><button class="btn btn--primary btn--l" type="button">Идома</button></div></div></div>
       </section>
 
@@ -46,6 +47,38 @@
           </div>
           <div class="sg-pattern-grid"><div class="comment-thread"><article class="comment"><span class="comment__avatar">НК</span><div><div class="comment__head"><strong>Нозир</strong><time>14:20</time></div><span class="comment__anchor">Майдон: рақами ҳуҷҷат</span><p class="comment__body">Формати рақамро равшан кунед.</p></div></article></div><div><div class="empty-state panel"><svg><use href="/design-system/assets/icons.svg#i-inbox"></use></svg><h3>Маълумот нест</h3><p>Давраро тағйир диҳед ё дубора кӯшиш кунед.</p></div><div class="banner banner--warning"><svg><use href="/design-system/assets/icons.svg#i-info"></use></svg><span>Маълумот нав нашуд. Такрор кунед.</span></div></div></div>
         </div>
+      </section>
+
+      <section class="sg-section" id="preferences">
+        <div class="sg-title"><h2>Preferences</h2><p>Забон ва мавзӯъ дар profile popover зиндагӣ мекунанд — на дар chrome-и доимӣ (§3). Сатри забон: подпись + қиймати ҷорӣ + chevron, бе глобус.</p></div>
+        <div class="sg-demo"><div class="sg-popover-stage">
+          <div class="ekh-profile-pop is-open sg-popover-static">
+            <button class="ekh-profile-pop__card" type="button">
+              <span class="tile t-blue sh-c" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-user"></use></svg></span>
+              <span class="ekh-profile-pop__identity"><b>Фируза Раҳимова</b><span>+992 93 555 0184</span></span>
+            </button>
+            <div class="ekh-profile-pop__divider" aria-hidden="true"></div>
+            <div class="ekh-profile-pop__preferences">
+              <button class="ekh-profile-pop__row ekh-profile-pop__row--link" type="button"><span class="ekh-profile-pop__row-label">Кабинети шахсӣ</span><svg class="ekh-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg></button>
+              <div class="dd lang ekh-profile-pop__row-host">
+                <button class="dd-btn ekh-profile-pop__row" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">
+                  <span class="ekh-profile-pop__row-label">Забон</span><span id="langCur">Тоҷикӣ</span>
+                  <svg class="ekh-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"></use></svg>
+                  <svg class="ekh-profile-pop__compact-icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"></use></svg>
+                </button>
+              </div>
+              <div class="ekh-profile-pop__row ekh-profile-pop__row--theme">
+                <span class="ekh-profile-pop__row-label">Мавзӯъ</span>
+                <div class="ekh-profile-pop__theme-options" role="group" aria-label="Мавзӯъ">
+                  <button class="ekh-profile-pop__theme-choice" type="button" aria-pressed="true" aria-label="Аз система" title="Аз система"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-theme-system"></use></svg></button>
+                  <button class="ekh-profile-pop__theme-choice" type="button" aria-pressed="false" aria-label="Равшан" title="Равшан"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sun"></use></svg></button>
+                  <button class="ekh-profile-pop__theme-choice ekh-profile-pop__theme-choice--dark" type="button" aria-pressed="false" aria-label="Торик" title="Торик"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-moon"></use></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sg-select-demo"><span class="ekh-filter__label"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-card"></use></svg>Пардохт</span><span class="ekh-select"><select aria-label="Пардохт"><option>Ҳама</option><option>Ройгон</option><option>Музднок</option></select><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"></use></svg></span></div>
+        </div></div>
       </section>
 
       <section class="sg-section" id="feedback"><div class="sg-title"><h2>Feedback & layers</h2><p>Диалог focus-ро нигоҳ медорад, Escape-ро қабул мекунад ва ба trigger бармегардонад.</p></div><div class="sg-demo"><div class="banner"><svg><use href="/design-system/assets/icons.svg#i-info"></use></svg><span>Маълумот аз Smart Bridge ба таври худкор санҷида шуд.</span></div><div class="banner banner--warning"><svg><use href="/design-system/assets/icons.svg#i-clock"></use></svg><span>То анҷоми муҳлати хизмат 18 дақиқа мондааст.</span></div><div class="sg-row"><button class="btn btn-pri" id="dialogDemo">Кушодани диалог</button><button class="btn btn-sec" id="toastDemo">Нишон додани toast</button></div></div></section>

@@ -18,6 +18,7 @@
 .icon--20 { width: 20px; height: 20px; }
 .icon--16 { width: 16px; height: 16px; }
 .icon--48 { width: 48px; height: 48px; }
+.icon--filled { fill: currentColor; stroke: none; }
 
 /* ============ BUTTONS ============ */
 .btn{
@@ -183,6 +184,110 @@ textarea.input{height:auto; min-height:104px; padding:var(--s-3) var(--s-4); lin
 .ekh-checkbox:disabled, .ekh-radio:disabled,
 .check__input:disabled, .radio__input:disabled { opacity: .45; cursor: not-allowed; }
 
+/* ============ WORKSTATION FIELD SKIN ============
+   `.field__*` is the operator-console input vocabulary (Ministry + ЦОН):
+   a label above a borderless `--field` box whose border is drawn with an
+   inset shadow so validation never shifts the layout. It lived twice — once
+   in each workstation stylesheet — and the two copies had already drifted
+   apart on the label role (15/550/ink-3 vs the §4 micro-label 13/500/ink-2).
+   Promoted here under the canonical label typography (§1 rule 9, rule 21).
+
+   The layout rule is keyed on the BEM children so it reaches only fields of
+   this vocabulary: `.field` on the consumer pages is a `label` + `.input`
+   stack whose spacing already comes from `.field label`. */
+.field:has(> .field__label, > .field__input, > .field__wrap) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.field__label {
+  font-size: var(--fs-13); line-height: 1.4;
+  font-weight: var(--weight-medium); letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-2);
+}
+.field__input {
+  width: 100%;
+  height: var(--h-field);
+  padding-inline: var(--s-4);
+  border: 0;
+  border-radius: var(--r-m);
+  outline: 0;
+  background: var(--field);
+  color: var(--ink);
+  /* The border is an inset shadow: appearing on focus/error costs no layout. */
+  box-shadow: none;
+  transition: box-shadow var(--t-fast) var(--ease),
+              background-color var(--t-fast) var(--ease);
+}
+.field__input::placeholder { color: var(--ink-faint); }
+/* On a panel the field lightens, otherwise it merges into `--panel`. */
+.panel .field__input { background: var(--field-on-panel); }
+.field__input:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--focus); }
+.field__input:disabled { opacity: .4; cursor: not-allowed; }
+.field__help  { font-size: var(--fs-13); line-height: 1.4; color: var(--ink-faint); }
+.field__error { font-size: var(--fs-13); line-height: 1.4; color: var(--red-ink); }
+.field--error .field__input {
+  box-shadow: inset 0 0 0 1.5px var(--red);
+  background: color-mix(in srgb, var(--red-tint) 30%, var(--field));
+}
+.field--error .field__input:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+textarea.field__input {
+  height: auto; min-height: 80px;
+  padding-block: var(--s-3);
+  line-height: 1.55;
+  resize: vertical;
+}
+.field__input--masked { font-variant-numeric: tabular-nums; }
+select.field__input { appearance: none; cursor: pointer; }
+/* Affixes: the sprite chevron of a select, the search glyph, a reveal button.
+   A sprite icon cannot be a background-image, so it is positioned alongside. */
+.field__wrap { position: relative; display: flex; align-items: center; }
+.field__wrap .field__input { padding-right: var(--s-10); }
+.field__affix {
+  position: absolute; right: var(--s-3);
+  display: flex;
+  color: var(--ink-3);
+  pointer-events: none;
+}
+.field__affix--action {
+  width: 32px; height: 32px;
+  align-items: center; justify-content: center;
+  border-radius: var(--r-s);
+  pointer-events: auto; cursor: pointer;
+}
+.field__affix--action:hover { color: var(--ink); }
+.field__wrap--search .field__input { padding-left: var(--s-10); }
+.field__wrap--search .field__affix { right: auto; left: var(--s-3); }
+
+/* One-time code — six cells, shared by both workstation gates. */
+.otp { display: flex; gap: var(--s-2); }
+.otp__cell {
+  width: 48px; height: 56px;
+  border: 0;
+  border-radius: var(--r-m);
+  outline: 0;
+  background: var(--field);
+  color: var(--ink);
+  font-size: var(--fs-24); font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.otp__cell:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
+.otp--error .otp__cell { box-shadow: inset 0 0 0 1.5px var(--red); }
+
+/* Value provenance chip — "from the registry" / "entered by hand". */
+.src {
+  display: inline-flex; align-items: center; gap: var(--s-1);
+  padding: 2px var(--s-2);
+  border-radius: var(--r-s);
+  font-size: var(--fs-12); line-height: 1.3; font-weight: 550;
+  letter-spacing: 0; text-transform: none;
+  white-space: nowrap;
+}
+.src--profile { background: var(--blue-tint); color: var(--blue-ink); }
+.src--manual  { background: var(--h-gray-bg); color: var(--h-gray-fg); }
+
 /* segmented choice — gray capsule, white active thumb */
 .seg{position:relative;display:flex; gap:4px; background:var(--field); border-radius:var(--r-pill); padding:4px}
 .seg label{
@@ -261,6 +366,138 @@ button.chip[aria-pressed="true"] b{color:var(--bg)}
 .dd-menu button svg{width:15px; height:15px; flex:none; color:var(--blue-ink); opacity:0; transition:opacity .18s var(--ease)}
 .dd-menu button[aria-selected="true"] svg{opacity:1}
 .lang .dd-menu{left:auto; right:0}
+
+/* ============ PROFILE POPOVER (global preferences live here, §3/§6) ============
+   Identity card on top, hairline divider, then the preferences: a language row
+   (label + current value + chevron — no leading globe) and the three-state
+   theme choice. Admin was the first consumer, Citizen is the second, so the
+   component moved here whole (§1 rule 9, rule 21); `.adm-profile-pop` stays as
+   an alias so the admin markup did not have to be rewritten in the same pass.
+   Submenus fly out with `dd-right`/`dd-up`; the collapsed-rail compact variant
+   hides the labels and keeps a globe. */
+.ekh-profile-pop,.adm-profile-pop{
+  position:fixed; z-index:var(--z-popover); box-sizing:border-box;
+  display:flex; flex-direction:column; align-items:flex-start; gap:calc(var(--s-2) + 2px);
+  width:min(239px,calc(100vw - var(--s-4)));height:auto;
+  padding:var(--s-2) calc(var(--s-2) + 2px); border-radius:calc(var(--r-l) + 2px); background:var(--raised); box-shadow:var(--shadow-1);
+  overflow:visible;
+  opacity:0;
+  transition:opacity var(--t-popover) var(--ease-out);
+}
+.ekh-profile-pop--side,.adm-profile-pop--side{
+  width:min(239px,var(--profile-pop-max-w,100%));
+  max-width:var(--profile-pop-max-w,100%);
+  overflow:visible;
+}
+html.side-collapsed .ekh-profile-pop--side,html.side-collapsed .adm-profile-pop--side{padding:var(--s-2)}
+html.side-collapsed .ekh-profile-pop--side .ekh-profile-pop__identity,
+html.side-collapsed .adm-profile-pop--side .adm-profile-pop__identity{display:none}
+html.side-collapsed .ekh-profile-pop--side .dd.lang .dd-btn #langCur,
+html.side-collapsed .ekh-profile-pop--side .dd.lang .dd-btn .ekh-profile-pop__chev,
+html.side-collapsed .ekh-profile-pop--side .dd.lang .dd-btn .ekh-profile-pop__row-label,
+html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn #langCur,
+html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__chev,
+html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__row-label{display:none}
+html.side-collapsed .ekh-profile-pop--side .dd.lang .dd-btn,
+html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn{padding-inline:0;grid-template-columns:1fr;justify-items:center}
+html.side-collapsed .ekh-profile-pop--side .dd.lang .dd-btn .ekh-profile-pop__compact-icon,
+html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__compact-icon{display:block}
+html.side-collapsed .ekh-profile-pop--side .ekh-profile-pop__row--theme,
+html.side-collapsed .adm-profile-pop--side .adm-profile-pop__row--theme{grid-template-columns:1fr;justify-items:center;padding-inline:var(--s-2)}
+html.side-collapsed .ekh-profile-pop--side .ekh-profile-pop__row--theme .ekh-profile-pop__row-label,
+html.side-collapsed .adm-profile-pop--side .adm-profile-pop__row--theme .adm-profile-pop__row-label{display:none}
+html.side-collapsed .ekh-profile-pop--side .ekh-profile-pop__theme-choice:not([aria-pressed="true"]),
+html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([aria-pressed="true"]){display:none}
+.ekh-profile-pop.is-open,.adm-profile-pop.is-open{opacity:1}
+.ekh-profile-pop[hidden],.adm-profile-pop[hidden]{display:none}
+.ekh-profile-pop__card,.adm-profile-pop__card{
+  display:flex; align-items:center; gap:calc(var(--s-2) + 2px); width:100%; box-sizing:border-box;
+  padding:calc(var(--s-2) + 2px); border-radius:calc(var(--r-m) + 1px);background:transparent;
+  color:var(--ink); text-align:left;
+}
+@media (hover:hover) and (pointer:fine){
+  .ekh-profile-pop__card:hover,.adm-profile-pop__card:hover{background:var(--hover)}
+}
+.ekh-profile-pop__card:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.ekh-profile-pop__identity,.adm-profile-pop__identity{display:flex;flex:1;flex-direction:column;gap:calc(var(--s-2) + 2px);justify-content:center;min-width:0;line-height:1}
+.ekh-profile-pop__identity b,.adm-profile-pop__identity b{display:block;font-size:var(--fs-14);font-weight:var(--weight-regular);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ekh-profile-pop__identity span,.adm-profile-pop__identity span{display:block;font-size:var(--fs-10);font-weight:var(--weight-regular);color:var(--ink);opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ekh-profile-pop__divider,.adm-profile-pop__divider{position:relative;flex:none;width:calc(100% - var(--r-l));height:0}
+.ekh-profile-pop__divider::after,.adm-profile-pop__divider::after{content:"";position:absolute;inset-inline:0;top:0;height:1px;background:var(--line-in)}
+.ekh-profile-pop__preferences,.adm-profile-pop__preferences{display:flex;flex-direction:column;gap:calc(var(--s-1) + 1px);width:100%}
+.ekh-profile-pop__row-host,.adm-profile-pop__row-host{display:flex;width:100%;overflow:visible}
+.ekh-profile-pop .dd.lang,.adm-profile-pop .dd.lang{display:flex;width:100%;overflow:visible}
+.ekh-profile-pop .dd.lang .dd-btn #langCur,.adm-profile-pop .dd.lang .dd-btn #langCur{min-width:0;font-size:var(--fs-13);font-weight:var(--weight-regular);color:var(--ink);opacity:.5;text-align:right}
+.ekh-profile-pop .dd.open .dd-btn svg,.adm-profile-pop .dd.open .dd-btn svg{rotate:none}
+.ekh-profile-pop:not(.ekh-profile-pop--side) .lang .dd-menu,
+.adm-profile-pop:not(.adm-profile-pop--side) .lang .dd-menu{left:0;right:0}
+/* sidebar profile popover: the language submenu flies out to the right (never above) */
+.ekh-profile-pop--side .dd.lang,.adm-profile-pop--side .dd.lang{position:relative;overflow:visible}
+.ekh-profile-pop--side .dd.lang .dd-btn,.adm-profile-pop--side .dd.lang .dd-btn{position:relative;z-index:2}
+.ekh-profile-pop--side .dd.lang .dd-menu,
+.adm-profile-pop--side .dd.lang .dd-menu,
+.dd.dd-right .dd-menu{
+  top:0;left:calc(100% + 8px);right:auto;bottom:auto;
+  min-width:184px;z-index:80;translate:-4px 0;
+}
+.ekh-profile-pop--side .dd.lang.open .dd-menu,
+.adm-profile-pop--side .dd.lang.open .dd-menu,
+.dd.dd-right.open .dd-menu{translate:0 0}
+.dd.dd-right.open .dd-btn svg{rotate:none}
+.dd.dd-up .dd-menu{top:auto;bottom:calc(100% + 8px);translate:0 4px}
+.dd.dd-up.open .dd-menu{translate:0 0}
+.dd-aim-bridge{
+  position:fixed;inset:0;width:100%;height:100%;
+  z-index:1;pointer-events:none;overflow:visible;
+}
+.dd-aim-bridge.is-on polygon{
+  fill:var(--panel);fill-opacity:0;pointer-events:fill;
+}
+.ekh-profile-pop__row,.adm-profile-pop__row{
+  position:relative;z-index:0;
+  display:grid;grid-template-columns:minmax(0,1fr) auto var(--fs-11);align-items:center;gap:var(--s-2);width:100%;min-height:0;
+  padding:var(--s-2) calc(var(--s-2) + 2px);border:0;border-radius:var(--r-s);background:transparent;
+  font:inherit;font-size:var(--fs-13);font-weight:var(--weight-regular);line-height:1;color:var(--ink);cursor:pointer;text-align:left;
+}
+.ekh-profile-pop .dd-btn.ekh-profile-pop__row,.adm-profile-pop .dd-btn.adm-profile-pop__row{background:transparent}
+.ekh-profile-pop .dd.open .dd-btn.ekh-profile-pop__row,.adm-profile-pop .dd.open .dd-btn.adm-profile-pop__row{background:var(--hover)}
+.ekh-profile-pop__row:hover,.adm-profile-pop__row:hover{background:var(--hover);color:var(--ink)}
+.ekh-profile-pop__row:focus-visible,.adm-profile-pop__row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.ekh-profile-pop__row-label,.adm-profile-pop__row-label{min-width:0;color:var(--ink);opacity:.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ekh-profile-pop__chev,.adm-profile-pop__chev{width:var(--fs-11);height:var(--fs-11);justify-self:end;color:var(--ink);opacity:.5;transition:none}
+.ekh-profile-pop__compact-icon,.adm-profile-pop__compact-icon{display:none;width:17px;height:17px;color:var(--ink-3)}
+.ekh-profile-pop__row--theme,.adm-profile-pop__row--theme{grid-template-columns:minmax(0,1fr) auto;min-height:26px;padding:var(--s-1) calc(var(--s-2) + 2px);cursor:default}
+.ekh-profile-pop__row--theme:hover,.adm-profile-pop__row--theme:hover{background:transparent;color:var(--ink)}
+.ekh-profile-pop__theme-options,.adm-profile-pop__theme-options{display:flex;align-items:center;gap:calc(var(--s-1) + 1px)}
+.ekh-profile-pop__theme-choice,.adm-profile-pop__theme-choice{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:calc(var(--r-s) - 3px);background:transparent;color:var(--ink);opacity:.5;cursor:pointer}
+.ekh-profile-pop__theme-choice--dark,.adm-profile-pop__theme-choice--dark{width:24px;height:24px}
+.ekh-profile-pop__theme-choice:hover,.adm-profile-pop__theme-choice:hover{background:var(--hover);opacity:1}
+.ekh-profile-pop__theme-choice[aria-pressed="true"],.adm-profile-pop__theme-choice[aria-pressed="true"]{background:var(--hover)}
+.ekh-profile-pop__theme-choice:focus-visible,.adm-profile-pop__theme-choice:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;opacity:1}
+.ekh-profile-pop__theme-choice:disabled,.adm-profile-pop__theme-choice:disabled{cursor:default}
+.ekh-profile-pop__theme-choice:disabled:hover,.adm-profile-pop__theme-choice:disabled:hover{background:transparent;opacity:.5}
+.ekh-profile-pop__theme-choice svg,.adm-profile-pop__theme-choice svg{width:15px;height:15px}
+/* Sign-out / destructive row inside the popover. */
+.ekh-profile-pop__row--danger{grid-template-columns:auto minmax(0,1fr);color:var(--red-ink)}
+.ekh-profile-pop__row--danger:hover{background:var(--red-tint);color:var(--red-ink)}
+.ekh-profile-pop__row--danger svg{width:16px;height:16px}
+.ekh-profile-pop__row--link{grid-template-columns:minmax(0,1fr) auto}
+.ekh-profile-pop__row--link .ekh-profile-pop__row-label{opacity:1}
+
+/* ============ SELECT SKIN (§3 form controls: never a bare native) ============
+   `appearance:none` + the sprite chevron drawn beside the field. The wrapper
+   owns the border so the focus ring is one rectangle around field and chevron. */
+.ekh-select{position:relative;display:flex;align-items:center;width:100%}
+.ekh-select > select{
+  width:100%; height:var(--h-field); padding:0 44px 0 var(--s-4);
+  border:1px solid var(--line); border-radius:var(--r-m);
+  background:var(--field); color:var(--ink); font:inherit; font-size:var(--fs-14);
+  appearance:none; -webkit-appearance:none; cursor:pointer;
+  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+}
+.ekh-select > svg{position:absolute; right:16px; width:16px; height:16px; color:var(--ink-2); pointer-events:none}
+.ekh-select:focus-within > select{outline:0; border-color:var(--focus); box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent)}
+.ekh-select > select:disabled{opacity:.55; cursor:not-allowed}
 
 /* ============ SWITCH ============ */
 /* ON = the one action blue (same affordance language as buttons/links). */
@@ -359,6 +596,9 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 
 .panel { background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l); }
 .panel__head,.panel__body,.panel__foot { padding:var(--s-5); }
+/* Workstation panels hold their content directly instead of head/body/foot
+   slots; the padding is the panel's, not a child's. */
+.panel--pad { padding:var(--s-6); }
 .panel__head { display:flex; align-items:center; gap:var(--s-3); border-bottom:1px solid var(--line-in); }
 .panel__head > :first-child { flex:1; }
 .panel__foot { border-top:1px solid var(--line-in); }

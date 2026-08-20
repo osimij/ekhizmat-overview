@@ -112,6 +112,46 @@ body.has-ekh-modal { overflow: hidden; padding-right: var(--ekh-scrollbar, 0); }
 .ekh-toast--error   { background: var(--red-tint);   color: var(--red-ink); }
 .ekh-toast--warn    { background: var(--amber-tint); color: var(--amber-ink); }
 
+/* Stacked toast region (Ministry workstation). The plain region drops a toast
+   in and out; a console that can fire several in a row (request sent, answer
+   received, decision signed) needs them to queue and to collapse the gap they
+   leave, otherwise the survivors jump. Enter/exit state is scoped to this
+   modifier so the plain `.ekh-toast` stays visible without any JS class —
+   the failure §1 rule 10 describes, where an app inherits `opacity: 0`. */
+.ekh-toast-region--stack { gap: 0; }
+.ekh-toast-slot {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows var(--t-exit) var(--ease), opacity var(--t-exit) var(--ease);
+}
+.ekh-toast-slot.is-out { grid-template-rows: 0fr; opacity: 0; }
+.ekh-toast-slot__inner { min-height: 0; overflow: hidden; padding-bottom: var(--s-2); }
+.ekh-toast-region--stack .ekh-toast {
+  min-width: 280px;
+  opacity: 0;
+  transform: translateX(16px);
+  transition: opacity var(--t-layer) var(--ease), transform var(--t-layer) var(--ease);
+}
+.ekh-toast-region--stack .ekh-toast.is-in { opacity: 1; transform: none; }
+.ekh-toast-region--stack .ekh-toast.is-out {
+  opacity: 0; transform: translateX(16px);
+  transition-duration: var(--t-exit);
+}
+.ekh-toast__close {
+  display: grid;
+  place-items: center;
+  width: 28px; height: 28px;
+  flex: none;
+  margin: calc(-1 * var(--s-1));
+  border-radius: var(--r-s);
+  color: currentColor;
+  opacity: .72;
+}
+.ekh-toast__close:hover,
+.ekh-toast__close:focus-visible { background: color-mix(in srgb, currentColor 10%, transparent); opacity: 1; }
+.ekh-toast__close .icon { width: 16px; height: 16px; }
+
 /* ============ FILTER DROPDOWN (the canon filter, design-guide §3/§6) ============
    Видимая текстовая подпись с иконкой 16, поле 38px с рамкой, нативный select
    с appearance:none и стрелкой из спрайта, кольцо на :focus-within.
@@ -378,14 +418,13 @@ body:has(.login) #topbar {
 }
 .login__brand { display: flex; align-items: center; gap: var(--s-2); }
 .login__brand .icon { width: 32px; height: 32px; color: var(--brand-logo); }
-.login__brand b,
-html body .login__brand b {
+.login__brand b {
   font-size: var(--fs-24);
   font-weight: var(--weight-medium);
-  /* Optical logotype tightening — §1 exception, not UI tracking.
-     The `html body` selector beats Ministry’s `body *` tracking-0 hammer
-     without forking the value into the app stylesheet. */
-  letter-spacing: -0.02em !important;
+  /* Optical logotype tightening — §1 exception, not UI tracking. The extra
+     `html body … !important` copy this rule carried existed only to out-shout
+     Ministry's `body *` tracking hammer; that hammer is gone. */
+  letter-spacing: -0.02em;
 }
 .login__heading {
   display: grid;
