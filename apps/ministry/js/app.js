@@ -923,8 +923,11 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
 
     // правая колонка: SLA-кольцо (или итог) + реквизиты + действия
     var slaPanel = decided
-      ? '<div class="panel panel--pad"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
-          '<div class="label">' + esc(t('col_status')) + '</div><div class="sla-caption"><b>' + esc(statusLabel(a.status)) + '</b></div></div></div>'
+      /* Решённое заявление: знак исхода вместо кольца. Подпись «Статус ·
+         Исполнено» под ним не нужна — статус уже стоит пилюлей в шапке
+         карточки (правило 6); имя знака живёт в aria-label. */
+      ? '<div class="panel panel--pad"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '" role="img" aria-label="' + esc(statusLabel(a.status)) + '" title="' + esc(statusLabel(a.status)) + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
+          '<div class="sla-caption">' + esc(decidedAtLabel(a)) + '</div></div></div>'
       : '<div class="panel panel--pad"><div class="sla-ring-wrap">' + ringSvg(a) +
           '<div class="label">' + esc(t('deadline')) + '</div>' +
           '<div class="sla-caption" data-sla-cap data-due="' + a.dueAt + '">' + slaCaption(a) + '</div></div></div>';
@@ -1108,14 +1111,24 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   /* Подпись под кольцом не повторяет само кольцо (правило 6): остаток времени
      уже стоит в его центре, поэтому здесь только срок — «до 21.08.2026, 14:00».
      Просрочка — исключение: «на сколько» это не то же, что «сколько осталось». */
+  /* Под знаком исхода — когда решение принято. «Кто» уже стоит строкой
+     «Исполнитель» рядом, статус — пилюлей в шапке (правило 6). */
+  function decidedAtLabel(a) {
+    var last = (a.history || []).slice().sort(function (x, y) { return y.at - x.at; })[0];
+    return last ? fmtDateTime(last.at) : '';
+  }
   function slaCaption(a) {
     var rem = a.dueAt - now();
     if (rem <= 0) return '<b class="sla-caption__breach">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
     return esc(t('until')) + ' <b>' + esc(fmtDateTime(a.dueAt)) + '</b>';
   }
+  /* Значение строки должно читаться как значение: без суммы у «Не требуется»
+     и «Ожидает оплаты» в колонке оставался один значок, то есть пустая ячейка
+     со смыслом только в подсказке (§9 — цвет и иконка не единственный канал). */
   function payLabel(a) {
     var p = a.pay || { status: 'Не требуется' };
-    return '<span class="payment-status">' + payStatusIcon(p.status) + (p.amount ? '<span>' + esc(money(p.amount)) + '</span>' : '') + '</span>';
+    return '<span class="payment-status">' + payStatusIcon(p.status) +
+      '<span>' + esc(p.amount ? money(p.amount) : payStatusLabel(p.status)) + '</span></span>';
   }
   function defRow(k, vHtml) {
     return '<div class="def__row"><span class="def__key">' + esc(k) + '</span><span class="def__val">' + vHtml + '</span></div>';
