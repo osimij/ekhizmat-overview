@@ -1794,7 +1794,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       case 'lock': doLock(); return;
       case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast(t('reset_done'), 'success'); return;
       case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); clearArm(); renderLogin(); return;
-      case 'unlock': S.locked = false; document.getElementById('lock-root').remove(); document.getElementById('app').classList.remove('is-blurred'); return;
+      case 'unlock': doUnlock(); return;
       case 'noop': return;
     }
   });
@@ -1910,6 +1910,12 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
 
   // Esc закрывает слои; ↑/↓ навигация по очереди опущена ради простоты
   document.addEventListener('keydown', function (e) {
+    if (S.locked) {
+      var lockCard = document.querySelector('#lock-root .s-locked__card');
+      if (e.key === 'Escape') { e.preventDefault(); return; }
+      if (e.key === 'Tab' && lockCard) trapFocus(lockCard, e);
+      return;
+    }
     var filterTrigger = closest(e.target, '.filter-select__trigger');
     var filterOption = closest(e.target, '.filter-select__option');
     if (filterTrigger && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
@@ -2004,18 +2010,75 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   }
   function openCard(id) { S.cardId = id; S.view = 'card'; S.cardTab = 'overview'; closeLayers(false); var m = document.getElementById('main'); if (m) m.scrollTop = 0; renderMain(); }
 
+  /* Замок — модалка поверх того экрана, на котором остановились (правило 42,
+     §3 «Workstation lock»): шелл остаётся смонтированным и размывается, а
+     заголовок, поле и кнопка — те же классы S0 при --login-scale, поэтому
+     оператор отвечает на один вопрос в той же типографике, в которой входил.
+     Композиция общая с ЦОН (design-system/css/patterns.css).
+
+     Размытие — только визуальный слой: данные под ним живые и есть в DOM,
+     поэтому замок обязан быть модальным по-настоящему — фокус заперт внутри,
+     Escape его не снимает. Иначе «блокировка» обходится клавишей Tab. */
   function doLock() {
     closeLayers(true);
     S.locked = true;
     var app = document.getElementById('app'); if (app) app.classList.add('is-blurred');
     var lock = document.createElement('div'); lock.id = 'lock-root';
-    lock.innerHTML = '<div class="s-locked"><div class="panel s-locked__card">' + ic('i-lock','icon--48') +
-      '<h2 class="h2">' + esc(t('locked_title')) + '</h2>' +
-      '<p class="small">' + esc(D.ME.name) + ' · ' + esc(agencyName()) + '</p>' +
-      '<input class="field__input" name="password" type="password" autocomplete="current-password" aria-label="' + esc(t('login_pass')) + '">' +
-      '<button class="btn btn--primary" data-act="unlock">' + esc(t('unlock')) + '</button></div></div>';
+    lock.innerHTML =
+      '<div class="s-locked">' +
+        '<div class="login__brand s-locked__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
+        '<form class="panel login__card s-locked__card" role="dialog" aria-modal="true" aria-labelledby="lock-title" novalidate>' +
+          '<div class="s-locked__scale"><div class="s-locked__body">' +
+            ic('i-lock','s-locked__icon') +
+            '<div class="s-locked__copy"><div class="login__heading">' +
+              '<h1 id="lock-title">' + esc(t('locked_title')) + '</h1>' +
+              '<p>' + esc(D.ME.name + ' · ' + agencyName()) + '</p>' +
+            '</div></div>' +
+            '<div class="s-locked__controls">' +
+              '<div class="login__fields">' +
+                '<div class="field login-field--floating"><label class="field__label" for="lock-pass">' + esc(t('login_pass')) + '</label>' +
+                  '<input class="field__input" id="lock-pass" name="password" type="password" placeholder=" " autocomplete="current-password"></div>' +
+                '<span class="field__error" id="lock-error" role="alert" hidden></span>' +
+              '</div>' +
+              '<div class="login__actions"><button class="btn btn--primary btn--l" type="submit" data-act="unlock">' + esc(t('unlock')) + '</button></div>' +
+            '</div>' +
+          '</div></div>' +
+        '</form>' +
+        '<p class="s-locked__legend">' + esc(t('login_legend_primary')) + '</p>' +
+      '</div>';
     document.getElementById('root').appendChild(lock);
+    var card = lock.querySelector('.s-locked__card');
+    card.addEventListener('submit', function (e) { e.preventDefault(); doUnlock(); });
+    fitLockScale();
+    lock.querySelector('#lock-pass').focus();
     toast(t('t_locked'), 'success');
+  }
+  /* Login paints its 70px controls through `transform: scale(--login-scale)`,
+     and a transform does not shrink the layout box — so the wrapper is sized
+     to the painted result by hand. */
+  function fitLockScale() {
+    var wrap = document.querySelector('#lock-root .s-locked__scale');
+    var body = document.querySelector('#lock-root .s-locked__body');
+    if (!wrap || !body) return;
+    var scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--login-scale')) || 0.8;
+    wrap.style.width = (body.offsetWidth * scale) + 'px';
+    wrap.style.height = (body.offsetHeight * scale) + 'px';
+  }
+  function doUnlock() {
+    var input = document.getElementById('lock-pass');
+    var error = document.getElementById('lock-error');
+    if (!input.value.trim()) {
+      error.textContent = t('lock_password_required');
+      error.hidden = false;
+      input.setAttribute('aria-invalid', 'true');
+      fitLockScale();
+      input.focus();
+      return;
+    }
+    S.locked = false;
+    document.getElementById('lock-root').remove();
+    document.getElementById('app').classList.remove('is-blurred');
+    document.querySelector('.ekh-side__user')?.focus();
   }
 
   /* ================================================================== */

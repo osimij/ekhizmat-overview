@@ -292,8 +292,50 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   await expect(profilePop.locator('[data-theme-choice="system"]')).toHaveAttribute('aria-pressed', /true|false/);
   await expect(profilePop.locator('[data-theme-choice]')).toHaveCount(3);
   await page.locator('[data-act="lock"]').click();
-  await expect(page.locator('#lock-root input[name="password"]')).toHaveValue('');
+  /* Rule 42: the same lock component as ЦОН — modal on the blurred shell, not
+     a second login canvas. */
+  const ministryLock = page.locator('#lock-root .s-locked');
+  await expect(ministryLock.locator('h1')).toHaveText('Рабочее место заблокировано');
+  await expect(ministryLock.locator('.s-locked__brand')).toBeVisible();
+  await expect(page.locator('#lock-pass')).toHaveValue('');
+  const ministryLockLayout = await ministryLock.evaluate((element) => {
+    const card = element.querySelector('.s-locked__card');
+    const title = element.querySelector('h1');
+    const cardStyle = getComputedStyle(card);
+    return {
+      overlay: getComputedStyle(element).backgroundColor,
+      cardBackground: cardStyle.backgroundColor,
+      cardRadius: cardStyle.borderRadius,
+      padTop: cardStyle.paddingTop,
+      padLeft: cardStyle.paddingLeft,
+      titleSize: getComputedStyle(title).fontSize,
+      titleWeight: getComputedStyle(title).fontWeight,
+      inputHeight: element.querySelector('.field__input').getBoundingClientRect().height,
+      buttonHeight: element.querySelector('.btn--primary').getBoundingClientRect().height,
+      shellBlurred: document.getElementById('app').classList.contains('is-blurred'),
+      dialog: card.getAttribute('role') + '/' + card.getAttribute('aria-modal'),
+    };
+  });
+  expect(ministryLockLayout.overlay).not.toBe('rgba(0, 0, 0, 0)');
+  expect(ministryLockLayout.cardBackground).not.toBe('rgba(0, 0, 0, 0)');
+  expect(ministryLockLayout.cardRadius).toBe('32px');
+  expect(ministryLockLayout.padTop).toBe('40px');
+  expect(ministryLockLayout.padLeft).toBe('32px');
+  expect(ministryLockLayout.titleSize).toBe('24px');
+  expect(ministryLockLayout.titleWeight).toBe('500');
+  expect(ministryLockLayout.inputHeight).toBeCloseTo(56, 1);
+  expect(ministryLockLayout.buttonHeight).toBeCloseTo(56, 1);
+  expect(ministryLockLayout.shellBlurred).toBe(true);
+  expect(ministryLockLayout.dialog).toBe('dialog/true');
+  /* Escape must not lift the lock, and an empty password must not either. */
+  await page.keyboard.press('Escape');
+  await expect(ministryLock).toBeVisible();
   await page.locator('[data-act="unlock"]').click();
+  await expect(page.locator('#lock-error')).toBeVisible();
+  await expect(ministryLock).toBeVisible();
+  await page.locator('#lock-pass').fill('demo');
+  await page.locator('[data-act="unlock"]').click();
+  await expect(page.locator('#lock-root')).toHaveCount(0);
 
   await page.locator('.ekh-side__item[data-view="overdue"]').click();
   const overdueBanner = page.locator('.banner--error').first();

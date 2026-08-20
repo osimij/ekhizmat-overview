@@ -570,6 +570,108 @@ body:has(.login) #topbar {
   75% { transform: translateX(-4px); }
 }
 
+/* ============================================================
+   WORKSTATION LOCK (design-guide §3 «Workstation lock», rule 42)
+
+   A modal on the screen that was locked: the shell stays mounted, blurs
+   (`.is-blurred`) and this overlay tints it with `--overlay`; the card is the
+   only opaque surface. Inner title, field and button reuse the S0 login
+   classes at `--login-scale` so they paint at login's size — Figma's lock
+   numbers come from a 2880×1864 @2× frame and are halved here.
+
+   Shared by ЦОН and Ministry (§1 rule 9, rule 21): the two workstations lock
+   the same way, and the composition is exactly the kind of thing that drifts
+   the moment it exists twice. The shells differ (`.shell` vs `.app`), so the
+   blur is a state class of its own rather than part of either.
+   ============================================================ */
+.is-blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+}
+.s-locked {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lock);
+  display: grid;
+  grid-template-rows: auto minmax(min-content, 1fr) auto;
+  align-items: center;
+  justify-items: center;
+  gap: var(--s-8);
+  padding: var(--s-6) clamp(var(--s-6), 4vw, var(--s-8)) var(--s-10);
+  background: var(--overlay);
+}
+.s-locked__brand {
+  justify-self: start;
+  align-self: start;
+  transform: scale(var(--login-scale));
+  transform-origin: top left;
+}
+.s-locked__legend {
+  justify-self: center;
+  max-width: 48ch;
+  color: var(--ink-faint);
+  text-align: center;
+  font-size: var(--fs-14);
+  transform: scale(var(--login-scale));
+  transform-origin: top center;
+}
+.s-locked .s-locked__icon {
+  display: block;
+  width: var(--s-16);
+  height: var(--s-16);
+  color: var(--blue-ink);
+  margin-inline: auto;
+}
+/* Beat `.panel.login__card` (transparent, no padding) — lock is a real modal.
+   Padding/radius are 1× CSS (Figma 2880 is @2×). Title, fields and button
+   sit in `.s-locked__body` at `--login-scale` so they match S0. */
+.s-locked .panel.login__card.s-locked__card {
+  grid-row: 2;
+  width: max-content;
+  max-width: 100%;
+  padding: var(--s-10) var(--s-8) var(--s-8); /* Figma 80/64 on 2880 frame → 40/32 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lock);
+  box-shadow: var(--shadow-1);
+}
+.s-locked__scale { overflow: hidden; }
+.s-locked__body {
+  width: max-content;
+  min-width: var(--w-login-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-8); /* equal: icon ↔ copy ↔ controls; larger than the old --s-6 */
+  transform: scale(var(--login-scale));
+  transform-origin: top left;
+}
+.s-locked__copy { display: grid; justify-items: center; gap: var(--s-3); }
+.s-locked__body .login__heading { gap: var(--s-2); } /* title ↔ hint are one unit */
+.s-locked__body .login__heading h1 {
+  white-space: nowrap;
+  /* Modal title is --fs-20; the body is already at --login-scale, so --fs-24 paints ~20. */
+  font-size: var(--fs-24);
+  font-weight: var(--weight-medium);
+}
+.s-locked__body .login__heading p { font-weight: var(--weight-regular); }
+.s-locked__controls {
+  display: grid;
+  gap: var(--s-4); /* one step above S0 credentials so the one field doesn't crowd Unlock */
+  width: var(--w-login-card);
+  max-width: 100%;
+}
+.s-locked .login-field--floating:focus-within > .field__label,
+.s-locked .login-field--floating:has(.field__input:not(:placeholder-shown)) > .field__label {
+  background: var(--panel);
+}
+
 @media (max-width:640px) {
   .ekh-demo-tools { right:var(--s-3); left:var(--s-3); bottom:var(--s-3); flex-wrap:wrap; }
   .ekh-demo-tools strong { flex:1 0 100%; }
