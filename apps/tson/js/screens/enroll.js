@@ -35,7 +35,7 @@
       ровно та утечка, от которой §2.3 обещает избавить.
    ============================================================ */
 import { h, mount, icon, toast, modal, confirmDanger, facescanFrame } from '../ui.js';
-import { t, errText } from '../i18n.js';
+import { t, errText, bindTsonName } from '../i18n.js';
 import { getState, dispatch, trackBlobUrl } from '../store.js';
 import { enroll, docs as fileApi, sim } from '../mock/api.js';
 import { field, selectField, maskedField, setLoading } from '../fields.js';
@@ -685,7 +685,7 @@ export function renderEnroll(host) {
       const res = await enroll.submit({
         fields,
         phone,
-        by: t('enroll.by', { tson: bind?.tsonName || bind?.tson || '', n: bind?.window ?? '' }),
+        by: t('enroll.by', { tson: bindTsonName(bind) || bind?.tson || '', n: bind?.window ?? '' }),
       });
       if (dead) return;
 

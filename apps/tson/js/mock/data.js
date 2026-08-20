@@ -16,10 +16,10 @@ export const OPERATORS = [
 ];
 
 export const TSONS = [
-  { id: 'sino',     name: 'р-н Сино',     windows: [1, 2, 3, 4, 5, 6] },
-  { id: 'firdavsi', name: 'р-н Фирдавси', windows: [1, 2, 3, 4] },
-  { id: 'shohmansur', name: 'р-н Шохмансур', windows: [1, 2, 3] },
-  { id: 'somoni',   name: 'р-н И. Сомони', windows: [1, 2, 3, 4, 5] },
+  { id: 'sino',     name: 'район Сино',     windows: [1, 2, 3, 4, 5, 6] },
+  { id: 'firdavsi', name: 'район Фирдавси', windows: [1, 2, 3, 4] },
+  { id: 'shohmansur', name: 'район Шохмансур', windows: [1, 2, 3] },
+  { id: 'somoni',   name: 'район И. Сомони', windows: [1, 2, 3, 4, 5] },
 ];
 
 /* ---------- скоупы согласия (§3.2, §6/S3) ----------

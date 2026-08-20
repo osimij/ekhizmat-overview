@@ -70,7 +70,7 @@ test('Low Code review workspace reference', async ({ page }) => {
   await page.goto('/admin/review.html?present=1&theme=light&lang=ru');
   await page.evaluate(() => localStorage.removeItem('ekh.demo.lowcode'));
   await page.reload();
-  await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
+  await expect(page.locator('#lowCodeReview .lc-queue-panel')).toBeVisible();
   await expect(page).toHaveScreenshot('admin-lowcode-review-light-ru.png', { fullPage: true, animations: 'disabled' });
 });
 

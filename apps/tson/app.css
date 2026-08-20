@@ -879,8 +879,6 @@ button.step:focus-visible {
 .table-title-align{position:relative;display:inline-block;white-space:nowrap}
 .table-title-align::before{content:attr(data-column-title);display:block;visibility:hidden;font-size:var(--fs-13);font-weight:var(--weight-medium)}
 .table-title-align__value{position:absolute;inset-block-start:50%;inset-inline-start:50%;transform:translate(-50%,-50%);white-space:nowrap}
-.window-table .status-icon,
-.dashboard-table-section .status-icon { background: transparent; }
 .table-wrap{overflow-x:auto}
 
 /* Строка-кнопка: вся строка и есть действие, поэтому отдельной колонки с
@@ -1567,7 +1565,6 @@ button.step:focus-visible {
               color var(--t-fast) var(--ease);
 }
 .menu__choice:hover { background: var(--hover); color: var(--ink); }
-.menu__choice .menu__theme-system-icon { width: 26px; height: 26px; }
 /* Выбранное состояние меняет и фон, и цвет глифа разом — один статус, все
    каналы согласны (§6 «Navigation items»), и цвет не единственный канал (§9). */
 .menu__choice[aria-pressed="true"] { background: var(--blue-tint); color: var(--blue-ink); }

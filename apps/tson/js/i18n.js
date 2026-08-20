@@ -80,6 +80,16 @@ export function t(key, vars) {
   return s;
 }
 
+/* Имя центра в подписи привязки: полные слова («район Сино» / «ноҳияи Сино»),
+   не телеграфное «р-н». Словарь по id, чтобы смена языка не оставляла русский
+   снимок из BIND_OK. */
+export function bindTsonName(bind) {
+  if (!bind) return '';
+  const localized = dict[`tson.name.${bind.tson}`];
+  if (localized !== undefined) return localized;
+  return String(bind.tsonName || bind.tson || '').replace(/^р-н\s+/, 'район ');
+}
+
 /* Текст ошибки API — по КОДУ из словаря (§10, Д-10).
 
    Тексты ApiError захардкожены в моке по-русски (в проде их будет писать

@@ -2643,7 +2643,6 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
 .adm-profile-pop__theme-choice:disabled{cursor:default}
 .adm-profile-pop__theme-choice:disabled:hover{background:transparent;opacity:.5}
 .adm-profile-pop__theme-choice svg{width:15px;height:15px}
-.adm-profile-pop__theme-choice--system svg{width:26px;height:26px}
 @media(max-width:860px){
   .adm-top .adm-profile-trigger{display:inline-grid}
 }

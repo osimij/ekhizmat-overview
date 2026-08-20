@@ -87,7 +87,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | i-history | clock-04 | i-cat-passport | passport |
 | i-refresh | refresh | i-baby | baby-01 |
 | i-clock | clock-01 | i-biz | briefcase-01 |
-| i-theme-system | Figma appearance/system |  |  |
+| i-theme-system | SF circle.lefthalf.filled |  |  |
 | i-calendar | calendar-03 | i-retire | archive-02 |
 | i-upload | upload-02 | i-rings | (pick in Hugeicons plugin) |
 

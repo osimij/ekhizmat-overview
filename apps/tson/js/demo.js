@@ -48,7 +48,7 @@ const HUMAN = {
 const PAYLOAD = {
   ID_SENT: () => ({ method: 'push', maskedName: 'А***в Ф.', scopes: BASE_SCOPES }),
   MFA_OK:  () => ({ operator: { login: 'operator.sino04', name: 'Фируза' } }),
-  BIND_OK: () => ({ bind: { tson: 'sino', tsonName: 'р-н Сино', window: 4 } }),
+  BIND_OK: () => ({ bind: { tson: 'sino', tsonName: 'район Сино', window: 4 } }),
 
   // Прямой GRANTED минует S3 — а значит, и consent.commit(), которым S3
   // открывает доступ на «сервере». Без этого citizen.get() отдавал бы 403 на

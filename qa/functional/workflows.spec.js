@@ -399,6 +399,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle__start')).toBeVisible();
   await expect(page).toHaveURL(/#\/idle/);
+  await expect(page.locator('.topbar__bind')).toHaveText('Окно 1 - ЦОН район Сино');
 
   const operatorMenu = page.getByRole('button', { name: /меню оператора/i });
   await operatorMenu.click();
@@ -414,7 +415,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
     .toHaveAttribute('href', '/design-system/assets/icons.svg#i-theme-system');
   const menuGeometry = await menu.evaluate((element) => {
     const style = (node) => getComputedStyle(node);
-    const systemIcon = element.querySelector('.menu__theme-system-icon');
+    const systemIcon = element.querySelector('[aria-label="Как в системе"] .icon');
     const shortcut = element.querySelector('.menu__kbd');
     return {
       systemIcon: [style(systemIcon).width, style(systemIcon).height],
@@ -427,7 +428,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
         .map((rule) => [style(rule).marginTop, style(rule).marginBottom]),
     };
   });
-  expect(menuGeometry.systemIcon).toEqual(['26px', '26px']);
+  expect(menuGeometry.systemIcon).toEqual(['16px', '16px']);
   expect(menuGeometry.shortcut).toEqual({ padding: ['4px', '8px'], radius: '14px', fontSize: '13px' });
   expect(menuGeometry.dividerMargins).toEqual(expect.arrayContaining([['8px', '8px']]));
   await operatorMenu.click();

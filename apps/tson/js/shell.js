@@ -6,7 +6,7 @@
    (не скрыты, а отсутствуют в DOM и памяти)»).
    ============================================================ */
 import { h, mount, icon, maskName, maskInn, mmss, openLayer, closeTopLayer, confirmDanger } from './ui.js';
-import { t, getLang, setLang } from './i18n.js';
+import { t, getLang, setLang, bindTsonName } from './i18n.js';
 import { getState, dispatch, __reset, ST, STEP } from './store.js';
 import { endVisit } from './session.js';
 import { getThemeChoice, setTheme } from '/design-system/js/preferences.js';
@@ -42,7 +42,7 @@ export function renderTopbar(host) {
         onClick: () => location.reload(),
       },
         icon('building', { size: 20 }),
-        t('shell.window', { n: st.bind.window, tson: st.bind.tsonName || st.bind.tson }))
+        t('shell.window', { n: st.bind.window, tson: bindTsonName(st.bind) }))
     : null;
 
   // Значок роли — только когда роль не подразумевается (§10 правила 4 и 6).
@@ -180,12 +180,7 @@ function themeRow() {
             b.setAttribute('aria-pressed', String(options[i].id === getThemeChoice()));
           });
         },
-      }, icon(o.icn, {
-        size: 16,
-        // The system glyph has more empty space in its source viewBox than the
-        // sun and moon. This class aligns its visible mark with the other two.
-        cls: o.id === 'system' ? 'menu__theme-system-icon' : '',
-      })))));
+      }, icon(o.icn, { size: 16 })))));
 
   return row;
 }
@@ -278,7 +273,7 @@ function openOperatorMenu(anchor, st, onClose) {
     h('div', { class: 'menu__head' },
       h('strong', {}, st.operator.name),
       h('span', { class: 'small ink-faint' },
-        st.bind ? t('shell.window', { n: st.bind.window, tson: st.bind.tsonName || st.bind.tson }) : '')),
+        st.bind ? t('shell.window', { n: st.bind.window, tson: bindTsonName(st.bind) }) : '')),
     h('hr', { class: 'rule' }),
     !inVisit ? h('span', { class: 'menu__label small ink-faint' }, t('shell.demoRole')) : null,
     !inVisit ? roleItem('role', ROLE.OPERATOR) : null,
