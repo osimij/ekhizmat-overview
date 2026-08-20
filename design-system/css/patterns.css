@@ -641,6 +641,22 @@ body:has(.login) #topbar {
   border: 1px solid var(--line);
   border-radius: var(--r-lock);
   box-shadow: var(--shadow-1);
+  /* Beat `.modal` / `.ekh-dialog` when the lock card is a dismissible portal dialog. */
+  max-height: none;
+  overflow: visible;
+  animation: none;
+}
+/* Citizen (and any portal) sign-in: `.overlay` is only the show/hide shell;
+   `.s-locked` paints the scrim, brand and card (design-guide rule 51). */
+.overlay.s-locked {
+  display: none;
+  background: var(--overlay);
+  backdrop-filter: none;
+}
+.overlay.s-locked.open,
+.overlay.s-locked.is-open,
+.overlay.s-locked.ekh-dialog-backdrop {
+  display: grid;
 }
 .s-locked__scale { overflow: hidden; }
 .s-locked__body {
@@ -700,6 +716,14 @@ body:has(.login) #topbar {
   }
   .panel.login__card .otp { gap: var(--s-2); }
   .panel.login__card .otp__cell { height: clamp(var(--s-16), 20vw, calc(var(--s-16) + var(--s-4))); border-radius: var(--r-l); }
+  .overlay.s-locked { padding: var(--s-4); }
+  .overlay.s-locked .s-locked__card { padding: var(--s-6); }
+  .overlay.s-locked .s-locked__body {
+    min-width: 0;
+    width: min(var(--w-login-card), calc((100vw - var(--s-4) * 2 - var(--s-6) * 2) / var(--login-scale)));
+  }
+  .overlay.s-locked .s-locked__controls { width: 100%; }
+  .overlay.s-locked .s-locked__body .login__heading h1 { white-space: normal; }
 }
 @media (max-height:700px) {
   html { --login-chrome-pad: var(--s-4); }

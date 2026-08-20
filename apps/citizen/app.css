@@ -89,7 +89,7 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 /* content sits on the standard centered rail — same edge as the header
    brand and the feed below — with the artwork filling the right side */
 .hero-in > .search{max-width:720px}
-.hero-in > .cats{max-width:742px}
+.hero-in > .cats{max-width:784px}
 /* the phone rail below reuses .cats; keep the desktop grid definition here */
 .hero-art{
   position:absolute; z-index:-1; top:0; bottom:0; right:0;
@@ -187,7 +187,7 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 
 /* category grid — white cards on the hero wash, hue on the icon tiles */
 .cats{
-  display:grid; grid-template-columns:repeat(6,117px); gap:var(--s-2);
+  display:grid; grid-template-columns:repeat(6,124px); gap:var(--s-2);
   grid-auto-rows:120px;
   margin:0 0 var(--s-2);
 }
@@ -220,7 +220,7 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .ftab[aria-selected="true"] .fbadge{background:var(--field-on-panel)}
 .fbadge.hot{background:var(--red-fill); color:var(--pure-white)}
 .ftab[aria-selected="true"] .fbadge.hot{background:var(--red-fill)}
-.feed-all{background:none; border:0; padding:6px 10px; border-radius:var(--r-s); font-size:var(--fs-14); font-weight:600; color:var(--blue-ink); white-space:nowrap; transition:background var(--t-fast) var(--ease)}
+.feed-all{background:none; border:0; padding:6px 10px; border-radius:var(--r-s); font-size:var(--fs-14); font-weight:var(--weight-medium); color:var(--blue-ink); white-space:nowrap; transition:background var(--t-fast) var(--ease)}
 .feed-all:hover{background:var(--hover)}
 .feed-grid{display:grid; grid-template-columns:minmax(0,1fr) 312px; gap:var(--s-4); align-items:start}
 
@@ -277,6 +277,7 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .pay-card .pt{font-size:var(--fs-14); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none; color:var(--ink-3); text-wrap:balance}
 .pay-actions{display:grid; gap:var(--s-1); margin-top:var(--s-6)}
 .pay-card .btn{width:100%; justify-content:center}
+.pay-card .pay-link{border:1px solid var(--line)}
 
 /* notifications screen groups */
 #scr-notifs .j-head h2{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
@@ -626,13 +627,13 @@ a.ft-c:hover{color:var(--ink)}
 .prof-nav{position:sticky; top:80px; display:flex; flex-direction:column; gap:2px}
 .pn{
   display:flex; align-items:center; gap:11px; text-align:left;
-  color:var(--ink-2); font-weight:600; font-size:var(--fs-14);
+  color:var(--ink-2); font-weight:var(--weight-regular); font-size:var(--fs-14);
   padding:11px 14px; border-radius:var(--r-s);
   transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
 .pn svg{width:18px; height:18px; color:var(--ink-3); flex:none; transition:color var(--t-fast) var(--ease)}
 .pn:hover{background:var(--hover); color:var(--ink)}
-.pn[aria-current="true"]{background:var(--blue-tint); color:var(--blue-ink)}
+.pn[aria-current="true"]{background:var(--blue-tint); color:var(--blue-ink); font-weight:var(--weight-medium)}
 .pn[aria-current="true"] svg{color:var(--blue-ink)}
 /* sign-out sits apart at the foot of the nav */
 .pn-out{margin-top:var(--s-3)}
@@ -696,6 +697,7 @@ a.ft-c:hover{color:var(--ink)}
 .guest-success #guestSuccessId{display:inline-flex;margin:var(--s-2) 0 var(--s-4);padding:8px 12px;border-radius:var(--r-pill);background:var(--field);font-weight:var(--weight-semibold);font-variant-numeric:tabular-nums;letter-spacing:0}
 .pane-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-4);margin-bottom:var(--s-5)}
 .pane-heading h2{font-size:var(--fs-24)}
+#paymentsRoot .pane-heading .lead-s{margin-bottom:0}
 .pane-actions{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap;justify-content:flex-end}
 /* KPI cards: separate bordered cards, value first, tabular numerals; when a
    stat filters the list it is a button with aria-pressed (§3 KPI canon). */
@@ -775,10 +777,11 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 .payment-list{display:grid;gap:var(--s-3)}
 .payment-item{padding:var(--s-5);border:1px solid var(--line-in);border-radius:var(--r-l);background:var(--panel)}
 .payment-item__main,.payment-item__foot{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-4)}
+.payment-item .eyebrow{display:block;font-size:var(--fs-12);font-weight:var(--weight-regular);color:var(--ink-3);font-variant-numeric:tabular-nums}
 .payment-item__main h3{font-size:var(--fs-17);margin:4px 0}.payment-item__main p{font-size:var(--fs-13);color:var(--ink-3)}
 .payment-amount{font-size:var(--fs-18);white-space:nowrap;font-variant-numeric:tabular-nums}
 .payment-item__foot{align-items:center;margin-top:var(--s-4);padding-top:var(--s-4);border-top:1px solid var(--line-in)}
-.payment-item__foot>div{display:flex;align-items:center;gap:var(--s-3);flex-wrap:wrap}.payment-date{font-size:var(--fs-13);color:var(--ink-3)}
+.payment-item__foot>div{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}.payment-date{font-size:var(--fs-13);color:var(--ink-3)}
 .payment-item__foot svg,.receipt-modal .btn svg{width:16px;height:16px}
 .receipt-modal{width:min(620px,calc(100vw - 40px));max-width:none;text-align:left}
 .receipt-head{text-align:center;margin-bottom:var(--s-4)}.receipt-head h3{margin-top:4px;font-size:var(--fs-22)}

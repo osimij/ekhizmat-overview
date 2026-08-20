@@ -57,6 +57,8 @@ test('the all-payments action is a ghost twin of the primary payment button', as
   }
   await expect(primary).toHaveCSS('text-align', 'center');
   await expect(secondary).toHaveCSS('text-align', 'center');
+  await expect(secondary).toHaveCSS('border-top-width', '1px');
+  await expect(secondary).toHaveCSS('border-top-style', 'solid');
   await expect(page.locator('#payCard > .pay-summary')).toHaveCount(1);
   await expect(page.locator('.pay-summary > *')).toHaveCount(2);
   await expect(page.locator('.pay-summary')).toHaveCSS('gap', '0px');
@@ -72,6 +74,24 @@ test('the all-payments action is a ghost twin of the primary payment button', as
   await expect(page).toHaveURL(/#\/profile\/payments$/);
 });
 
+test('the all-payments border stays neutral in both themes', async ({ page }) => {
+  for (const theme of ['light', 'dark']) {
+    await page.goto(`/citizen/?lang=ru&theme=${theme}`);
+    const colors = await page.locator('.pay-link').evaluate((button) => ({
+      border: getComputedStyle(button).borderTopColor,
+      line: (() => {
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--line)';
+        document.body.append(probe);
+        const color = getComputedStyle(probe).color;
+        probe.remove();
+        return color;
+      })(),
+    }));
+    expect(colors.border).toBe(colors.line);
+  }
+});
+
 test('feed tabs use regular labels until selected', async ({ page }) => {
   const notificationTab = page.locator('#ftab-notif');
   const applicationTab = page.locator('#ftab-apps');
@@ -81,6 +101,10 @@ test('feed tabs use regular labels until selected', async ({ page }) => {
   await applicationTab.click();
   await expect(notificationTab).toHaveCSS('font-weight', '400');
   await expect(applicationTab).toHaveCSS('font-weight', '500');
+});
+
+test('the all-notifications action uses medium label weight', async ({ page }) => {
+  await expect(page.locator('.feed-all')).toHaveCSS('font-weight', '500');
 });
 
 test('feed row icons sit just below the start of their text for optical alignment', async ({ page }) => {
@@ -121,7 +145,7 @@ test('life-situation cards group copy, tighten metadata, and hover without a bor
 
   const cards = page.locator('.moment');
   const first = cards.first();
-  await expect(cards).toHaveCount(6);
+  await expect(cards).toHaveCount(4);
   await expect(first.locator('.mi svg')).toHaveCSS('width', '32px');
   await expect(first.locator('.mi svg')).toHaveCSS('height', '32px');
   await expect(first.locator('.moment-copy')).toHaveCount(1);

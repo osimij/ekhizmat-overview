@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { completeCitizenLogin } from '../helpers/citizen-auth.js';
 
 for (const theme of ['light', 'dark']) {
   test(`launcher ${theme} reference`, async ({ page }) => {
@@ -38,8 +39,7 @@ test('Citizen Guest form and categorized cabinet references', async ({ page }) =
 
   await page.locator('#scr-guest-service [data-back]').first().click();
   await page.locator('#guestLoginBtn').click();
-  await page.locator('#loginPhone').fill('+992 90 000 00 00');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page);
   await page.locator('#profileTrigger').click();
   await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.locator('[data-pane="apps"]').click();

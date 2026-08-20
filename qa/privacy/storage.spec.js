@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
+import { completeCitizenLogin } from '../helpers/citizen-auth.js';
 
 test('shared origin stores only approved non-personal settings', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.goto('/citizen/');
   await page.locator('#loginBtn').click();
-  await page.locator('#loginPhone').fill('+992 90 123 45 67');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page, '+992 90 123 45 67');
   await page.goto('/ministry/');
   await page.goto('/admin/services.html');
   await page.goto('/tson/');

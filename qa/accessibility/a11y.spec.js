@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { completeMinistryLogin } from '../helpers/ministry-auth.js';
 
 const pages = ['/', '/citizen/', '/mobile/', '/tson/', '/ministry/', '/admin/services.html', '/admin/forms.html', '/admin/form-builder.html', '/admin/review.html', '/design-system/styleguide.html'];
 for (const theme of ['light', 'dark']) {
@@ -28,11 +29,7 @@ for (const theme of ['light', 'dark']) {
 
   test(`Ministry form builder ${theme} has no serious accessibility violations`, async ({ page }) => {
     await page.goto(`/ministry/?theme=${theme}&lang=ru`, { waitUntil: 'networkidle' });
-    await page.locator('#l-pass').fill('demo');
-    await page.locator('[data-act="login-next"]').click();
-    const otp = page.locator('.otp__cell');
-    for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-    await page.locator('[data-act="login-enter"]').click();
+    await completeMinistryLogin(page);
     await page.locator('.ekh-side__item[data-view="forms"]').click();
     await page.locator('[data-act="form-open"]').click();
     await page.locator('.mfb-field-open').first().click();

@@ -1,15 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { completeMinistryLogin } from '../helpers/ministry-auth.js';
 
 test.use({ reducedMotion: 'no-preference' });
 
 async function signIn(page) {
   await page.goto('/ministry/?lang=ru&theme=light');
-  await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const otp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
-  await expect(page.locator('#app')).toBeVisible();
+  await completeMinistryLogin(page);
 }
 
 test('Ministry sidebar collapses into a compact icon rail with section dividers', async ({ page }) => {

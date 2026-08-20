@@ -112,10 +112,12 @@ test('citizen category cards keep identical dimensions', async ({ page }) => {
       height: Math.round(rect.height),
       iconTopGap: Math.round(icon.top - rect.top),
       titleBottomGap: Math.round(rect.bottom - title.bottom),
+      titleLines: Math.round(title.height / parseFloat(getComputedStyle(element.querySelector('span:last-child')).lineHeight)),
     };
   }));
   expect(new Set(sizes.map(({ width }) => width)).size).toBe(1);
-  expect(sizes[0].width).toBe(117);
+  expect(sizes[0].width).toBe(124);
+  expect(Math.max(...sizes.map(({ titleLines }) => titleLines))).toBeLessThanOrEqual(2);
   expect(new Set(sizes.map(({ height }) => height)).size).toBe(1);
   expect(sizes[0].height).toBe(120);
   expect(new Set(sizes.map(({ iconTopGap }) => iconTopGap)).size).toBe(1);

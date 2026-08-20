@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { completeCitizenLogin } from '../helpers/citizen-auth.js';
+import { completeMinistryLogin } from '../helpers/ministry-auth.js';
 
 async function expectPageFits(page) {
   const overflow = await page.evaluate(() =>
@@ -278,11 +280,19 @@ test('Authentication gates follow the responsive Figma composition across platfo
   await page.goto('/citizen/?lang=ru&theme=light');
   await page.locator('#loginBtn').click();
   await expect(page.locator('#loginOverlay .modal')).toBeVisible();
-  await expect.poll(() => page.locator('#loginOverlay .modal').evaluate((element) => {
-    const modal = element.getBoundingClientRect();
-    return Math.abs((modal.top + modal.height / 2) - innerHeight / 2);
-  })).toBeLessThanOrEqual(1);
-  await expect(page.locator('#loginOverlay .modal')).toHaveCSS('border-radius', '40px');
+  await expect(page.locator('#loginOverlay .s-locked__brand')).toBeVisible();
+  await expect(page.locator('#loginOverlay .login-field--floating')).toBeVisible();
+  await expect(page.locator('#loginOverlay .modal')).toHaveCSS('border-radius', '32px');
+  const citizenLogin = await page.evaluate(() => {
+    const brand = document.querySelector('#loginOverlay .s-locked__brand');
+    return {
+      brandLeft: brand.getBoundingClientRect().left,
+      headerBlurred: document.querySelector('header').classList.contains('is-blurred'),
+    };
+  });
+  expect(citizenLogin.brandLeft).toBeLessThan(80);
+  expect(citizenLogin.headerBlurred).toBe(true);
+  await expect.poll(() => page.locator('#loginPhone').evaluate((element) => element.getBoundingClientRect().height)).toBeCloseTo(56, 1);
 });
 
 test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', async ({ page }) => {
@@ -291,8 +301,7 @@ test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', as
 
   await page.locator('#loginBtn').click();
   await expectLayerFits(page, page.locator('#loginOverlay .modal'));
-  await page.locator('#loginPhone').fill('+992 90 000 00 00');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page);
 
   for (const destination of ['category', 'journey', 'emergency', 'notifs']) {
     if (destination === 'category') await page.locator('.cat').first().click();
@@ -318,11 +327,7 @@ test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', as
 test('Ministry operational views, popovers, and dialogs fit a phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/ministry/?lang=ru&theme=light');
-  await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const otp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
+  await completeMinistryLogin(page);
 
   const queueGeometry = await page.evaluate(() => {
     const viewportWidth = document.documentElement.clientWidth;
@@ -383,11 +388,7 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
 test('Ministry and Admin form builders share the same desktop layout geometry', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/ministry/?lang=ru&theme=light');
-  await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const otp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
+  await completeMinistryLogin(page);
   await page.locator('.ekh-side__item[data-view="forms"]').click();
   await page.locator('[data-act="form-create"]').click();
 
@@ -688,6 +689,27 @@ test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ 
   await page.locator('[data-open="serviceFormPicker"]').click();
   await expectLayerFits(page, page.locator('#serviceFormPicker .modal'));
   await page.locator('#serviceFormPicker [data-close]').first().click();
+});
+
+test('Builder issue preview shows the issued certificate in the wallet, not a delivery row', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  await page.locator('.stg[data-tab="issue"]').click();
+
+  const preview = page.locator('.pv-app [data-panel="issue"]');
+  await expect(preview).toBeVisible();
+  await expect(preview.locator('.opt')).toHaveCount(0);
+  await expect(preview.locator('.pv-cert')).toBeVisible();
+  await expect(preview.locator('.pv-cert h4')).toHaveText('Справка о составе семьи');
+  await expect(preview.locator('.pv-cert__who')).toContainText('Рахимова Фируза Далеровна');
+  await expect(preview.locator('.pv-cert__family')).toContainText('Зарина');
+  await expect(preview.locator('.pv-cert__qr[data-qr]')).toBeVisible();
+  const qr = await preview.locator('.pv-cert__qr').evaluate((el) => {
+    const rect = el.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  });
+  expect(qr.width).toBeGreaterThanOrEqual(72);
+  expect(qr.height).toBeGreaterThanOrEqual(72);
 });
 
 test('TSON session catalog, citizen data, form, documents, and result remain readable', async ({ page }) => {

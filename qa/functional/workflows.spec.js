@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { completeCitizenLogin } from '../helpers/citizen-auth.js';
+import { completeMinistryLogin } from '../helpers/ministry-auth.js';
 
 async function expectSameActionHeight(page, selector, count=2) {
   const group = page.locator(selector);
@@ -18,8 +20,7 @@ test('Citizen category, profile, wallet, QR and logout flow', async ({ page }) =
   await page.locator('#scr-category [data-back]').click();
 
   await page.locator('#loginBtn').click();
-  await page.locator('#loginPhone').fill('+992 90 000 00 00');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page);
   await expect(page.locator('html')).toHaveAttribute('data-auth', 'in');
 
   await page.locator('[data-go="journey"]:visible').first().click();
@@ -53,7 +54,7 @@ test('Citizen guest appointment, cabinet categories, child validation and biomet
   await expect(page.locator('#guestStrip')).toBeVisible();
   await expect(page.locator('.cat')).toHaveCount(4);
   await page.locator('#guestAvatar').click();
-  await expect(page.locator('#loginOverlay .sub')).toContainText('личный кабинет');
+  await expect(page.locator('#loginOverlay #loginSub')).toContainText('личный кабинет');
   await page.locator('#loginCancel').click();
   await page.locator('.cat').first().click();
   await page.locator('[data-go="guestService"]').click();
@@ -66,8 +67,7 @@ test('Citizen guest appointment, cabinet categories, child validation and biomet
   await expect(page.locator('#guestSuccessTitle')).toContainText('Демо-заявка');
 
   await page.locator('#guestSuccessLogin').click();
-  await page.locator('#loginPhone').fill('+992 90 000 00 00');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page);
   await page.locator('#profileTrigger').click();
   await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.locator('[data-pane="apps"]').click();
@@ -130,6 +130,11 @@ test('Authentication never pre-fills a password or verification code', async ({ 
   await page.goto('/citizen/?lang=tg&theme=light');
   await page.locator('#loginBtn').click();
   await expect(page.locator('#loginPhone')).toHaveValue('');
+  await page.locator('#loginPhone').fill('+992 90 000 00 00');
+  await page.locator('#loginGo').click();
+  const citizenOtp = page.locator('#loginOverlay .otp__cell');
+  await expect(citizenOtp).toHaveCount(6);
+  for (const cell of await citizenOtp.all()) await expect(cell).toHaveValue('');
 
   await page.goto('/ministry/?lang=ru&theme=light');
   await expect(page.locator('#l-user')).not.toHaveValue('');
@@ -197,10 +202,10 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   await page.locator('[data-act="login-next"]').click();
   await expectSameActionHeight(page, '.login__actions');
   await expect(page.locator('#l-otp')).toBeVisible();
+  await expect(page.locator('#login-error')).toBeHidden();
   await expect(page.locator('.otp__cell')).toHaveCount(6);
   const ministryOtp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await ministryOtp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
   await expect(page.locator('#app')).toBeVisible();
   const profileRow = await page.locator('.ekh-side__user').evaluate((row) => {
     const avatar = row.querySelector('.ekh-side__avatar').getBoundingClientRect();
@@ -378,13 +383,21 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   }
 });
 
-test('Ministry Tajik mode localizes service and application details', async ({ page }) => {
+test('Ministry MFA error stays hidden until the code step itself fails', async ({ page }) => {
   await page.goto('/ministry/?lang=tg&theme=light');
   await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const otp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
+  await page.locator('#l-pass').press('Enter');
+  await expect(page.locator('.login__form--mfa')).toBeVisible();
+  await expect(page.locator('#login-error')).toBeHidden();
   await page.locator('[data-act="login-enter"]').click();
+  await expect(page.locator('#login-error')).toBeVisible();
+  await expect(page.locator('#login-error')).toHaveText('Ҳамаи 6 рақами рамзи тасдиқро ворид кунед.');
+  await expect(page.locator('.login__form--mfa')).toBeVisible();
+});
+
+test('Ministry Tajik mode localizes service and application details', async ({ page }) => {
+  await page.goto('/ministry/?lang=tg&theme=light');
+  await completeMinistryLogin(page);
 
   await expect(page.locator('.ekh-side__identity span')).toHaveText('Раёсати бақайдгирии ТҒТ');
   const accreditation = page.locator('.q-row[data-id="a8"]');
@@ -409,11 +422,7 @@ test('Ministry Tajik mode localizes service and application details', async ({ p
 
 test('Ministry workers can create a form and hand it to the shared review queue', async ({ page }) => {
   await page.goto('/ministry/?lang=ru&theme=light');
-  await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const otp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
+  await completeMinistryLogin(page);
 
   await page.locator('.ekh-side__item[data-view="forms"]').click();
   await expect(page.locator('.forms-catalog')).toBeVisible();
@@ -645,11 +654,7 @@ test('TSON and Ministry operator session survives a normal reload', async ({ pag
   await expect(page.locator('.s-idle__start')).toHaveCount(0);
 
   await page.goto('/ministry/?lang=ru&theme=light');
-  await page.locator('#l-pass').fill('demo');
-  await page.locator('[data-act="login-next"]').click();
-  const ministryOtp = page.locator('.otp__cell');
-  for (let index = 0; index < 6; index += 1) await ministryOtp.nth(index).fill(String(index + 1));
-  await page.locator('[data-act="login-enter"]').click();
+  await completeMinistryLogin(page);
   await expect(page.locator('#app')).toBeVisible();
   await page.reload();
   await expect(page.locator('#app')).toBeVisible();

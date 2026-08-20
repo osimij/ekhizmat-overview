@@ -169,7 +169,6 @@ label.pr{cursor:pointer}
 .bld-edit .eh .kick svg{width:13px; height:13px}
 .ver-now svg{width:15px; height:15px; color:var(--ink-3)}
 .chk-sum svg{width:16px; height:16px; color:var(--ink-3)}
-.cert-qr-mini{width:36px; height:36px; color:var(--ink-2)}
 .s-row--compact{gap:8px; padding:8px 0; border-bottom:1px solid var(--line-in)}
 .s-row--compact.s-row--last{border-bottom:0}
 .s-row__ok{width:18px; height:18px; color:var(--green)}
@@ -649,6 +648,78 @@ label.pr{cursor:pointer}
 .pv-body .field > label{font-size:var(--fs-13)}
 .pv-foot{display:flex; gap:var(--s-2); padding:0 var(--s-4) var(--s-4)}
 .pv-empty{padding:var(--s-6) var(--s-4); text-align:center; color:var(--ink-3); font-size:var(--fs-13)}
+
+/* Issue preview: the issued certificate as it lands in the wallet — paper,
+   holder, facts, seal, scannable QR. Not a delivery-option row (§10 rule 53). */
+.pv-screen [data-panel="issue"]:not([hidden]){
+  min-height:100%; display:flex; flex-direction:column;
+}
+.pv-screen [data-panel="issue"] .pv-frame{
+  flex:1; min-height:0; display:flex; flex-direction:column;
+}
+.pv-body--wallet{
+  flex:1; min-height:0; display:flex; flex-direction:column; gap:var(--s-4);
+  background:var(--bg);
+}
+.pv-cert{
+  position:relative; isolation:isolate; overflow:hidden; flex:1;
+  display:flex; flex-direction:column; gap:var(--s-3);
+  padding:var(--s-4); border:1px solid var(--doc-line); border-radius:var(--r-l);
+  background:var(--doc-paper); color:var(--doc-ink);
+  font-variant-numeric:tabular-nums;
+}
+.pv-cert__pattern{
+  position:absolute; z-index:-1; right:-24px; bottom:-24px;
+  width:160px; height:160px; color:var(--doc-line); opacity:.42; pointer-events:none;
+}
+.pv-cert__hd{
+  display:flex; align-items:flex-start; gap:var(--s-2); min-width:0;
+}
+.pv-cert__emblem{flex:none; width:22px; height:22px; margin-top:1px}
+.pv-cert__hd p{
+  flex:1; min-width:0; font-size:var(--fs-12); color:var(--doc-ink-2); line-height:1.35;
+}
+.pv-cert__new{
+  flex:none; align-self:flex-start;
+  background:var(--blue-tint); color:var(--blue-ink);
+  font-size:var(--fs-12); font-weight:550; border-radius:var(--r-pill); padding:3px 10px;
+}
+.pv-cert__title h4{
+  margin:0; font-size:var(--fs-17); font-weight:var(--weight-semibold); color:var(--doc-ink);
+}
+.pv-cert__no{margin-top:var(--s-1); font-size:var(--fs-13); color:var(--doc-ink-2)}
+.pv-cert__who > p:first-child{font-size:var(--fs-15); font-weight:var(--weight-medium)}
+.pv-cert__meta{margin-top:var(--s-1); font-size:var(--fs-12); color:var(--doc-ink-2)}
+.pv-cert__meta span + span::before{content:" · "}
+.pv-cert__family{
+  display:flex; flex-direction:column;
+  border-top:1px solid var(--doc-line); padding-top:var(--s-1);
+}
+.pv-cert__row{
+  display:flex; flex-direction:column; gap:1px; /* name↔role, one step under --s-1 */
+  padding:var(--s-1) 0; min-width:0;
+}
+.pv-cert__row + .pv-cert__row{border-top:1px solid var(--doc-line)}
+.pv-cert__row:last-child{padding-bottom:0}
+.pv-cert__row span:first-child{font-size:var(--fs-13); font-weight:var(--weight-medium)}
+.pv-cert__row span:last-child{font-size:var(--fs-12); color:var(--doc-ink-2); font-weight:var(--weight-regular)}
+.pv-cert__foot{
+  display:flex; align-items:flex-end; justify-content:space-between; gap:var(--s-3);
+  margin-top:auto; padding-top:var(--s-3); border-top:1px solid var(--doc-line);
+}
+.pv-cert__seal{display:flex; align-items:flex-start; gap:var(--s-2); min-width:0}
+.pv-cert__seal svg{flex:none; width:18px; height:18px; color:var(--green); margin-top:1px}
+.pv-cert__seal b{display:block; font-size:var(--fs-13); font-weight:var(--weight-medium); color:var(--doc-ink)}
+.pv-cert__issued{
+  display:block; margin-top:var(--s-1); font-size:var(--fs-12); color:var(--doc-ink-2);
+}
+.pv-cert__issued span + span::before{content:" · "}
+.pv-cert__qr{
+  flex:none; width:72px; height:72px; padding:var(--s-1);
+  background:var(--qr-paper); color:var(--doc-ink);
+  border:1px solid var(--doc-line); border-radius:var(--r-s);
+}
+.pv-cert-note{flex:none; margin:0; font-size:var(--fs-12); color:var(--doc-ink-2)}
 
 /* ---------- field-type palette (modal) ---------- */
 .palette{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-3); margin-top:var(--s-2)}

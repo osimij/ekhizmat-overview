@@ -23,16 +23,7 @@ import { t } from '../i18n.js';
 import { dispatch, getState, ST } from '../store.js';
 import { auth } from '../mock/api.js';
 import { floatingField } from './login.js';
-
-/* Login paints 70px / 28px through `transform: scale(--login-scale)`. Transform
-   does not shrink the layout box, so this wrapper is sized to the painted size. */
-function presentAtLoginScale(wrap, body) {
-  const scale = Number.parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue('--login-scale'),
-  ) || 0.8;
-  wrap.style.width = `${body.offsetWidth * scale}px`;
-  wrap.style.height = `${body.offsetHeight * scale}px`;
-}
+import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 
 export function renderLocked(host) {
   const err = h('span', { class: 'field__error', role: 'alert', hidden: true });

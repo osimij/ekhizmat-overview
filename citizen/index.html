@@ -207,28 +207,6 @@
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
         </button>
-        <button class="moment" data-toast="toast.demo">
-          <span class="mi tile t-amber sh-c"><svg><use href="/design-system/assets/icons.svg#i-job"/></svg></span>
-          <span class="mt">
-            <span class="moment-copy">
-              <h3 data-i18n="m.job.t">Аз кор баромадам</h3>
-              <p data-i18n="m.job.p">Кумак, бозомӯзӣ ва ҷустуҷӯи кор.</p>
-            </span>
-            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.job.m">8 дақиқа - ройгон</span></span>
-          </span>
-          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
-        </button>
-        <button class="moment" data-toast="toast.demo">
-          <span class="mi tile t-green"><svg><use href="/design-system/assets/icons.svg#i-retire"/></svg></span>
-          <span class="mt">
-            <span class="moment-copy">
-              <h3 data-i18n="m.ret.t">Ба нафақа мебароям</h3>
-              <p data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа.</p>
-            </span>
-            <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.ret.m">15 дақиқа</span></span>
-          </span>
-          <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
-        </button>
       </div>
     </section>
 
@@ -973,18 +951,42 @@
   </div>
 </div>
 
-<!-- mock sign-in -->
-<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginH">
-  <div class="modal">
-    <h3 id="loginH" data-i18n="auth.h">Вуруд ба eKhizmat</h3>
-    <p class="sub" data-i18n="auth.sub">Реҷаи намоишӣ - ҳар рақам қабул мешавад</p>
-    <div class="field">
-      <label for="loginPhone" data-i18n="auth.phone">Рақами телефон</label>
-      <input class="input" id="loginPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+992 90 123 45 67">
-    </div>
-    <button class="btn btn-pri btn-block" id="loginGo" data-i18n="auth.login">Вуруд</button>
-    <button class="btn btn-ghost btn-block" id="loginCancel" data-i18n="btn.close">Пӯшидан</button>
+<!-- mock sign-in: ЦОН lock overlay + S0 login fields (design-guide rule 51) -->
+<div class="overlay s-locked" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginH">
+  <div class="login__brand s-locked__brand" aria-hidden="true">
+    <svg class="icon"><use href="/design-system/assets/icons.svg#i-logo"/></svg>
+    <b>eKhizmat</b>
   </div>
+  <form class="panel login__card s-locked__card modal" id="loginForm" novalidate>
+    <div class="s-locked__scale" id="loginScale">
+      <div class="s-locked__body" id="loginBody">
+        <svg class="icon s-locked__icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-lock"/></svg>
+        <div class="s-locked__copy">
+          <div class="login__heading">
+            <h1 id="loginH" data-i18n="auth.h">Вуруд ба eKhizmat</h1>
+            <p id="loginSub" data-i18n="auth.sub">Реҷаи намоишӣ - ҳар рақам қабул мешавад</p>
+          </div>
+        </div>
+        <div class="s-locked__controls">
+          <div class="login__fields" id="loginPhoneStep">
+            <div class="field login-field--floating">
+              <label class="field__label" for="loginPhone" data-i18n="auth.phone">Рақами телефон</label>
+              <input class="field__input" id="loginPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder=" " spellcheck="false">
+            </div>
+            <span class="field__error" id="loginError" role="alert" hidden></span>
+          </div>
+          <div class="login__fields" id="loginOtpStep" hidden>
+            <div class="otp" id="loginOtp" role="group" aria-labelledby="loginH"></div>
+            <span class="field__error" id="loginOtpError" role="alert" hidden></span>
+          </div>
+          <div class="login__actions">
+            <button class="btn btn--primary btn--l" id="loginGo" type="submit" data-i18n="btn.next">Идома</button>
+            <button class="btn btn--ghost btn--l" id="loginCancel" type="button" data-i18n="btn.close">Пӯшидан</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
 </div>
 
 <!-- child profile demo -->

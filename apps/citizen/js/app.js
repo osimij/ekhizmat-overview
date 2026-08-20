@@ -1,6 +1,7 @@
 import '../services-data.js';
 import { I18N } from './i18n.js';
 import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
+import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 
 /* ===================== APP ===================== */
 (function(){
@@ -41,6 +42,7 @@ function applyLang(){
   renderCats();
   if (currentCat && !$("#scr-category").hidden) renderCategory(currentCat);
   expansion?.render();
+  if (loginOverlay.classList.contains('open') || loginOverlay.classList.contains('is-open')) paintLoginStep();
 }
 /* ---------- header dropdowns (language + account type) ---------- */
 function closeDd(dd){
@@ -142,6 +144,14 @@ const AUTH_KEY = "ekh.citizen.auth";
 let authed = false;
 try { authed = localStorage.getItem(AUTH_KEY) === "1"; } catch(e){ /* storage may be blocked */ }
 const loginOverlay = $("#loginOverlay"), loginBtn = $("#loginBtn"), loginPhone = $("#loginPhone");
+const loginScale = $("#loginScale"), loginBody = $("#loginBody"), loginForm = $("#loginForm");
+const GUEST_LOGIN_HINT = {
+  tg:'Барои кушодани кабинети шахсӣ ворид шавед. Реҷаи меҳмон маълумоти шахсиро нишон намедиҳад.',
+  ru:'Войдите, чтобы открыть личный кабинет. Гостевой режим не показывает персональные данные.',
+  en:'Sign in to open your personal cabinet. Guest mode does not show personal data.',
+};
+let loginStep = 0; /* 0 phone · 1 OTP */
+let loginOtpCells = [];
 function applyAuth(){
   const isIn = authed && acct !== "guest";
   document.documentElement.dataset.auth = isIn ? "in" : "out";
@@ -165,19 +175,114 @@ let loginLastFocus = null;
 let loginDialog = null;
 let pendingAction = null; /* what the user was trying to do when sign-in was required */
 function requireLogin(fn){ pendingAction = fn; openLogin(); }
+function setPortalBlur(on){
+  $$("header, main").forEach(el => el.classList.toggle("is-blurred", on));
+}
+function fitLoginScale(){ presentAtLoginScale(loginScale, loginBody); }
+function loginOtpValue(){ return loginOtpCells.map(cell => cell.value).join(""); }
+function paintLoginOtpLabels(){
+  loginOtpCells.forEach((cell, i) => {
+    cell.setAttribute("aria-label", t("auth.otpDigit").replace("{n}", String(i + 1)));
+  });
+}
+function buildLoginOtp(){
+  const host = $("#loginOtp");
+  if (!host || host.children.length) {
+    loginOtpCells = $$(".otp__cell", host);
+    paintLoginOtpLabels();
+    return;
+  }
+  loginOtpCells = Array.from({ length: 6 }, (_, i) => {
+    const cell = document.createElement("input");
+    cell.className = "otp__cell";
+    cell.maxLength = 1;
+    cell.inputMode = "numeric";
+    cell.autocomplete = i === 0 ? "one-time-code" : "off";
+    host.append(cell);
+    return cell;
+  });
+  paintLoginOtpLabels();
+  loginOtpCells.forEach((cell, i) => {
+    cell.addEventListener("input", () => {
+      cell.value = cell.value.replace(/\D/g, "").slice(0, 1);
+      if (cell.value && i < 5) loginOtpCells[i + 1].focus();
+      if (loginOtpValue().length === 6) loginForm.requestSubmit();
+    });
+    cell.addEventListener("keydown", e => {
+      if (e.key === "Backspace" && !cell.value && i > 0) loginOtpCells[i - 1].focus();
+      if (e.key === "ArrowLeft" && i > 0) loginOtpCells[i - 1].focus();
+      if (e.key === "ArrowRight" && i < 5) loginOtpCells[i + 1].focus();
+    });
+    cell.addEventListener("paste", e => {
+      e.preventDefault();
+      const digits = (e.clipboardData.getData("text") || "").replace(/\D/g, "").slice(0, 6);
+      digits.split("").forEach((d, k) => { if (loginOtpCells[k]) loginOtpCells[k].value = d; });
+      loginOtpCells[Math.min(digits.length, 5)].focus();
+      if (loginOtpValue().length === 6) loginForm.requestSubmit();
+    });
+  });
+}
+function clearLoginError(){
+  const err = $("#loginError"), otpErr = $("#loginOtpError");
+  err.hidden = true; err.textContent = "";
+  otpErr.hidden = true; otpErr.textContent = "";
+  loginPhone.removeAttribute("aria-invalid");
+  $("#loginOtp").classList.remove("otp--error");
+}
+function shakeLogin(){
+  const card = $("#loginForm");
+  card.classList.remove("is-shake");
+  void card.offsetWidth;
+  card.classList.add("is-shake");
+}
+function paintLoginStep(){
+  const otp = loginStep === 1;
+  $("#loginPhoneStep").hidden = otp;
+  $("#loginOtpStep").hidden = !otp;
+  $("#loginH").textContent = t(otp ? "auth.mfa" : "auth.h");
+  $("#loginSub").textContent = otp
+    ? t("auth.mfaHint")
+    : (acct === "guest" ? GUEST_LOGIN_HINT[lang] : t("auth.sub"));
+  $("#loginGo").textContent = t(otp ? "auth.login" : "btn.next");
+  $("#loginCancel").textContent = t(otp ? "btn.back" : "btn.close");
+  paintLoginOtpLabels();
+  fitLoginScale();
+}
+function resetLoginForm(){
+  loginStep = 0;
+  loginPhone.value = "";
+  loginOtpCells.forEach(cell => { cell.value = ""; });
+  clearLoginError();
+  paintLoginStep();
+}
 function openLogin(){
   loginLastFocus = document.activeElement;
-  const sub = $('#loginOverlay .sub');
-  if (sub) sub.textContent = acct === 'guest'
-    ? ({ tg:'Барои кушодани кабинети шахсӣ ворид шавед. Реҷаи меҳмон маълумоти шахсиро нишон намедиҳад.', ru:'Войдите, чтобы открыть личный кабинет. Гостевой режим не показывает персональные данные.', en:'Sign in to open your personal cabinet. Guest mode does not show personal data.' }[lang])
-    : t('auth.sub');
-  loginDialog = window.EKHDialog?.openExistingDialog(loginOverlay, { initialFocus:'#loginPhone', trigger:loginLastFocus }) || null;
-  if (!loginDialog) { loginOverlay.classList.add('open'); loginPhone.focus(); }
+  buildLoginOtp();
+  loginStep = 0;
+  clearLoginError();
+  paintLoginStep();
+  setPortalBlur(true);
+  loginDialog = window.EKHDialog?.openExistingDialog(loginOverlay, {
+    initialFocus: "#loginPhone",
+    trigger: loginLastFocus,
+    onClosed: () => {
+      loginDialog = null;
+      setPortalBlur(false);
+      resetLoginForm();
+    },
+  }) || null;
+  if (!loginDialog) { loginOverlay.classList.add("open"); loginPhone.focus(); }
+  requestAnimationFrame(fitLoginScale);
 }
 function closeLogin(){
   pendingAction = null;
   if (loginDialog) { loginDialog.close(); loginDialog = null; }
-  else { loginOverlay.classList.remove('open'); if (loginLastFocus && !loginLastFocus.hidden) loginLastFocus.focus(); }
+  else {
+    loginOverlay.classList.remove("open");
+    setPortalBlur(false);
+    resetLoginForm();
+    if (loginLastFocus && !loginLastFocus.hidden) loginLastFocus.focus();
+  }
 }
 /* after signing in the trigger button is gone — hand focus to the visible screen's heading */
 function focusScreenHeading(){
@@ -185,31 +290,74 @@ function focusScreenHeading(){
   const h = scr && scr.querySelector("h1, h2");
   if (h){ h.setAttribute("tabindex", "-1"); h.focus({ preventScroll:true }); }
 }
-loginBtn.addEventListener("click", openLogin);
-$("#guestAvatar").addEventListener("click", openLogin);
-$("#loginCancel").addEventListener("click", closeLogin);
-loginOverlay.addEventListener("click", e => { if (e.target === loginOverlay) closeLogin(); });
-loginPhone.addEventListener("keydown", e => { if (e.key === "Enter") $("#loginGo").click(); });
-$("#loginGo").addEventListener("click", () => {
+function finishSignIn(){
   authed = true;
   if (acct === "guest"){
     acct = "person";
-    $$('[data-acct]').forEach(x => x.setAttribute('aria-selected', String(x.dataset.acct === 'person')));
+    $$("[data-acct]").forEach(x => x.setAttribute("aria-selected", String(x.dataset.acct === "person")));
     $("#acctCur").dataset.i18n = "acct.person";
     $("#acctCur").textContent = t("acct.person");
     renderCats();
   }
   try { localStorage.setItem(AUTH_KEY, "1"); } catch(e){}
-  loginPhone.value = "";
   applyAuth();
-  if (loginDialog) { loginDialog.close(); loginDialog = null; }
-  else loginOverlay.classList.remove('open');
-  toast("toast.hi");
   const after = pendingAction;
   pendingAction = null;
+  setPortalBlur(false);
+  if (loginDialog) { loginDialog.close(); loginDialog = null; }
+  else { loginOverlay.classList.remove("open"); resetLoginForm(); }
+  toast("toast.hi");
   if (after) after();
   else focusScreenHeading();
+}
+loginBtn.addEventListener("click", openLogin);
+$("#guestAvatar").addEventListener("click", openLogin);
+$("#loginCancel").addEventListener("click", () => {
+  if (loginStep === 1){
+    loginStep = 0;
+    loginOtpCells.forEach(cell => { cell.value = ""; });
+    clearLoginError();
+    paintLoginStep();
+    loginPhone.focus();
+    return;
+  }
+  closeLogin();
 });
+loginOverlay.addEventListener("click", e => { if (e.target === loginOverlay) closeLogin(); });
+loginForm.addEventListener("submit", e => {
+  e.preventDefault();
+  if (loginStep === 0){
+    if (!loginPhone.value.trim()){
+      const err = $("#loginError");
+      err.hidden = false;
+      err.textContent = t("auth.phoneRequired");
+      loginPhone.setAttribute("aria-invalid", "true");
+      shakeLogin();
+      loginPhone.focus();
+      fitLoginScale();
+      return;
+    }
+    loginStep = 1;
+    clearLoginError();
+    paintLoginStep();
+    loginOtpCells[0]?.focus();
+    return;
+  }
+  const code = loginOtpValue();
+  if (!/^\d{6}$/.test(code)){
+    const err = $("#loginOtpError");
+    err.hidden = false;
+    err.textContent = t("auth.otpRequired");
+    $("#loginOtp").classList.add("otp--error");
+    shakeLogin();
+    (loginOtpCells.find(cell => !cell.value) || loginOtpCells[0])?.focus();
+    fitLoginScale();
+    return;
+  }
+  finishSignIn();
+});
+buildLoginOtp();
+new ResizeObserver(fitLoginScale).observe(loginBody);
 function logout(){
   authed = false;
   try { localStorage.setItem(AUTH_KEY, "0"); } catch(e){}

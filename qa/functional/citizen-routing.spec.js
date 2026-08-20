@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { completeCitizenLogin } from '../helpers/citizen-auth.js';
 
 async function signedIn(page, hash = '#/') {
   // seed the session before the app boots so a deep personal link opens directly
@@ -46,8 +47,7 @@ test('a personal deep link while signed out asks to sign in, then continues', as
   await page.goto('/citizen/?lang=tg&theme=light#/profile/apps');
   await expect(page.locator('#loginOverlay')).toHaveClass(/open|is-open/);
   await expect(page.locator('#scr-home')).toBeVisible();
-  await page.locator('#loginPhone').fill('+992 90 000 00 00');
-  await page.locator('#loginGo').click();
+  await completeCitizenLogin(page);
   await expect(page.locator('#pane-apps')).toBeVisible();
   await expect(page).toHaveURL(/#\/profile\/apps/);
 });

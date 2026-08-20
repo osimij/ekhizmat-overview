@@ -6,6 +6,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
    («как в системе») and applied the theme after boot, past first paint. The
    pre-paint script lives in ministry/index.html (§7). */
 import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/preferences.js';
+import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 
 /* ============================================================
    app.js — прототип «АРМ специалиста ведомства» (§7Б ТЗ eKhizmat).
@@ -308,39 +309,118 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
 
   /* ================================================================== */
   /* РЕНДЕР: вход (§7Б.4)                                                */
+  /* Same gate as ЦОН: one form per step so Enter cannot skip-submit MFA,
+     error hidden until that step fails, OTP auto-submits at 6 digits. */
   /* ================================================================== */
-  function renderLogin() {
+  function otpValue() {
+    return Array.prototype.map.call(document.querySelectorAll('[data-otp]'), function (el) { return el.value; }).join('');
+  }
+  function shakeLogin() {
+    var card = document.querySelector('.login__card');
+    if (!card) return;
+    card.classList.remove('is-shake');
+    void card.offsetWidth;
+    card.classList.add('is-shake');
+  }
+  function setLoginError(msg) {
+    S._loginErr = msg || '';
+    var err = document.getElementById('login-error');
+    if (err) {
+      err.textContent = S._loginErr;
+      err.hidden = !S._loginErr;
+    }
+    var otp = document.getElementById('l-otp');
+    if (otp) otp.classList.toggle('otp--error', !!S._loginErr && S.loginStep === 2);
+    var pass = document.getElementById('l-pass');
+    if (pass) {
+      if (S._loginErr && S.loginStep === 1) {
+        pass.setAttribute('aria-invalid', 'true');
+        pass.setAttribute('aria-describedby', 'login-error');
+      } else {
+        pass.removeAttribute('aria-invalid');
+        pass.removeAttribute('aria-describedby');
+      }
+    }
+    document.querySelectorAll('[data-otp]').forEach(function (el) {
+      if (S._loginErr && S.loginStep === 2) {
+        el.setAttribute('aria-invalid', 'true');
+        el.setAttribute('aria-describedby', 'login-error');
+      } else {
+        el.removeAttribute('aria-invalid');
+        el.removeAttribute('aria-describedby');
+      }
+    });
+  }
+  function loginNext() {
+    if (S.loginStep !== 1) return;
+    var loginUser = document.getElementById('l-user');
+    var loginPass = document.getElementById('l-pass');
+    if (!loginUser || !loginPass) return;
+    if (!loginUser.value.trim() || !loginPass.value) {
+      setLoginError(t('login_required'));
+      shakeLogin();
+      (loginUser.value.trim() ? loginPass : loginUser).focus();
+      return;
+    }
+    S._loginErr = '';
+    S.loginStep = 2;
+    renderLogin('in');
+    document.querySelector('[data-otp="0"]')?.focus();
+  }
+  function loginEnter() {
+    if (S.authed || S.loginStep !== 2) return;
+    var loginCode = otpValue();
+    if (!/^\d{6}$/.test(loginCode)) {
+      setLoginError(t('login_mfa_required'));
+      shakeLogin();
+      var empty = Array.prototype.find.call(document.querySelectorAll('[data-otp]'), function (el) { return !el.value; });
+      (empty || document.querySelector('[data-otp="0"]'))?.focus();
+      return;
+    }
+    if (loginCode === '111111') {
+      setLoginError(t('login_mfa_invalid'));
+      shakeLogin();
+      document.querySelectorAll('[data-otp]').forEach(function (el) { el.value = ''; });
+      document.querySelector('[data-otp="0"]')?.focus();
+      return;
+    }
+    S._loginErr = '';
+    S.authed = true;
+    startApp();
+  }
+  function renderLogin(anim) {
     var step = S.loginStep;
     var loginErr = S._loginErr || '';
+    var errHtml = '<span class="field__error" id="login-error" role="alert"' + (loginErr ? '' : ' hidden') + '>' + esc(loginErr) + '</span>';
     var body =
       '<div class="login">' +
         '<div class="login__inner"><div class="login__brand">' + ic('i-logo') + '<b>eKhizmat</b></div>' +
-        '<div class="panel login__card' + (loginErr ? ' is-shake' : '') + '">' +
+        '<div class="panel login__card">' +
           (step === 1 ?
-            '<div class="stack login__form login__form--credentials">' +
+            '<form class="stack login__form login__form--credentials" id="login-form" novalidate>' +
               '<div class="login__heading"><h1>' + esc(t('login_title')) + '</h1></div>' +
               '<div class="login__fields">' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-user">' + esc(t('login_user')) + '</label>' +
                   '<input class="field__input" id="l-user" name="username" value="' + esc(D.ME.login) + '" placeholder=" " autocomplete="username" spellcheck="false"></div>' +
                 '<div class="field login-field--floating"><label class="field__label" for="l-pass">' + esc(t('login_pass')) + '</label>' +
                   '<input class="field__input" id="l-pass" name="password" type="password" placeholder=" " autocomplete="current-password"' + (loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '') + '></div>' +
-                (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+                errHtml +
               '</div>' +
-              '<button class="btn btn--primary btn--l" type="button" data-act="login-next">' + esc(t('login_next')) + '</button>' +
-            '</div>'
+              '<button class="btn btn--primary btn--l" type="submit" data-act="login-next">' + esc(t('login_next')) + '</button>' +
+            '</form>'
           :
-            '<div class="stack login__form login__form--mfa">' +
+            '<form class="stack login__form login__form--mfa" id="login-form" novalidate>' +
               '<div class="login__heading"><h1 id="l-otp-label">' + esc(t('login_mfa')) + '</h1>' +
                 '<p>' + esc(t('login_mfa_hint')) + '</p></div>' +
               '<div class="otp" id="l-otp" role="group" aria-labelledby="l-otp-label">' +
-                  [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" name="otp-'+(i+1)+'" inputmode="numeric" maxlength="1" data-otp="'+i+'" autocomplete="one-time-code" aria-label="'+esc(t('login_mfa'))+' '+(i+1)+'"'+(loginErr ? ' aria-invalid="true" aria-describedby="login-error"' : '')+'>';}).join('') +
+                  [0,1,2,3,4,5].map(function(i){return '<input class="otp__cell" name="otp-'+(i+1)+'" inputmode="numeric" maxlength="1" data-otp="'+i+'" autocomplete="one-time-code" aria-label="'+esc(t('login_mfa'))+' '+(i+1)+'">';}).join('') +
               '</div>' +
-              (loginErr ? '<span class="field__error" id="login-error" role="alert">' + esc(loginErr) + '</span>' : '') +
+              errHtml +
               '<div class="login__actions">' +
-                '<button class="btn btn--primary btn--l" type="button" data-act="login-enter">' + esc(t('login_enter')) + '</button>' +
+                '<button class="btn btn--primary btn--l" type="submit" data-act="login-enter">' + esc(t('login_enter')) + '</button>' +
                 '<button class="btn btn--ghost btn--l" type="button" data-act="login-back">' + esc(t('login_back')) + '</button>' +
               '</div>' +
-            '</div>'
+            '</form>'
           ) +
         '</div>' +
         '<div class="login__legend"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '</span></div></div>' +
@@ -350,7 +430,12 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
         '<button class="btn btn--icon login__prefs" type="button" data-act="prefs-open" aria-label="' + esc(t('preferences')) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop">' + ic('i-gear','icon--20') + '</button>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
-    S._loginErr = false;
+    var card = document.querySelector('.login__card');
+    if (anim && card) {
+      card.classList.remove('is-in', 'is-back');
+      void card.offsetWidth;
+      card.classList.add(anim === 'back' ? 'is-back' : 'is-in');
+    }
   }
 
   /* ================================================================== */
@@ -1789,29 +1874,9 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'profile-open' && act !== 'prefs-open' && act !== 'form-comments') closePop();
 
     switch (act) {
-      case 'login-next': {
-        var loginUser = document.getElementById('l-user');
-        var loginPass = document.getElementById('l-pass');
-        if (!loginUser.value.trim() || !loginPass.value) {
-          S._loginErr = t('login_required'); renderLogin();
-          (document.getElementById(!loginUser.value.trim() ? 'l-user' : 'l-pass') || document.body).focus();
-          return;
-        }
-        S._loginErr = '';
-        S.loginStep = 2; renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
-      }
-      case 'login-back': S._loginErr = ''; S.loginStep = 1; renderLogin(); return;
-      case 'login-enter': {
-        var loginCode = Array.prototype.map.call(document.querySelectorAll('[data-otp]'), function (el) { return el.value; }).join('');
-        if (!/^\d{6}$/.test(loginCode)) {
-          S._loginErr = t('login_mfa_required'); renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
-        }
-        if (loginCode === '111111') {
-          S._loginErr = t('login_mfa_invalid'); renderLogin(); document.querySelector('[data-otp="0"]')?.focus(); return;
-        }
-        S._loginErr = '';
-        S.authed = true; startApp(); return;
-      }
+      case 'login-next': loginNext(); return;
+      case 'login-back': S._loginErr = ''; S.loginStep = 1; renderLogin('back'); return;
+      case 'login-enter': loginEnter(); return;
 
       case 'nav': e.preventDefault(); go(tgt.getAttribute('data-view')); return;
       case 'nav-toggle': toggleNav(); return;
@@ -2004,13 +2069,23 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       if (fieldTitle) fieldTitle.textContent = e.target.value || t('form_untitled_field');
       return;
     }
+    if ((e.target.id === 'l-pass' || e.target.id === 'l-user') && S._loginErr) setLoginError('');
     var cell = closest(e.target, '[data-otp]');
     if (!cell) return;
+    if (S._loginErr) setLoginError('');
     cell.value = cell.value.replace(/\D/g, '').slice(0, 1);
     if (cell.value) {
       var next = document.querySelector('[data-otp="' + (Number(cell.getAttribute('data-otp')) + 1) + '"]');
       if (next) next.focus();
     }
+    if (S.loginStep === 2 && /^\d{6}$/.test(otpValue())) loginEnter();
+  });
+
+  document.addEventListener('submit', function (e) {
+    if (!e.target || e.target.id !== 'login-form') return;
+    e.preventDefault();
+    if (e.target.classList.contains('login__form--credentials')) loginNext();
+    else loginEnter();
   });
 
   document.addEventListener('keydown', function (e) {
@@ -2021,8 +2096,6 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       if (e.key === 'ArrowLeft' && index > 0) { e.preventDefault(); document.querySelector('[data-otp="' + (index - 1) + '"]')?.focus(); }
       if (e.key === 'ArrowRight' && index < 5) { e.preventDefault(); document.querySelector('[data-otp="' + (index + 1) + '"]')?.focus(); }
     }
-    if (e.key === 'Enter' && S.loginStep === 1 && document.getElementById('l-pass')) document.querySelector('[data-act="login-next"]')?.click();
-    if (e.key === 'Enter' && S.loginStep === 2 && document.getElementById('l-otp')) document.querySelector('[data-act="login-enter"]')?.click();
   });
 
   document.addEventListener('paste', function (e) {
@@ -2030,8 +2103,10 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     var digits = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
     if (!digits) return;
     e.preventDefault();
+    if (S._loginErr) setLoginError('');
     Array.prototype.forEach.call(document.querySelectorAll('[data-otp]'), function (cell, i) { cell.value = digits[i] || ''; });
     (document.querySelector('[data-otp="' + Math.min(digits.length, 5) + '"]') || e.target).focus();
+    if (S.loginStep === 2 && /^\d{6}$/.test(otpValue())) loginEnter();
   });
 
   // фильтры: input / change
@@ -2231,12 +2306,10 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
      and a transform does not shrink the layout box — so the wrapper is sized
      to the painted result by hand. */
   function fitLockScale() {
-    var wrap = document.querySelector('#lock-root .s-locked__scale');
-    var body = document.querySelector('#lock-root .s-locked__body');
-    if (!wrap || !body) return;
-    var scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--login-scale')) || 0.8;
-    wrap.style.width = (body.offsetWidth * scale) + 'px';
-    wrap.style.height = (body.offsetHeight * scale) + 'px';
+    presentAtLoginScale(
+      document.querySelector('#lock-root .s-locked__scale'),
+      document.querySelector('#lock-root .s-locked__body'),
+    );
   }
   function doUnlock() {
     var input = document.getElementById('lock-pass');

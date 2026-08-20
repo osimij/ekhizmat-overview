@@ -5,7 +5,7 @@ test('life moments use four wide rectangular cards per desktop row', async ({ pa
   await page.goto('/citizen/?present=1&theme=light&lang=ru');
 
   const cards = page.locator('.moments > .moment');
-  await expect(cards).toHaveCount(6);
+  await expect(cards).toHaveCount(4);
 
   const layout = await cards.evaluateAll((items) => items.map((card) => {
     const box = card.getBoundingClientRect();
@@ -22,8 +22,7 @@ test('life moments use four wide rectangular cards per desktop row', async ({ pa
     };
   }));
 
-  expect(new Set(layout.slice(0, 4).map(({ top }) => top)).size).toBe(1);
-  expect(layout[4].top).toBeGreaterThan(layout[0].top);
+  expect(new Set(layout.map(({ top }) => top)).size).toBe(1);
   expect(layout[0].width).toBeGreaterThan(layout[0].height);
   expect(layout[0].iconWidth).toBe(64);
   expect(layout[0].iconHeight).toBe(64);

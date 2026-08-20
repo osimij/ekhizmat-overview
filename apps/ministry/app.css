@@ -38,7 +38,6 @@ body[data-platform="ministry"] :is(.empty__title, .doc-page__title) { font-weigh
 /* Medium emphasis (550) — the in-between step the token ladder leaves to
    numeric literals (§4): badges, key cells, statuses. */
 body[data-platform="ministry"] :is(
-  .audience-badge,
   .environment-badge,
   .review-badge,
   .demo-data-badge,
