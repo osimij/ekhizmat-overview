@@ -490,7 +490,9 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
 test('Admin builder keeps both side panels visible while the page scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 520 });
   await page.goto('/admin/builder.html?lang=ru&theme=light');
-  await expect(page.locator('.lc-builder-main')).toBeVisible();
+  /* one toolbar: identity, status, version and comments, then the actions */
+  await expect(page.locator('.bld-top .bld-name')).toBeVisible();
+  await expect(page.locator('.lc-builder')).toHaveCount(0);
 
   const initialTop = await page.locator('.bld-pipe').evaluate((element) => element.getBoundingClientRect().top);
   await page.locator('.bld-edit').evaluate((element) => element.scrollTo(0, element.scrollHeight));
@@ -672,7 +674,7 @@ test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ 
   }
 
   await page.goto('/admin/builder.html?lang=tg&theme=light');
-  for (const panel of ['confirm', 'fields', 'delivery', 'review', 'checks', 'route', 'issue', 'rules', 'templates', 'sandbox', 'versions', 'access']) {
+  for (const panel of ['confirm', 'fields', 'delivery', 'review', 'checks', 'route', 'issue', 'meta', 'rules', 'templates', 'sandbox', 'versions', 'access']) {
     const tab = page.locator(`.stg[data-tab="${panel}"]`);
     await tab.scrollIntoViewIfNeeded();
     await tab.click();
@@ -680,12 +682,11 @@ test('Admin wizard, builder panels, and dialogs fit a phone viewport', async ({ 
     await expectPageFits(page);
   }
 
+  /* fields come from the bound form now: the picker replaced the field palette */
   await page.locator('.stg[data-tab="fields"]').click();
-  await page.locator('#addField').click();
-  await expectLayerFits(page, page.locator('#paletteModal .modal'));
-  await page.locator('#paletteModal [data-close]').click();
-    await page.locator('#approveBtn').click();
-    await expectLayerFits(page, page.locator('#lowCodeActionOverlay .modal'));
+  await page.locator('[data-open="serviceFormPicker"]').click();
+  await expectLayerFits(page, page.locator('#serviceFormPicker .modal'));
+  await page.locator('#serviceFormPicker [data-close]').first().click();
 });
 
 test('TSON session catalog, citizen data, form, documents, and result remain readable', async ({ page }) => {

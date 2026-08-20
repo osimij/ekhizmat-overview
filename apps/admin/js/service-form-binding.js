@@ -31,11 +31,12 @@ function referenceData(){
 
 function fieldPreview(field){
   const name=esc(label(field.label)),required=field.required?' <span class="req">*</span>':'';
-  if(field.type==='select') return `<div class="field"><label>${name}${required}</label><div class="select"><select disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(item=>`<option>${esc(item)}</option>`).join('')}</select></div></div>`;
-  if(field.type==='textarea') return `<div class="field"><label>${name}${required}</label><textarea class="input" rows="2" disabled></textarea></div>`;
-  if(field.type==='file') return `<div class="field"><label>${name}${required}</label><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().file)}</span></div></div>`;
+  const id=`svcpv-${String(field.id).replace(/[^A-Za-z0-9_-]/g,'-')}`;
+  if(field.type==='select') return `<div class="field"><label for="${id}">${name}${required}</label><div class="select"><select id="${id}" disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(item=>`<option>${esc(item)}</option>`).join('')}</select></div></div>`;
+  if(field.type==='textarea') return `<div class="field"><label for="${id}">${name}${required}</label><textarea class="input" id="${id}" rows="2" disabled></textarea></div>`;
+  if(field.type==='file') return `<div class="field"><span class="field__label-text">${name}${required}</span><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().file)}</span></div></div>`;
   if(field.type==='checkbox') return `<label class="consent"><input type="checkbox" disabled><span>${name}</span></label>`;
-  return `<div class="field"><label>${name}${required}</label><input class="input" type="${field.type==='date'?'date':field.type==='email'?'email':'text'}" disabled></div>`;
+  return `<div class="field"><label for="${id}">${name}${required}</label><input class="input" id="${id}" type="${field.type==='date'?'date':field.type==='email'?'email':'text'}" disabled></div>`;
 }
 
 function renderSelected(){

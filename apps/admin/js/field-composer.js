@@ -67,36 +67,39 @@ export function createFieldComposer(options) {
     return parts.join('');
   }
 
+  /* every control is named: an explicit for/id pair, or an aria-label where the
+     visible label belongs to a group rather than one input (§9) */
   function bodyHtml(field) {
     const c = copy(), disabled = editable() ? '' : ' disabled';
+    const uid = suffix => `fc-${field.id}-${suffix}`.replace(/[^A-Za-z0-9_-]/g, '-');
     const others = list().filter(item => item.id !== field.id);
     const formatOptions = FIELD_FORMATS
       .map(key => `<option value="${key}" ${field.format === key ? 'selected' : ''}>${esc(c.formats[key])}</option>`).join('');
     const showFormat = field.type === 'text' || field.type === 'textarea';
     return `
       <div class="field ml">
-        <label>${esc(c.labelHeading)}</label>
+        <span class="field__label-text">${esc(c.labelHeading)}</span>
         <div class="ml-tabs" role="tablist">
-          <button type="button" role="tab" data-ml="tg" aria-selected="true">Тоҷикӣ</button>
-          <button type="button" role="tab" data-ml="ru" aria-selected="false">Русӣ<span class="fbslot">${fallbackMark(field.label.ru)}</span></button>
-          <button type="button" role="tab" data-ml="en" aria-selected="false">English<span class="fbslot">${fallbackMark(field.label.en)}</span></button>
+          <button type="button" role="tab" data-ml="tg" aria-selected="true" aria-controls="${uid('label-tg')}">Тоҷикӣ</button>
+          <button type="button" role="tab" data-ml="ru" aria-selected="false" aria-controls="${uid('label-ru')}">Русӣ<span class="fbslot">${fallbackMark(field.label.ru)}</span></button>
+          <button type="button" role="tab" data-ml="en" aria-selected="false" aria-controls="${uid('label-en')}">English<span class="fbslot">${fallbackMark(field.label.en)}</span></button>
         </div>
-        <div class="ml-pane" data-mlp="tg"><input class="input" data-field-prop="label.tg" value="${esc(field.label.tg)}"${disabled} spellcheck="false"></div>
-        <div class="ml-pane" data-mlp="ru" hidden><input class="input" data-field-prop="label.ru" value="${esc(field.label.ru)}"${disabled} spellcheck="false"></div>
-        <div class="ml-pane" data-mlp="en" hidden><input class="input" data-field-prop="label.en" value="${esc(field.label.en)}"${disabled} spellcheck="false"></div>
+        <div class="ml-pane" data-mlp="tg"><input class="input" id="${uid('label-tg')}" aria-label="${esc(c.labelHeading)} · Тоҷикӣ" data-field-prop="label.tg" value="${esc(field.label.tg)}"${disabled} spellcheck="false"></div>
+        <div class="ml-pane" data-mlp="ru" hidden><input class="input" id="${uid('label-ru')}" aria-label="${esc(c.labelHeading)} · Русӣ" data-field-prop="label.ru" value="${esc(field.label.ru)}"${disabled} spellcheck="false"></div>
+        <div class="ml-pane" data-mlp="en" hidden><input class="input" id="${uid('label-en')}" aria-label="${esc(c.labelHeading)} · English" data-field-prop="label.en" value="${esc(field.label.en)}"${disabled} spellcheck="false"></div>
       </div>
-      <div class="field"><label>${esc(c.typeLabel)}</label><div class="select"><select data-field-prop="type"${disabled}>${types.map(type => `<option value="${type}" ${type === field.type ? 'selected' : ''}>${esc(typeLabel(type))}</option>`).join('')}</select></div></div>
-      ${field.options ? `<div class="field"><label>${esc(c.options)} · TG</label><input class="input" data-field-prop="options.tg" value="${esc((field.options.tg || []).join(', '))}"${disabled}></div>
-      <div class="field"><label>${esc(c.options)} · RU</label><input class="input" data-field-prop="options.ru" value="${esc((field.options.ru || []).join(', '))}"${disabled}></div>` : ''}
-      <div class="field"><label>${esc(c.help)} <span class="opt-note">— ${esc(c.optional)}</span></label><input class="input" data-field-prop="help.tg" value="${esc(field.help.tg)}" placeholder="${esc(c.helpPlaceholder)}"${disabled}></div>
+      <div class="field"><label for="${uid('type')}">${esc(c.typeLabel)}</label><div class="select"><select id="${uid('type')}" data-field-prop="type"${disabled}>${types.map(type => `<option value="${type}" ${type === field.type ? 'selected' : ''}>${esc(typeLabel(type))}</option>`).join('')}</select></div></div>
+      ${field.options ? `<div class="field"><label for="${uid('opt-tg')}">${esc(c.options)} · TG</label><input class="input" id="${uid('opt-tg')}" data-field-prop="options.tg" value="${esc((field.options.tg || []).join(', '))}"${disabled}></div>
+      <div class="field"><label for="${uid('opt-ru')}">${esc(c.options)} · RU</label><input class="input" id="${uid('opt-ru')}" data-field-prop="options.ru" value="${esc((field.options.ru || []).join(', '))}"${disabled}></div>` : ''}
+      <div class="field"><label for="${uid('help')}">${esc(c.help)} <span class="opt-note">— ${esc(c.optional)}</span></label><input class="input" id="${uid('help')}" data-field-prop="help.tg" value="${esc(field.help.tg)}" placeholder="${esc(c.helpPlaceholder)}"${disabled}></div>
       <div class="cfg-sub">${esc(c.validation)}</div>
-      ${showFormat ? `<div class="field"><label>${esc(c.format)}</label><div class="select"><select data-field-prop="format"${disabled}>${formatOptions}</select></div><p class="help">${esc(c.formatHelp)}</p></div>` : ''}
+      ${showFormat ? `<div class="field"><label for="${uid('format')}">${esc(c.format)}</label><div class="select"><select id="${uid('format')}" data-field-prop="format"${disabled}>${formatOptions}</select></div><p class="help">${esc(c.formatHelp)}</p></div>` : ''}
       <label class="pr pr--flush"><div class="tt"><span class="v">${esc(c.required)}</span><span class="k">${esc(c.requiredHelp)}</span></div><span class="sw"><input type="checkbox" data-field-prop="required" ${field.required ? 'checked' : ''}${disabled}><span class="knob"></span></span></label>
       <div class="cfg-sub">${esc(c.conditionHeading)}</div>
       <div class="cond-row">
-        <div class="select"><select data-field-prop="condOn"${disabled}><option value="">${esc(c.always)}</option>${others.map(item => `<option value="${esc(item.id)}" ${field.condOn === item.id ? 'selected' : ''}>${esc(item.label[lang()] || item.label.tg)}</option>`).join('')}</select></div>
-        <span class="mini-lbl adm-center">${esc(c.equals)}</span>
-        <input class="input" data-field-prop="condVal" value="${esc(field.condVal)}" placeholder="${esc(c.value)}"${field.condOn ? '' : ' disabled'}${disabled}>
+        <div class="select"><select aria-label="${esc(c.conditionHeading)}" data-field-prop="condOn"${disabled}><option value="">${esc(c.always)}</option>${others.map(item => `<option value="${esc(item.id)}" ${field.condOn === item.id ? 'selected' : ''}>${esc(item.label[lang()] || item.label.tg)}</option>`).join('')}</select></div>
+        <span class="mini-lbl adm-center" aria-hidden="true">${esc(c.equals)}</span>
+        <input class="input" aria-label="${esc(c.value)}" data-field-prop="condVal" value="${esc(field.condVal)}" placeholder="${esc(c.value)}"${field.condOn ? '' : ' disabled'}${disabled}>
       </div>`;
   }
 

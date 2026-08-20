@@ -354,6 +354,12 @@ label.pr{cursor:pointer}
 .wz,.wz-h{max-width:680px;margin-inline:auto}
 .adm-h.wz-h{margin-bottom:var(--s-8)}
 .wz-steps{width:100%;margin:0 0 var(--s-8);padding:0}
+/* four steps plus their connectors do not fit a phone: the stepper scrolls
+   inside itself rather than pushing the page sideways (§9) */
+@media(max-width:620px){
+  .wz-steps{overflow-x:auto;justify-content:flex-start}
+  .wz .stepper__step{flex:none}
+}
 .wz .stepper__line{flex:1 1 16px;width:auto;min-width:12px}
 .wz .stepper__number{font-size:inherit;font-weight:inherit;line-height:1}
 .wz .stepper__number::after{content:'.'}
@@ -397,7 +403,7 @@ label.pr{cursor:pointer}
 @media (max-width:860px){
   .adm{grid-template-columns:1fr}
   .adm > .ekh-side{
-    position:static; height:auto; flex-direction:row; gap:var(--s-1); overflow-x:auto; overflow-y:hidden;
+    position:static; height:auto; min-width:0; flex-direction:row; gap:var(--s-1); overflow-x:auto; overflow-y:hidden;
     border-right:0; border-bottom:1px solid var(--line); padding:var(--s-2) var(--s-4);
     align-items:center;
   }
@@ -599,8 +605,8 @@ label.pr{cursor:pointer}
 .fb-item.open .fb-ic{background-color:var(--blue); color:var(--on-blue)}
 .fb-ic svg{width:17px; height:17px}
 .fb-tt{min-width:0}
-/* §4: repeated row titles are 500; only the open row earns the extra weight */
-.fb-tt b{display:block; font-weight:var(--weight-medium); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* §4: repeated row titles are 14/500; only the open row earns the extra weight */
+.fb-tt b{display:block; font-size:var(--fs-14); font-weight:var(--weight-medium); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .fb-item.open .fb-tt b{font-weight:var(--weight-semibold)}
 .fb-tt .meta{display:flex; align-items:center; gap:6px; font-size:var(--fs-12); color:var(--ink-3); margin-top:1px;
   flex-wrap:nowrap; white-space:nowrap; overflow:hidden; min-width:0}
@@ -899,7 +905,7 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
   .adm-top:has(.at-search) .at-right{margin-left:auto}
 }
 @media(max-width:680px){
-  .ekh-list-row{grid-template-columns:minmax(0,1fr) auto;gap:var(--s-3);min-height:72px;padding:var(--s-3) var(--s-4)}
+  .ekh-list-row{gap:var(--s-3);min-height:72px;padding:var(--s-3) var(--s-4)}
   .ekh-list-row .nm b{white-space:normal}
   .reg-stats{grid-template-columns:1fr 1fr}
   .reg-stats .stat{min-height:100px;padding:var(--s-4)}
@@ -1020,6 +1026,9 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 
 /* --- multilingual mini-tabs (field labels, templates) --- */
 .ml{ display:flex; flex-direction:column; gap:var(--s-2); }
+/* the group caption above the 3-language tabs — a <label> here would name no
+   single input, so it is plain text and each input carries its own name (§9) */
+.field__label-text{ display:block; font-size:var(--fs-13); font-weight:var(--weight-medium); }
 .ml-tabs{ display:inline-flex; gap:2px; background:var(--field); border-radius:var(--r-pill); padding:3px; align-self:flex-start; }
 .ml-tabs button{ display:inline-flex; align-items:center; gap:5px; border-radius:var(--r-pill); padding:5px 12px;
   font-size:var(--fs-12); font-weight:600; color:var(--ink-2); cursor:pointer; white-space:nowrap;
@@ -1543,10 +1552,6 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
 .adm-role-slot .lc-role--compact .input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363676D' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px}
 .lc-icon-badge{justify-content:center;width:26px;padding:0;gap:0}
 .service-registry-head h3{font-size:var(--fs-17)}
-.ekh-list-row .nm .k{font-weight:400}
-.ekh-list-row .svc-audience{display:inline-flex;align-items:center;gap:5px;color:var(--h-violet-fg);font-weight:400;white-space:nowrap}
-.ekh-list-row .svc-audience svg{width:14px;height:14px;flex:none}
-.ekh-list-row .cols,.ekh-list-row .cols b{font-weight:400}
 #serviceRegistry .status-icon--success{background:color-mix(in srgb,var(--green-tint) 58%,transparent)}
 .adm .ekh-side__item[aria-current] .ekh-side__count{background:transparent}
 /* Тихая пилюля и полоса версий переехали в design-system/css/components.css:
@@ -1555,15 +1560,14 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
 @media(max-width:900px){
   .adm-role-slot .lc-role--compact .input{width:152px}
 }
-@media(max-width:1120px){
-  .ekh-list-row{grid-template-columns:minmax(220px,1fr) minmax(416px,auto) 104px}
-  .ekh-list-row .cols{grid-template-columns:86px 58px 96px 140px;gap:var(--s-3)}
-}
-
 .reg-stats--4{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:1120px){
   #formsCatalog{--list-columns: minmax(0,1fr) 72px 72px 112px}
   #formsCatalog .ekh-list-row,#formsCatalog .ekh-list-head{column-gap: var(--s-6)}
+}
+@media(max-width:860px){
+  #formsCatalog{--list-columns: minmax(0,1fr) 64px 64px 104px}
+  #formsCatalog .ekh-list-row,#formsCatalog .ekh-list-head{column-gap: var(--s-4)}
 }
 @media(max-width:880px){
   .reg-stats--4{grid-template-columns:repeat(2,1fr)}

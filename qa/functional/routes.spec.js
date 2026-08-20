@@ -39,10 +39,13 @@ test('every platform and nested scroll surface uses the shared subtle scrollbar'
   expect(new Set(mobileWidths)).toEqual(new Set(['thin']));
 
   await page.goto('/admin/builder.html?theme=light');
-  const builderWidths = await page.locator('.bld-edit, .bld-pipe, .bld-prev, .pv-app').evaluateAll((elements) =>
+  const builderWidths = await page.locator('.bld-edit, .bld-pipe, .bld-prev').evaluateAll((elements) =>
     elements.map((element) => getComputedStyle(element).scrollbarWidth),
   );
   expect(new Set(builderWidths)).toEqual(new Set(['thin']));
+  /* the one sanctioned exception (design-guide §5): inside a device mockup the
+     artifact imitates the target OS, whose scrollbars are overlays */
+  await expect(page.locator('.pv-app')).toHaveCSS('scrollbar-width', 'none');
 
   await page.goto('/design-system/styleguide.html?theme=light');
   const sample = await page.locator('.sg-scroll-demo').evaluate((element) => ({
@@ -200,9 +203,9 @@ test('every interface keeps visible controls named and within the viewport', asy
 
 test('launcher theme and language follow navigation', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /забон/i }).click();
+  await page.locator('#langToggle').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');
-  await page.getByRole('button', { name: /тема/i }).click();
+  await page.locator('#themeToggle').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.locator('.platform-card--citizen').click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'ru');

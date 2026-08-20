@@ -82,3 +82,8 @@
 .sg-popover-static { position:static; opacity:1; }
 .sg-select-demo { display:flex; flex-wrap:wrap; align-items:center; gap:12px; min-width:0; }
 .sg-select-demo .ekh-select { width:min(210px,100%); }
+
+/* the library-list demo is wide content: it scrolls inside its own container
+   instead of pushing the page sideways (design-guide §9) */
+.sg-list-demo { overflow-x: auto; }
+.sg-list-demo > .panel { min-width: 520px; }

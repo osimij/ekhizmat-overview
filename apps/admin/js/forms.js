@@ -207,16 +207,17 @@ const FORMAT_PLACEHOLDER={num:'123',inn:'123456789',phone:'+992 ',date:'',email:
 /* the preview shows what the citizen gets, help text and conditions included */
 function previewControl(field){
   const name=esc(label(field.label)||c().newField),required=field.required?' <span class="req">*</span>':'';
+  const id=`pv-${String(field.id).replace(/[^A-Za-z0-9_-]/g,'-')}`;
   const help=field.help?.[currentLang]||field.help?.tg||'';
   const source=field.condOn&&editor.draft.fields.find(item=>item.id===field.condOn);
   const tail=(help?`<p class="help">${esc(help)}</p>`:'')
     +(source?`<p class="help help--cond">↳ ${esc(c().composer.conditional)}: ${esc(label(source.label)||source.label.tg)} = «${esc(field.condVal||'…')}»</p>`:'');
   const placeholder=FORMAT_PLACEHOLDER[field.format]||'';
-  if(field.type==='select') return `<div class="field"><label>${name}${required}</label><div class="select"><select disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(option=>`<option>${esc(option)}</option>`).join('')}</select></div>${tail}</div>`;
-  if(field.type==='textarea') return `<div class="field"><label>${name}${required}</label><textarea class="input" rows="3" disabled></textarea>${tail}</div>`;
-  if(field.type==='file') return `<div class="field"><label>${name}${required}</label><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().fileHint)}</span></div>${tail}</div>`;
+  if(field.type==='select') return `<div class="field"><label for="${id}">${name}${required}</label><div class="select"><select id="${id}" disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(option=>`<option>${esc(option)}</option>`).join('')}</select></div>${tail}</div>`;
+  if(field.type==='textarea') return `<div class="field"><label for="${id}">${name}${required}</label><textarea class="input" id="${id}" rows="3" disabled></textarea>${tail}</div>`;
+  if(field.type==='file') return `<div class="field"><span class="field__label-text">${name}${required}</span><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().fileHint)}</span></div>${tail}</div>`;
   if(field.type==='checkbox') return `<label class="consent"><input type="checkbox" disabled><span>${name||esc(c().yes)}</span></label>${tail}`;
-  return `<div class="field"><label>${name}${required}</label><input class="input" type="${field.type==='email'?'email':field.type==='date'?'date':'text'}" placeholder="${esc(placeholder)}" disabled>${tail}</div>`;
+  return `<div class="field"><label for="${id}">${name}${required}</label><input class="input" id="${id}" type="${field.type==='email'?'email':field.type==='date'?'date':'text'}" placeholder="${esc(placeholder)}" disabled>${tail}</div>`;
 }
 
 function renderEditorPreview(){

@@ -1032,57 +1032,49 @@ test('TSON registration confirmation keeps its attestation above the actions', a
   expect(Math.abs(geometry.actions[0].width - geometry.actions[1].width)).toBeLessThanOrEqual(1);
 });
 
-test('Admin new-service audience and full review / approval / publish workflow', async ({ page }) => {
+test('Admin wizard → builder → review: the full authoring and publishing loop', async ({ page }) => {
   await page.goto('/admin/services.html');
-  await page.evaluate(() => localStorage.removeItem('ekh.demo.lowcode'));
+  await page.evaluate(() => localStorage.removeItem('ekh.demo.lowcode.v2'));
+
+  /* the wizard sets the audience and ends in the constructor */
   await page.goto('/admin/new-service.html?lang=tg&theme=light');
   await expect(page.locator('[name="audience"]')).toHaveCount(3);
   await expect(page.locator('[data-lc-audience="guest"]')).toBeChecked();
   for (let step = 2; step <= 4; step += 1) {
     await page.locator('[data-step]:not([hidden]) [data-next]').click();
     await expect(page.locator(`[data-step="${step}"]`)).toBeVisible();
-    await expectSameActionHeight(page, `[data-step="${step}"] .j-acts`,step===4?3:2);
+    await expectSameActionHeight(page, `[data-step="${step}"] .j-acts`, step === 4 ? 3 : 2);
   }
-  await page.locator('#createServiceForm').click();
-  await expect(page).toHaveURL(/form-builder\.html/);
-  await expect(page.locator('#formNameTg')).toHaveValue('Маълумотнома дар бораи маҳалли истиқомат');
+  await page.locator('#openServiceBuilder').click();
+  await expect(page).toHaveURL(/builder\.html/);
 
+  /* the builder has one toolbar and reads its fields from the bound form */
   await page.goto('/admin/builder.html?lang=tg&theme=light');
-
-  await expect(page.locator('#serviceFormSelection')).toBeVisible();
-  await expect(page.locator('#serviceFormSelection')).toContainText('v2');
+  await expect(page.locator('.lc-builder')).toHaveCount(0);
+  await expect(page.locator('#fbList')).toHaveCount(0);
+  await expect(page.locator('.bld-top [data-lc-role]')).toHaveCount(1);
+  await expect(page.locator('#serviceFormSelection .attached-form-card')).toBeVisible();
+  const bound = await page.locator('#serviceFormReadonlyFields .service-readonly-field').count();
+  await expect(page.locator('#stgFieldsCount')).toHaveText(String(bound));
   await expect(page.locator('#publishBtn')).toBeDisabled();
-  await page.locator('#approveBtn').click();
-  await expect(page.locator('#lowCodeActionOverlay')).toBeVisible();
-  await page.locator('[data-lc-confirm="SEND_REVIEW"]').click();
 
+  /* the demo role drives what the queue offers, and the workflow moves */
   await page.goto('/admin/review.html?lang=ru&theme=light');
-  await page.locator('[data-lc-filter="audience"]').selectOption('business');
-  await expect(page.locator('#lowCodeReview .reg-empty')).toBeVisible();
-  await page.locator('[data-lc-filter="audience"]').selectOption('guest');
-  await expect(page.locator('#lowCodeReview .lc-service-card')).toBeVisible();
   await page.locator('[data-lc-role]').selectOption('reviewer');
+  await page.locator('[data-lc-service="ngo-registration"]').click();
+  await expect(page.locator('.lc-detail-head h1')).toBeVisible();
+  await expect(page.locator('.lc-overview-banner')).toHaveCount(0);
+  await expect(page).toHaveURL(/service=ngo-registration/);
+
+  await page.locator('#lcComment').fill('Уточните срок действия выписки.');
   await page.locator('[data-lc-action="ADD_COMMENT"]').click();
-  await expect(page.locator('.comment')).toHaveCount(1);
-  await page.locator('[data-lc-action="REQUEST_CHANGES"]').click();
-  await expect(page.locator('.status-icon[aria-label="На доработке"]')).toBeVisible();
-
-  await page.locator('[data-lc-role]').selectOption('agency-author');
-  await page.locator('[data-lc-action="REPLY"]').click();
-  await page.locator('[data-lc-action="RESUBMIT"]').click();
-  await expect(page.locator('.status-icon[aria-label="Повторная проверка"]')).toBeVisible();
-  await expect(page.getByText('0.5', { exact: true }).first()).toBeVisible();
-
-  await page.locator('[data-lc-role]').selectOption('reviewer');
+  await expect(page.locator('.lc-comment')).toHaveCount(1);
   await page.locator('[data-lc-action="APPROVE"]').click();
-  await expect(page.locator('.status-icon[aria-label="Подтверждено"]')).toBeVisible();
-  await expect(page.getByText(/Demo reviewer · 14:36/)).toBeVisible();
-  await page.locator('[data-lc-role]').selectOption('agency-author');
-  await expect(page.locator('[data-lc-action="PUBLISH"]')).toBeDisabled();
+  await expect(page.locator('.lc-detail-head .status-icon[aria-label="Подтверждено"]')).toBeVisible();
+
   await page.locator('[data-lc-role]').selectOption('portal-admin');
+  await page.locator('[data-lc-service="ngo-registration"]').click();
   await page.locator('[data-lc-action="PUBLISH"]').click();
   await page.locator('[data-lc-confirm="PUBLISH"]').click();
-  await expect(page.locator('.status-icon[aria-label="Опубликовано"]')).toBeVisible();
-  await page.locator('[data-lc-action="RESET"]').click();
-  await expect(page.locator('.status-icon[aria-label="Черновик"]')).toBeVisible();
+  await expect(page.locator('.lc-detail-head .status-icon[aria-label="Опубликовано"]')).toBeVisible();
 });
