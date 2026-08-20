@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 const cases = [
-  { name: 'launcher', route: '/', sizes: [[360, 800], [768, 1024], [1440, 1000], [1920, 1080]], noOverflow: true },
+  { name: 'launcher', route: '/', sizes: [[360, 800], [620, 800], [768, 1024], [960, 700], [1280, 720], [1440, 700], [1440, 1000], [1920, 1080]], noOverflow: true },
   { name: 'citizen', route: '/citizen/', sizes: [[320, 800], [360, 800], [390, 844], [768, 1024], [1024, 900], [1440, 1000]], noOverflow: true },
   { name: 'mobile concept', route: '/mobile/', sizes: [[320, 800], [360, 800], [390, 844], [768, 1024], [1024, 900], [1440, 1000]], noOverflow: true },
   { name: 'admin dashboard', route: '/admin/', sizes: [[390, 844], [768, 900], [1440, 900]], noOverflow: true },

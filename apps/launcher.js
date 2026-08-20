@@ -3,22 +3,24 @@ import { bindPlatformShortcuts } from '/design-system/js/platform-switcher.js';
 
 const copy = {
   tg: {
-    skip: 'Ба мазмуни асосӣ гузаштан', eyebrow: 'Як экосистема · чор муҳит', title: 'Платформаҳои eKhizmat',
+    skip: 'Ба мазмуни асосӣ гузаштан', navLabel: 'Платформаҳои eKhizmat', title: 'Ҳамаи платформаҳои eKhizmat',
     intro: 'Муҳити кориро интихоб кунед. Забон ва мавзӯъ ҳангоми гузариш бо шумо мемонанд.',
-    citizenKicker: 'Барои аҳолӣ', citizenTitle: 'Портали шаҳрванд', citizenText: 'Хизматҳои давлатӣ, аризаҳо ва ҳамёни ҳуҷҷатҳо дар як ҷо.',
-    tsonKicker: 'Барои маркази хизматрасонӣ', tsonTitle: 'Оператори ЦОН', tsonText: 'Қабули бехатар, розигӣ ва иҷрои хизмат дар назди шаҳрванд.',
-    ministryKicker: 'Барои идораҳо', ministryTitle: 'Мутахассиси идора', ministryText: 'Навбат, муҳлати SLA, санҷиш ва қабули қарор аз рӯи аризаҳо.',
-    adminKicker: 'Барои соҳиби хизмат', adminTitle: 'Маъмури хизмат', adminText: 'Сохтан, санҷидан, мувофиқа ва нашр кардани хизматҳои рақамӣ.', materials: 'Маводи таҳиягар',
-    mobileKicker: 'Консепсияи интерактивӣ', mobileTitle: 'eKhizmat барои телефон', mobileText: 'Намунаи нави барномаи мобилӣ: панҷ бахши асосӣ, ҳуҷҷатҳои рақамӣ ва ҷараёни қадам ба қадами хизмат.', mobileCta: 'Санҷидани прототип',
+    langAria: 'Иваз кардани забон', themeAria: 'Иваз кардани тема',
+    citizenKicker: 'Барои аҳолӣ', citizenTitle: 'Портали шаҳрванд',
+    tsonKicker: 'Барои маркази хизматрасонӣ', tsonTitle: 'Оператори ЦОН',
+    ministryKicker: 'Барои идораҳо', ministryTitle: 'Мутахассиси идора',
+    adminKicker: 'Барои соҳиби хизмат', adminTitle: 'Маъмури хизмат', materials: 'Маводи таҳиягар',
+    mobileTitle: 'eKhizmat барои телефон', mobileText: 'Намунаи нави барномаи мобилӣ: панҷ бахши асосӣ, ҳуҷҷатҳои рақамӣ ва ҷараёни қадам ба қадами хизмат.',
   },
   ru: {
-    skip: 'Перейти к основному содержанию', eyebrow: 'Одна экосистема · четыре среды', title: 'Платформы eKhizmat',
+    skip: 'Перейти к основному содержанию', navLabel: 'Платформы eKhizmat', title: 'Все платформы eKhizmat',
     intro: 'Выберите рабочую среду. Язык и тема сохраняются при переходе между платформами.',
-    citizenKicker: 'Для жителей', citizenTitle: 'Портал гражданина', citizenText: 'Государственные услуги, заявления и кошелёк документов в одном месте.',
-    tsonKicker: 'Для центра обслуживания', tsonTitle: 'Оператор ЦОН', tsonText: 'Безопасный приём, согласие и оказание услуги вместе с гражданином.',
-    ministryKicker: 'Для ведомств', ministryTitle: 'Специалист ведомства', ministryText: 'Очередь, сроки SLA, проверка и принятие решений по заявлениям.',
-    adminKicker: 'Для владельца услуги', adminTitle: 'Администратор услуг', adminText: 'Создание, проверка, согласование и публикация цифровых услуг.', materials: 'Материалы разработчика',
-    mobileKicker: 'Интерактивная концепция', mobileTitle: 'eKhizmat для телефона', mobileText: 'Новая модель мобильного приложения: пять основных разделов, цифровые документы и пошаговый сценарий услуги.', mobileCta: 'Попробовать прототип',
+    langAria: 'Сменить язык', themeAria: 'Сменить тему',
+    citizenKicker: 'Для жителей', citizenTitle: 'Портал гражданина',
+    tsonKicker: 'Для центра обслуживания', tsonTitle: 'Оператор ЦОН',
+    ministryKicker: 'Для ведомств', ministryTitle: 'Специалист ведомства',
+    adminKicker: 'Для владельца услуги', adminTitle: 'Администратор услуг', materials: 'Материалы разработчика',
+    mobileTitle: 'eKhizmat для телефона', mobileText: 'Новая модель мобильного приложения: пять основных разделов, цифровые документы и пошаговый сценарий услуги.',
   },
 };
 
@@ -26,6 +28,7 @@ function render() {
   applyPreferences();
   const lang = getLang() === 'ru' ? 'ru' : 'tg';
   document.querySelectorAll('[data-copy]').forEach(element => { element.textContent = copy[lang][element.dataset.copy]; });
+  document.querySelectorAll('[data-copy-aria]').forEach(element => { element.setAttribute('aria-label', copy[lang][element.dataset.copyAria]); });
   document.getElementById('langLabel').textContent = lang === 'ru' ? 'Русский' : 'Тоҷикӣ';
   document.title = copy[lang].title;
   const query = new URLSearchParams(location.search);

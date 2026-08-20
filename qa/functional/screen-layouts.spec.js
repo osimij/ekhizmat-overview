@@ -80,8 +80,9 @@ test('launcher splits one content column: intro left, destination stack right', 
   expect(layout.listRight).toBeGreaterThan(layout.titleLeft + 800);
   expect(Math.abs(layout.chromeGlyphLeft - layout.titleLeft)).toBeLessThanOrEqual(1);
   expect(layout.chromeBottom).toBeLessThan(80);
-  expect(layout.titleSize).toBe(36);
-  expect(layout.titleHeight).toBeLessThan(50);
+  // Figma --fs-36, presented at --launch-scale (.85), on one line.
+  expect(layout.titleSize).toBeCloseTo(30.6, 1);
+  expect(layout.titleHeight).toBeLessThan(45);
   expect(layout.overflowX).toBeLessThanOrEqual(1);
 });
 

@@ -4,6 +4,10 @@
   --r-l: 18px;
   --r-xl: 24px;
   --r-dialog: 40px;
+  /* Launcher destination row and its category tile (Figma FH2J… node 26:226:
+     a 78px well inside a 102px row — both corners are a quarter of the box). */
+  --r-launch-card: 26px;
+  --r-launch-tile: 20px;
   /* Lock modal. Figma frame 2880×1864 is @2× of 1440 — 64px there is 32px here. */
   --r-lock: 32px;
   --r-pill: 999px;

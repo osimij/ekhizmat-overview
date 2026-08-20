@@ -14,6 +14,10 @@
   /* Workstation login is a flat canvas: the controls provide hierarchy, not
      a card-on-wash composition. The semantic alias keeps both themes aligned. */
   --login-bg: var(--panel);
+  /* The launcher is the same kind of flat canvas as login: in light it is plain
+     paper, so the destination stack sits on nothing at all; in dark it keeps
+     --bg, which is the Figma canvas (node 25:167) and darker than --panel. */
+  --launch-bg: var(--panel);
   --field: #efefef;
   --field-on-panel: #f4f4f5;
   --line: #e8e8e8;
@@ -116,6 +120,7 @@
   --raised: #1a1a1b;
   --hero: var(--hero-dark);
   --login-bg: var(--panel);
+  --launch-bg: var(--bg);
   --field: #26272b;
   --field-on-panel: #26272b;
   --line: #2a2b2f;

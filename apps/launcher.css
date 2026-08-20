@@ -1,69 +1,274 @@
-body { min-height: 100dvh; display: grid; grid-template-rows: auto 1fr auto; background: radial-gradient(circle at 50% -20%, var(--hero) 0, var(--bg) 38rem); }
-.launch-header, .launch-footer { width: min(100% - 48px, 1240px); margin-inline: auto; }
-.launch-header { display: flex; align-items: center; min-height: 76px; border-bottom: 1px solid var(--line); }
-.brand-lockup { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
-.brand-lockup svg { width: 31px; height: 32px; flex: none; }
-.brand-lockup strong { font-size: 20px; font-weight: 690; letter-spacing: 0; }
-.launch-actions { display: flex; gap: var(--s-2); margin-left: auto; }
-.launch-control { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: var(--r-pill); color: var(--ink-2); font-weight: 620; }
-.launch-control:hover { background: var(--hover); color: var(--ink); }
-.launch-control svg { width: 18px; height: 18px; }
-.launch-control--icon { width: 44px; padding: 0; justify-content: center; }
+/* Platform launcher — Figma «eKhizmat New Design» node 25:167.
+   One content column on a flat --launch-bg canvas — white paper in light, the
+   Figma canvas in dark: the intro column takes the left edge (capped at the
+   paragraph measure so it never becomes a wide block), the four destinations
+   take the right edge as a stack, and whatever is left between them is the
+   gutter. Preferences sit as quiet chrome on the same left edge, following the
+   content in the DOM so visual order matches reading order.
+
+   The frame is drawn at 100% and presented at --launch-scale, the way the login
+   gate presents its own composition at --login-scale: every metric below is a
+   Figma value (or its role token) times that one factor, so the page re-tunes
+   without any proportion drifting against another. */
+body {
+  --launch-scale: .85;
+  --launch-w: calc(1200px * var(--launch-scale));
+  --launch-col: calc(435px * var(--launch-scale));
+  --launch-intro-w: calc(560px * var(--launch-scale));
+  --launch-measure: calc(500px * var(--launch-scale));
+  --launch-tile: calc(78px * var(--launch-scale));
+  --launch-gutter: clamp(var(--s-5), 6vw, var(--s-16));
+  /* Both the stage and the bottom chrome resolve their inset from this, so the
+     language pill lines up with the title instead of the viewport edge. */
+  --launch-inset: max(var(--launch-gutter), (100% - var(--launch-w)) / 2);
+  /* Chrome height, mirrored onto the main padding so the stage centers on the
+     viewport middle (Figma) instead of the middle of what the footer leaves. */
+  --launch-chrome-h: calc((var(--h-btn-l) + var(--s-12)) * var(--launch-scale));
+  --launch-pad-y: calc(var(--s-10) * var(--launch-scale));
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: var(--launch-bg);
+}
+
+.launch-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: calc(var(--launch-pad-y) + var(--launch-chrome-h)) var(--launch-inset) var(--launch-pad-y);
+}
+
+.launch-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(var(--s-8), 5vw, var(--s-16));
+  width: 100%;
+  min-width: 0;
+}
+
+.launch-intro {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  /* Figma's column is the paragraph measure; the box gets 60 more (scaled) so
+     the longest locale title — Tajik — still lands on one line. */
+  max-width: var(--launch-intro-w);
+}
+
+.brand-lockup {
+  display: inline-flex;
+  margin-bottom: calc(var(--s-6) * var(--launch-scale));
+  color: var(--brand-logo);
+}
+/* Mark only, at its Figma size; the sprite viewBox is 112×105. */
+.brand-lockup svg {
+  width: calc(38px * var(--launch-scale));
+  height: calc(35.5px * var(--launch-scale));
+  flex: none;
+}
+
+.launch-intro h1 {
+  font-size: calc(var(--fs-36) * var(--launch-scale));
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  overflow-wrap: break-word;
+}
+.launch-intro p {
+  max-width: var(--launch-measure);
+  margin-top: calc(var(--s-2) * var(--launch-scale));
+  color: var(--ink-2);
+  font-size: calc(var(--fs-20) * var(--launch-scale));
+  line-height: var(--leading-body);
+}
+
+.platform-list {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: calc(var(--s-1) * var(--launch-scale));
+  /* The stack hugs its widest row (Figma) and stops at the column cap; the rows
+     stretch to it, so the four right edges stay one line in every language. */
+  width: fit-content;
+  max-width: min(100%, var(--launch-col));
+  min-width: 0;
+}
+/* No resting fill or hairline: the four rows are one quiet stack, and the
+   surface appears only under the pointer to name the row being chosen. */
+.platform-card,
+.mobile-concept-card {
+  display: grid;
+  grid-template-columns: var(--launch-tile) minmax(0, 1fr);
+  gap: calc(var(--s-5) * var(--launch-scale));
+  align-items: center;
+  padding:
+    calc(var(--s-3) * var(--launch-scale))
+    calc(var(--s-5) * var(--launch-scale))
+    calc(var(--s-3) * var(--launch-scale))
+    calc(var(--s-3) * var(--launch-scale));
+  border-radius: calc(var(--r-launch-card) * var(--launch-scale));
+  color: var(--ink);
+  transition: background-color var(--t-fast) var(--ease);
+}
+.platform-card:focus-visible,
+.mobile-concept-card:focus-visible { background: var(--hover); }
+@media (hover: hover) and (pointer: fine) {
+  .platform-card:hover,
+  .mobile-concept-card:hover { background: var(--hover); }
+}
+.platform-icon,
+.mobile-concept-icon {
+  display: grid;
+  place-items: center;
+  width: var(--launch-tile);
+  height: var(--launch-tile);
+  border-radius: calc(var(--r-launch-tile) * var(--launch-scale));
+  transition:
+    background-color var(--t-fast) var(--ease),
+    color var(--t-fast) var(--ease);
+}
+/* The row being chosen answers with the canon selected-tile state — solid
+   --blue well, --on-blue glyph (§3, builder .stg-ic). Category hue is the
+   idle signal, so it steps aside the moment the choice is being made. */
+.platform-card:focus-visible .platform-icon,
+.mobile-concept-card:focus-visible .mobile-concept-icon {
+  background: var(--blue);
+  color: var(--on-blue);
+}
+@media (hover: hover) and (pointer: fine) {
+  .platform-card:hover .platform-icon,
+  .mobile-concept-card:hover .mobile-concept-icon {
+    background: var(--blue);
+    color: var(--on-blue);
+  }
+}
+.platform-icon svg,
+.mobile-concept-icon svg {
+  width: calc(var(--s-10) * var(--launch-scale));
+  height: calc(var(--s-10) * var(--launch-scale));
+}
+.platform-copy {
+  display: grid;
+  gap: calc(var(--s-2) * var(--launch-scale));
+  min-width: 0;
+}
+.platform-copy strong {
+  font-size: calc(var(--fs-24) * var(--launch-scale));
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-tight);
+}
+.platform-kicker {
+  color: var(--ink-2);
+  font-size: calc(var(--fs-17) * var(--launch-scale));
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-tight);
+}
+
+.mobile-concept-card { margin-top: var(--s-4); width: min(100%, var(--launch-col)); }
+.materials {
+  width: min(100%, var(--launch-col));
+  margin-top: var(--s-10);
+  padding-top: var(--s-6);
+  border-top: 1px solid var(--line);
+}
+.materials h2 { font-size: var(--fs-17); font-weight: var(--weight-medium); }
+.materials div { display: flex; flex-wrap: wrap; gap: var(--s-4); margin-top: var(--s-2); }
+
+.launch-chrome {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--s-1) * var(--launch-scale));
+  padding: 0 var(--launch-inset) calc(var(--s-12) * var(--launch-scale));
+  color: var(--ink-2);
+}
+.launch-chrome__sep {
+  color: var(--ink-2);
+  font-size: calc(var(--fs-20) * var(--launch-scale));
+  line-height: 1;
+}
+.launch-control {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--s-2) * var(--launch-scale));
+  min-height: calc(var(--h-btn-l) * var(--launch-scale));
+  padding-inline: calc(var(--s-4) * var(--launch-scale));
+  border-radius: var(--r-pill);
+  color: var(--ink-2);
+  font-size: calc(var(--fs-20) * var(--launch-scale));
+}
+/* The pill's own padding is pulled back so its glyph, not its box, sits on the
+   content edge shared with the title. */
+.launch-chrome > .launch-control:first-of-type {
+  margin-inline-start: calc(var(--s-4) * var(--launch-scale) * -1);
+}
+.launch-control:focus-visible { background: var(--hover); color: var(--ink); }
+@media (hover: hover) and (pointer: fine) {
+  .launch-control:hover { background: var(--hover); color: var(--ink); }
+}
+.launch-control svg {
+  width: calc(var(--s-6) * var(--launch-scale));
+  height: calc(var(--s-6) * var(--launch-scale));
+}
+.launch-control--icon {
+  width: calc(var(--h-btn-l) * var(--launch-scale));
+  padding-inline: 0;
+  justify-content: center;
+}
 .theme-sun { display: none; }
 [data-theme='dark'] .theme-moon { display: none; }
 [data-theme='dark'] .theme-sun { display: block; }
-.launch-main { align-self: center; width: min(100% - 48px, 1240px); margin: 0 auto; padding: 48px 0; }
-.launch-intro { max-width: 720px; margin-bottom: 40px; }
-.launch-intro h1 { margin-top: 0; }
-.launch-intro p { max-width: none; margin-top: 14px; color: var(--ink-2); font-size: var(--fs-17); white-space: nowrap; }
-.platform-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.platform-card { position: relative; display: grid; grid-template-columns: 60px 1fr 36px; gap: 18px; min-height: 172px; align-items: start; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: color-mix(in srgb, var(--panel) 92%, transparent); color: var(--ink); transition: border-color var(--t-fast), transform var(--t-fast), background var(--t-fast); }
-.platform-card:hover { border-color: color-mix(in srgb, var(--action) 45%, var(--line)); background: var(--panel); }
-.platform-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 18px; }
-.platform-icon svg { width: 29px; height: 29px; }
-.platform-copy { position: relative; z-index: 1; display: grid; gap: 6px; }
-.platform-copy strong { font-size: 23px; line-height: 1.2; letter-spacing: 0; }
-.platform-copy > span:last-child { max-width: 390px; color: var(--ink-2); line-height: 1.5; }
-.platform-kicker { color: var(--ink-3); font-size: var(--fs-13); font-weight: 650; }
-.platform-arrow { position: relative; z-index: 1; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--field); color: var(--ink-2); }
-.platform-arrow svg { width: 17px; height: 17px; }
-.platform-card:hover .platform-arrow { background: var(--action); color: var(--on-blue); }
-.mobile-concept-card { position: relative; display: grid; grid-template-columns: 58px 1fr auto; align-items: center; gap: 18px; margin-top: 16px; padding: 22px 24px; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-xl); background: linear-gradient(110deg, var(--blue-tint), color-mix(in srgb, var(--panel) 90%, transparent)); color: var(--ink); transition: border-color var(--t-fast), transform var(--t-fast), background var(--t-fast); }
-.mobile-concept-card:hover { border-color: color-mix(in srgb, var(--action) 45%, var(--line)); }
-.mobile-concept-icon { position: relative; z-index: 1; display: grid; place-items: center; width: 58px; height: 58px; border-radius: 18px; background: var(--action); color: var(--on-blue); }
-.mobile-concept-icon svg { width: 28px; height: 28px; }
-.mobile-concept-copy { position: relative; z-index: 1; display: grid; gap: 4px; }
-.mobile-concept-copy strong { font-size: var(--fs-20); }
-.mobile-concept-copy > span:last-child { max-width: 650px; color: var(--ink-2); font-size: var(--fs-14); line-height: 1.45; }
-.mobile-concept-cta { position: relative; z-index: 1; display: inline-flex; min-height: 42px; align-items: center; gap: 8px; padding: 0 15px; border-radius: var(--r-pill); background: var(--panel); color: var(--blue-ink); font-size: var(--fs-13); font-weight: 680; white-space: nowrap; }
-.mobile-concept-cta svg { width: 15px; height: 15px; }
-.materials { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line); }
-.materials h2 { font-size: var(--fs-17); }
-.materials div { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; }
-.launch-footer { display: flex; justify-content: space-between; padding: 24px 0 36px; color: var(--ink-3); font-size: var(--fs-13); }
-@media (max-width: 760px) {
-  .launch-header, .launch-footer, .launch-main { width: min(100% - 32px, 1240px); }
-  .launch-main { padding-block: 40px; }
-  .launch-intro p { white-space: normal; }
-  .platform-grid { grid-template-columns: 1fr; }
-  .platform-card { min-height: 164px; padding: 24px; grid-template-columns: 52px 1fr; gap: 16px; }
-  .platform-icon { width: 52px; height: 52px; border-radius: 16px; }
-  .platform-arrow { display: none; }
-  .mobile-concept-card { grid-template-columns: 52px 1fr; padding: 20px; }
-  .mobile-concept-cta { grid-column: 2; justify-self: start; }
-  .mobile-concept-icon { width: 52px; height: 52px; border-radius: 16px; }
+
+/* On a short viewport the counterweight above the stage is exactly what would
+   push the page into a scroll, and fitting beats centring to the pixel. */
+@media (max-height: 699px) {
+  body { --launch-chrome-h: 0px; }
 }
-@media (max-width: 420px) {
-  .launch-control span { display: none; }
-  .launch-control { width: 44px; padding: 0; justify-content: center; }
-  .launch-main { padding-block: 32px; }
-  .launch-intro h1 { font-size: 34px; }
-  .platform-card { grid-template-columns: 44px 1fr; padding: 20px; }
-  .platform-icon { width: 44px; height: 44px; border-radius: 14px; }
-  .platform-icon svg { width: 23px; height: 23px; }
-  .platform-copy strong { font-size: 20px; }
-  .mobile-concept-card { grid-template-columns: 44px 1fr; }
-  .mobile-concept-icon { width: 44px; height: 44px; border-radius: 14px; }
-  .mobile-concept-icon svg { width: 22px; height: 22px; }
-  .mobile-concept-cta { grid-column: 1 / -1; }
+
+/* Below the split the composition stacks into one column the width of the
+   destination stack — bottom chrome included. The presented scale already puts
+   the rows at touch size, so only the title steps down again. */
+@media (max-width: 960px) {
+  body {
+    --launch-w: var(--launch-col);
+    /* Stacked, the stage fills the column instead of mirroring the Figma
+       split, so the chrome no longer needs a counterweight above the content. */
+    --launch-chrome-h: 0px;
+  }
+  .launch-stage {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--s-8);
+  }
+  .launch-intro { flex: 0 0 auto; max-width: none; }
+  .launch-intro h1 { font-size: var(--fs-28); }
+  .launch-intro p { max-width: none; }
+  .platform-list { width: auto; max-width: none; }
+  .launch-chrome { padding-bottom: var(--s-8); }
+}
+
+/* Phone: the well steps to the compact 64 (still presented at scale) so a long
+   row name — Russian «Специалист ведомства» — keeps its single line, and the
+   glyph keeps the Figma half-of-the-well ratio inside it. */
+@media (max-width: 620px) {
+  body {
+    --launch-gutter: var(--s-4);
+    --launch-tile: calc(64px * var(--launch-scale));
+  }
+  .platform-icon svg,
+  .mobile-concept-icon svg {
+    width: calc(var(--s-8) * var(--launch-scale));
+    height: calc(var(--s-8) * var(--launch-scale));
+  }
+  .launch-chrome { padding-bottom: var(--s-6); }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .platform-card,
+  .mobile-concept-card,
+  .launch-control { min-height: var(--h-btn-m); }
 }

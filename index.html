@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Чор платформаи ягонаи eKhizmat барои шаҳрвандон ва кормандони давлатӣ.">
-  <title>Платформаҳои eKhizmat</title>
+  <title>Ҳамаи платформаҳои eKhizmat</title>
   <script>try{const q=new URLSearchParams(location.search),t=q.get('theme')||localStorage.getItem('ekh.preferences.theme');if(t==='dark')document.documentElement.dataset.theme='dark'}catch{}</script>
   <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
   <link rel="preload" href="/design-system/assets/fonts/GoogleSans.woff2" as="font" type="font/woff2" crossorigin>
@@ -13,56 +13,39 @@
 </head>
 <body data-platform="launcher">
   <a class="skip" href="#main" data-copy="skip">Ба мазмуни асосӣ гузаштан</a>
-  <header class="launch-header">
-    <a class="brand-lockup" href="/" aria-label="eKhizmat — саҳифаи асосӣ">
-      <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"></use></svg>
-      <strong>eKhizmat</strong>
-    </a>
-    <div class="launch-actions">
-      <button class="launch-control" type="button" id="langToggle" aria-label="Иваз кардани забон">
-        <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"></use></svg>
-        <span id="langLabel">Тоҷикӣ</span>
-      </button>
-      <button class="launch-control launch-control--icon" type="button" id="themeToggle" aria-label="Иваз кардани тема">
-        <svg class="theme-moon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-moon"></use></svg>
-        <svg class="theme-sun" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sun"></use></svg>
-      </button>
-    </div>
-  </header>
-
   <main class="launch-main" id="main">
-    <div class="launch-intro">
-      <h1 data-copy="title">Платформаҳои eKhizmat</h1>
-      <p data-copy="intro">Муҳити кориро интихоб кунед. Забон ва мавзӯъ ҳангоми гузариш бо шумо мемонанд.</p>
-    </div>
+    <div class="launch-stage">
+      <div class="launch-intro">
+        <span class="brand-lockup" aria-hidden="true">
+          <svg><use href="/design-system/assets/icons.svg#i-logo"></use></svg>
+        </span>
+        <h1 data-copy="title">Ҳамаи платформаҳои eKhizmat</h1>
+        <p data-copy="intro">Муҳити кориро интихоб кунед. Забон ва мавзӯъ ҳангоми гузариш бо шумо мемонанд.</p>
+      </div>
 
-    <nav class="platform-grid" aria-label="Платформаҳои eKhizmat">
-      <a class="platform-card platform-card--citizen" href="/citizen/" data-route>
-        <span class="platform-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user-add"></use></svg></span>
-        <span class="platform-copy"><span class="platform-kicker" data-copy="citizenKicker">Барои аҳолӣ</span><strong data-copy="citizenTitle">Портали шаҳрванд</strong><span data-copy="citizenText">Хизматҳои давлатӣ, аризаҳо ва ҳамёни ҳуҷҷатҳо дар як ҷо.</span></span>
-        <span class="platform-arrow" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></span>
-      </a>
-      <a class="platform-card platform-card--tson" href="/tson/" data-route>
-        <span class="platform-icon t-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-building"></use></svg></span>
-        <span class="platform-copy"><span class="platform-kicker" data-copy="tsonKicker">Барои маркази хизматрасонӣ</span><strong data-copy="tsonTitle">Оператори ЦОН</strong><span data-copy="tsonText">Қабули бехатар, розигӣ ва иҷрои хизмат дар назди шаҳрванд.</span></span>
-        <span class="platform-arrow" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></span>
-      </a>
-      <a class="platform-card platform-card--ministry" href="/ministry/" data-route>
-        <span class="platform-icon t-violet"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-inbox"></use></svg></span>
-        <span class="platform-copy"><span class="platform-kicker" data-copy="ministryKicker">Барои идораҳо</span><strong data-copy="ministryTitle">Мутахассиси идора</strong><span data-copy="ministryText">Навбат, муҳлати SLA, санҷиш ва қабули қарор аз рӯи аризаҳо.</span></span>
-        <span class="platform-arrow" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></span>
-      </a>
-      <a class="platform-card platform-card--admin" href="/admin/" data-route>
-        <span class="platform-icon t-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-gear"></use></svg></span>
-        <span class="platform-copy"><span class="platform-kicker" data-copy="adminKicker">Барои соҳиби хизмат</span><strong data-copy="adminTitle">Маъмури хизмат</strong><span data-copy="adminText">Сохтан, санҷидан, мувофиқа ва нашр кардани хизматҳои рақамӣ.</span></span>
-        <span class="platform-arrow" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></span>
-      </a>
-    </nav>
+      <nav class="platform-list" aria-label="Платформаҳои eKhizmat" data-copy-aria="navLabel">
+        <a class="platform-card platform-card--citizen" href="/citizen/" data-route>
+          <span class="platform-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user-add"></use></svg></span>
+          <span class="platform-copy"><strong data-copy="citizenTitle">Портали шаҳрванд</strong><span class="platform-kicker" data-copy="citizenKicker">Барои аҳолӣ</span></span>
+        </a>
+        <a class="platform-card platform-card--tson" href="/tson/" data-route>
+          <span class="platform-icon t-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-building"></use></svg></span>
+          <span class="platform-copy"><strong data-copy="tsonTitle">Оператори ЦОН</strong><span class="platform-kicker" data-copy="tsonKicker">Барои маркази хизматрасонӣ</span></span>
+        </a>
+        <a class="platform-card platform-card--ministry" href="/ministry/" data-route>
+          <span class="platform-icon t-violet"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-gov"></use></svg></span>
+          <span class="platform-copy"><strong data-copy="ministryTitle">Мутахассиси идора</strong><span class="platform-kicker" data-copy="ministryKicker">Барои идораҳо</span></span>
+        </a>
+        <a class="platform-card platform-card--admin" href="/admin/" data-route>
+          <span class="platform-icon t-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-dash"></use></svg></span>
+          <span class="platform-copy"><strong data-copy="adminTitle">Маъмури хизмат</strong><span class="platform-kicker" data-copy="adminKicker">Барои соҳиби хизмат</span></span>
+        </a>
+      </nav>
+    </div>
 
     <a class="mobile-concept-card" href="/mobile/" data-route hidden>
-      <span class="mobile-concept-icon"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-wallet"></use></svg></span>
-      <span class="mobile-concept-copy"><strong data-copy="mobileTitle">eKhizmat барои телефон</strong><span data-copy="mobileText">Намунаи нави барномаи мобилӣ: панҷ бахши асосӣ, ҳуҷҷатҳои рақамӣ ва ҷараёни қадам ба қадами хизмат.</span></span>
-      <span class="mobile-concept-cta" data-copy="mobileCta">Санҷидани прототип <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-arrow-ur"></use></svg></span>
+      <span class="mobile-concept-icon t-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-wallet"></use></svg></span>
+      <span class="platform-copy"><strong data-copy="mobileTitle">eKhizmat барои телефон</strong><span class="platform-kicker" data-copy="mobileText">Намунаи нави барномаи мобилӣ: панҷ бахши асосӣ, ҳуҷҷатҳои рақамӣ ва ҷараёни қадам ба қадами хизмат.</span></span>
     </a>
 
     <aside class="materials" data-dev-only aria-labelledby="materials-title">
@@ -71,7 +54,18 @@
     </aside>
   </main>
 
-  <footer class="launch-footer"><span>Ҷумҳурии Тоҷикистон</span><span>eKhizmat · 2026</span></footer>
+  <footer class="launch-chrome">
+    <button class="launch-control" type="button" id="langToggle" data-copy-aria="langAria" aria-label="Иваз кардани забон">
+      <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"></use></svg>
+      <span id="langLabel">Тоҷикӣ</span>
+    </button>
+    <span class="launch-chrome__sep" aria-hidden="true">/</span>
+    <button class="launch-control launch-control--icon" type="button" id="themeToggle" data-copy-aria="themeAria" aria-label="Иваз кардани тема">
+      <svg class="theme-moon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-moon"></use></svg>
+      <svg class="theme-sun" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sun"></use></svg>
+    </button>
+  </footer>
+
   <script type="module" src="/apps/launcher.js"></script>
 </body>
 </html>

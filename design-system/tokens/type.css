@@ -20,6 +20,7 @@
   --fs-24: 1.5rem;
   --fs-28: 1.75rem;
   --fs-32: 2rem;
+  --fs-36: 2.25rem;
   --fs-44: clamp(2rem, 4.6vw, 3.125rem);
   --leading-tight: 1.15;
   --leading-body: 1.55;
