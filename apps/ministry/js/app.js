@@ -43,6 +43,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     formPaletteOpen: false,
     formPreviewOpen: false,
     statIntroPending: false,
+    formsFacet: '',                     // '' | 'draft' | 'review' | 'published'
     filterOpen: null,                      // 'svc' | 'status' | null
     modal: null,                        // объект текущей модалки
     pop: null                           // 'notif' | 'user' | null
@@ -503,39 +504,61 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     ];
   }
 
+  /* Полоса версии по правилу 26: компактный vN, состояние несёт фон (зелёный —
+     опубликовано, янтарный — черновик или проверка, нейтральный — архив),
+     слегка скруглённый, без значка внутри. Текст статуса живёт в title и
+     .sr-only, поэтому цвет не единственный канал (§9). */
+  function formVersionStrip(form) {
+    /* Зелёный — только «опубликовано»: подтверждённая, но ещё не выложенная
+       версия остаётся работой в пути, а не живой формой (правило 26). */
+    var tone = form.status === 'published' ? 'published' : 'draft';
+    var label = lowCodeStatusLabel(form.status);
+    return '<span class="form-mini-version form-mini-version--' + tone + '" title="' + esc(label) + '">' +
+      '<b>v' + esc(form.version) + '</b><span class="sr-only">' + esc(label) + '</span></span>';
+  }
   function viewForms() {
     S.formDraft = null;
     S.formReadOnly = false;
     var forms = ministryForms(), state = lc();
-    var drafts = forms.filter(function (f) { return ['draft','stage','changes_requested','rejected'].indexOf(f.status) >= 0; }).length;
-    var review = forms.filter(function (f) { return ['in_review','resubmitted','approved'].indexOf(f.status) >= 0; }).length;
+    var DRAFT = ['draft','stage','changes_requested','rejected'], REVIEW = ['in_review','resubmitted','approved'];
+    var drafts = forms.filter(function (f) { return DRAFT.indexOf(f.status) >= 0; }).length;
+    var review = forms.filter(function (f) { return REVIEW.indexOf(f.status) >= 0; }).length;
     var published = forms.filter(function (f) { return f.status === 'published'; }).length;
+    var facet = S.formsFacet;
+    var shown = forms.filter(function (f) {
+      if (facet === 'draft') return DRAFT.indexOf(f.status) >= 0;
+      if (facet === 'review') return REVIEW.indexOf(f.status) >= 0;
+      if (facet === 'published') return f.status === 'published';
+      return true;
+    });
+    var commentsN = (state.comments || []).length;
+    /* Синий на действии страницы-обзора — вторая главная кнопка (правило 15):
+       создание формы остаётся, но тихой пилюлей. */
     var h = '<div class="view forms-view">' +
       '<div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('forms_title')) + '</h1>' +
       '<div class="view__sub">' + esc(t('forms_sub')) + '</div></div>' +
-      '<div class="view__actions"><button class="btn btn--primary" type="button" data-act="form-create">' + ic('i-plus','icon--20') + esc(t('forms_create')) + '</button></div></div>' +
+      '<div class="view__actions"><button class="btn btn--quiet" type="button" data-act="form-create">' + ic('i-plus','icon--16') + esc(t('forms_create')) + '</button></div></div>' +
       '<div class="stat-grid forms-stats">' +
-        statTile('i-edit', drafts, t('forms_drafts'), '') +
-        statTile('i-eye', review, t('forms_review'), review ? 'warn' : '') +
-        statTile('i-check', published, t('forms_published'), 'ok') +
-        statTile('i-doc', forms.length, t('forms_total'), '') +
+        statFilter(drafts, t('forms_drafts'), '', facet === 'draft', 'forms-facet', 'draft') +
+        statFilter(review, t('forms_review'), review ? 'warn' : '', facet === 'review', 'forms-facet', 'review') +
+        statFilter(published, t('forms_published'), 'ok', facet === 'published', 'forms-facet', 'published') +
       '</div>' +
-      '<div class="panel forms-catalog"><div class="forms-catalog__head"><div><h2 class="h3">' + esc(t('forms_registry')) + '</h2><p class="small">' + esc(t('forms_registry_hint')) + '</p></div>' +
-      '<span class="form-role">' + ic('i-edit','icon--16') + esc(t('forms_role')) + '</span></div>' +
-      '<div class="form-list">';
+      '<div class="panel forms-catalog"><div class="forms-catalog__head"><h2 class="h3">' + esc(t('forms_registry')) + '</h2></div>' +
+      '<div class="form-list" aria-live="polite">';
 
-    forms.forEach(function (form) {
+    shown.forEach(function (form) {
       var openAct = form.current ? 'form-open' : 'form-open-static';
+      var comments = form.current && commentsN
+        ? '<span class="form-row__comments">' + ic('i-chat','icon--16') + esc(t('forms_comments_chip').replace('{n}', commentsN)) + '</span>'
+        : '';
       h += '<button class="form-row" type="button" data-act="' + openAct + '" data-id="' + esc(form.id) + '">' +
         '<span class="form-row__icon ' + esc(form.tone) + '">' + ic(form.icon,'') + '</span>' +
-        '<span class="form-row__main"><b>' + esc(form.name) + '</b><span>' + esc(t('form_version')) + ' ' + esc(form.version) + ' · ' + esc(form.meta) + '</span><span class="form-row__audiences">' + formAudienceBadges(form.audience) + '</span></span>' +
-        '<span class="form-status form-status--' + lowCodeStatusTone(form.status) + '">' + lowCodeStatusIcon(form.status) + '</span>' +
+        '<span class="form-row__main"><b>' + esc(form.name) + '</b><span>' + esc(form.meta) + '</span>' +
+        '<span class="form-row__audiences">' + formAudienceBadges(form.audience) + comments + '</span></span>' +
+        formVersionStrip(form) +
         ic('i-chev-r','icon--16') + '</button>';
     });
     h += '</div></div>';
-    if (state.comments && state.comments.length) {
-      h += '<div class="banner banner--info forms-comment-note">' + ic('i-info','icon--20') + '<span class="banner__text">' + esc(t('forms_comments_waiting').replace('{n}', state.comments.length)) + '</span></div>';
-    }
     return h + '</div>';
   }
 
@@ -578,16 +601,20 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     return ({ textarea:'i-edit', select:'i-dots', date:'i-calendar', file:'i-upload', checkbox:'i-check' })[type] || 'i-edit';
   }
 
+  /* Правило 22: в рельсе только названия шагов. Подзаголовок каждого шага
+     повторял то, что и так печатает шапка выбранной панели, а янтарная точка
+     на шаге маршрута была сигналом без объяснения и без доступного имени.
+     Счётчик «7 шагов» пересказывал сам список. */
   function formPipeline(draft, editable) {
     var groups = formStepGroups();
-    var h = '<aside class="mfb-pipeline" aria-label="' + esc(t('form_flow_title')) + '"><div class="mfb-pipeline__head"><h2>' + esc(t('form_flow_title')) + '</h2><span>' + esc(t('form_flow_steps')) + '</span></div>';
+    var h = '<aside class="mfb-pipeline" aria-label="' + esc(t('form_flow_title')) + '"><div class="mfb-pipeline__head"><h2>' + esc(t('form_flow_title')) + '</h2></div>';
     groups.forEach(function (group) {
       h += '<div class="mfb-pipeline__label">' + esc(group.label) + '</div><div class="mfb-pipeline__group" role="tablist" aria-label="' + esc(group.label) + '">';
       group.items.forEach(function (step) {
         var active = S.formStep === step.id;
         h += '<button class="mfb-step" type="button" role="tab" data-act="form-step" data-id="' + step.id + '" aria-selected="' + (active ? 'true' : 'false') + '" tabindex="' + (active ? '0' : '-1') + '">' +
-          '<span class="mfb-step__icon">' + ic(step.icon,'icon--16') + '</span><span class="mfb-step__text"><b>' + esc(step.title) + '</b><span>' + esc(step.sub) + '</span></span>' +
-          (step.id === 'fields' ? '<span class="mfb-step__count">' + draft.formFields.length + '</span>' : step.id === 'route' && editable ? '<span class="mfb-step__dot" aria-hidden="true"></span>' : '') + '</button>';
+          '<span class="mfb-step__icon">' + ic(step.icon,'icon--16') + '</span><span class="mfb-step__text"><b>' + esc(step.title) + '</b></span>' +
+          (step.id === 'fields' ? '<span class="mfb-step__count">' + draft.formFields.length + '</span>' : '') + '</button>';
       });
       h += '</div>';
     });
@@ -609,10 +636,23 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     return '<label class="field">' + common + '<input class="input" disabled placeholder="' + esc(t('form_preview_placeholder')) + '"></label>';
   }
 
+  /* Правило 23: постоянная рама не пульсирует — вместо синей пилюли с зелёной
+     точкой здесь тихая подпись. Сам аппарат — общий `.pv-phone` (§6 «Device
+     previews»): настоящая геометрия iPhone 17 Pro Max и никакой поддельной
+     строки состояния ОС. Подпись — под устройством. */
   function formPreview(draft, title) {
     var fields = draft.formFields.map(formFieldPreview).join('');
-    return '<aside class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" id="formPreview" tabindex="0" aria-label="' + esc(t('form_preview')) + '"><div class="mfb-preview__bar"><span class="mfb-live"><i></i>' + esc(t('form_preview')) + '</span><span>' + esc(t('form_preview_mode')) + '</span><button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div>' +
-      '<div class="mfb-preview__stage"><div class="mfb-phone"><div class="mfb-phone__status"><span>9:41</span><span>● ◒</span></div><div class="mfb-phone__screen"><div class="mfb-preview-head">' + ic('i-logo','icon--20') + '<b>eKhizmat</b><span>Ф</span></div><div class="mfb-preview-progress"><i class="is-on"></i><i></i><i></i><i></i></div><div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_preview_intro')) + '</p>' + (fields || '<div class="mfb-preview-empty">' + esc(t('form_no_fields')) + '</div>') + '<div class="mfb-preview-actions mobile-preview-actions"><button class="btn btn--secondary" type="button" disabled>' + esc(t('form_preview_back')) + '</button><button class="btn btn--primary" type="button" disabled>' + esc(t('form_preview_continue')) + '</button></div></div></div></div></div></aside>';
+    return '<aside class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" id="formPreview" tabindex="0" aria-label="' + esc(t('form_preview')) + '">' +
+      '<div class="mfb-preview__bar">' +
+      '<button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div>' +
+      '<div class="mfb-preview__stage"><div class="pv-phone"><div class="pv-screen"><span class="pv-island" aria-hidden="true"></span><div class="pv-app">' +
+      '<div class="mfb-preview-head">' + ic('i-logo','icon--20') + '<b>eKhizmat</b><span>Ф</span></div>' +
+      '<div class="mfb-preview-progress"><i class="is-on"></i><i></i><i></i><i></i></div>' +
+      '<div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_preview_intro')) + '</p>' +
+      (fields || '<div class="mfb-preview-empty">' + esc(t('form_no_fields')) + '</div>') +
+      '<div class="mfb-preview-actions mobile-preview-actions"><button class="btn btn--secondary" type="button" disabled>' + esc(t('form_preview_back')) + '</button><button class="btn btn--primary" type="button" disabled>' + esc(t('form_preview_continue')) + '</button></div></div>' +
+      '</div></div></div>' +
+      '<span class="pv-caption">' + esc(t('form_preview_caption')) + '</span></div></aside>';
   }
 
   function formFieldsEditor(draft, editable) {
@@ -626,7 +666,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       var opener = editable
         ? '<button class="mfb-field-open" type="button" data-act="form-field-open" data-id="' + esc(field.id) + '" aria-expanded="' + (open ? 'true' : 'false') + '">' + summary + '</button>'
         : '<div class="mfb-field-open mfb-field-open--static">' + summary + '</div>';
-      return '<article class="mfb-field-item form-field-row ' + (open && editable ? 'is-open' : '') + '" data-form-field-row="' + esc(field.id) + '"><div class="mfb-field-head"><span class="mfb-field-grip" aria-hidden="true"></span>' + opener +
+      return '<article class="mfb-field-item form-field-row ' + (open && editable ? 'is-open' : '') + '" data-form-field-row="' + esc(field.id) + '"><div class="mfb-field-head">' + opener +
         (editable ? '<span class="mfb-field-actions"><button class="btn btn--icon btn--s" type="button" data-act="form-field-up" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_move_up')) + '" ' + (index === 0 ? 'disabled' : '') + '>' + ic('i-chev-d','icon--16 mfb-icon-up') + '</button><button class="btn btn--icon btn--s" type="button" data-act="form-field-down" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_move_down')) + '" ' + (index === draft.formFields.length - 1 ? 'disabled' : '') + '>' + ic('i-chev-d','icon--16') + '</button><button class="btn btn--icon btn--s" type="button" data-act="form-remove-field" data-id="' + esc(field.id) + '" aria-label="' + esc(t('form_remove_field')) + '">' + ic('i-trash','icon--16') + '</button></span>' : '') + '</div>' +
         (open && editable ? '<div class="mfb-field-body"><div class="form-name-grid"><label class="field"><span class="field__label">' + esc(t('form_field_label')) + ' · ' + esc(S.lang.toUpperCase()) + '</span><input class="input" data-form-field-label="' + esc(field.id) + '" value="' + esc(field.label && field.label[S.lang] || '') + '"></label><label class="field"><span class="field__label">' + esc(t('form_field_type')) + '</span><select class="input" data-form-field-type="' + esc(field.id) + '">' + ['text','textarea','select','date','file','checkbox'].map(function (type) { return '<option value="' + type + '" ' + (field.type === type ? 'selected' : '') + '>' + esc(formFieldTypeLabel(type)) + '</option>'; }).join('') + '</select></label></div><label class="mfb-required"><input class="check__input" type="checkbox" data-form-field-required="' + esc(field.id) + '" ' + (field.required ? 'checked' : '') + '><span>' + esc(t('form_required_field')) + '</span></label></div>' : '') + '</article>';
     }).join('');
@@ -645,7 +685,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     var body = '';
     if (step === 'fields') body = formFieldsEditor(draft, editable);
     else if (step === 'confirm') body = '<div class="mfb-section-label">' + esc(t('form_prefilled_data')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-user',t('form_prefill_person'),t('form_prefill_person_sub'),true,!editable) + formToggleRow('i-building',t('form_prefill_org'),t('form_prefill_org_sub'),true,!editable) + formToggleRow('i-pin',t('form_prefill_address'),t('form_prefill_address_sub'),false,!editable) + '</div>';
-    else if (step === 'delivery') body = '<div class="mfb-section-label">' + esc(t('form_delivery_methods')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-wallet',t('form_delivery_digital'),t('form_delivery_digital_sub'),true,!editable) + formToggleRow('i-doc',t('form_delivery_paper'),t('form_delivery_paper_sub'),false,!editable) + '</div><div class="mfb-section-label">' + esc(t('form_cost')) + '</div><div class="seg mfb-seg"><label><input type="radio" name="form-cost" checked ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_free')) + '</span></label><label><input type="radio" name="form-cost" ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_paid')) + '</span></label></div>';
+    else if (step === 'delivery') body = '<div class="mfb-section-label">' + esc(t('form_delivery_methods')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-wallet',t('form_delivery_digital'),t('form_delivery_digital_sub'),true,!editable) + formToggleRow('i-doc',t('form_delivery_paper'),t('form_delivery_paper_sub'),false,!editable) + '</div><div class="mfb-section-label">' + esc(t('form_cost')) + '</div><div class="cost-options"><label><input type="radio" name="form-cost" checked ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_free')) + '</span></label><label><input type="radio" name="form-cost" ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_paid')) + '</span></label></div>';
     else if (step === 'review') body = '<div class="mfb-section-label">' + esc(t('form_consent')) + '</div><label class="field"><textarea class="input" rows="3" ' + (editable ? '' : 'disabled') + '>' + esc(t('form_consent_text')) + '</textarea></label><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-sign',t('form_esign'),t('form_esign_sub'),true,true) + formToggleRow('i-call',t('form_sms'),t('form_sms_sub'),false,!editable) + '</div>';
     else if (step === 'checks') body = '<div class="mfb-section-label">' + esc(t('form_active_checks')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-shield',t('form_check_registry'),t('form_check_registry_sub'),true,!editable) + formToggleRow('i-search',t('form_check_duplicate'),t('form_check_duplicate_sub'),true,!editable) + formToggleRow('i-doc',t('form_check_files'),t('form_check_files_sub'),false,!editable) + '</div>';
     else if (step === 'route') body = '<div class="form-name-grid"><label class="field"><span class="field__label">' + esc(t('form_responsible_unit')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_unit_nko')) + '</option><option>' + esc(t('form_unit_legal')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_reviewer_role')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_role_specialist')) + '</option><option>' + esc(t('form_role_lead')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_sla')) + '</span><input class="input" value="' + esc(t('form_sla_value')) + '" ' + (editable ? '' : 'disabled') + '></label></div><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-bell',t('form_escalation'),t('form_escalation_sub'),true,!editable) + '</div>';
@@ -665,18 +705,14 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     var draft = S.formDraft, editable = isFormEditable();
     var title = localValue(draft.serviceName, t('form_untitled'));
     var status = S.formReadOnly ? 'published' : state.status;
-    var comments = (state.comments || []).map(function (comment) {
-      return '<article class="form-comment"><div><b>' + esc(comment.author === 'reviewer' ? t('form_reviewer') : t('forms_role')) + '</b><span>' + esc(comment.at) + '</span></div><p>' + esc(comment.body) + '</p></article>';
-    }).join('');
     var canSend = editable && draft.formFields.length > 0;
     var sendLabel = state.status === 'changes_requested' ? t('form_resubmit') : t('form_send');
 
     return '<div class="form-builder-view">' +
       '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><span class="mfb-service-icon">' + ic('i-cat-justice','icon--16') + '</span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
       (editable ? '<div class="mfb-actions"><button class="btn btn--secondary btn--s" type="button" data-act="form-save">' + ic('i-check','icon--16') + esc(t('form_save_short')) + '</button><button class="btn btn--primary btn--s" type="button" data-act="form-send" ' + (canSend ? '' : 'disabled') + '>' + ic('i-users','icon--16') + esc(sendLabel) + '</button></div>' : '') + '</header>' +
-      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span><span>' + ic('i-edit','icon--14') + esc(t('forms_role')) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><div class="mfb-meta__comments">' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></div></div>' +
+      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><button type="button" class="mfb-meta__comments" data-act="form-comments" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop"' + ((state.comments || []).length ? '' : ' disabled') + '>' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></button></div>' +
       (!editable ? '<div class="banner banner--info form-lock-note">' + ic('i-lock','icon--20') + '<span class="banner__text">' + esc(t(S.formReadOnly ? 'form_readonly_sub' : 'form_locked_review')) + '</span></div>' : '') +
-      (comments ? '<div class="mfb-comments banner banner--info">' + ic('i-chat','icon--20') + '<div><b>' + esc(t('form_comments')) + '</b><div class="form-comments">' + comments + '</div></div></div>' : '') +
       '<div class="form-builder-grid mfb-work">' + formPipeline(draft, editable) + formEditorPane(draft, editable) + formPreview(draft, title) + '</div>' +
       (S.formPreviewOpen ? '<button class="mfb-preview-backdrop" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '"></button>' : '') +
     '</div>';
@@ -1586,9 +1622,28 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     pop.style.top = Math.max(8, Math.min(rect.bottom + 8, innerHeight - r.height - 8)) + 'px';
     pop.style.left = Math.max(8, Math.min(rect.right - r.width, innerWidth - r.width - 8)) + 'px';
   }
+  /* Замечания проверяющего жили баннером во всю ширину между мета-полосой и
+     рабочей областью и отодвигали редактор вниз. Теперь они за своим счётчиком:
+     цифра на полосе — вход, поповер — список (§6). */
+  function openFormComments(trigger) {
+    S.pop = 'comments';
+    trigger.setAttribute('aria-expanded', 'true');
+    var items = (lc().comments || []).map(function (comment) {
+      return '<article class="form-comment"><div><b>' + esc(comment.author === 'reviewer' ? t('form_reviewer') : t('forms_role')) + '</b><span>' + esc(comment.at) + '</span></div><p>' + esc(localValue(comment.body)) + '</p></article>';
+    }).join('');
+    overlayEl().insertAdjacentHTML('beforeend',
+      '<div class="popover form-comments-pop" id="pop" role="dialog" aria-label="' + esc(t('form_comments')) + '">' +
+        '<div class="form-comments">' + items + '</div></div>');
+    var pop = document.getElementById('pop');
+    var rect = trigger.getBoundingClientRect(), popRect = pop.getBoundingClientRect();
+    pop.style.transformOrigin = 'top right';
+    pop.style.top = Math.max(8, Math.min(rect.bottom + 8, innerHeight - popRect.height - 8)) + 'px';
+    pop.style.left = Math.max(8, Math.min(rect.right - popRect.width, innerWidth - popRect.width - 8)) + 'px';
+    revealPop();
+  }
   function closePop() {
     S.pop = null; var p = document.getElementById('pop'); if (p) p.remove();
-    ['notif-open', 'profile-open', 'prefs-open'].forEach(function (a) {
+    ['notif-open', 'profile-open', 'prefs-open', 'form-comments'].forEach(function (a) {
       document.querySelectorAll('[data-act="' + a + '"]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
     });
   }
@@ -1743,7 +1798,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (S.filterOpen && act !== 'filter-toggle' && act !== 'filter-option') closeFilterMenu();
 
     // не закрывать поповер при клике внутри него
-    if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'profile-open' && act !== 'prefs-open') closePop();
+    if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'profile-open' && act !== 'prefs-open' && act !== 'form-comments') closePop();
 
     switch (act) {
       case 'login-next': {
@@ -1790,9 +1845,17 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       case 'stat-status': setFilter('status', S.filters.status === 'info_requested' ? '' : 'info_requested'); return;
       case 'stat-priority': setFilter('priority', S.filters.priority === 'high' ? '' : 'high'); return;
       case 'stat-io': setFilter('io', S.filters.io === 'pending' ? '' : 'pending'); return;
+      case 'forms-facet': {
+        var facet = tgt.getAttribute('data-val');
+        S.formsFacet = S.formsFacet === facet ? '' : facet;
+        renderMain(); return;
+      }
 
       case 'form-create':
-        S._lowCodeBusy = true; dispatchLowCode('RESET'); S._lowCodeBusy = false;
+        /* RESET восстанавливает демо-состояние «на рассмотрении» — созданная
+           форма тогда открывается уже запертой. NEW_DRAFT кладёт общий процесс
+           в черновик, с которого автор ведомства и начинает. */
+        S._lowCodeBusy = true; dispatchLowCode('NEW_DRAFT'); S._lowCodeBusy = false;
         S.formDraft = {
           serviceName:{ru:'',tg:''}, audience:['person'],
           formFields:[{id:'field-' + Date.now(),label:{ru:t('form_new_field'),tg:t('form_new_field')},type:'text',required:true}]
@@ -1801,6 +1864,12 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       case 'form-open': S.formDraft = null; S.formReadOnly = false; S.formStep = 'fields'; S.formFieldOpen = null; S.formPaletteOpen = false; go('form-builder'); return;
       case 'form-open-static': S.formDraft = staticFormDraft(id); S.formReadOnly = true; S.formStep = 'fields'; S.formFieldOpen = null; S.formPaletteOpen = false; go('form-builder'); return;
       case 'form-back': e.preventDefault(); go('forms'); return;
+      case 'form-comments': {
+        var commentsOpen = S.pop === 'comments';
+        closePop();
+        if (!commentsOpen) openFormComments(tgt);
+        return;
+      }
       case 'form-step': S.formStep = id; S.formPaletteOpen = false; renderMain(); return;
       case 'form-preview-toggle': S.formPreviewOpen = !S.formPreviewOpen; renderMain(); return;
       case 'form-add-field':

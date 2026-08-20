@@ -74,8 +74,8 @@ test('Citizen guest appointment, cabinet categories, child validation and biomet
   // the pane opens straight on the list: no category hub in between
   await expect(page.locator('.application-category')).toHaveCount(0);
   await expect(page.locator('.application-row')).toHaveCount(16);
-  await expect(page.locator('.app-kpi')).toHaveCount(4);
-  await expect(page.locator('.app-kpi strong')).toHaveText(['16', '5', '2', '5']);
+  await expect(page.locator('#applicationsRoot .app-kpi')).toHaveCount(4);
+  await expect(page.locator('#applicationsRoot .app-kpi strong')).toHaveText(['16', '5', '2', '5']);
   await expect(page.locator('.application-row .tile')).toHaveCount(0);
   await page.locator('[data-app-status="action"]').click();
   await expect(page).toHaveURL(/status=action/);
@@ -418,12 +418,26 @@ test('Ministry workers can create a form and hand it to the shared review queue'
   await page.locator('.ekh-side__item[data-view="forms"]').click();
   await expect(page.locator('.forms-catalog')).toBeVisible();
   await expect(page.locator('.form-row')).toHaveCount(4);
-  await expect(page.locator('.form-role')).toContainText('Автор ведомства');
+  /* Rule 26: the version strip carries status by background, with the text in
+     title + .sr-only — no separate status pill wrapping a status icon. */
+  await expect(page.locator('.form-row .form-mini-version')).toHaveCount(4);
+  await expect(page.locator('.form-row .form-status')).toHaveCount(0);
+  /* Identity lives in the profile popover, not on a catalogue panel head. */
+  await expect(page.locator('.form-role')).toHaveCount(0);
+  await expect(page.locator('.forms-catalog__head p')).toHaveCount(0);
 
   await page.locator('[data-act="form-create"]').click();
   await expect(page.locator('.form-builder-grid')).toBeVisible();
   await expect(page.locator('.mfb-step')).toHaveCount(7);
   await expect(page.locator('.mfb-step[aria-selected="true"]')).toContainText('Новые поля');
+  /* Rule 22: the rail carries titles only — no per-step subtitle, no unexplained
+     dot, no "7 шагов" counter restating the list. */
+  await expect(page.locator('.mfb-step__text span')).toHaveCount(0);
+  await expect(page.locator('.mfb-step__dot')).toHaveCount(0);
+  await expect(page.locator('.mfb-pipeline__head span')).toHaveCount(0);
+  /* Rule 6: status shows once, in the title row. */
+  await expect(page.locator('.mfb-meta .form-status')).toHaveCount(0);
+  await expect(page.locator('.form-builder-head .form-status')).toHaveCount(1);
   await page.locator('[data-form-name="ru"]').fill('Онлайн-регистрация общественного объединения');
   await page.locator('[data-form-name="tg"]').fill('Бақайдгирии онлайнии иттиҳодияи ҷамъиятӣ');
   await page.locator('[data-form-audience="guest"]').check();
@@ -453,8 +467,12 @@ test('Ministry workers can create a form and hand it to the shared review queue'
 
   await page.goto('/admin/review.html?lang=ru&theme=light');
   await page.locator('[data-lc-role]').selectOption('reviewer');
-  await expect(page.locator('#lowCodeReview .lc-service-card h2')).toHaveText('Онлайн-регистрация общественного объединения');
-  await expect(page.locator('#lowCodeReview .status-icon[aria-label="На проверке"]')).toBeVisible();
+  /* The reviewer queue lists the catalogue record, so it shows that record's
+     own name — what this asserts is the hand-off itself: the service Ministry
+     just sent is waiting in the reviewer's in-review queue. */
+  const reviewRow = page.locator('#lowCodeReview .lc-queue-row[data-lc-service="ngo-registration"]');
+  await expect(reviewRow).toBeVisible();
+  await expect(reviewRow.locator('.status-icon[aria-label="На рассмотрении"]')).toBeVisible();
 });
 
 test('TSON MFA reaches the shift dashboard and exposes operational start', async ({ page }) => {

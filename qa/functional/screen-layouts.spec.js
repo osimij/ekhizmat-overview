@@ -36,7 +36,7 @@ async function expectLayerFits(page, layer) {
 
 test('launcher is a centered two-column cluster with a stacked destination list', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/?present=1&theme=dark&lang=ru');
+  await page.goto('/?present=1&theme=dark&lang=tg');
 
   const layout = await page.evaluate(() => {
     const intro = document.querySelector('.launch-intro').getBoundingClientRect();
@@ -59,6 +59,7 @@ test('launcher is a centered two-column cluster with a stacked destination list'
       logoAboveTitle: logo.bottom <= title.top + 1,
       headerCount: document.querySelectorAll('.launch-header').length,
       titleSize: Number.parseFloat(getComputedStyle(h1).fontSize),
+      titleHeight: title.height,
       overflowX: document.documentElement.scrollWidth - innerWidth,
     };
   });
@@ -71,7 +72,8 @@ test('launcher is a centered two-column cluster with a stacked destination list'
   expect(Math.abs(layout.introMidY - layout.listMidY)).toBeLessThan(48);
   expect(layout.chromeLeft).toBeLessThan(80);
   expect(layout.chromeBottom).toBeLessThan(80);
-  expect(layout.titleSize).toBeGreaterThanOrEqual(32);
+  expect(layout.titleSize).toBe(28);
+  expect(layout.titleHeight).toBeLessThan(40);
   expect(layout.overflowX).toBeLessThanOrEqual(1);
 });
 
@@ -288,10 +290,11 @@ test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', as
     else await page.locator(`[data-go="${destination}"]`).first().click();
     await expect(page.locator(`#scr-${destination}`)).toBeVisible();
     await expectPageFits(page);
-    await page.locator(`#scr-${destination} [data-go="home"]`).click();
+    await page.locator(`#scr-${destination} [data-back]`).click();
   }
 
-  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   for (const pane of ['data', 'docs', 'apps', 'contact', 'family', 'sec', 'access']) {
     await page.locator(`[data-pane="${pane}"]`).click();
     await expect(page.locator(`#pane-${pane}`)).toBeVisible();
@@ -391,7 +394,9 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
     requiredMarkCount: document.querySelectorAll('.mfb-required-mark').length,
     requiredMarkDisplay: getComputedStyle(document.querySelector('.mfb-required-mark')).display,
     fieldLabelFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-name-grid .field__label')).fontSize),
-    phoneRatio: document.querySelector('.mfb-phone').getBoundingClientRect().height / document.querySelector('.mfb-phone').getBoundingClientRect().width,
+    phoneRatio: document.querySelector('.pv-phone').getBoundingClientRect().height / document.querySelector('.pv-phone').getBoundingClientRect().width,
+    fakeStatusBars: document.querySelectorAll('.mfb-phone__status').length,
+    phoneCaptionBelow: document.querySelector('.pv-caption').getBoundingClientRect().top > document.querySelector('.pv-phone').getBoundingClientRect().top,
     previewAudienceRows: new Set([...document.querySelectorAll('.mfb-preview-audiences .form-audience')].map((node) => Math.round(node.getBoundingClientRect().top))).size,
     previewAudienceOrder: [...document.querySelectorAll('.mfb-preview-audiences .form-audience')].map((node) => ['person', 'business', 'guest'].find((id) => node.classList.contains(`form-audience--${id}`))),
     previewTitleFont: Number.parseFloat(getComputedStyle(document.querySelector('.mfb-preview-body h2')).fontSize),
@@ -452,6 +457,10 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
   expect(ministry.requiredMarkDisplay).toBe('inline');
   expect(ministry.fieldLabelFont).toBe(12);
   expect(ministry.phoneRatio).toBeGreaterThanOrEqual(2);
+  /* §6 device previews: the shared .pv-phone, no fake OS status content, and
+     the caption below the device. */
+  expect(ministry.fakeStatusBars).toBe(0);
+  expect(ministry.phoneCaptionBelow).toBe(true);
   expect(ministry.previewAudienceRows).toBe(1);
   expect(ministry.previewAudienceOrder).toEqual([...ministry.previewAudienceOrder].sort((a, b) => ['person', 'business', 'guest'].indexOf(a) - ['person', 'business', 'guest'].indexOf(b)));
   expect(ministry.previewTitleFont).toBeGreaterThan(ministry.previewIntroFont);

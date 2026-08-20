@@ -287,9 +287,22 @@ function timelineMarkup(record){
   return `<section class="panel lc-history-panel"><div class="lc-section-heading"><div><h3>${x.timeline}</h3><p>${x.timelineHint}</p></div><span class="metachip">${workflow.audit?.length||0}</span></div><ol class="lc-timeline">${(workflow.audit||[]).slice().reverse().map((event,index)=>`<li class="lc-timeline__item lc-timeline__item--${escapeHtml(event.type||'edited')} ${index===0?'is-current':''}"><span class="lc-timeline__dot"><svg><use href="/design-system/assets/icons.svg#${event.type==='published'?'i-arrow-ur':event.type==='approved'?'i-check':'i-clock'}"/></svg></span><div><time>${escapeHtml(event.at)}</time><b>${escapeHtml(localized(event.title))}</b><p>${escapeHtml(localized(event.text))}</p></div></li>`).join('')}</ol></section>`;
 }
 
+/* The builder has one toolbar. Version + environment are one fact cluster with
+   the status icon; the comment thread is a popover on a ghost icon-button; the
+   audiences are service configuration and live in the "Маълумоти хизмат" pane,
+   not in permanent chrome. */
 function renderBuilder(){
-  const root=document.querySelector('#lowCodeBuilder');if(!root)return;const x=c();
-  root.innerHTML=`<div class="lc-builder-main"><div class="lc-builder-id"><p class="lc-builder-ver" title="${escapeHtml(MAIN_AUDIT[MAIN_AUDIT.length-1].at)}"><b>${x.version} ${escapeHtml(state.serviceVersion)}</b></p><span class="environment-badge environment-badge--stage">${x.stageEnv}</span></div><span class="lc-bar-sep" aria-hidden="true"></span><div class="lc-aud"><span class="lc-field-label">${x.audiences}</span><div class="audience-selector">${['person','business','guest'].map(a=>`<label><input type="checkbox" data-lc-audience="${a}" ${state.audience.includes(a)?'checked':''}><span>${x[a]}</span></label>`).join('')}</div></div><div class="lc-builder-act"><span class="lc-comments-tag">${x.comments}<span class="metachip">${state.comments.length}</span></span><span class="lc-bar-sep" aria-hidden="true"></span>${roleSelect(true,false)}<a class="btn btn-sec btn-sm" href="review.html">${x.reviewQueue}</a></div></div>${state.comments.length?`<div class="lc-builder-thread">${commentsMarkup(recordById(PRIMARY_SERVICE_ID))}</div>`:''}`;
+  if(!document.querySelector('.bld-top'))return;const x=c();
+  const version=document.querySelector('#bldVersion');
+  if(version){version.textContent=`${x.version} ${state.serviceVersion} · ${x.stageEnv}`;version.title=MAIN_AUDIT[MAIN_AUDIT.length-1].at;}
+  const commentsCount=document.querySelector('#bldCommentsCount');
+  if(commentsCount){commentsCount.textContent=String(state.comments.length);commentsCount.hidden=!state.comments.length;}
+  const commentsBtn=document.querySelector('#bldCommentsBtn');
+  if(commentsBtn)commentsBtn.setAttribute('aria-label',`${x.comments}: ${state.comments.length}`);
+  const pop=document.querySelector('#bldCommentsPop');
+  if(pop)pop.innerHTML=`<div class="bld-comments-pop__head"><b>${x.comments}</b></div>${commentsMarkup(recordById(PRIMARY_SERVICE_ID))}`;
+  const audience=document.querySelector('#mAudience');
+  if(audience)audience.innerHTML=['person','business','guest'].map(a=>`<label><input type="checkbox" data-lc-audience="${a}" ${state.audience.includes(a)?'checked':''}><span>${x[a]}</span></label>`).join('');
   const status=document.querySelector('#svcStatus');if(status){const label=x[state.status]||state.status,tone=({draft:'neutral',stage:'info',review:'info',changes:'warning',approved:'success',published:'success'})[statusTone(state.status)]||'neutral';status.className=`status-icon status-icon--${tone}`;status.setAttribute('aria-label',label);status.title=label;status.innerHTML=`<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${statusIconName(state.status)}"/></svg>`;}
   const send=document.querySelector('#approveBtn');if(send){send.textContent=state.status==='changes_requested'?x.resubmit:x.approverInbox;send.disabled=state.role!=='agency-author'||!['draft','stage','changes_requested'].includes(state.status);}
   const publish=document.querySelector('#publishBtn');if(publish){publish.disabled=!(state.role==='portal-admin'&&state.status==='approved');}

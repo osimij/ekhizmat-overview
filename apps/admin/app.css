@@ -1512,92 +1512,12 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
 .adm-profile-trigger{display:none}
 .hdr-acts .adm-profile-trigger,.bld-top .adm-profile-trigger,.form-editor-top .adm-profile-trigger{display:inline-grid}
 .adm-profile-trigger__avatar{width:32px;height:32px;font-size:var(--fs-13)}
-.adm-profile-pop{
-  position:fixed; z-index:var(--z-popover); box-sizing:border-box;
-  display:flex; flex-direction:column; align-items:flex-start; gap:calc(var(--s-2) + 2px);
-  width:min(239px,calc(100vw - var(--s-4)));height:auto;
-  padding:var(--s-2) calc(var(--s-2) + 2px); border-radius:calc(var(--r-l) + 2px); background:var(--raised); box-shadow:var(--shadow-1);
-  overflow:visible;
-  opacity:0;
-  transition:opacity var(--t-popover) var(--ease-out);
-}
-.adm-profile-pop--side{
-  width:min(239px,var(--adm-profile-pop-max-w,100%));
-  max-width:var(--adm-profile-pop-max-w,100%);
-  overflow:visible;
-}
-html.side-collapsed .adm-profile-pop--side{padding:var(--s-2)}
-html.side-collapsed .adm-profile-pop--side .adm-profile-pop__identity{display:none}
-html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn #langCur,
-html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__chev,
-html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__row-label{display:none}
-html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn{padding-inline:0;grid-template-columns:1fr;justify-items:center}
-html.side-collapsed .adm-profile-pop--side .dd.lang .dd-btn .adm-profile-pop__compact-icon{display:block}
-html.side-collapsed .adm-profile-pop--side .adm-profile-pop__row--theme{grid-template-columns:1fr;justify-items:center;padding-inline:var(--s-2)}
-html.side-collapsed .adm-profile-pop--side .adm-profile-pop__row--theme .adm-profile-pop__row-label{display:none}
-html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([aria-pressed="true"]){display:none}
-.adm-profile-pop.is-open{opacity:1}
-.adm-profile-pop[hidden]{display:none}
-.adm-profile-pop__card{
-  display:flex; align-items:center; gap:calc(var(--s-2) + 2px); width:100%; box-sizing:border-box;
-  padding:calc(var(--s-2) + 2px); border-radius:calc(var(--r-m) + 1px);background:transparent;
-}
-@media (hover:hover) and (pointer:fine){.adm-profile-pop__card:hover{background:var(--hover)}}
+/* The popover itself now lives in design-system/css/components.css
+   (`.ekh-profile-pop`, with `.adm-profile-pop` kept as an alias): admin was the
+   first consumer, citizen is the second (§1 rule 9, rule 21). Only the local
+   trigger, the avatar tint and the rail-width bridge stay here. */
+.adm-profile-pop--side{--profile-pop-max-w:var(--adm-profile-pop-max-w,100%)}
 .adm-profile-pop .ekh-side__avatar{background:var(--h-indigo-fg);color:transparent}
-.adm-profile-pop__identity{display:flex;flex:1;flex-direction:column;gap:calc(var(--s-2) + 2px);justify-content:center;min-width:0;line-height:1}
-.adm-profile-pop__identity b{display:block;font-size:var(--fs-14);font-weight:var(--weight-regular);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.adm-profile-pop__identity span{display:block;font-size:var(--fs-10);font-weight:var(--weight-regular);color:var(--ink);opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.adm-profile-pop__divider{position:relative;flex:none;width:calc(100% - var(--r-l));height:0}
-.adm-profile-pop__divider::after{content:"";position:absolute;inset-inline:0;top:0;height:1px;background:var(--line-in)}
-.adm-profile-pop__preferences{display:flex;flex-direction:column;gap:calc(var(--s-1) + 1px);width:100%}
-.adm-profile-pop__row-host{display:flex;width:100%;overflow:visible}
-.adm-profile-pop .dd.lang{display:flex;width:100%;overflow:visible}
-.adm-profile-pop .dd.lang .dd-btn #langCur{min-width:0;font-size:var(--fs-13);font-weight:var(--weight-regular);color:var(--ink);opacity:.5;text-align:right}
-.adm-profile-pop .dd.open .dd-btn svg{rotate:none}
-.adm-profile-pop:not(.adm-profile-pop--side) .lang .dd-menu{left:0;right:0}
-/* sidebar profile popover: lang submenu flies out to the right (never above) */
-.adm-profile-pop--side .dd.lang{position:relative;overflow:visible}
-.adm-profile-pop--side .dd.lang .dd-btn{position:relative;z-index:2}
-.adm-profile-pop--side .dd.lang .dd-menu,
-.dd.dd-right .dd-menu{
-  top:0;left:calc(100% + 8px);right:auto;bottom:auto;
-  min-width:184px;z-index:80;translate:-4px 0;
-}
-.adm-profile-pop--side .dd.lang.open .dd-menu,
-.dd.dd-right.open .dd-menu{translate:0 0}
-.dd.dd-right.open .dd-btn svg{rotate:none}
-.dd.dd-up .dd-menu{top:auto;bottom:calc(100% + 8px);translate:0 4px}
-.dd.dd-up.open .dd-menu{translate:0 0}
-.dd-aim-bridge{
-  position:fixed;inset:0;width:100%;height:100%;
-  z-index:1;pointer-events:none;overflow:visible;
-}
-.dd-aim-bridge.is-on polygon{
-  fill:var(--panel);fill-opacity:0;pointer-events:fill;
-}
-.adm-profile-pop__row{
-  position:relative;z-index:0;
-  display:grid;grid-template-columns:minmax(0,1fr) auto var(--fs-11);align-items:center;gap:var(--s-2);width:100%;min-height:0;
-  padding:var(--s-2) calc(var(--s-2) + 2px);border:0;border-radius:var(--r-s);background:transparent;
-  font:inherit;font-size:var(--fs-13);font-weight:var(--weight-regular);line-height:1;color:var(--ink);cursor:pointer;text-align:left;
-}
-.adm-profile-pop .dd-btn.adm-profile-pop__row{background:transparent}
-.adm-profile-pop .dd.open .dd-btn.adm-profile-pop__row{background:var(--hover)}
-.adm-profile-pop__row:hover{background:var(--hover);color:var(--ink)}
-.adm-profile-pop__row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.adm-profile-pop__row-label{min-width:0;color:var(--ink);opacity:.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.adm-profile-pop__chev{width:var(--fs-11);height:var(--fs-11);justify-self:end;color:var(--ink);opacity:.5;transition:none}
-.adm-profile-pop__compact-icon{display:none;width:17px;height:17px;color:var(--ink-3)}
-.adm-profile-pop__row--theme{grid-template-columns:minmax(0,1fr) auto;min-height:26px;padding:var(--s-1) calc(var(--s-2) + 2px);cursor:default}
-.adm-profile-pop__row--theme:hover{background:transparent;color:var(--ink)}
-.adm-profile-pop__theme-options{display:flex;align-items:center;gap:calc(var(--s-1) + 1px)}
-.adm-profile-pop__theme-choice{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:calc(var(--r-s) - 3px);background:transparent;color:var(--ink);opacity:.5;cursor:pointer}
-.adm-profile-pop__theme-choice:hover{background:var(--hover);opacity:1}
-.adm-profile-pop__theme-choice[aria-pressed="true"]{background:var(--hover)}
-.adm-profile-pop__theme-choice:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;opacity:1}
-.adm-profile-pop__theme-choice:disabled{cursor:default}
-.adm-profile-pop__theme-choice:disabled:hover{background:transparent;opacity:.5}
-.adm-profile-pop__theme-choice svg{width:15px;height:15px}
 @media(max-width:860px){
   .adm-top .adm-profile-trigger{display:inline-grid}
 }

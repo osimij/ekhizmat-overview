@@ -836,10 +836,9 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .forms-view,.form-builder-view { padding-bottom: 96px; }
 .forms-catalog { padding: 0; overflow: hidden; }
 .forms-catalog__head {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--s-4);
+  display: flex; align-items: center; gap: var(--s-4);
   padding: var(--s-5) var(--s-6); border-bottom: 1px solid var(--line-in);
 }
-.forms-catalog__head p { color: var(--ink-3); margin-top: 2px; }
 .form-role,.form-audience,.form-status {
   display: inline-flex; align-items: center; gap: 6px; width: max-content;
   border-radius: var(--r-pill); font-size: var(--fs-12); font-weight: 550; line-height: 1;
@@ -865,7 +864,15 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .form-row__main { min-width: 0; display: grid; gap: 3px; }
 .form-row__main > b { font-size: var(--fs-15); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .form-row__main > span:not(.form-row__audiences) { color: var(--ink-3); font-size: var(--fs-12); }
-.form-row__audiences { display: flex; gap: var(--s-1); flex-wrap: wrap; margin-top: 2px; }
+.form-row__audiences { display: flex; align-items: center; gap: var(--s-1); flex-wrap: wrap; margin-top: 2px; }
+/* Замечание проверяющего стоит рядом с формой, которой оно касается, а не
+   баннером в подвале страницы (§6: ошибки живут у решения, которого касаются). */
+.form-row__comments {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 8px; border-radius: var(--r-pill);
+  background: var(--amber-tint); color: var(--amber-ink);
+  font-size: var(--fs-12); font-weight: 550; line-height: 1;
+}
 .form-audience { padding: 5px 8px; color: var(--ink-2); background: var(--field); }
 .form-audience--guest { color: var(--blue-ink); background: var(--blue-tint); }
 .form-audience--business { color: var(--h-indigo-fg); background: var(--h-indigo-bg); }
@@ -882,6 +889,7 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .form-name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
 .form-add-field { margin-top: var(--s-3); }
 .form-comments { display: grid; gap: var(--s-3); }
+.form-comments-pop { width: min(380px, calc(100vw - var(--s-8))); max-height: 60vh; overflow: auto; }
 .form-comment { padding: var(--s-3); border: 1px solid var(--line-in); border-radius: var(--r-m); background: var(--field-on-panel); }
 .form-comment > div { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); font-size: var(--fs-12); }
 .form-comment span { color: var(--ink-3); }
@@ -954,15 +962,16 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-audiences input:checked + span { background: var(--blue-tint); color: var(--blue-ink); font-weight: 550; }
 .mfb-audiences input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
 .mfb-audiences input:disabled + span { cursor: default; opacity: .72; }
-.mfb-meta__comments { white-space: nowrap; }
+.mfb-meta__comments { white-space: nowrap; border-radius: var(--r-s); padding: var(--s-1) var(--s-2); margin-inline: calc(-1 * var(--s-2)); cursor: pointer; transition: background-color var(--t-fast) var(--ease); }
+.mfb-meta__comments:disabled { cursor: default; opacity: .6; }
+@media (hover: hover) and (pointer: fine) {
+  .mfb-meta__comments:not(:disabled):hover { background: var(--hover); }
+}
 .mfb-meta__comments b {
   min-width: 20px; height: 20px; display: grid; place-items: center;
   border-radius: var(--r-pill); background: var(--field); color: var(--ink-2);
 }
-.form-lock-note,.mfb-comments { flex: none; margin: var(--s-3) var(--s-5) 0; }
-.mfb-comments { align-items: flex-start; }
-.mfb-comments > div { flex: 1; }
-.mfb-comments .form-comments { margin-top: var(--s-2); }
+.form-lock-note { flex: none; margin: var(--s-3) var(--s-5) 0; }
 
 .form-builder-grid.mfb-work {
   flex: 1; min-height: 0; display: grid;
@@ -973,12 +982,11 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
   min-width: 0; overflow-y: auto; padding: var(--s-5) var(--s-4) var(--s-8);
   border-right: 1px solid var(--line); background: var(--bg);
 }
-.mfb-pipeline__head { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--s-3); margin-bottom: var(--s-3); }
+.mfb-pipeline__head { display: flex; align-items: center; padding: 0 var(--s-3); margin-bottom: var(--s-3); }
 .mfb-pipeline__head h2 { font-size: var(--fs-15); font-weight: 600; }
-.mfb-pipeline__head span { color: var(--ink-3); font-size: var(--fs-12); }
 .mfb-pipeline__label {
   margin: var(--s-4) 0 var(--s-2); padding-inline: var(--s-3);
-  color: var(--ink-3); font-size: var(--fs-13); font-weight: 600; letter-spacing: 0; text-transform: none;
+  color: var(--ink-3); font-size: var(--fs-13); font-weight: var(--weight-medium);
 }
 .mfb-pipeline__label:first-of-type { margin-top: 0; }
 .mfb-pipeline__group { display: grid; gap: var(--s-1); }
@@ -1001,20 +1009,20 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-step[aria-selected="true"] .mfb-step__text b { font-weight: 600; }
 .mfb-step__text span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-3); font-size: var(--fs-12); }
 .mfb-step__count { color: var(--ink-3); font-size: var(--fs-12); font-variant-numeric: tabular-nums; }
-.mfb-step__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber); }
 
 .mfb-editor { min-width: 0; overflow-y: auto; padding: var(--s-8) var(--s-8) var(--s-10); background: var(--bg); }
 .mfb-editor__inner { max-width: var(--w-builder-editor); margin-inline: auto; }
 .mfb-editor__head { margin-bottom: var(--s-6); }
+/* Надзаголовок — микро-подпись, а не второй заголовок: 13 / 500 (§4). */
 .mfb-editor__head > span {
   display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
-  color: var(--ink-3); font-size: var(--fs-14); font-weight: 600; letter-spacing: 0; text-transform: none;
+  color: var(--ink-3); font-size: var(--fs-13); font-weight: var(--weight-medium);
 }
 .mfb-editor__head h1 { font-size: var(--fs-24); line-height: 1.2; }
 .mfb-editor__head p { max-width: 62ch; margin-top: var(--s-2); color: var(--ink-2); }
 .mfb-section-label {
   margin: var(--s-6) 0 var(--s-3); color: var(--ink-3);
-  font-size: var(--fs-14); font-weight: 600; letter-spacing: 0; text-transform: none;
+  font-size: var(--fs-13); font-weight: var(--weight-medium);
 }
 .mfb-section-label:first-child { margin-top: 0; }
 .mfb-name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); margin-bottom: var(--s-6); }
@@ -1028,13 +1036,6 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-field-item + .mfb-field-item,.mfb-toggle-row + .mfb-toggle-row { border-top: 1px solid var(--line-in); }
 .mfb-field-head { display: flex; align-items: center; gap: var(--s-1); padding-right: var(--s-3); }
 .mfb-field-item.is-open .mfb-field-head { background: var(--blue-tint); }
-.mfb-field-grip {
-  width: 26px; height: 44px; flex: none; display: grid; place-items: center; color: var(--ink-faint);
-}
-.mfb-field-grip::before {
-  content: ""; width: 9px; height: 15px;
-  background: radial-gradient(circle,currentColor 1px,transparent 1.4px) 0 0/4.5px 5px;
-}
 .mfb-field-open {
   flex: 1; min-width: 0; display: grid; grid-template-columns: 32px minmax(0,1fr); align-items: center; gap: var(--s-3);
   padding: var(--s-3) var(--s-4); border-radius: var(--r-s); text-align: left; cursor: pointer;
@@ -1083,7 +1084,6 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-toggle-row__text b { display: block; font-size: var(--fs-14); font-weight: 550; }
 .mfb-toggle-row__text span { display: block; margin-top: 2px; color: var(--ink-3); font-size: var(--fs-12); }
 .mfb-toggle-list--spaced { margin-top: var(--s-4); }
-.mfb-seg { max-width: 340px; }
 .mfb-output-card { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: var(--s-3); padding: var(--s-4); border-radius: var(--r-l); background: var(--panel); }
 .mfb-output-card > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: var(--r-m); background: var(--green-tint); color: var(--green); }
 .mfb-output-card p { margin-top: 2px; color: var(--ink-3); font-size: var(--fs-12); }
@@ -1092,15 +1092,13 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
   min-width: 0; overflow-y: auto; padding: var(--s-5) var(--s-4) var(--s-8); border-left: 1px solid var(--line);
   background: radial-gradient(var(--line) 1px,transparent 1.4px) 0 0/20px 20px,var(--alpha-accent-04);
 }
-.mfb-preview__bar { display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-4); color: var(--ink-3); font-size: var(--fs-12); }
-.mfb-live { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: var(--r-pill); background: var(--blue-tint); color: var(--blue-ink); font-weight: 550; }
-.mfb-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
-.mfb-preview__close { display: none; margin-left: auto; }
-.mfb-preview__stage { display: flex; justify-content: center; }
-.mfb-phone { width: 100%; max-width: 348px; aspect-ratio: var(--ratio-phone-preview); display: flex; flex-direction: column; padding: 9px; border-radius: 40px; background: var(--device-shell); box-shadow: var(--veil); }
-[data-theme="dark"] .mfb-phone { background: var(--device-black); }
-.mfb-phone__status { display: flex; justify-content: space-between; padding: 8px 22px 10px; color: var(--alpha-white-94); font-size: var(--fs-12); font-weight: 600; }
-.mfb-phone__screen { flex: 1; min-height: 0; overflow: hidden; border-radius: 31px; background: var(--panel); }
+/* Полоса нужна только на узких экранах, где предпросмотр приезжает слоем и его
+   надо чем-то закрыть; на десктопе подпись под аппаратом называет колонку. */
+.mfb-preview__bar { display: flex; align-items: center; justify-content: flex-end; min-height: 0; }
+.mfb-preview__close { display: none; }
+/* Аппарат — общий `.pv-phone`; здесь только то, как колонка его вмещает
+   и где стоит подпись (§6 «Device previews»). */
+.mfb-preview__stage { display: flex; flex-direction: column; align-items: center; gap: var(--s-3); }
 .mfb-preview-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line-in); }
 .mfb-preview-head > .icon { color: var(--blue); }
 .mfb-preview-head b { flex: 1; font-size: var(--fs-13); }
@@ -1112,8 +1110,12 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .mfb-preview-audiences { min-width: 0; display: flex; align-items: center; gap: var(--s-1); flex-wrap: nowrap; overflow: hidden; }
 .mfb-preview-audiences .form-audience { flex: none; padding: 4px 7px; font-size: var(--fs-11); }
 .mfb-preview-body h2 { font-size: var(--fs-17); font-weight: 600; line-height: 1.22; overflow-wrap: anywhere; }
-.mfb-preview-body > p { margin-top: calc(-1 * var(--s-2)); color: var(--ink-2); font-size: var(--fs-12); line-height: 1.45; }
-.mfb-preview-body .field__label { font-size: var(--fs-13); font-weight: 550; line-height: 1.35; letter-spacing: 0; }
+/* Внутри макета телефона иерархия та же, что у гражданина: заголовок →
+   вводный абзац → подписи полей → значения. Общий `.field__label` теперь 13
+   (§4), а в аппарате подписи повторяются и уходят на ступень ниже вводного
+   абзаца. */
+.mfb-preview-body > p { margin-top: calc(-1 * var(--s-2)); color: var(--ink-2); font-size: var(--fs-13); line-height: 1.45; }
+.mfb-preview-body .field__label { font-size: var(--fs-12); font-weight: 550; line-height: 1.35; }
 .mfb-preview-body .input { min-height: 52px; font-size: var(--fs-12); }
 .mfb-preview-body .input::placeholder { font-size: var(--fs-12); }
 .mfb-preview-actions .btn { font-size: var(--fs-13); }
@@ -1167,7 +1169,7 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
   .mfb-actions .btn { flex: 1; }
   .mfb-meta__main > span:nth-last-child(-n+2),.mfb-meta__comments { display: none; }
   .mfb-audiences > b { display: none; }
-  .form-lock-note,.mfb-comments { margin-inline: var(--s-3); }
+  .form-lock-note { margin-inline: var(--s-3); }
   .mfb-editor { padding: var(--s-5) var(--s-4) var(--s-8); }
   .mfb-editor__head h1 { font-size: var(--fs-20); }
   .mfb-name-grid,.form-name-grid,.mfb-palette__grid { grid-template-columns: 1fr; }

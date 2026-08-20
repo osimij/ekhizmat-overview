@@ -46,6 +46,50 @@
 .btn-pri[disabled]{background:var(--field); color:var(--ink-3)}
 .btn-sec[disabled],.btn-ghost[disabled],.btn-danger[disabled]{opacity:.45}
 .btn-block{width:100%}
+/* Quiet pill — the §3 page-header action: a border, a transparent ground and
+   `--ink-2`. Blue is reserved for the decisive action of the flow, so a browse
+   page's "create" must not wear it (rule 15). Admin named it
+   `.services-create-action` while it had one consumer; Ministry's forms library
+   is the second, so the rule moved here and the old name stays as an alias
+   (§1 rule 9, rule 21). */
+.btn--quiet,.services-create-action{
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:var(--r-pill);
+  background:transparent;
+  color:var(--ink-2);
+  font-weight:var(--weight-medium);
+  transition:background var(--t-exit) var(--ease),color var(--t-exit) var(--ease),transform var(--t-exit) var(--ease-out);
+}
+.btn--quiet svg,.services-create-action svg{width:15px;height:15px}
+@media(hover:hover) and (pointer:fine){
+  .btn--quiet:hover,.services-create-action:hover{background:var(--hover);color:var(--ink)}
+}
+
+/* Versioned library row: a compact vN strip whose background carries status —
+   green live, amber draft/review, neutral archived (rule 26). Slight corners,
+   not a pill, and no status icon inside it: the status text lives in `title`
+   and `.sr-only`. Promoted from the admin forms library when Ministry became
+   the second consumer (§1 rule 9, rule 21). */
+.form-mini-version{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:none;
+  min-width: 28px;
+  padding: 2px var(--s-2); /* 2px: keep the chip shorter than --s-1 so --r-s wouldn't turn it into a capsule */
+  border-radius: 6px; /* under --r-s (10px): slight corners, not a pill */
+  font-variant-numeric: tabular-nums;
+}
+.form-mini-version b{font-size:var(--fs-12);font-weight:var(--weight-regular)}
+.form-mini-version--published{background:var(--green-tint);color:var(--green-ink)}
+.form-mini-version--draft{background:var(--amber-tint);color:var(--amber-ink)}
+.form-mini-version--archived{background:var(--field);color:var(--ink-3)}
+.form-mini-version--published b,
+.form-mini-version--draft b,
+.form-mini-version--archived b{color:inherit}
+.form-mini-more{color:var(--ink-3);font-size:var(--fs-12);font-weight:var(--weight-medium);font-variant-numeric:tabular-nums}
 .btn:not([disabled]):active{transform:scale(.97)}
 .btn--icon:not([disabled]):active{transform:scale(.96)}
 
@@ -324,6 +368,61 @@ button.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 button.chip[aria-pressed="true"] b{color:var(--bg)}
 [data-theme="dark"] button.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
 
+:root{ --pv-bezel:var(--device-shell); --pv-wash:var(--alpha-accent-04) }
+[data-theme="dark"]{ --pv-bezel:var(--device-black); --pv-wash:var(--alpha-accent-07) }
+
+/* ============ DEVICE PREVIEW (§6 «Device previews») ============
+   Real geometry, because wrong proportions read as a toy: iPhone 17 Pro Max —
+   screen 440×956pt, 62pt display radius, Dynamic Island 126×37.33pt centred at
+   y=11. The screen sizes by aspect-ratio, so radius and Island are expressed as
+   percentages of the screen and hold the exact proportions at any width. The
+   chrome stays quiet: no fake OS status content, bezel mixed toward the page,
+   caption below the device.
+
+   Promoted from the admin builder when the Ministry form builder became the
+   second consumer (§1 rule 9, rule 21); it had faked a "9:41 ● ◒" status bar
+   and its own 40px radius.
+
+   the device — iPhone 17 Pro Max geometry: screen 440×956pt, 62pt display radius,
+   Dynamic Island 126×37.33pt centred at y=11. The screen sizes by aspect-ratio, so the
+   radius + Island are expressed as % of the screen to hold the exact proportions at any width.
+   Bezel is the device-shell grey mixed into the page (solid — no dot-grid bleed-through). */
+.pv-phone{width:100%; max-width:344px; display:flex; flex-direction:column;
+  background:color-mix(in srgb, var(--pv-bezel) 20%, var(--bg)); border-radius:56px; padding:calc(var(--s-2) + 1px); position:relative;
+  box-shadow:inset 0 0 0 1px var(--alpha-white-22)}
+.pv-screen{position:relative; width:100%; aspect-ratio:440/956; display:flex; flex-direction:column;
+  background:var(--panel); border-radius:14.1%/6.5%; overflow:hidden}          /* 62pt at 440×956 */
+/* Dynamic Island — 126×37.33pt static pill at (157,11); always black chrome */
+.pv-island{position:absolute; top:1.15%; left:50%; transform:translateX(-50%); z-index:3;
+  width:28.64%; height:3.905%; border-radius:var(--r-pill); background:var(--device-black)}
+/* the app viewport scrolls under the pinned Island; ~62pt top safe-area keeps content clear */
+.pv-app{flex:1; min-height:0; overflow-y:auto; scrollbar-width:none; padding-top:45px}
+.pv-app::-webkit-scrollbar{display:none}
+/* Caption sits below the device in small regular text (§6). */
+.pv-caption{display:block; text-align:center; color:var(--ink-3); font-size:var(--fs-12); font-weight:var(--weight-regular)}
+
+/* Binary/short choices may be tappable cards instead of a radio list (§3 form
+   controls). The input stays a real radio — Space, screen reader and :checked
+   keep working — and only its skin changes. Shared by the admin wizard and the
+   Ministry form builder. */
+.cost-options{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2);max-width:320px}
+.cost-options label{
+  display:flex;align-items:center;gap:var(--s-2);min-height:44px;margin:0;padding:0 var(--s-4);
+  border:1px solid var(--line);border-radius:var(--r-m);background:var(--panel);
+  color:var(--ink-2);font-size:var(--fs-14);font-weight:400;cursor:pointer;
+  transition:border-color var(--t-fast) var(--ease),background var(--t-fast) var(--ease),color var(--t-fast) var(--ease);
+}
+.cost-options label:hover{background:var(--hover)}
+.cost-options label:has(input:checked){border-color:var(--blue);background:var(--blue-tint);color:var(--blue-ink)}
+.cost-options input{
+  -webkit-appearance:none;appearance:none;display:grid;place-items:center;flex:none;
+  width:18px;height:18px;margin:0;border:1px solid var(--control-line);border-radius:50%;background:var(--panel);cursor:pointer;
+}
+.cost-options input:checked{border:2px solid var(--blue);background:radial-gradient(circle,var(--blue) 0 4px,transparent 4.5px)}
+.cost-options input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media(max-width:560px){ .cost-options{grid-template-columns:1fr} }
+
+
 /* ============ WEEK LOAD ROWS (rule 44) ============
    Full-width horizontal day rows, calendar week Monday→Sunday, a value on
    every row. Vertical columns leave emptiness at the sides and a spline leaves
@@ -460,13 +559,13 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
 .ekh-profile-pop__card:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 .ekh-profile-pop__identity,.adm-profile-pop__identity{display:flex;flex:1;flex-direction:column;gap:calc(var(--s-2) + 2px);justify-content:center;min-width:0;line-height:1}
 .ekh-profile-pop__identity b,.adm-profile-pop__identity b{display:block;font-size:var(--fs-14);font-weight:var(--weight-regular);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ekh-profile-pop__identity span,.adm-profile-pop__identity span{display:block;font-size:var(--fs-10);font-weight:var(--weight-regular);color:var(--ink);opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ekh-profile-pop__identity span,.adm-profile-pop__identity span{display:block;font-size:var(--fs-11);font-weight:var(--weight-regular);color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ekh-profile-pop__divider,.adm-profile-pop__divider{position:relative;flex:none;width:calc(100% - var(--r-l));height:0}
 .ekh-profile-pop__divider::after,.adm-profile-pop__divider::after{content:"";position:absolute;inset-inline:0;top:0;height:1px;background:var(--line-in)}
 .ekh-profile-pop__preferences,.adm-profile-pop__preferences{display:flex;flex-direction:column;gap:calc(var(--s-1) + 1px);width:100%}
 .ekh-profile-pop__row-host,.adm-profile-pop__row-host{display:flex;width:100%;overflow:visible}
 .ekh-profile-pop .dd.lang,.adm-profile-pop .dd.lang{display:flex;width:100%;overflow:visible}
-.ekh-profile-pop .dd.lang .dd-btn #langCur,.adm-profile-pop .dd.lang .dd-btn #langCur{min-width:0;font-size:var(--fs-13);font-weight:var(--weight-regular);color:var(--ink);opacity:.5;text-align:right}
+.ekh-profile-pop .dd.lang .dd-btn #langCur,.adm-profile-pop .dd.lang .dd-btn #langCur{min-width:0;font-size:var(--fs-13);font-weight:var(--weight-regular);color:var(--ink);text-align:right}
 .ekh-profile-pop .dd.open .dd-btn svg,.adm-profile-pop .dd.open .dd-btn svg{rotate:none}
 .ekh-profile-pop:not(.ekh-profile-pop--side) .lang .dd-menu,
 .adm-profile-pop:not(.adm-profile-pop--side) .lang .dd-menu{left:0;right:0}
@@ -502,8 +601,8 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
 .ekh-profile-pop .dd.open .dd-btn.ekh-profile-pop__row,.adm-profile-pop .dd.open .dd-btn.adm-profile-pop__row{background:var(--hover)}
 .ekh-profile-pop__row:hover,.adm-profile-pop__row:hover{background:var(--hover);color:var(--ink)}
 .ekh-profile-pop__row:focus-visible,.adm-profile-pop__row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.ekh-profile-pop__row-label,.adm-profile-pop__row-label{min-width:0;color:var(--ink);opacity:.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ekh-profile-pop__chev,.adm-profile-pop__chev{width:var(--fs-11);height:var(--fs-11);justify-self:end;color:var(--ink);opacity:.5;transition:none}
+.ekh-profile-pop__row-label,.adm-profile-pop__row-label{min-width:0;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ekh-profile-pop__chev,.adm-profile-pop__chev{width:var(--fs-11);height:var(--fs-11);justify-self:end;color:var(--ink-3);transition:none}
 .ekh-profile-pop__compact-icon,.adm-profile-pop__compact-icon{display:none;width:17px;height:17px;color:var(--ink-3)}
 .ekh-profile-pop__row--theme,.adm-profile-pop__row--theme{grid-template-columns:minmax(0,1fr) auto;min-height:26px;padding:var(--s-1) calc(var(--s-2) + 2px);cursor:default}
 .ekh-profile-pop__row--theme:hover,.adm-profile-pop__row--theme:hover{background:transparent;color:var(--ink)}
