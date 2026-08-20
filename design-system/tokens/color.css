@@ -7,6 +7,7 @@
   --bg: #f9f9fa;
   --bg-side: #efeff0;
   --panel: #ffffff;
+  --panel-hover: #fafafa;
   --raised: #ffffff;
   --hero-light: #e7eef5;
   --hero-dark: #090d15;
@@ -124,6 +125,7 @@
   --bg: #121213;
   --bg-side: #09090a;
   --panel: #1a1a1b;
+  --panel-hover: #202022;
   --raised: #1a1a1b;
   --hero: var(--hero-dark);
   --login-bg: var(--panel);

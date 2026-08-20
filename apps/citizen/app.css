@@ -3,6 +3,8 @@
    emergency, notifications, profile, footer, responsive
    ============================================================ */
 
+html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-hover)}
+
 /* ============ HEADER ============ */
 .hdr{
   position:sticky; top:0; z-index:40;
@@ -24,6 +26,40 @@
 .icon-btn:hover{background:var(--hover); color:var(--ink)}
 .icon-btn svg{width:19px; height:19px}
 .icon-btn .dot{position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; background:var(--red); border:2px solid var(--bg)}
+.notif-pop{
+  position:fixed; z-index:var(--z-popover); box-sizing:border-box;
+  width:min(380px,calc(100vw - var(--s-4))); padding:var(--s-2);
+  border-radius:calc(var(--r-l) + 2px); background:var(--raised); box-shadow:var(--shadow-1);
+  opacity:0; scale:.98;
+  transition:opacity var(--t-popover) var(--ease-out), scale var(--t-popover) var(--ease-out);
+}
+.notif-pop.is-open{opacity:1; scale:1}
+.notif-pop[hidden]{display:none}
+.notif-pop__head{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-3); padding:var(--s-3) var(--s-3) var(--s-2)}
+.notif-pop__head strong{font-size:var(--fs-17); font-weight:var(--weight-medium)}
+.notif-pop__head span{font-size:var(--fs-12); color:var(--ink-3); white-space:nowrap}
+.notif-pop__list{display:flex; flex-direction:column}
+.notif-pop__item{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:start; gap:var(--s-3);
+  width:100%; min-width:0; padding:var(--s-3); border-radius:var(--r-m); text-align:left;
+  transition:background var(--t-fast) var(--ease);
+}
+.notif-pop__item:hover,.notif-pop__item:focus-visible{background:var(--hover)}
+.notif-pop__item:focus-visible,.notif-pop__all:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+.notif-pop__item .fic{width:20px; height:20px}
+.notif-pop__item .fic svg{width:20px; height:20px}
+.notif-pop__copy{display:flex; flex-direction:column; gap:var(--s-1); min-width:0}
+.notif-pop__copy b{font-size:var(--fs-14); font-weight:var(--weight-medium); line-height:1.35}
+.notif-pop__copy span{font-size:var(--fs-12); color:var(--ink-3); font-variant-numeric:tabular-nums}
+.notif-pop__chev{align-self:center; width:14px; height:14px; color:var(--ink-3)}
+.notif-pop__all{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+  width:100%; min-height:44px; margin-top:var(--s-1); padding:var(--s-2) var(--s-3);
+  border-top:1px solid var(--line-in); color:var(--blue-ink); font-size:var(--fs-14); font-weight:var(--weight-medium); text-align:left;
+  transition:background var(--t-fast) var(--ease);
+}
+.notif-pop__all:hover{background:var(--hover)}
+.notif-pop__all svg{width:14px; height:14px}
 .avatar{
   width:36px; height:36px; border-radius:50%; margin-left:var(--s-2);
   background:var(--h-blue-bg); color:var(--h-blue-fg);
@@ -36,6 +72,8 @@
 /* preferences before sign-in: one quiet icon, never a dropdown in the chrome (§3, rule 31) */
 [data-auth="in"] #prefsBtn{display:none}
 .ekh-profile-pop .pop-ava{margin-left:0; width:32px; height:32px; font-size:var(--fs-13)}
+/* Account switching is a compact menu, so it uses the quieter popover elevation. */
+.dd.acct .dd-menu{box-shadow:var(--shadow-1)}
 
 /* ============ HOME / HERO ============ */
 /* the hero is one composition: the artwork bleeds to the band's top, right
@@ -157,7 +195,7 @@
   display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; gap:0;
   border-radius:var(--r-m); padding:var(--s-3); min-width:0;
   background:var(--panel);
-  color:var(--ink); font-size:var(--fs-13); font-weight:550; line-height:1.3;
+  color:var(--ink); font-size:var(--fs-13); font-weight:var(--weight-medium); line-height:1.3;
   transition:background var(--t-fast) var(--ease);
 }
 .cat span:last-child{display:block; max-width:100%; min-height:2.6em; text-align:left; text-wrap:balance; overflow-wrap:anywhere}
@@ -170,11 +208,11 @@
 .ftab{
   display:inline-flex; align-items:center; gap:8px; padding:8px 16px;
   border-radius:var(--r-pill);
-  font-size:var(--fs-15); font-weight:600; color:var(--ink-3);
+  font-size:var(--fs-15); font-weight:var(--weight-regular); color:var(--ink-3);
   transition:color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
 }
 .ftab:hover{color:var(--ink); background:var(--hover)}
-.ftab[aria-selected="true"]{color:var(--ink); background:var(--panel)}
+.ftab[aria-selected="true"]{color:var(--ink); background:var(--panel); font-weight:var(--weight-medium)}
 .fbadge{
   min-width:20px; height:20px; padding:0 6px; border-radius:10px; display:inline-grid; place-items:center;
   font-size:var(--fs-12); font-weight:550; font-variant-numeric:tabular-nums; background:var(--field); color:var(--ink-2);
@@ -192,13 +230,13 @@
 /* [glyph] [title + snippet] [date over action]: the kicker column said twice
    what the body already says, so it is gone (rule 6) */
 .frow{
-  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:var(--s-4);
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:start; gap:var(--s-4);
   width:100%; text-align:left; padding:var(--s-4) var(--s-5);
   transition:background var(--t-fast) var(--ease);
 }
 .frow:hover{background:var(--hover)}
 /* a glanceable dashboard row: bare coloured glyph, no tinted well (§6 icon fills) */
-.fic{display:grid; place-items:center; width:24px; height:24px; flex:none}
+.fic{display:grid; place-items:center; width:24px; height:24px; flex:none; margin-top:2px}
 .fic svg{width:22px; height:22px; stroke-width:2}
 .g-rose{color:var(--h-rose-fg)}
 .g-blue{color:var(--h-blue-fg)}
@@ -209,17 +247,16 @@
 .g-steel{color:var(--h-steel-fg)}
 .g-indigo{color:var(--h-indigo-fg)}
 .frow .ft{min-width:0}
-.frow .ft b{display:block; font-size:var(--fs-15); font-weight:var(--weight-semibold); line-height:1.4}
+.frow .ft b{display:block; font-size:var(--fs-15); font-weight:var(--weight-medium); line-height:1.4}
 .frow .ft span{margin-top:2px; font-size:var(--fs-13); color:var(--ink-3); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
 .frow .fact{justify-self:end; display:grid; justify-items:end; gap:var(--s-2)}
 .frow .fdate{font-size:var(--fs-12); color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
-.frow .fact .btn{padding:8px 16px; font-size:var(--fs-13)}
 .frow .fact > svg{width:16px; height:16px; color:var(--ink-3)}
 .fempty{padding:var(--s-6) var(--s-5); font-size:var(--fs-14); color:var(--ink-3)}
 
 /* application rows share the panel */
 .app-row{
-  display:flex; align-items:center; gap:var(--s-4); width:100%; text-align:left;
+  display:flex; align-items:flex-start; gap:var(--s-4); width:100%; text-align:left;
   padding:var(--s-4) var(--s-5);
   transition:background var(--t-fast) var(--ease);
 }
@@ -232,19 +269,14 @@
 /* value first, then what it is for, then the discount, then the action (§3 KPI canon) */
 .pay-card{
   background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
-  padding:var(--s-6) var(--s-5); text-align:center;
-  display:flex; flex-direction:column; gap:var(--s-2); align-items:center;
+  padding:var(--s-6) var(--s-5); text-align:left;
+  display:flex; flex-direction:column; align-items:stretch;
 }
+.pay-summary{display:grid; gap:0}
 .pay-card .sum{font-size:var(--fs-32); font-weight:680; letter-spacing:0; font-variant-numeric:tabular-nums}
 .pay-card .pt{font-size:var(--fs-14); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none; color:var(--ink-3); text-wrap:balance}
-.pay-card .note{font-size:var(--fs-13); color:var(--green-ink); font-weight:var(--weight-medium)}
-.pay-card .btn{width:100%; justify-content:center; margin-top:var(--s-3)}
-.pay-link{
-  font-size:var(--fs-13); font-weight:var(--weight-medium); color:var(--blue-ink);
-  padding:var(--s-2) 10px; border-radius:var(--r-s);
-  transition:background var(--t-fast) var(--ease);
-}
-@media (hover:hover) and (pointer:fine){ .pay-link:hover{background:var(--blue-tint)} }
+.pay-actions{display:grid; gap:var(--s-1); margin-top:var(--s-6)}
+.pay-card .btn{width:100%; justify-content:center}
 
 /* notifications screen groups */
 #scr-notifs .j-head h2{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
@@ -254,34 +286,43 @@
 /* ============ SECTIONS ============ */
 .sect{margin-top:var(--s-12)}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
+.sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
 .sect-h .sub{color:var(--ink-3); font-size:var(--fs-14)}
 
-/* ============ LIFE MOMENTS — a ledger, not a card grid ============ */
+/* ============ LIFE MOMENTS — up to four wide catalogue cards per row ============ */
 .moments{
-  display:grid; grid-template-columns:1fr 1fr;
-  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-xl); overflow:hidden;
+  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--s-3); align-items:stretch;
 }
 .moment{
-  position:relative; display:flex; gap:var(--s-4); align-items:flex-start; text-align:left;
-  padding:var(--s-6) var(--s-6) var(--s-6) var(--s-5); min-width:0;
+  position:relative; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
+  min-height:calc(var(--s-16) * 4); padding:var(--s-5); text-align:left;
+  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
   transition:background var(--t-fast) var(--ease);
 }
-.moment:hover{background:var(--hover)}
-.moment:nth-child(n+3){border-top:1px solid var(--line-in)}
-.moment:nth-child(odd){border-right:1px solid var(--line-in)}
-.moment .mi{width:44px; height:44px; flex:none; display:grid; place-items:center; border-radius:32%}
-.moment .mi svg{width:22px; height:22px}
-.moment .mt{min-width:0; display:flex; flex-direction:column; gap:5px; padding-right:var(--s-6)}
-.moment h3{font-size:var(--fs-16); font-weight:var(--weight-semibold)}
-.moment p{color:var(--ink-2); font-size:var(--fs-14); line-height:1.5}
-.moment .meta{font-size:var(--fs-13); color:var(--ink-3); display:flex; align-items:center; gap:6px; margin-top:3px}
+.moment:hover,.moment:focus-visible{background:var(--panel-hover)}
+.moment .mi{width:var(--s-16); height:var(--s-16); flex:none; display:grid; place-items:center; border-radius:var(--r-m)}
+.moment .mi svg{width:var(--s-8); height:var(--s-8)}
+.moment .mt{
+  width:100%; min-width:0; display:flex; flex-direction:column;
+  margin-top:auto; padding-top:var(--s-8);
+}
+.moment-copy{display:grid; gap:var(--s-1)}
+.moment h3{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.35}
+.moment p{
+  color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; overflow:hidden;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+}
+.moment .meta{
+  font-size:var(--fs-13); color:var(--ink-3); display:flex; align-items:center; gap:var(--s-2);
+  margin-top:var(--s-3);
+}
 .moment .meta svg{width:14px; height:14px}
 .moment .go{
-  position:absolute; top:50%; right:var(--s-5); translate:0 -50%;
+  position:absolute; top:var(--s-4); right:var(--s-4);
   width:24px; height:24px; display:grid; place-items:center; color:var(--ink-3);
   transition:translate var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
 }
-.moment:hover .go{translate:3px -50%; color:var(--ink)}
+.moment:hover .go,.moment:focus-visible .go{translate:var(--s-1) 0; color:var(--ink)}
 .moment .go svg{width:16px; height:16px}
 
 /* ============ EMERGENCY STRIP (home) ============ */
@@ -766,6 +807,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 /* ============ RESPONSIVE ============ */
 @media (max-width:1080px){
   .hdr-in{flex-wrap:wrap; height:auto; padding:var(--s-3) 0; row-gap:var(--s-2)}
+  .moments{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media (max-width:880px){
   .hero{padding-top:var(--s-8)}
@@ -788,9 +830,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
       url("./assets/hero-dark.webp") right 62% / cover no-repeat;
   }
   .cats{grid-template-columns:repeat(4,1fr)}
-  .moments{grid-template-columns:1fr}
-  .moment:nth-child(odd){border-right:0}
-  .moment:nth-child(n+2){border-top:1px solid var(--line-in)}
+  .moments{grid-template-columns:repeat(2,minmax(0,1fr))}
   .emerg .btn{margin-left:0; width:100%}
   .feed-grid{grid-template-columns:1fr}
   /* the portal's main verb comes first on a phone: search, then the catalogue */
@@ -812,6 +852,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .ft-grid{grid-template-columns:1fr 1fr}
 }
 @media (max-width:560px){
+  .moments{grid-template-columns:minmax(0,1fr)}
   .hdr-in{padding:10px 0; row-gap:8px; gap:var(--s-2) var(--s-3)}
   .ft-grid{grid-template-columns:1fr}
   .dd-btn{padding:7px 10px; font-size:var(--fs-13)}

@@ -43,7 +43,7 @@
         <button class="icon-btn" id="prefsBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="citizenProfilePop" data-i18n-aria="pop.prefs" aria-label="Забон ва мавзӯъ">
           <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-gear"/></svg>
         </button>
-        <button class="icon-btn" id="bellBtn" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
+        <button class="icon-btn" id="bellBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="citizenNotifPop" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
           <svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span class="dot"></span>
         </button>
         <!-- signed in: the avatar is the identity home — profile, language, theme, sign-out -->
@@ -107,12 +107,12 @@
             <button class="frow" data-go="journey">
               <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
               <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+              <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri btn-sm" data-i18n="f.n1.cta">Гирифтан</span></span>
             </button>
             <button class="frow" data-toast="toast.demo">
               <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
               <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+              <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec btn-sm" data-i18n="f.n2.cta">Нав кардан</span></span>
             </button>
             <button class="frow" data-go="tracking">
               <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
@@ -145,11 +145,14 @@
         </div>
 
         <aside class="pay-card" id="payCard">
-          <div class="sum" id="paySum">86,40 смн.</div>
-          <div class="pt" id="payLabel" data-i18n="pay.t">Ба пардохт: 1 ҳисоби андоз</div>
-          <div class="note" id="payNote" data-i18n="pay.note">тахфифи 20% ҳангоми пардохт то 1 июл</div>
-          <button class="btn btn-pri" id="payNow" data-pay-pending data-i18n="pay.cta">Пардохт кардан</button>
-          <button class="pay-link" data-go="payments" data-i18n="pay.all">Ҳамаи пардохтҳо</button>
+          <div class="pay-summary">
+            <div class="sum" id="paySum">86,40 смн.</div>
+            <div class="pt" id="payLabel" data-i18n="pay.t">Андози нақлиёт барои соли 2026</div>
+          </div>
+          <div class="pay-actions">
+            <button class="btn btn-pri" id="payNow" data-pay-pending data-i18n="pay.cta">Пардохт кардан</button>
+            <button class="btn btn-ghost pay-link" data-go="payments" data-i18n="pay.all">Ҳамаи пардохтҳо</button>
+          </div>
         </aside>
       </div>
     </section>
@@ -163,8 +166,10 @@
         <button class="moment" data-toast="toast.demo">
           <span class="mi tile t-indigo"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.biz.t">Тиҷорат мекушоям</h3>
-            <p data-i18n="m.biz.p">Сабт, андоз ва суратҳисоби бонкӣ - ҳамааш дар як ҷаласа.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.biz.t">Тиҷорат мекушоям</h3>
+              <p data-i18n="m.biz.p">Сабт, андоз ва суратҳисоби бонкӣ.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.biz.m">то 20 дақиқа - ройгон</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -172,8 +177,10 @@
         <button class="moment" data-go="journey">
           <span class="mi tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.baby.t">Фарзанддор шудам</h3>
-            <p data-i18n="m.baby.p">Шаҳодатнома, рақами андоз ва кумакпулӣ - бо як ариза.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.baby.t">Фарзанддор шудам</h3>
+              <p data-i18n="m.baby.p">Шаҳодатнома, рақами андоз ва кумакпулӣ.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.baby.m">5 дақиқа - ройгон</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -181,8 +188,10 @@
         <button class="moment" data-toast="toast.demo">
           <span class="mi tile t-violet sh-l"><svg><use href="/design-system/assets/icons.svg#i-rings"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.wed.t">Издивоҷ мекунам</h3>
-            <p data-i18n="m.wed.p">Ариза ба САҲШ, интихоби сана ва ҷои маросим.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.wed.t">Издивоҷ мекунам</h3>
+              <p data-i18n="m.wed.p">Ариза ба САҲШ ва интихоби сана.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.wed.m">10 дақиқа</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -190,8 +199,10 @@
         <button class="moment" data-toast="toast.demo">
           <span class="mi tile t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-move"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.move.t">Ба шаҳри нав мекӯчам</h3>
-            <p data-i18n="m.move.p">Қайди ҷои истиқомат, мактаб ва духтури оилавӣ.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.move.t">Ба шаҳри нав мекӯчам</h3>
+              <p data-i18n="m.move.p">Қайд, мактаб ва духтури оилавӣ.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.move.m">12 дақиқа</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -199,8 +210,10 @@
         <button class="moment" data-toast="toast.demo">
           <span class="mi tile t-amber sh-c"><svg><use href="/design-system/assets/icons.svg#i-job"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.job.t">Аз кор баромадам</h3>
-            <p data-i18n="m.job.p">Дастгирии молиявӣ, бозомӯзӣ ва ҷустуҷӯи ҷои нав.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.job.t">Аз кор баромадам</h3>
+              <p data-i18n="m.job.p">Кумак, бозомӯзӣ ва ҷустуҷӯи кор.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.job.m">8 дақиқа - ройгон</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -208,8 +221,10 @@
         <button class="moment" data-toast="toast.demo">
           <span class="mi tile t-green"><svg><use href="/design-system/assets/icons.svg#i-retire"/></svg></span>
           <span class="mt">
-            <h3 data-i18n="m.ret.t">Ба нафақа мебароям</h3>
-            <p data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа - пешакӣ бинед, чӣ қадар мешавад.</p>
+            <span class="moment-copy">
+              <h3 data-i18n="m.ret.t">Ба нафақа мебароям</h3>
+              <p data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа.</p>
+            </span>
             <span class="meta"><svg><use href="/design-system/assets/icons.svg#i-clock"/></svg><span data-i18n="m.ret.m">15 дақиқа</span></span>
           </span>
           <span class="go"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
@@ -448,12 +463,12 @@
       <button class="frow" data-go="journey">
         <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
         <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
-        <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri btn-sm" data-i18n="f.n1.cta">Гирифтан</span></span>
       </button>
       <button class="frow" data-toast="toast.demo">
         <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
         <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
-        <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec btn-sm" data-i18n="f.n2.cta">Нав кардан</span></span>
       </button>
       <button class="frow" data-go="tracking">
         <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
@@ -1052,6 +1067,35 @@
   <button class="ekh-profile-pop__row ekh-profile-pop__row--danger" type="button" data-pop-auth data-logout>
     <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-out"/></svg>
     <span class="ekh-profile-pop__row-label" data-i18n="auth.out">Баромадан</span>
+  </button>
+</div>
+
+<!-- notification preview: the bell stays quick; the footer opens the complete history -->
+<div class="notif-pop" id="citizenNotifPop" role="dialog" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо" hidden>
+  <div class="notif-pop__head">
+    <strong data-i18n="nav.notif">Огоҳиҳо</strong>
+    <span data-i18n="n.sub">3 огоҳии нав</span>
+  </div>
+  <div class="notif-pop__list">
+    <button class="notif-pop__item" type="button" data-go="journey">
+      <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
+      <span class="notif-pop__copy"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="f.n1.d">8 июн</span></span>
+      <svg class="notif-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+    </button>
+    <button class="notif-pop__item" type="button" data-toast="toast.demo">
+      <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+      <span class="notif-pop__copy"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+      <svg class="notif-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+    </button>
+    <button class="notif-pop__item" type="button" data-go="tracking">
+      <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
+      <span class="notif-pop__copy"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.d">10 июн</span></span>
+      <svg class="notif-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+    </button>
+  </div>
+  <button class="notif-pop__all" type="button" data-go="notifs">
+    <span data-i18n="f.all">Ҳамаи огоҳиҳо</span>
+    <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
   </button>
 </div>
 

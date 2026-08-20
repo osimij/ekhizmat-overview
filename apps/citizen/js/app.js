@@ -213,6 +213,7 @@ $("#loginGo").addEventListener("click", () => {
 function logout(){
   authed = false;
   try { localStorage.setItem(AUTH_KEY, "0"); } catch(e){}
+  closeNotifPop(false);
   closeProfilePop(false);
   applyAuth();
   navigate("#/", { replace:true });
@@ -253,6 +254,7 @@ function closeProfilePop(restoreFocus){
 }
 function openProfilePop(trigger){
   if (popTrigger === trigger && !profilePop.hidden){ closeProfilePop(true); return; }
+  closeNotifPop(false);
   closeProfilePop(false);
   syncProfilePop();
   popTrigger = trigger;
@@ -291,6 +293,58 @@ document.addEventListener("keydown", e => {
   else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
 });
 document.addEventListener("click", e => { if (e.target.closest("[data-logout]")) logout(); });
+
+/* ---------- notification preview ---------- */
+const notifPop = $("#citizenNotifPop");
+let notifTrigger = null;
+function positionNotifPop(trigger){
+  notifPop.hidden = false;
+  const rect = trigger.getBoundingClientRect(), box = notifPop.getBoundingClientRect();
+  const left = Math.max(8, Math.min(rect.right - box.width, window.innerWidth - box.width - 8));
+  const top = Math.min(rect.bottom + 8, window.innerHeight - box.height - 8);
+  notifPop.style.transformOrigin = "top right";
+  notifPop.style.left = left + "px";
+  notifPop.style.top = Math.max(8, top) + "px";
+}
+function closeNotifPop(restoreFocus){
+  if (!notifPop || notifPop.hidden) return;
+  notifPop.classList.remove("is-open");
+  notifPop.hidden = true;
+  const trigger = notifTrigger;
+  notifTrigger = null;
+  if (trigger){
+    trigger.setAttribute("aria-expanded", "false");
+    if (restoreFocus && !trigger.hidden) trigger.focus();
+  }
+}
+function openNotifPop(trigger){
+  if (notifTrigger === trigger && !notifPop.hidden){ closeNotifPop(true); return; }
+  closeProfilePop(false);
+  notifTrigger = trigger;
+  trigger.setAttribute("aria-expanded", "true");
+  positionNotifPop(trigger);
+  requestAnimationFrame(() => notifPop.classList.add("is-open"));
+  const first = $("button", notifPop);
+  if (first) first.focus();
+}
+notifPop.addEventListener("click", e => {
+  if (e.target.closest("[data-go],[data-toast]")) closeNotifPop(false);
+});
+document.addEventListener("click", e => {
+  if (notifPop.hidden || e.target.closest("#citizenNotifPop,#bellBtn")) return;
+  closeNotifPop(false);
+});
+window.addEventListener("resize", () => { if (!notifPop.hidden && notifTrigger) positionNotifPop(notifTrigger); });
+document.addEventListener("keydown", e => {
+  if (notifPop.hidden) return;
+  if (e.key === "Escape"){ e.preventDefault(); closeNotifPop(true); return; }
+  if (e.key !== "Tab") return;
+  const f = $$("button", notifPop).filter(el => !el.disabled && el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
 
 /* ---------- routing ----------
    Every screen, profile pane and application detail is a hash route, so Back,
@@ -610,7 +664,7 @@ document.addEventListener("click", e => {
   }
   if (!e.target.closest("#searchWrap")) closeSearch();
 });
-$("#bellBtn").addEventListener("click", () => go("notifs"));
+$("#bellBtn").addEventListener("click", e => { e.stopPropagation(); openNotifPop(e.currentTarget); });
 /* the dot is a fact, not decoration: it shows only while the "new" group has rows */
 (function syncBellDot(){
   const group = $("#scr-notifs .n-group + .fpane");

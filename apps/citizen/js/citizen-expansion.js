@@ -260,7 +260,7 @@ export function initCitizenExpansion(ctx){
     if(badge){ badge.textContent=String(pendingItems().length); badge.hidden=!pending; }
     if(!pending) return;
     $("#paySum").textContent=money(pending.amount);
-    $("#payLabel").textContent=`${c.toPay}: ${pending.service}`;
+    $("#payLabel").textContent=pending.service;
   }
   function paymentActions(p,c){
     if(p.status==='pending') return `<button class="btn btn-pri btn-sm" data-pay-pending>${c.payNow}</button>`;
