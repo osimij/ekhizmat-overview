@@ -1708,6 +1708,7 @@ button.step:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 .topbar__brand { display: flex; align-items: center; gap: var(--s-2); }
+.topbar__brand .review-badge { font-weight: var(--weight-regular); }
 .topbar__bind { color: var(--ink-2); }
 .topbar__operator { color: var(--ink); }
 
