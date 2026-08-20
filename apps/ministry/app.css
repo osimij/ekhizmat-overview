@@ -668,26 +668,22 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
 .card__side .def__row { flex-direction: column; align-items: stretch; gap: var(--s-1); }
 .card__side .def__key { width: auto; }
 
-/* строка «источник сведений» в межвед-блоке */
+/* строка межведомственного запроса. Ведущий глиф — голый: заливка живёт
+   только в статус-кружках таблиц и на плитках каталога (§6 «Icon fills»). */
 .interop-item {
   display: flex; align-items: center; gap: var(--s-3);
   padding: var(--s-3) 0;
   border-bottom: 1px solid var(--line-in);
 }
 .interop-item:last-child { border-bottom: 0; }
-.interop-item__ico {
-  width: 36px; height: 36px; flex: none;
-  display: grid; place-items: center;
-  border-radius: var(--r-m);
-  background: var(--field); color: var(--ink-3);
-}
-.interop-item__ico .icon { width: 20px; height: 20px; }
 .interop-item[data-act] { cursor: pointer; }
-.interop-item__body { flex: 1 1 auto; min-width: 0; }
-.interop-item__title { font-size: 14px; font-weight: 550; }
-.interop-item__meta  { font-size: 13px; color: var(--ink-faint); margin-top: 1px; }
-.interop-item.is-pending .interop-item__ico { background: var(--amber-tint); color: var(--amber); }
-.interop-item.is-received .interop-item__ico { background: var(--green-tint); color: var(--green); }
+.interop-item__glyph { flex: none; color: var(--ink-3); }
+/* Заголовок строки и её метаданные — две строки, а не одна: пока оба span
+   оставались inline, «Проверка апостиля» и название ведомства слипались в
+   сплошную ленту, и роли §4 (14/500 и 12/400) читались как один текст. */
+.interop-item__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.interop-item__title { font-size: var(--fs-14); font-weight: 550; }
+.interop-item__meta  { font-size: var(--fs-12); color: var(--ink-faint); }
 
 /* документы */
 .doc-list { display: flex; flex-direction: column; }
@@ -697,11 +693,10 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
   border-bottom: 1px solid var(--line-in);
 }
 .doc-row:last-child { border-bottom: 0; }
-.doc-row__ico { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: var(--r-m); background: var(--field); color: var(--ink-3); }
-.doc-row__ico .icon { width: 20px; height: 20px; }
-.doc-row__body { flex: 1 1 auto; min-width: 0; }
-.doc-row__name { font-size: 14px; font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.doc-row__meta { font-size: 12px; color: var(--ink-faint); }
+.doc-row__glyph { flex: none; color: var(--ink-3); }
+.doc-row__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.doc-row__name { font-size: var(--fs-14); font-weight: 550; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.doc-row__meta { font-size: var(--fs-12); color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 
 /* история / аудит (таймлайн) */
 .trail { display: flex; flex-direction: column; }

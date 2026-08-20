@@ -162,6 +162,13 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   function statusIcon(tone, label, iconName) {
     return '<span class="status-icon status-icon--' + tone + '" role="img" aria-label="' + esc(label) + '" title="' + esc(label) + '">' + ic(iconName || (tone === 'success' ? 'i-check' : tone === 'warning' ? 'i-clock' : tone === 'danger' ? 'i-x' : tone === 'info' ? 'i-info' : 'i-dots'), '') + '</span>';
   }
+  /* §3: пилюля статуса остаётся законной в шапке карточки — там статус и есть
+     главное содержимое вида. В плотной строке списка её место занимает
+     .status-icon, и обе сразу не рисуются никогда (правило 6). */
+  function appStatusPill(key) {
+    var tone = ({ draft:'', submitted:'info', awaiting_pay:'warning', processing:'info', info_requested:'warning', clarify:'warning', decided:'success', done:'success', denied:'danger', withdrawn:'' })[key] || '';
+    return '<span class="status-pill' + (tone ? ' status-pill--' + tone : '') + '">' + esc(statusLabel(key)) + '</span>';
+  }
   function appStatusIcon(key) {
     var tone = ({ draft:'neutral', submitted:'info', awaiting_pay:'warning', processing:'warning', info_requested:'warning', clarify:'warning', decided:'success', done:'success', denied:'danger', withdrawn:'neutral' })[key] || 'neutral';
     var iconName = ({ draft:'i-edit', submitted:'i-clock', awaiting_pay:'i-clock', processing:'i-clock', info_requested:'i-info', clarify:'i-edit', decided:'i-check', done:'i-check', denied:'i-x', withdrawn:'i-history' })[key];
@@ -872,14 +879,13 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     var slaPanel = decided
       ? '<div class="panel panel--pad"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
           '<div class="label">' + esc(t('col_status')) + '</div><div class="sla-caption"><b>' + esc(statusLabel(a.status)) + '</b></div></div></div>'
-      : '<div class="panel panel--pad ' + s.hue + '"><div class="sla-ring-wrap">' + ringSvg(a) +
+      : '<div class="panel panel--pad"><div class="sla-ring-wrap">' + ringSvg(a) +
           '<div class="label">' + esc(t('deadline')) + '</div>' +
           '<div class="sla-caption" data-sla-cap data-due="' + a.dueAt + '">' + slaCaption(a) + '</div></div></div>';
     var side =
       slaPanel +
       '<div class="panel panel--pad">' +
         '<div class="def">' +
-          defRow(t('col_status'), appStatusIcon(a.status)) +
           (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
           defRow(t('priority'), esc(priorityLabel(a.priority))) +
           defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
@@ -896,7 +902,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       '<div class="card-head"><span class="card-head__glyph ' + s.hue + '">' + ic(s.icon,'') + '</span>' +
         '<div class="card-head__titles"><div class="card-head__num">' + esc(a.number) + '</div>' +
           '<h1 class="h2">' + esc(serviceName(s)) + '</h1>' +
-          '<div class="card-head__meta"><span class="small">' + esc(serviceCategory(s)) + '</span>' +
+          '<div class="card-head__meta">' + appStatusPill(a.status) + '<span class="small">' + esc(serviceCategory(s)) + '</span>' +
             (a.audience === 'guest' || s.audience === 'guest' ? '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>' : '') +
             (s.critical ? '<span class="chip"><span>' + ic('i-shield','icon--16') + '</span>' + esc(t('four_eyes')) + '</span>' : '') +
           '</div></div></div>' +
@@ -952,9 +958,13 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     if (!(a.docs || []).length) return '<div class="panel panel--pad"><div class="empty">' + ic('i-paperclip','icon--48') +
       '<div class="empty__title">' + esc(t('no_docs')) + '</div></div></div>';
     var rows = a.docs.map(function (d) {
-      return '<div class="doc-row"><span class="doc-row__ico">' + ic('i-doc','') + '</span>' +
+      /* Заливка за иконкой в плотной повторяющейся строке перевешивает текст
+         рядом (§6 «Icon fills»), а «Проверен» стояло и в мета-строке, и в
+         значке справа. Остаётся голый глиф слева и один носитель статуса
+         справа (правила 5 и 6). */
+      return '<div class="doc-row">' + ic('i-doc','icon--20 doc-row__glyph') +
         '<span class="doc-row__body"><span class="doc-row__name">' + esc(d.name) + '</span>' +
-        '<span class="doc-row__meta">' + d.pages + ' ' + esc(t('pages_short')) + ' · ' + esc(d.checked ? t('checked') : t('unchecked')) + '</span></span>' +
+        '<span class="doc-row__meta">' + d.pages + ' ' + esc(t('pages_short')) + '</span></span>' +
         (d.checked ? statusIcon('success', t('checked'), 'i-check') : statusIcon('warning', t('unchecked'), 'i-clock')) +
         '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
     }).join('');
@@ -968,11 +978,14 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     } else {
       body = a.interop.map(function (r) {
         var pend = r.status === 'pending';
-        return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '">' +
-          '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
+        /* Ведущий кружок и хвостовой значок — два представления одного факта
+           (правило 6). Слева остаётся голый глиф, справа — единственный
+           носитель состояния: .status-icon для полученного, .spin для
+           ожидающего. */
+        return '<div class="interop-item">' + ic('i-refresh','icon--20 interop-item__glyph') +
           '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(r.type)) + '</span>' +
           '<span class="interop-item__meta">' + esc(localValue(r.agency)) + ' · ' + (pend ? esc(t('ij_pending')) : (esc(localValue(r.value)) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
-          (pend ? '<span class="spin"></span>' : statusIcon('success', t('ij_received'), 'i-check')) +
+          (pend ? '<span class="spin" role="img" aria-label="' + esc(t('ij_pending')) + '" title="' + esc(t('ij_pending')) + '"></span>' : statusIcon('success', t('ij_received'), 'i-check')) +
         '</div>';
       }).join('');
     }
@@ -1046,10 +1059,13 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       '<circle class="ring__bar" cx="60" cy="60" r="54" style="stroke-dasharray:' + C + ';stroke-dashoffset:' + off + '"></circle></svg>' +
       '<div class="ring__value" data-ring-val>' + fmtDur(rem) + '</div></div>';
   }
+  /* Подпись под кольцом не повторяет само кольцо (правило 6): остаток времени
+     уже стоит в его центре, поэтому здесь только срок — «до 21.08.2026, 14:00».
+     Просрочка — исключение: «на сколько» это не то же, что «сколько осталось». */
   function slaCaption(a) {
     var rem = a.dueAt - now();
     if (rem <= 0) return '<b class="sla-caption__breach">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
-    return esc(t('sla_left')) + ' <b>' + fmtDur(rem) + '</b> · ' + esc(t('until')) + ' ' + esc(fmtDateTime(a.dueAt));
+    return esc(t('until')) + ' <b>' + esc(fmtDateTime(a.dueAt)) + '</b>';
   }
   function payLabel(a) {
     var p = a.pay || { status: 'Не требуется' };

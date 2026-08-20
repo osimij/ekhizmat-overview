@@ -15,7 +15,7 @@ test('Citizen category, profile, wallet, QR and logout flow', async ({ page }) =
   await page.goto('/citizen/?lang=tg&theme=light');
   await page.locator('.cat').first().click();
   await expect(page.locator('#scr-category')).toBeVisible();
-  await page.locator('#scr-category [data-go="home"]').click();
+  await page.locator('#scr-category [data-back]').click();
 
   await page.locator('#loginBtn').click();
   await page.locator('#loginPhone').fill('+992 90 000 00 00');
@@ -27,9 +27,10 @@ test('Citizen category, profile, wallet, QR and logout flow', async ({ page }) =
   await page.locator('#childName').fill('Сомон');
   await page.locator('#toStep2').click();
   await expectSameActionHeight(page, '#jstep-2 .j-acts');
-  await page.locator('#scr-journey [data-go="home"]').click();
+  await page.locator('#scr-journey [data-back]').click();
 
-  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await expect(page.locator('#scr-profile')).toBeVisible();
   await expect(page.locator('.prof-head .eyebrow')).toHaveCount(0);
   await expect(page.locator('.prof-verified')).toHaveAttribute('aria-label', 'Ҳисоби тасдиқшуда');
@@ -67,28 +68,25 @@ test('Citizen guest appointment, cabinet categories, child validation and biomet
   await page.locator('#guestSuccessLogin').click();
   await page.locator('#loginPhone').fill('+992 90 000 00 00');
   await page.locator('#loginGo').click();
-  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.locator('[data-pane="apps"]').click();
-  await expect(page.locator('.application-category')).toHaveCount(6);
-  await expect(page.locator('[data-app-category="identity"] .tile')).toHaveClass(/t-blue/);
-  await expect(page.locator('[data-app-category="family"] .tile')).toHaveClass(/t-rose/);
-  await expect(page.locator('[data-app-category="transport"] .tile')).toHaveClass(/t-indigo/);
-  await expect(page.locator('[data-app-category="property"] .tile')).toHaveClass(/t-terra/);
-  await expect(page.locator('[data-app-category="tax"] .tile')).toHaveClass(/t-violet/);
-  await expect(page.locator('[data-app-category="social"] .tile')).toHaveClass(/t-green/);
-  await expect(page.locator('.application-summary strong')).toHaveText('16');
-  await expect(page.locator('.application-category small')).toHaveText([
-    '5 заявлений', '3 заявлений', '3 заявлений', '2 заявлений', '2 заявлений', '1 заявлений',
-  ]);
-  await page.locator('.application-category').first().click();
-  await expect(page.locator('.application-row')).toHaveCount(5);
-  await page.locator('[data-app-status="review"]').click();
-  await expect(page.locator('.application-row')).toHaveCount(1);
+  // the pane opens straight on the list: no category hub in between
+  await expect(page.locator('.application-category')).toHaveCount(0);
+  await expect(page.locator('.application-row')).toHaveCount(16);
+  await expect(page.locator('.app-kpi')).toHaveCount(4);
+  await expect(page.locator('.app-kpi strong')).toHaveText(['16', '5', '2', '5']);
+  await expect(page.locator('.application-row .tile')).toHaveCount(0);
+  await page.locator('[data-app-status="action"]').click();
+  await expect(page).toHaveURL(/status=action/);
+  await expect(page.locator('.application-row')).toHaveCount(2);
   await page.locator('.application-row').first().click();
   await expect(page.locator('.application-detail')).toBeVisible();
-  await page.locator('[data-app-action="list"]').click();
-  await page.locator('[data-app-action="categories"]').click();
-  await expect(page.locator('.application-category').first().locator('small')).toHaveText('5 заявлений');
+  await expect(page).toHaveURL(/#\/profile\/apps\/TJ-/);
+  await page.goBack();
+  await expect(page.locator('.application-row')).toHaveCount(2);
+  await expect(page.locator('.app-kpi[data-app-status="action"]')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('[data-app-status="all"]').click();
 
   await page.locator('[data-pane="family"]').click();
   await page.locator('[data-child-action="add"]').first().click();
@@ -400,7 +398,11 @@ test('Ministry Tajik mode localizes service and application details', async ({ p
   const mainLabels = await page.locator('.card__main .def__key').allTextContents();
   expect(mainLabels).toEqual(expect.arrayContaining(['Ном', 'РМА', 'Рақами бақайдгирӣ', 'Роҳбар', 'Телефон', 'Суроға', 'Номи ташкилоти асосӣ']));
   const sideLabels = await page.locator('.card__side .def__key').allTextContents();
-  expect(sideLabels).toEqual(expect.arrayContaining(['Ҳолат', 'Афзалият', 'Иҷрокунанда', 'Раёсат', 'Боҷ']));
+  /* Status appears once, in the card header where it is the primary content
+     (§3, rule 6) — the side list no longer repeats it. */
+  expect(sideLabels).toEqual(expect.arrayContaining(['Афзалият', 'Иҷрокунанда', 'Раёсат', 'Боҷ']));
+  expect(sideLabels).not.toContain('Ҳолат');
+  await expect(page.locator('.card-head__meta .status-pill')).toBeVisible();
   await expect(page.locator('.card__side')).toContainText('Баланд');
   await expect(page.locator('.card__side .panel__title', { hasText: 'Амалҳо' })).toBeVisible();
 });
