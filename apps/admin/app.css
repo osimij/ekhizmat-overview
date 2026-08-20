@@ -521,7 +521,7 @@ label.pr{cursor:pointer}
 .bld-top{position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:var(--s-3);
   height:var(--h-topbar); padding:0 var(--s-4); background:var(--panel); border-bottom:1px solid var(--line)}
 .bld-top > *{flex:none}
-.bld-top .bld-name{flex:0 1 auto; min-width:0}
+.bld-top .bld-name{flex:1 1 auto; min-width:0}
 .bld-top .spacer{flex:1 1 0; min-width:0}
 .bld-top .back{margin:0}
 .bld-divider{width:1px; height:24px; background:var(--line); margin:0 var(--s-1)}
@@ -669,6 +669,17 @@ label.pr{cursor:pointer}
   .bld-prev-toggle{display:inline-flex}
 }
 @media(min-width:1181px){ .bld-prev-toggle{display:none} }
+/* the toolbar sheds its most repeatable labels before the identity block ever
+   has to shrink — Russian action labels are ~20% longer than Tajik (§9) */
+@media(max-width:1180px){
+  .bld-top .back span{display:none}
+  .bld-prev-toggle span{display:none}     /* aria-label keeps the name */
+  .bld-top .adm-role-slot .lc-role--compact .input{width:152px}
+}
+@media(max-width:1024px){
+  /* version and environment stay in the status icon's accessible name */
+  .bld-version{display:none}
+}
 @media(max-width:860px){
   /* sticky toolbar wraps to two rows so the name never collides with the actions */
   .bld{height:auto; min-height:100vh; min-height:100dvh; overflow:visible}
