@@ -31,10 +31,12 @@ function applyLang(){
   });
   $$("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   $$("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  /* a status glyph needs the same string in its tooltip as in its accessible name */
+  $$("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
   $$("[data-lang][role='option']").forEach(b => b.setAttribute("aria-selected", String(b.dataset.lang === lang)));
-  $("#langCur").textContent = {tg:"ТҶ", ru:"РУ", en:"EN"}[lang];
+  /* the popover row is "label + current value + chevron" — the value is the language's own name */
+  $("#langCur").textContent = {tg:"Тоҷикӣ", ru:"Русский", en:"English"}[lang];
   if (acct === "guest") $("#acctCur").textContent = (COPY_GUEST[lang] || COPY_GUEST.tg).replace(/^./, ch => ch.toUpperCase());
-  updateProgLbl();
   if (searchPop.classList.contains("open")) renderSearch(searchInput.value);
   renderCats();
   if (currentCat && !$("#scr-category").hidden) renderCategory(currentCat);
@@ -60,7 +62,8 @@ $$(".dd").forEach(dd => {
   });
 });
 document.addEventListener("click", closeAllDd);
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeAllDd(); });
+/* Escape closes the top layer only: an open flyout first, the popover second */
+document.addEventListener("keydown", e => { if (e.key === "Escape" && profilePop.hidden) closeAllDd(); });
 /* one highlight rect per menu glides between items (jumps in on first hover) */
 $$(".dd-menu").forEach(menu => {
   const hl = document.createElement("div");
@@ -99,22 +102,38 @@ $$("[data-acct]").forEach(b => b.addEventListener("click", () => {
   applyAuth();
   expansion?.render();
   renderCats();
-  if (!$("#scr-category").hidden){
+  /* switching to guest while inside the cabinet: the personal route is gone, go home */
+  if (needsAuth(currentRoute)){ navigate("#/", { replace:true }); return; }
+  if (currentRoute.screen === "category"){
     if (findGroup(currentCat)) renderCategory(currentCat);
-    else go("home");
+    else navigate("#/", { replace:true });
   }
 }));
 
-/* ---------- theme: stored choice wins, else follows the device ---------- */
+/* ---------- theme: system / light / dark, chosen in the profile popover (§3) ---------- */
 const THEME_KEY = "ekh.preferences.theme";
 const themeMq = matchMedia("(prefers-color-scheme: dark)");
-function setTheme(){
-  let stored = null;
-  try { stored = new URLSearchParams(location.search).get('theme') || localStorage.getItem(THEME_KEY); } catch(e){ /* storage may be blocked */ }
-  document.documentElement.dataset.theme = stored || (themeMq.matches ? "dark" : "light");
+let themeChoice = "system";
+try {
+  const stored = new URLSearchParams(location.search).get("theme") || localStorage.getItem(THEME_KEY);
+  if (stored === "dark" || stored === "light") themeChoice = stored;
+} catch(e){ /* storage may be blocked */ }
+function paintTheme(){
+  document.documentElement.dataset.theme = themeChoice === "system" ? (themeMq.matches ? "dark" : "light") : themeChoice;
+  $$("[data-theme-choice]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.themeChoice === themeChoice)));
 }
-setTheme();
-themeMq.addEventListener("change", setTheme);
+function setTheme(choice){
+  if (!["system", "light", "dark"].includes(choice)) return;
+  themeChoice = choice;
+  /* only an explicit click persists — a demo ?theme= never overwrites the preference */
+  try {
+    if (choice === "system") localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, choice);
+  } catch(e){}
+  paintTheme();
+}
+paintTheme();
+themeMq.addEventListener("change", () => { if (themeChoice === "system") paintTheme(); });
 
 /* ---------- mock auth ----------
    Signed out: pitch + search, no personal feed.
@@ -124,22 +143,23 @@ let authed = false;
 try { authed = localStorage.getItem(AUTH_KEY) === "1"; } catch(e){ /* storage may be blocked */ }
 const loginOverlay = $("#loginOverlay"), loginBtn = $("#loginBtn"), loginPhone = $("#loginPhone");
 function applyAuth(){
-  const signedIn = authed && acct !== "guest";
-  document.documentElement.dataset.auth = signedIn ? "in" : "out";
+  const isIn = authed && acct !== "guest";
+  document.documentElement.dataset.auth = isIn ? "in" : "out";
   document.documentElement.dataset.audience = acct;
-  loginBtn.hidden = signedIn;
-  $("#bellBtn").hidden = !signedIn;
-  $(".avatar").hidden = !signedIn;
+  loginBtn.hidden = isIn;
+  $("#bellBtn").hidden = !isIn;
+  $("#profileTrigger").hidden = !isIn;
   $("#guestAvatar").hidden = acct !== "guest";
   $("#guestStrip").hidden = acct !== "guest";
-  $("#feedSect").hidden = !signedIn;
+  $("#feedSect").hidden = !isIn;
   /* the h1 stays the focus target of go("home"); only its text swaps */
-  $("#heroTitle").hidden = signedIn;
-  $("#heroHi").hidden = !signedIn;
-  $("#heroSub").hidden = signedIn;
+  $("#heroTitle").hidden = isIn;
+  $("#heroHi").hidden = !isIn;
+  $("#heroSub").hidden = isIn;
   const heroIn = $(".hero-in"), cats = $("#cats"), search = $("#searchWrap");
-  if (signedIn) heroIn.insertBefore(cats, search);
+  if (isIn) heroIn.insertBefore(cats, search);
   else heroIn.insertBefore(search, cats);
+  syncProfilePop();
 }
 let loginLastFocus = null;
 let loginDialog = null;
@@ -190,40 +210,245 @@ $("#loginGo").addEventListener("click", () => {
   if (after) after();
   else focusScreenHeading();
 });
-$("#logoutBtn").addEventListener("click", () => {
+function logout(){
   authed = false;
   try { localStorage.setItem(AUTH_KEY, "0"); } catch(e){}
+  closeProfilePop(false);
   applyAuth();
-  go("home");
+  navigate("#/", { replace:true });
   toast("toast.bye");
-});
+}
+$("#logoutBtn").addEventListener("click", logout);
 
-/* ---------- navigation ---------- */
+/* ---------- profile popover: identity + preferences (§3 "Global preferences") ----------
+   Signed in the avatar opens it; signed out and in guest mode the quiet gear
+   opens the same layer minus the identity. Language and theme never return to
+   permanent chrome. */
+const profilePop = $("#citizenProfilePop");
+let popTrigger = null;
+function syncProfilePop(){
+  const isIn = authed && acct !== "guest";
+  $$("[data-pop-auth]", profilePop).forEach(el => { el.hidden = !isIn; });
+}
+function positionProfilePop(trigger){
+  profilePop.hidden = false;
+  const rect = trigger.getBoundingClientRect(), box = profilePop.getBoundingClientRect();
+  let left = Math.max(8, Math.min(rect.right - box.width, window.innerWidth - box.width - 8));
+  let top = Math.min(rect.bottom + 8, window.innerHeight - box.height - 8);
+  profilePop.style.transformOrigin = "top right";
+  profilePop.style.left = left + "px";
+  profilePop.style.top = Math.max(8, top) + "px";
+}
+function closeProfilePop(restoreFocus){
+  if (!profilePop || profilePop.hidden) return;
+  closeAllDd();
+  profilePop.classList.remove("is-open");
+  profilePop.hidden = true;
+  const trigger = popTrigger;
+  popTrigger = null;
+  if (trigger){
+    trigger.setAttribute("aria-expanded", "false");
+    if (restoreFocus && !trigger.hidden) trigger.focus();
+  }
+}
+function openProfilePop(trigger){
+  if (popTrigger === trigger && !profilePop.hidden){ closeProfilePop(true); return; }
+  closeProfilePop(false);
+  syncProfilePop();
+  popTrigger = trigger;
+  trigger.setAttribute("aria-expanded", "true");
+  positionProfilePop(trigger);
+  paintTheme();
+  requestAnimationFrame(() => profilePop.classList.add("is-open"));
+  const first = $$("button:not([hidden])", profilePop).find(b => b.offsetParent !== null);
+  if (first) first.focus();
+}
+$("#profileTrigger").addEventListener("click", e => { e.stopPropagation(); openProfilePop(e.currentTarget); });
+$("#prefsBtn").addEventListener("click", e => { e.stopPropagation(); openProfilePop(e.currentTarget); });
+profilePop.addEventListener("click", e => {
+  const choice = e.target.closest("[data-theme-choice]");
+  if (choice){ setTheme(choice.dataset.themeChoice); return; }
+  /* navigation and sign-out leave the layer behind them */
+  if (e.target.closest("[data-go],[data-logout]")) closeProfilePop(false);
+});
+document.addEventListener("click", e => {
+  if (profilePop.hidden || e.target.closest("#citizenProfilePop")) return;
+  closeProfilePop(false);
+});
+window.addEventListener("resize", () => { if (!profilePop.hidden && popTrigger) positionProfilePop(popTrigger); });
+document.addEventListener("keydown", e => {
+  if (profilePop.hidden) return;
+  if (e.key === "Escape"){
+    if ($(".dd.open", profilePop)){ closeAllDd(); return; }
+    e.preventDefault(); closeProfilePop(true); return;
+  }
+  if (e.key !== "Tab") return;
+  const f = $$("button, [href], input, [tabindex]:not([tabindex='-1'])", profilePop)
+    .filter(el => !el.disabled && el.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+});
+document.addEventListener("click", e => { if (e.target.closest("[data-logout]")) logout(); });
+
+/* ---------- routing ----------
+   Every screen, profile pane and application detail is a hash route, so Back,
+   reload and a shared link all land on what the user was looking at (§7).
+   go()/navigate() only ever write a URL; applyRoute() paints what it says. */
 const SCREENS = { home:"scr-home", category:"scr-category", journey:"scr-journey",
                   emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service" };
-const PERSONAL = ["profile", "wallet", "tracking", "notifs", "journey"];
-function go(name, own){
-  /* personal screens ask for sign-in first, then continue where the user was headed */
-  if ((!authed || acct === "guest") && PERSONAL.includes(name)){ requireLogin(() => go(name, own)); return; }
-  if (name === "guestService") expansion?.resetGuestFlow();
-  if (name === "wallet" || name === "tracking"){ /* panes inside the profile since the cabinet layout */
-    selectPane(name === "wallet" ? "docs" : "apps");
-    if (own) applyFilter(own);
-    name = "profile";
+/* screens that only exist for a signed-in citizen */
+const PERSONAL = ["profile", "notifs", "journey"];
+/* route slug <-> pane id: the URL speaks the user's language, the DOM keeps its ids */
+const PANE_ROUTE = { data:"data", docs:"wallet", apps:"apps", payments:"payments",
+                     contact:"contact", family:"family", sec:"security", access:"access" };
+const ROUTE_PANE = Object.fromEntries(Object.entries(PANE_ROUTE).map(([pane, slug]) => [slug, pane]));
+/* allow-listed, non-personal, ASCII filter params only (§7) */
+const ROUTE_PARAMS = ["pay", "status", "agency", "own"];
+const PARAM_VALUES = {
+  pay:["all", "free", "paid"],
+  own:["me", "kids", "parents"],
+  status:["all", "active", "done", "action", "draft", "submitted", "review", "approved", "rejected", "completed", "expired"]
+};
+let navDepth = 0;
+let lastHref = null;
+let currentRoute = { screen:"home" };
+const signedIn = () => authed && acct !== "guest";
+
+function parseRoute(hash){
+  const raw = String(hash || "").replace(/^#/, "").split("?")[0];
+  const parts = raw.split("/").filter(Boolean).map(decodeURIComponent);
+  if (!parts.length) return { screen:"home" };
+  if (parts[0] === "category") return { screen:"category", cat:parts[1] || null };
+  if (parts[0] === "emergency"){
+    const step = ["documents", "done"].includes(parts[1]) ? parts[1] : "pitch";
+    return { screen:"emergency", step };
   }
-  const id = SCREENS[name]; if (!id) return;
-  $$(".screen").forEach(s => { s.hidden = s.id !== id; });
+  if (parts[0] === "profile"){
+    const pane = ROUTE_PANE[parts[1]] || "data";
+    return { screen:"profile", pane, appId:(pane === "apps" && parts[2]) ? parts[2] : null };
+  }
+  const named = { journey:"journey", emergency:"emergency", notifs:"notifs", "guest-appointment":"guestService" }[parts[0]];
+  return named ? { screen:named } : { screen:"home" };
+}
+function hashFor(route){
+  if (route.screen === "category") return "#/category/" + encodeURIComponent(route.cat || "");
+  if (route.screen === "profile"){
+    const slug = PANE_ROUTE[route.pane] || "data";
+    return "#/profile/" + slug + (route.appId ? "/" + encodeURIComponent(route.appId) : "");
+  }
+  if (route.screen === "emergency") return "#/emergency" + (route.step && route.step !== "pitch" ? "/" + route.step : "");
+  return { home:"#/", journey:"#/journey", notifs:"#/notifs",
+           guestService:"#/guest-appointment" }[route.screen] || "#/";
+}
+/* which filter params this route is allowed to carry; everything else is dropped */
+function allowedParams(route){
+  if (route.screen === "category") return ["pay"];
+  if (route.screen === "profile" && route.pane === "docs") return ["own"];
+  if (route.screen === "profile" && route.pane === "apps") return ["status", "agency"];
+  return [];
+}
+function routeParams(){
+  const merged = new URLSearchParams(location.search);
+  const hashQuery = String(location.hash || "").split("?")[1];
+  if (hashQuery) new URLSearchParams(hashQuery).forEach((v, k) => merged.set(k, v));
+  return merged;
+}
+function readParam(key, fallback){
+  const raw = routeParams().get(key);
+  if (!raw || !/^[\w,-]{1,40}$/.test(raw)) return fallback;
+  const allow = PARAM_VALUES[key];
+  return (!allow || allow.includes(raw)) ? raw : fallback;
+}
+function needsAuth(route){
+  /* the emergency pitch is public; revoking documents is not */
+  if (route.screen === "emergency") return route.step === "documents" && !signedIn();
+  return PERSONAL.includes(route.screen) && !signedIn();
+}
+function writeUrl(url, replace){
+  const href = url.pathname + url.search + url.hash;
+  if (replace) history.replaceState({ ekh:true, d:navDepth }, "", href);
+  else { navDepth += 1; history.pushState({ ekh:true, d:navDepth }, "", href); }
+  lastHref = location.href;
+}
+function navigate(hash, opts){
+  opts = opts || {};
+  const route = parseRoute(hash);
+  if (needsAuth(route)){ requireLogin(() => navigate(hash, opts)); return; }
+  const url = new URL(location.href);
+  url.hash = hash;
+  const allow = allowedParams(route);
+  ROUTE_PARAMS.forEach(k => { if (!allow.includes(k)) url.searchParams.delete(k); });
+  Object.entries(opts.params || {}).forEach(([k, v]) => {
+    if (!allow.includes(k) || v == null || v === "all") url.searchParams.delete(k);
+    else url.searchParams.set(k, v);
+  });
+  /* re-selecting the screen you are already on must not stack a history entry */
+  const href = url.pathname + url.search + url.hash;
+  const same = href === (location.pathname + location.search + location.hash);
+  writeUrl(url, opts.replace || same);
+  applyRoute(route);
+}
+function showScreen(id, opts){
   const scr = $("#" + id);
-  if (!reduceMotion()){
+  if (!scr) return;
+  const changed = scr.hidden;
+  $$(".screen").forEach(s => { s.hidden = s.id !== id; });
+  if (changed && !reduceMotion() && !opts.initial){
     scr.classList.remove("enter"); void scr.offsetWidth;
     scr.classList.add("enter");
     scr.addEventListener("animationend", () => scr.classList.remove("enter"), { once:true });
   }
+  if (opts.initial) return;
   window.scrollTo({ top:0, left:0, behavior:"instant" });
   const h = scr.querySelector("h1, h2");
   if (h){ h.setAttribute("tabindex", "-1"); h.focus({ preventScroll:true }); }
+}
+function applyRoute(route, opts){
+  opts = opts || {};
+  if (needsAuth(route)){ navigate("#/", { replace:true }); return; }
+  if (route.screen === "category"){
+    if (!route.cat || !findGroup(route.cat)){ navigate("#/", { replace:true }); return; }
+    setPay(readParam("pay", "all"));
+    renderCategory(route.cat);
+  }
+  if (route.screen === "emergency") emergView(route.step || "pitch");
+  if (route.screen === "profile"){
+    selectPane(route.pane, { animate:!opts.initial });
+    if (route.pane === "docs") applyFilter(readParam("own", "me"));
+    if (route.pane === "apps") expansion?.openApplication(route.appId);
+  }
+  currentRoute = route;
+  showScreen(SCREENS[route.screen], opts);
   closeSearch();
 }
+/* one back affordance per screen: the browser's own history, home as the floor */
+function goBack(){
+  if (navDepth > 0) history.back();
+  else navigate("#/", { replace:true });
+}
+function go(name, own){
+  if (name === "guestService") expansion?.resetGuestFlow();
+  const route = name === "wallet" ? { screen:"profile", pane:"docs" }
+              : name === "tracking" ? { screen:"profile", pane:"apps" }
+              : name === "payments" ? { screen:"profile", pane:"payments" }
+              : name === "profile" ? { screen:"profile", pane:"data" }
+              : SCREENS[name] ? { screen:name } : null;
+  if (!route) return;
+  if (route.screen === "category") route.cat = currentCat;
+  navigate(hashFor(route), own ? { params:{ own } } : undefined);
+}
+window.addEventListener("popstate", e => {
+  navDepth = (e.state && e.state.d) || 0;
+  lastHref = location.href;
+  applyRoute(parseRoute(location.hash));
+});
+window.addEventListener("hashchange", () => {
+  if (location.href === lastHref) return;
+  lastHref = location.href;
+  applyRoute(parseRoute(location.hash));
+});
 
 /* ---------- service catalogue (services-data.js, official registry) ---------- */
 const CATALOG = { ...(window.EKHIZMAT_DATA || { person:[], biz:[] }), guest:GUEST_CATALOG };
@@ -257,14 +482,32 @@ function renderCats(){
       '<span>' + esc((g.chip && g.chip[lang]) || g.label[lang]) + '</span>' +
     '</button>').join("");
 }
-function svcRow(it){
+/* One row = one service. The payment fact is a chip only where it is the
+   exception (free); "музднок" repeated on 37 rows is noise, so it joins the
+   quiet meta line instead (rule 6). showOrg is false when the whole group
+   shares one agency — then the agency is printed once, in the subheading. */
+function svcRow(it, showOrg, showPaid){
   const paid = it[2] & 4;
   const action = it[5] === "guest-appointment" ? ' data-go="guestService"' : ' data-toast="toast.demo"';
   const guestBadge = acct === "guest" ? '<span class="audience-badge audience-badge--guest">' + t("meta.free") + ' · ' + ((COPY_GUEST[lang]) || COPY_GUEST.tg) + '</span>' : '';
+  const meta = [];
+  if (showOrg) meta.push(esc(svcOrg(it)));
+  if (paid && showPaid) meta.push(t("meta.paid"));
   return '<button class="svc-row"' + action + '>' +
-    '<span class="tt"><b>' + esc(svcName(it)) + '</b><span class="org">' + esc(svcOrg(it)) + '</span></span>' +
-    guestBadge + '<span class="tag' + (paid ? ' pay' : '') + '">' + t(paid ? "meta.paid" : "meta.free") + '</span>' +
+    '<span class="tt"><b>' + esc(svcName(it)) + '</b>' +
+      (meta.length ? '<span class="org">' + meta.join(" · ") + '</span>' : '') + '</span>' +
+    guestBadge +
+    (paid ? '' : '<span class="tag free">' + t("meta.free") + '</span>') +
+    '<svg class="svc-go" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>' +
   '</button>';
+}
+/* A fact the whole group shares belongs above the group, not on every row: the
+   agency, and "музднок" when the section is paid throughout (rule 6). */
+function svcGroup(items, label, org){
+  const allPaid = items.every(it => it[2] & 4);
+  const head = [label, org, allPaid ? t("meta.paid") : null].filter(Boolean).join(" · ");
+  return (head ? '<h3 class="svc-sub">' + esc(head) + '</h3>' : '') +
+    '<div class="rows">' + items.map(it => svcRow(it, !org, !allPaid)).join("") + '</div>';
 }
 function renderCatList(){
   const g = findGroup(currentCat); if (!g) return;
@@ -274,8 +517,13 @@ function renderCatList(){
     const items = s.items.filter(it =>
       paySel(it) && (!q || (svcName(it) + " " + svcOrg(it)).toLowerCase().includes(q)));
     if (!items.length) return;
-    if (s.label) html += '<h3 class="svc-sub">' + esc(s.label[lang]) + '</h3>';
-    html += '<div class="rows">' + items.map(svcRow).join("") + '</div>';
+    /* the same agency repeats on almost every row: print it once as the group's
+       subheading instead of 37 times down the list (rule 6). A labelled section
+       keeps its label; an unlabelled one is grouped by agency. */
+    const label = s.label ? s.label[lang] : null;
+    const orgs = [...new Set(items.map(svcOrg))];
+    if (label || orgs.length === 1) html += svcGroup(items, label, orgs.length === 1 ? orgs[0] : null);
+    else orgs.forEach(org => { html += svcGroup(items.filter(it => svcOrg(it) === org), null, org); });
     shown += items.length;
   });
   $("#cpList").innerHTML = html;
@@ -296,14 +544,18 @@ function renderCategory(id){
   return true;
 }
 function setPay(val){
-  payFilter = val;
-  $$("#cpFilters .chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.pay === val)));
+  payFilter = PARAM_VALUES.pay.includes(val) ? val : "all";
+  $("#cpPay").value = payFilter;
 }
 function openCat(id){
   $("#cpSearch").value = "";
-  setPay("all");
-  if (renderCategory(id)) go("category");
+  navigate("#/category/" + encodeURIComponent(id));
 }
+$("#cpPay").addEventListener("change", e => {
+  setPay(e.target.value);
+  renderCatList();
+  navigate(hashFor(currentRoute), { params:{ pay:payFilter }, replace:true });
+});
 $("#cpSearch").addEventListener("input", renderCatList);
 $("#cpPills").addEventListener("click", e => {
   const p = e.target.closest(".pill"); if (!p) return;
@@ -336,12 +588,12 @@ $$(".ftabs").forEach(list => list.addEventListener("keydown", e => {
 document.addEventListener("click", e => {
   const fTab = e.target.closest("[data-ftab]");
   if (fTab){ feedTab(fTab.dataset.ftab); return; }
+  const backBtn = e.target.closest("[data-back]");
+  if (backBtn){ goBack(); return; }
   const goBtn = e.target.closest("[data-go]");
   if (goBtn){ go(goBtn.dataset.go, goBtn.dataset.own); return; }
   const catBtn = e.target.closest("[data-cat]");
   if (catBtn){ openCat(catBtn.dataset.cat); return; }
-  const payBtn = e.target.closest("[data-pay]");
-  if (payBtn){ setPay(payBtn.dataset.pay); renderCatList(); return; }
   const tBtn = e.target.closest("[data-toast]");
   if (tBtn){ toast(tBtn.dataset.toast); return; }
   const back = e.target.closest("[data-jback]");
@@ -351,24 +603,35 @@ document.addEventListener("click", e => {
   const docCard = e.target.closest("#docGrid .doc");
   if (docCard){ openDocumentDetail(docCard.dataset.docId); return; }
   const chip = e.target.closest(".filters .chip");
-  if (chip){ applyFilter(chip.dataset.own); return; }
+  if (chip){
+    applyFilter(chip.dataset.own);
+    navigate(hashFor(currentRoute), { params:{ own:chip.dataset.own }, replace:true });
+    return;
+  }
   if (!e.target.closest("#searchWrap")) closeSearch();
 });
 $("#bellBtn").addEventListener("click", () => go("notifs"));
+/* the dot is a fact, not decoration: it shows only while the "new" group has rows */
+(function syncBellDot(){
+  const group = $("#scr-notifs .n-group + .fpane");
+  const dot = $("#bellBtn .dot");
+  if (dot) dot.hidden = !group || !group.children.length;
+})();
 
 /* ---------- journey ---------- */
 let step = 1;
 const childName = $("#childName"), toStep2 = $("#toStep2"), toStep3 = $("#toStep3"),
       consent = $("#consent"), submitAll = $("#submitAll");
-function updateProgLbl(){
-  $("#jprogLbl").textContent = t("j.step").replace("{n}", step);
-}
 function jstep(n){
   step = n;
   for (let i = 1; i <= 4; i++) $("#jstep-" + i).hidden = i !== n;
-  $$("#jprog .st").forEach((s, i) => s.classList.toggle("on", i < n));
-  $$("#jprog .bar").forEach((b, i) => b.classList.toggle("on", i < n - 1));
-  updateProgLbl();
+  $$("#jprog .stepper__step").forEach(el => {
+    const i = Number(el.dataset.jstep);
+    /* step 4 is the success screen: every step is behind the user by then */
+    el.classList.toggle("done", n === 4 || i < n);
+    if (i === n && n < 4) el.setAttribute("aria-current", "step");
+    else el.removeAttribute("aria-current");
+  });
   const h = $("#jstep-" + n + " h2");
   if (h && !$("#scr-journey").hidden){ h.setAttribute("tabindex", "-1"); h.focus({ preventScroll:true }); }
   window.scrollTo({ top:0, left:0, behavior:"instant" });
@@ -407,6 +670,7 @@ const docBirth = $("#docBirth"), docTemp = $("#docTemp");
 docBirth.dataset.locked = "1";
 docTemp.dataset.locked = "1";
 function applyFilter(own){
+  if (!PARAM_VALUES.own.includes(own)) own = "me";
   $$(".filters .chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.own === own)));
   let visible = 0;
   $$("#docGrid .doc").forEach(d => {
@@ -418,27 +682,48 @@ function applyFilter(own){
   $("#walletEmpty").hidden = visible > 0 || visibleFiles > 0;
 }
 
-/* ---------- emergency ---------- */
-$("#emergStart").addEventListener("click", () => {
-  const issue = () => {
-    delete docTemp.dataset.locked;
-    toast("toast.temp");
-    go("wallet", "me");
-  };
-  if (authed) issue(); else requireLogin(issue);
+/* ---------- emergency: pick what was lost, revoke it, get a temporary ID ---------- */
+const emergPitch = $("#emergPitch"), emergForm = $("#emergForm"), emergDone = $("#emergDone");
+function emergView(step){
+  /* a reloaded #/emergency/done has nothing to report — start over from the pitch */
+  if (step === "done" && !$("#emergRevoked").children.length){ navigate("#/emergency", { replace:true }); return; }
+  emergPitch.hidden = step !== "pitch";
+  emergForm.hidden = step !== "documents";
+  emergDone.hidden = step !== "done";
+}
+$("#emergStart").addEventListener("click", () => navigate("#/emergency/documents"));
+emergForm.addEventListener("submit", e => {
+  e.preventDefault();
+  const picked = $$("#emergForm input[type=checkbox]").filter(b => b.checked);
+  if (!picked.length){
+    $("#emergError").textContent = t("e.f.none");
+    $("#emergError").hidden = false;
+    return;
+  }
+  $("#emergError").hidden = true;
+  $("#emergRevoked").innerHTML = picked.map(b =>
+    '<div class="s-row"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg>' +
+    '<span>' + esc(t(b.value === "driver" ? "d.drv.k" : "d.pass.k")) + '</span>' +
+    '<span class="st-l">' + esc(t("e.d.revoked")) + '</span></div>').join("");
+  delete docTemp.dataset.locked;
+  navigate("#/emergency/done", { replace:true });
+  toast("toast.temp");
 });
 
 /* ---------- profile ---------- */
-function selectPane(key){
+function selectPane(key, opts){
+  opts = opts || {};
   $$(".pn").forEach(b => b.setAttribute("aria-current", String(b.dataset.pane === key)));
   $$(".pane").forEach(p => { p.hidden = p.id !== "pane-" + key; });
   const pane = $("#pane-" + key);
-  if (!pane || reduceMotion()) return;
+  if (!pane || reduceMotion() || opts.animate === false) return;
   pane.classList.remove("enter"); void pane.offsetWidth;
   pane.classList.add("enter");
   pane.addEventListener("animationend", () => pane.classList.remove("enter"), { once:true });
 }
-$$(".pn").forEach(btn => btn.addEventListener("click", () => selectPane(btn.dataset.pane)));
+$$(".pn[data-pane]").forEach(btn => btn.addEventListener("click", () => {
+  navigate("#/profile/" + (PANE_ROUTE[btn.dataset.pane] || "data"));
+}));
 $$(".sw input").forEach(sw => sw.addEventListener("change", () => toast("toast.saved")));
 $("#devOut").addEventListener("click", () => { $("#devRow2").remove(); toast("toast.out"); });
 $("#revokeBtn").addEventListener("click", () => {
@@ -675,7 +960,7 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape" && qrOverlay.classList.contains("open")){ closeQr(); return; }
   if (e.key === "Escape" && loginOverlay.classList.contains("open")){ closeLogin(); return; }
   if (e.key === "Escape" && searchPop.classList.contains("open")){ closeSearch(); searchInput.focus(); return; }
-  if (qrOverlay.classList.contains("open") || loginOverlay.classList.contains("open")) return; /* shortcuts stay inside the dialog */
+  if (qrOverlay.classList.contains("open") || loginOverlay.classList.contains("open") || !profilePop.hidden) return; /* shortcuts stay inside the open layer */
   if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){
     e.preventDefault(); searchInput.focus();
   }
@@ -690,11 +975,37 @@ expansion = initCitizenExpansion({
   go,
   toastText,
   renderQr,
+  /* the pane never reads or writes the URL itself — it asks the router to */
+  readParam,
+  syncQuery:params => navigate(hashFor(currentRoute), { params, replace:true }),
+  openApp:id => navigate("#/profile/apps" + (id ? "/" + encodeURIComponent(id) : "")),
   openReceivedFile:file=>openDocumentDetail(file.id,file)
 });
 applyAuth();
 applyLang();
 jstep(1);
-applyFilter("me");
 feedTab("notif");
+
+/* first paint restores the screen, pane, detail and filters the URL asks for */
+(function boot(){
+  const route = parseRoute(location.hash);
+  const url = new URL(location.href);
+  const incoming = routeParams();
+  url.hash = hashFor(route);
+  const allow = allowedParams(route);
+  ROUTE_PARAMS.forEach(k => {
+    const value = allow.includes(k) ? incoming.get(k) : null;
+    if (value) url.searchParams.set(k, value); else url.searchParams.delete(k);
+  });
+  history.replaceState({ ekh:true, d:0 }, "", url.pathname + url.search + url.hash);
+  navDepth = 0;
+  lastHref = location.href;
+  applyFilter(route.screen === "profile" && route.pane === "docs" ? readParam("own", "me") : "me");
+  if (needsAuth(route)){
+    applyRoute({ screen:"home" }, { initial:true });
+    requireLogin(() => navigate(hashFor(route)));
+    return;
+  }
+  applyRoute(route, { initial:true });
+})();
 })();

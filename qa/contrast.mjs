@@ -22,7 +22,13 @@ const checks = [
   ['light red ink on tint', hex('--red-ink'), hex('--red-tint')],
   ['light blue ink on tint', hex('--blue-ink'), hex('--blue-tint')],
 ];
+// Wallet document identity colours (design-guide §3 / WP8): each card carries
+// --pure-white text, so every document hue must clear 4.5:1 in both themes.
+const docTokens = ['--doc-passport', '--doc-license', '--doc-tax', '--doc-birth', '--doc-temp'];
+for (const token of docTokens) checks.push([`light ${token} on white text`, hex(token), hex('--pure-white')]);
+
 const dark = css.slice(css.indexOf("[data-theme='dark']"));
+for (const token of docTokens) checks.push([`dark ${token} on white text`, hex(token, dark), hex('--pure-white')]);
 checks.push(['dark primary', hex('--action', dark), hex('--on-blue')]);
 checks.push(['dark green ink on tint', hex('--green-ink', dark), hex('--green-tint', dark)]);
 checks.push(['dark amber ink on tint', hex('--amber-ink', dark), hex('--amber-tint', dark)]);

@@ -4,7 +4,9 @@ async function openCabinet(page, pane='data', query='') {
   await page.goto(`/citizen/?lang=ru&theme=light${query}`);
   await page.evaluate(() => localStorage.setItem('ekh.citizen.auth','1'));
   await page.reload();
-  await page.locator('.avatar').click();
+  // the avatar is the identity home now: profile lives behind the popover
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.locator(`[data-pane="${pane}"]`).click();
 }
 
@@ -25,18 +27,19 @@ test('document card opens details and its corner QR opens directly', async ({ pa
 
 test('applications are newest first and filters combine with URL state', async ({ page }) => {
   await openCabinet(page,'apps');
-  await page.locator('.application-summary').click();
   const dates=await page.locator('.application-row').evaluateAll(rows=>rows.map(row=>Date.parse(row.dataset.updatedAt)));
   expect(dates).toEqual([...dates].sort((a,b)=>b-a));
-  await page.locator('[data-app-filter="status"]').selectOption('review');
+  await page.locator('[data-app-filter="status"]').selectOption('active');
   await page.locator('[data-app-filter="agency"]').selectOption('zags');
-  await expect(page).toHaveURL(/status=review/);
+  await expect(page).toHaveURL(/status=active/);
   await expect(page).toHaveURL(/agency=zags/);
   await expect(page.locator('.application-row')).toHaveCount(1);
-  await page.locator('[data-app-action="reset"]').click();
+  // the control that was just used keeps the keyboard after the re-render
+  await expect(page.locator('[data-app-filter="agency"]')).toBeFocused();
+  await page.locator('[data-app-filter="agency"]').selectOption('all');
+  await page.locator('[data-app-status="all"]').click();
   await expect(page).not.toHaveURL(/status=/);
-  await page.locator('[data-app-filter="type"]').selectOption('service-3');
-  await expect(page.locator('.application-row')).toHaveCount(1);
+  await expect(page.locator('.application-row')).toHaveCount(16);
 });
 
 test('payments show status dates and receipt is restricted to paid item', async ({ page }) => {
@@ -55,7 +58,7 @@ test('payments show status dates and receipt is restricted to paid item', async 
 
 test('completed baby journey adds owner-filtered certificate and receipt files', async ({ page }) => {
   await openCabinet(page,'data');
-  await page.locator('#scr-profile [data-go="home"]').click();
+  await page.locator('#scr-profile [data-back]').click();
   await page.locator('[data-go="journey"]:visible').first().click();
   await page.locator('#childName').fill('Зарина');
   await page.locator('#toStep2').click();
@@ -68,17 +71,21 @@ test('completed baby journey adds owner-filtered certificate and receipt files',
   const fileDownload=page.waitForEvent('download');
   await page.locator('[data-file-download]').click();
   await fileDownload;
-  await page.locator('[data-own="me"]').click();
+  await page.locator('.filters [data-own="me"]').click();
   await expect(page.locator('.received-file-row')).toContainText('Квитанция');
-  await page.locator('[data-own="parents"]').click();
+  await page.locator('.filters [data-own="parents"]').click();
   await expect(page.locator('.received-empty')).toBeVisible();
 });
 
-test('active services render on dashboard and open transparent history', async ({ page }) => {
+test('active applications lead from the strip into the transparent history', async ({ page }) => {
+  // tracking left the personal-data pane: it belongs with the applications (WP6.1)
   await openCabinet(page,'data');
-  await expect(page.locator('.tracking-card')).toHaveCount(4);
-  await page.locator('.tracking-card [data-track-id]').first().click();
-  await expect(page.locator('#pane-apps')).toBeVisible();
+  await expect(page.locator('.tracking-card')).toHaveCount(0);
+
+  await page.locator('[data-pane="apps"]').click();
+  await expect(page.locator('.app-active__row')).toHaveCount(3);
+  await expect(page.locator('.mini-stepper')).toHaveCount(0);
+  await page.locator('.app-active__row').first().click();
   await expect(page.locator('.application-history')).toBeVisible();
   await expect(page.locator('.application-path')).toBeVisible();
 });
@@ -95,7 +102,7 @@ test('profile photo validates files and never writes a storage key', async ({ pa
   await page.locator('#profilePhotoInput').setInputFiles({name:'profile.png',mimeType:'image/png',buffer:png});
   await page.locator('#profilePhotoSave').click();
   await expect(page.locator('.profile-photo-trigger .avatar-image')).toBeVisible();
-  await expect(page.locator('.profile-avatar .avatar-image')).toBeVisible();
+  await expect(page.locator('#profileTrigger .avatar-image')).toBeVisible();
   await page.locator('#profilePhotoTrigger').click();
   await page.locator('#profilePhotoRemove').click();
   await expect(page.locator('.profile-photo-trigger .avatar-fallback')).toBeVisible();

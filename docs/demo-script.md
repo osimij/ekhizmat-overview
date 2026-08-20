@@ -14,7 +14,7 @@ The examples are fixtures, not real citizens or applications. Never enter real p
 
 ### 0:00–0:40 — One eKhizmat family
 
-On the launcher, point out the four clear destinations, shared visual language, Tajik/Russian language control, and light/dark theme. Explain that each card is a normal link and each product has a clean URL.
+On the launcher, point out the four clear destinations, shared visual language, Tajik/Russian language control, and light/dark theme. Explain that each row is a normal link and each product has a clean URL.
 
 ### 0:40–2:20 — Scenario 1: a Guest gets a service (`1`)
 

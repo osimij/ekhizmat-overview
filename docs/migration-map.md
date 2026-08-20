@@ -16,7 +16,7 @@ The root Git tag `pre-unified-2026-07-27` records the untouched pre-merge state.
 
 ## Active route files
 
-- `index.html` + `apps/launcher.*` — four-card launcher.
+- `index.html` + `apps/launcher.*` — four-destination launcher.
 - `citizen/index.html` + `apps/citizen/` — Citizen.
 - `tson/index.html` + `apps/tson/` — ЦОН.
 - `ministry/index.html` + `apps/ministry/` — Ministry.

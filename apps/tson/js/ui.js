@@ -44,10 +44,11 @@ export function mount(host, ...nodes) {
 
 /* ---------- иконки (§4.3) ---------- */
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const FILLED_ICONS = new Set(['check', 'x-strong', 'pause', 'theme-system']);
 
 export function icon(name, { size = 24, label = null, cls = '' } = {}) {
   const svg = document.createElementNS(SVG_NS, 'svg');
-  svg.setAttribute('class', `icon${size !== 24 ? ` icon--${size}` : ''}${cls ? ` ${cls}` : ''}`);
+  svg.setAttribute('class', `icon${size !== 24 ? ` icon--${size}` : ''}${FILLED_ICONS.has(name) ? ' icon--filled' : ''}${cls ? ` ${cls}` : ''}`);
 
   // §9 — иконка без текста получает aria-label, декоративная скрыта.
   if (label) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', label); }

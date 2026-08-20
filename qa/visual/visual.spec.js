@@ -36,16 +36,17 @@ test('Citizen Guest form and categorized cabinet references', async ({ page }) =
   await page.locator('[data-go="guestService"]').click();
   await expect(page).toHaveScreenshot('citizen-guest-form-mobile-light-ru.png', { fullPage: true, animations: 'disabled' });
 
-  await page.locator('#scr-guest-service [data-go="home"]').first().click();
+  await page.locator('#scr-guest-service [data-back]').first().click();
   await page.locator('#guestLoginBtn').click();
   await page.locator('#loginPhone').fill('+992 90 000 00 00');
   await page.locator('#loginGo').click();
-  await page.locator('[data-go="profile"]').first().click();
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.locator('[data-pane="apps"]').click();
-  await expect(page.locator('.application-category')).toHaveCount(6);
+  await expect(page.locator('.app-kpi')).toHaveCount(4);
   await expect(page.locator('#toast')).not.toHaveClass(/show/, { timeout: 5000 });
   await page.evaluate(() => scrollTo(0, 0));
-  await expect(page).toHaveScreenshot('citizen-cabinet-categories-mobile-light-ru.png', { fullPage: true, animations: 'disabled' });
+  await expect(page).toHaveScreenshot('citizen-cabinet-applications-mobile-light-ru.png', { fullPage: true, animations: 'disabled' });
 });
 
 test('ЦОН centre and leadership dashboard references', async ({ page }) => {

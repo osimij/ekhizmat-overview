@@ -1,6 +1,9 @@
 :root {
   --maxw: 1120px;
+  --w-launcher: 1440px;
   --col: 640px;
+  /* mid-width reading column for browse/registry screens (citizen category page) */
+  --w-browse: 880px;
   --content-consumer: 1120px;
   --content-workspace: 1200px;
   --h-topbar: 60px;

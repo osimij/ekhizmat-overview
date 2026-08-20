@@ -18,12 +18,12 @@ test('new citizen application, payment and document surfaces have no serious vio
   await page.evaluate(()=>localStorage.setItem('ekh.citizen.auth','1'));
   await page.reload();
   await page.addStyleTag({content:'*,*::before,*::after{animation:none!important;transition:none!important}'});
-  await page.locator('.avatar').click();
+  await page.locator('#profileTrigger').click();
+  await page.locator('#citizenProfilePop [data-go="profile"]').first().click();
   await page.waitForTimeout(400);
   for (const pane of ['data','apps','payments','docs']) {
     await page.locator(`[data-pane="${pane}"]`).click();
-    if(pane==='apps')await page.locator('.application-summary').click();
-    const targets={data:['#underReviewRoot'],apps:['#applicationsRoot'],payments:['#paymentsRoot'],docs:['#docGrid','.received-documents']}[pane];
+    const targets={data:['#pane-data'],apps:['#applicationsRoot'],payments:['#paymentsRoot'],docs:['#docGrid','.received-documents']}[pane];
     expect(await seriousViolations(page,targets),pane).toEqual([]);
   }
   await page.locator('[data-doc-id="passport"] .doc-open').click();

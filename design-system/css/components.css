@@ -632,16 +632,20 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
    `appearance:none` + the sprite chevron drawn beside the field. The wrapper
    owns the border so the focus ring is one rectangle around field and chevron. */
 .ekh-select{position:relative;display:flex;align-items:center;width:100%}
-.ekh-select > select{
-  width:100%; height:var(--h-field); padding:0 44px 0 var(--s-4);
+.ekh-select > select{width:100%; padding-inline-end:44px; appearance:none; -webkit-appearance:none; cursor:pointer}
+.ekh-select > svg{position:absolute; inset-inline-end:16px; width:16px; height:16px; color:var(--ink-2); pointer-events:none}
+.ekh-select > select:disabled{opacity:.55; cursor:not-allowed}
+/* A select that already carries the consumer's field class keeps that field's
+   geometry — the wrapper only adds the chevron. Standalone, it draws its own. */
+.ekh-select > select:not(.input):not(.field__input){
+  height:var(--h-field); padding-inline-start:var(--s-4);
   border:1px solid var(--line); border-radius:var(--r-m);
   background:var(--field); color:var(--ink); font:inherit; font-size:var(--fs-14);
-  appearance:none; -webkit-appearance:none; cursor:pointer;
   transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
-.ekh-select > svg{position:absolute; right:16px; width:16px; height:16px; color:var(--ink-2); pointer-events:none}
-.ekh-select:focus-within > select{outline:0; border-color:var(--focus); box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent)}
-.ekh-select > select:disabled{opacity:.55; cursor:not-allowed}
+.ekh-select > select:not(.input):not(.field__input):focus-visible{
+  outline:0; border-color:var(--focus); box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent);
+}
 
 /* ============ SWITCH ============ */
 /* ON = the one action blue (same affordance language as buttons/links). */

@@ -96,6 +96,13 @@
   --preview-brown: #79522a;
   --preview-brown-2: #8a5e31;
   --preview-peach: #ffd9a8;
+  /* Wallet document identity: the card colour tells the document apart the way
+     a physical wallet does. White text on every one clears 4.5:1 (qa/contrast.mjs). */
+  --doc-passport: #33415c;
+  --doc-license: #10514e;
+  --doc-tax: #3a3f45;
+  --doc-birth: #79522a;
+  --doc-temp: #8a5a13;
   --alpha-black-20: rgb(0 0 0 / 20%);
   --alpha-black-18: rgb(0 0 0 / 18%);
   --alpha-overlay: rgb(16 15 13 / 40%);
@@ -157,6 +164,11 @@
   --h-gray-bg: #26272b; --h-gray-fg: #a8abaf;
   --h-cyan-bg: #132b36; --h-cyan-fg: #5fc0e8;
   --h-olive-bg: #272b14; --h-olive-fg: #b5c45c;
+  --doc-passport: #3a4a68;
+  --doc-license: #14605c;
+  --doc-tax: #43484f;
+  --doc-birth: #8a5e31;
+  --doc-temp: #9a6717;
 }
 
 /* Admin platform re-tune (Figma «eKhizmat Admin · Component Library»):

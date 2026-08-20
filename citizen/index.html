@@ -7,7 +7,7 @@
 <!-- restore the stored session before first paint so signed-in users see no signed-out flash -->
 <script>try{if(localStorage.getItem("ekh.citizen.auth")==="1")document.documentElement.dataset.auth="in"}catch(e){}</script>
 <!-- same for the theme: stored choice first, else the device's scheme -->
-<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){}</script>
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");document.documentElement.dataset.theme=(t==="dark"||t==="light")?t:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="preload" href="/design-system/assets/fonts/GoogleSans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/apps/citizen/assets/hero.webp" as="image" type="image/webp" media="(min-width:881px)">
@@ -39,22 +39,15 @@
         </div>
       </div>
       <div class="hdr-acts">
-        <div class="dd lang">
-          <button class="dd-btn" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">
-            <span id="langCur">ТҶ</span>
-            <svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
-          </button>
-          <div class="dd-menu" role="listbox" aria-label="Забон / Language">
-            <div class="dd-label" aria-hidden="true" data-i18n="lang.label">Забон</div>
-            <button role="option" data-lang="tg" aria-selected="true"><span>Тоҷикӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
-            <button role="option" data-lang="ru" aria-selected="false"><span>Русский</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
-            <button role="option" data-lang="en" aria-selected="false"><span>English</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
-          </div>
-        </div>
+        <!-- signed out / guest: preferences live behind one quiet icon (§3, rule 31) -->
+        <button class="icon-btn" id="prefsBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="citizenProfilePop" data-i18n-aria="pop.prefs" aria-label="Забон ва мавзӯъ">
+          <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-gear"/></svg>
+        </button>
         <button class="icon-btn" id="bellBtn" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо">
           <svg><use href="/design-system/assets/icons.svg#i-bell"/></svg><span class="dot"></span>
         </button>
-        <button class="avatar profile-avatar" data-go="profile" data-i18n-aria="nav.profile" aria-label="Профили ман"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden></button>
+        <!-- signed in: the avatar is the identity home — profile, language, theme, sign-out -->
+        <button class="avatar profile-avatar" id="profileTrigger" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="citizenProfilePop" data-i18n-aria="nav.profile" aria-label="Профили ман"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden></button>
         <button class="guest-avatar" id="guestAvatar" type="button" data-i18n-aria="nav.profile" aria-label="Профили ман" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg></button>
         <button class="btn btn-pri btn-sm" id="loginBtn" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
       </div>
@@ -112,54 +105,51 @@
         <div class="feed-col">
           <div class="fpane" id="fpane-notif" role="tabpanel" aria-labelledby="ftab-notif" tabindex="0">
             <button class="frow" data-go="journey">
-              <span class="fic tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
-              <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+              <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
               <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
-              <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+              <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
             </button>
             <button class="frow" data-toast="toast.demo">
-              <span class="fic tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-              <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+              <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
               <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
-              <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+              <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
             </button>
             <button class="frow" data-go="tracking">
-              <span class="fic tile t-green sh-r"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-              <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+              <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
               <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
-              <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+              <span class="fact"><span class="fdate" data-i18n="f.n3.d">10 июн</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
             </button>
           </div>
 
           <div class="fpane" id="fpane-apps" role="tabpanel" aria-labelledby="ftab-apps" tabindex="0" hidden>
             <button class="app-row" data-go="tracking">
-              <span class="ic tile t-steel sh-c"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
+              <span class="fic g-steel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
               <span class="tt"><b data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</b><span data-i18n="apps.i1.s">САҲШ-и ноҳияи Сино - ариза №ТҶ-2026-184302</span></span>
-              <span class="status"><span class="pulse"></span><span data-i18n="status.review">Дар баррасӣ</span></span>
+              <span class="status-icon status-icon--info" role="img" data-i18n-aria="status.review" data-i18n-title="status.review" aria-label="Дар баррасӣ" title="Дар баррасӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg></span>
             </button>
             <button class="app-row" data-go="tracking">
-              <span class="ic tile t-indigo sh-c"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
+              <span class="fic g-indigo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
               <span class="tt"><b data-i18n="apps.i2.t">Сабти соҳибкори инфиродӣ</b><span data-i18n="apps.i2.s">Кумитаи андоз - ариза №ТҶ-2026-179908</span></span>
-              <span class="status done"><svg width="14" height="14"><use href="/design-system/assets/icons.svg#i-check"/></svg><span data-i18n="status.done">Иҷро шуд</span></span>
+              <span class="status-icon status-icon--success" role="img" data-i18n-aria="status.done" data-i18n-title="status.done" aria-label="Иҷро шуд" title="Иҷро шуд"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
             </button>
           </div>
 
           <div class="fpane" id="fpane-pay" role="tabpanel" aria-labelledby="ftab-pay" tabindex="0" hidden>
-            <button class="frow" data-toast="toast.demo">
-              <span class="fic tile t-red"><svg><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
-              <span class="fk"><b data-i18n="f.p1.k">Андоз</b><span data-i18n="f.p1.d">то 1 июл</span></span>
+            <p class="fempty" id="feedPayEmpty" hidden data-i18n="f.pay.none">Ҳоло ҳисоби пардохтнашуда нест.</p>
+            <button class="frow" id="feedPayRow" data-go="payments">
+              <span class="fic g-red"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
               <span class="ft"><b data-i18n="f.p1.t">Андози нақлиёт барои соли 2026</b><span data-i18n="f.p1.p">Кумитаи андоз - ҳисоби №АН-44213</span></span>
-              <span class="fact"><span class="btn btn-pri" data-i18n="f.p1.cta">Пардохтан</span></span>
+              <span class="fact"><span class="fdate" data-i18n="f.p1.d">то 1 июл</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
             </button>
           </div>
         </div>
 
-        <aside class="pay-card">
-          <div class="pt" data-i18n="pay.t">Ба пардохт: 1 ҳисоби андоз</div>
-          <div class="sum" data-i18n="pay.sum">86,40 смн.</div>
-          <div class="old" data-i18n="pay.old">108,00 смн.</div>
-          <div class="note" data-i18n="pay.note">тахфифи 20% ҳангоми пардохт то 1 июл</div>
-          <button class="btn btn-pri" data-toast="toast.demo" data-i18n="pay.cta">Пардохт кардан</button>
+        <aside class="pay-card" id="payCard">
+          <div class="sum" id="paySum">86,40 смн.</div>
+          <div class="pt" id="payLabel" data-i18n="pay.t">Ба пардохт: 1 ҳисоби андоз</div>
+          <div class="note" id="payNote" data-i18n="pay.note">тахфифи 20% ҳангоми пардохт то 1 июл</div>
+          <button class="btn btn-pri" id="payNow" data-pay-pending data-i18n="pay.cta">Пардохт кардан</button>
+          <button class="pay-link" data-go="payments" data-i18n="pay.all">Ҳамаи пардохтҳо</button>
         </aside>
       </div>
     </section>
@@ -228,7 +218,7 @@
     </section>
 
     <div class="emerg" role="region" aria-labelledby="emH">
-      <svg><use href="/design-system/assets/icons.svg#i-shield"/></svg>
+      <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-shield"/></svg>
       <div>
         <b id="emH" data-i18n="em.t">Ҳуҷҷатҳоятон гум ё дуздида шуданд?</b>
         <p data-i18n="em.p">Шиносномаи муваққатии рақамӣ фавран дода мешавад, ҳуҷҷатҳои нав бо навбати аввал.</p>
@@ -241,38 +231,48 @@
 <!-- ============ CATEGORY: services of one group ============ -->
 <section class="screen" id="scr-category" hidden>
   <div class="catpage">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
     <div class="cp-head">
       <h1 id="cpTitle"></h1>
-      <p class="cp-count" id="cpCount"></p>
     </div>
     <div class="cp-search">
       <svg class="ic"><use href="/design-system/assets/icons.svg#i-search"/></svg>
       <input id="cpSearch" type="search" autocomplete="off" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" data-i18n-ph="cp.search.ph" placeholder="Ҷустуҷӯ дар ин бахш...">
     </div>
     <div class="pills" id="cpPills"></div>
-    <div class="filters" id="cpFilters" role="group" data-i18n-aria="cp.f.label" aria-label="Пардохт">
-      <button class="chip" data-pay="all" aria-pressed="true" data-i18n="cp.f.all">Ҳама</button>
-      <button class="chip" data-pay="free" aria-pressed="false" data-i18n="cp.f.free">Ройгон</button>
-      <button class="chip" data-pay="paid" aria-pressed="false" data-i18n="cp.f.paid">Музднок</button>
+    <div class="ekh-filter" id="cpFilters">
+      <span class="ekh-filter__label" id="cpPayLabel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-card"/></svg><span data-i18n="cp.f.label">Пардохт</span></span>
+      <span class="ekh-filter__field">
+        <select id="cpPay" data-i18n-aria="cp.f.label" aria-label="Пардохт">
+          <option value="all" data-i18n="cp.f.all">Ҳама</option>
+          <option value="free" data-i18n="cp.f.free">Ройгон</option>
+          <option value="paid" data-i18n="cp.f.paid">Музднок</option>
+        </select>
+        <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+      </span>
     </div>
-    <div class="svc-list" id="cpList"></div>
-    <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
+    <div class="cp-results" aria-live="polite">
+      <p class="cp-count" id="cpCount" role="status"></p>
+      <div class="svc-list" id="cpList"></div>
+      <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
+    </div>
   </div>
 </section>
 
 <!-- ============ JOURNEY: I JUST HAD A BABY ============ -->
 <section class="screen" id="scr-journey" hidden>
   <div class="col">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
 
     <div class="j-head">
-      <div class="j-prog" id="jprog" aria-hidden="true">
-        <svg class="st on"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
-        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
-        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg><span class="bar"></span>
-        <svg class="st"><use href="/design-system/assets/icons.svg#i-star8"/></svg>
-        <span class="lbl" id="jprogLbl"></span>
+      <div class="stepper" id="jprog">
+        <span class="stepper__step" data-jstep="1" aria-current="step"><span class="stepper__number">1</span><span data-i18n="j.s1">Кӯдак</span></span>
+        <span class="stepper__line" aria-hidden="true"></span>
+        <span class="stepper__step" data-jstep="2"><span class="stepper__number">2</span><span data-i18n="j.s2">Хизматҳо</span></span>
+        <span class="stepper__line" aria-hidden="true"></span>
+        <span class="stepper__step" data-jstep="3"><span class="stepper__number">3</span><span data-i18n="j.s3">Санҷиш</span></span>
+        <span class="stepper__line" aria-hidden="true"></span>
+        <span class="stepper__step" data-jstep="4"><span class="stepper__number">4</span><span data-i18n="j.s4">Анҷом</span></span>
       </div>
     </div>
 
@@ -323,17 +323,17 @@
       <p class="lead" data-i18n="j2.p">Ин се хизмат одатан якҷоя лозиманд. Нодаркорашро хомӯш кунед.</p>
 
       <label class="svc">
-        <input type="checkbox" checked id="svc1">
+        <input class="ekh-checkbox" type="checkbox" checked id="svc1">
         <span class="tt"><b data-i18n="svc1.t">Шаҳодатномаи таваллуд</b><p data-i18n="svc1.p">Рақамӣ - дар ҳамёни шумо; коғазӣ - дар САҲШ-и наздиктарин.</p></span>
         <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc1.m">тақрибан 2 соат</span></span>
       </label>
       <label class="svc">
-        <input type="checkbox" checked id="svc2">
+        <input class="ekh-checkbox" type="checkbox" checked id="svc2">
         <span class="tt"><b data-i18n="svc2.t">Рақами андозсупоранда барои кӯдак</b><p data-i18n="svc2.p">Баъдтар барои боғча, мактаб ва кумакпулиҳо лозим мешавад.</p></span>
         <span class="meta"><b data-i18n="meta.free">ройгон</b><span data-i18n="svc2.m">фаврӣ</span></span>
       </label>
       <label class="svc">
-        <input type="checkbox" checked id="svc3">
+        <input class="ekh-checkbox" type="checkbox" checked id="svc3">
         <span class="tt"><b data-i18n="svc3.t">Кумакпулии моҳона барои кӯдак</b><p data-i18n="svc3.p">350 сомонӣ дар моҳ то сесолагӣ. Ба ҳисоби шумо: Алиф Бонк ···· 4821.</p></span>
         <span class="meta"><b data-i18n="svc3.b">+350 смн/моҳ</b><span data-i18n="svc3.m">аз моҳи оянда</span></span>
       </label>
@@ -359,7 +359,7 @@
       </div>
 
       <label class="consent">
-        <input type="checkbox" id="consent">
+        <input class="ekh-checkbox" type="checkbox" id="consent">
         <span data-i18n="j3.consent">Тасдиқ мекунам, ки маълумот дуруст аст. Агар хато бошад, дар ҳар лаҳза ислоҳ карда мешавад - ҷарима нест.</span>
       </label>
 
@@ -395,24 +395,49 @@
 <!-- ============ EMERGENCY ============ -->
 <section class="screen" id="scr-emergency" hidden>
   <div class="col">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
     <div class="e-hero">
       <h1 data-i18n="e.h">Ором бошед - ҳозир ҳамаашро барқарор мекунем</h1>
       <p class="lead" data-i18n="e.p">Ҳуҷҷатҳои гумшуда фавран бекор карда мешаванд, то каси дигар истифода набарад. Шумо бе ҳуҷҷат намемонед.</p>
     </div>
-    <div class="e-steps">
-      <div class="e-step"><span class="n">1</span><div><b data-i18n="e.s1.t">Кадом ҳуҷҷатҳо гум шуданд</b><p data-i18n="e.s1.p">Аз рӯйхат интихоб кунед - ҳамаашон дарҳол бекор мешаванд.</p></div></div>
-      <div class="e-step"><span class="n">2</span><div><b data-i18n="e.s2.t">Шиносномаи муваққатии рақамӣ</b><p data-i18n="e.s2.p">Фавран дар ҳамёни шумо пайдо мешавад ва 30 рӯз эътибор дорад.</p></div></div>
-      <div class="e-step"><span class="n">3</span><div><b data-i18n="e.s3.t">Ҳуҷҷатҳои нав - бо навбати аввал</b><p data-i18n="e.s3.p">Аризаҳо худкор бо тамғаи фаврӣ фиристода мешаванд. Пардохт - дар охир, як маротиба.</p></div></div>
+    <div class="e-pitch" id="emergPitch">
+      <div class="e-steps">
+        <div class="e-step"><span class="n">1</span><div><b data-i18n="e.s1.t">Кадом ҳуҷҷатҳо гум шуданд</b><p data-i18n="e.s1.p">Аз рӯйхат интихоб кунед - ҳамаашон дарҳол бекор мешаванд.</p></div></div>
+        <div class="e-step"><span class="n">2</span><div><b data-i18n="e.s2.t">Шиносномаи муваққатии рақамӣ</b><p data-i18n="e.s2.p">Фавран дар ҳамёни шумо пайдо мешавад ва 30 рӯз эътибор дорад.</p></div></div>
+        <div class="e-step"><span class="n">3</span><div><b data-i18n="e.s3.t">Ҳуҷҷатҳои нав - бо навбати аввал</b><p data-i18n="e.s3.p">Аризаҳо худкор бо тамғаи фаврӣ фиристода мешаванд. Пардохт - дар охир, як маротиба.</p></div></div>
+      </div>
+      <button class="btn btn-danger btn-lg btn-block" id="emergStart" data-i18n="e.cta">Оғоз - тақрибан 10 дақиқа</button>
     </div>
-    <button class="btn btn-danger btn-lg btn-block" id="emergStart" data-i18n="e.cta">Оғоз - тақрибан 10 дақиқа</button>
+
+    <!-- step 1 of the emergency flow: pick the lost documents, then revoke them -->
+    <form class="e-form" id="emergForm" novalidate hidden>
+      <h2 data-i18n="e.f.h">Кадом ҳуҷҷатҳо гум шуданд?</h2>
+      <p class="lead" data-i18n="e.f.p">Интихобшудаҳо дарҳол бекор мешаванд - каси дигар онҳоро истифода бурда наметавонад.</p>
+      <div class="e-picks">
+        <label class="e-pick"><input class="ekh-checkbox" type="checkbox" value="passport" checked><span class="tt"><b data-i18n="d.pass.k">Шиноснома</b><small>Т 4018236</small></span></label>
+        <label class="e-pick"><input class="ekh-checkbox" type="checkbox" value="driver"><span class="tt"><b data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</b><small>AB 552901</small></span></label>
+      </div>
+      <p class="e-confirm"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span data-i18n="e.f.warn">Ҳамаашон дарҳол бекор мешаванд. Ин амал баргардонида намешавад.</span></p>
+      <p class="field-error" id="emergError" role="alert" hidden></p>
+      <button class="btn btn-danger btn-lg btn-block" id="emergSubmit" type="submit" data-i18n="e.f.cta">Бекор кардан ва шиносномаи муваққатӣ гирифтан</button>
+    </form>
+
+    <div class="e-done" id="emergDone" hidden>
+      <h2 data-i18n="e.d.h">Тайёр - ҳуҷҷатҳо бекор шуданд</h2>
+      <p class="lead" data-i18n="e.d.p">Шиносномаи муваққатии рақамӣ дар ҳамёни шумост ва 30 рӯз эътибор дорад.</p>
+      <div class="s-list" id="emergRevoked"></div>
+      <div class="j-acts j-acts-center">
+        <button class="btn btn-sec" data-go="wallet" data-own="me" data-i18n="j4.wallet">Ба ҳамён</button>
+        <button class="btn btn-pri btn-lg" data-go="tracking" data-i18n="e.d.apps">Дидани аризаҳо</button>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ============ NOTIFICATIONS: full list ============ -->
 <section class="screen" id="scr-notifs" hidden>
   <div class="col">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
     <div class="j-head">
       <h2 data-i18n="nav.notif">Огоҳиҳо</h2>
       <p class="muted small" data-i18n="n.sub">3 огоҳии нав</p>
@@ -421,50 +446,43 @@
     <div class="n-group" data-i18n="f.g.new">Нав</div>
     <div class="fpane">
       <button class="frow" data-go="journey">
-        <span class="fic tile t-rose sh-c"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
-        <span class="fk"><b data-i18n="f.n1.k">Таваллудхонаи №3</b><span data-i18n="f.n1.d">8 июн</span></span>
+        <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
         <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
-        <span class="fact"><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri" data-i18n="f.n1.cta">Гирифтан</span></span>
       </button>
       <button class="frow" data-toast="toast.demo">
-        <span class="fic tile t-blue"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n2.d">то 14 окт</span></span>
+        <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
         <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
-        <span class="fact"><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec" data-i18n="f.n2.cta">Нав кардан</span></span>
       </button>
       <button class="frow" data-go="tracking">
-        <span class="fic tile t-green sh-r"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-        <span class="fk"><b data-i18n="f.n3.k">Ариза</b><span data-i18n="f.n3.d">10 июн</span></span>
+        <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
-        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n3.d">10 июн</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
       </button>
     </div>
 
     <div class="n-group" data-i18n="f.g.earlier">Пештар</div>
     <div class="fpane">
-      <button class="frow" data-go="wallet">
-        <span class="fic tile t-green sh-c"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-        <span class="fk"><b data-i18n="f.n4.k">Пардохт</b><span data-i18n="f.n4.d">3 июн</span></span>
+      <button class="frow" data-go="payments">
+        <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         <span class="ft"><b data-i18n="f.n4.t">Боҷи давлатӣ пардохт шуд</b><span data-i18n="f.n4.p">35,00 смн. - сабти соҳибкори инфиродӣ. Квитансия дар ҳуҷҷатҳои шумо.</span></span>
-        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n4.d">3 июн</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
       </button>
       <button class="frow" data-toast="toast.demo">
-        <span class="fic tile t-slate sh-l"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg></span>
-        <span class="fk"><b data-i18n="f.n5.k">Махфият</b><span data-i18n="f.n5.d">1 июн</span></span>
+        <span class="fic g-slate"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-shield"/></svg></span>
         <span class="ft"><b data-i18n="f.n5.t">Бонки «Эсхата» дастрасӣ пурсид</b><span data-i18n="f.n5.p">Ба маълумоти шахсии шумо барои кушодани суратҳисоб. Иҷозат диҳед ё рад кунед.</span></span>
-        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n5.d">1 июн</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
       </button>
       <button class="frow" data-go="wallet">
-        <span class="fic tile t-teal"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg></span>
-        <span class="fk"><b data-i18n="f.n2.k">Ҳуҷҷатҳо</b><span data-i18n="f.n6.d">28 май</span></span>
+        <span class="fic g-teal"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-wallet"/></svg></span>
         <span class="ft"><b data-i18n="f.n6.t">Маълумотномаи набудани доғи судӣ омода аст</b><span data-i18n="f.n6.p">Ба ҳуҷҷатҳои шумо илова шуд. Мӯҳлаташ 90 рӯз.</span></span>
-        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n6.d">28 май</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
       </button>
       <button class="frow" data-toast="toast.demo">
-        <span class="fic tile t-steel sh-c"><svg><use href="/design-system/assets/icons.svg#i-bell"/></svg></span>
-        <span class="fk"><b data-i18n="f.n7.k">Портал</b><span data-i18n="f.n7.d">26 май</span></span>
+        <span class="fic g-steel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-bell"/></svg></span>
         <span class="ft"><b data-i18n="f.n7.t">Реҷаи кор дар рӯзҳои Иди Қурбон</b><span data-i18n="f.n7.p">27-28 май марказҳои хизматрасонӣ кор намекунанд. Хизматҳои онлайн шабонарӯзӣ дастрасанд.</span></span>
-        <span class="fact"><svg><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
+        <span class="fact"><span class="fdate" data-i18n="f.n7.d">26 май</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
       </button>
     </div>
   </div>
@@ -473,7 +491,7 @@
 <!-- ============ GUEST APPOINTMENT ============ -->
 <section class="screen" id="scr-guest-service" hidden>
   <div class="col guest-service">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span id="guestBack">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span id="guestBack">Бозгашт</span></button>
     <div class="guest-service-head">
       <span class="audience-badge audience-badge--guest"><svg><use href="/design-system/assets/icons.svg#i-user"/></svg><span id="guestServiceBadge">Дастрас бе воридшавӣ</span></span>
       <h1 id="guestServiceTitle">Сабти қабули меҳмон дар маркази хизматрасонӣ</h1>
@@ -483,15 +501,19 @@
       <div class="form-grid">
         <div class="field">
           <label for="guestCenter" id="guestCenterLabel">Марказ</label>
-          <select class="input" id="guestCenter" required>
-            <option value="">Интихоб кунед</option>
-            <option value="sino">Маркази ноҳияи Сино</option>
-            <option value="firdavsi">Маркази ноҳияи Фирдавсӣ</option>
-          </select>
+          <span class="ekh-select">
+            <select class="input" id="guestCenter" required>
+              <option value="">Интихоб кунед</option>
+              <option value="sino">Маркази ноҳияи Сино</option>
+              <option value="firdavsi">Маркази ноҳияи Фирдавсӣ</option>
+            </select>
+            <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+          </span>
         </div>
         <div class="field">
           <label for="guestDate" id="guestDateLabel">Сана</label>
-          <input class="input" id="guestDate" type="date" required>
+          <input class="input input-date" id="guestDate" type="date" required>
+          <span class="field-help" id="guestDateHelp">рӯз.моҳ.сол</span>
         </div>
         <div class="field form-span">
           <label for="guestEmail" id="guestEmailLabel">Почтаи электронӣ барои талон</label>
@@ -499,7 +521,7 @@
           <span class="field-help" id="guestEmailHelp">Талони намунавӣ ба ин суроға фиристода мешавад.</span>
         </div>
       </div>
-      <label class="consent guest-consent"><input type="checkbox" id="guestConsent"><span id="guestConsentText">Розӣ ҳастам, ки ин маълумот барои сохтани талони намоишӣ истифода шавад.</span></label>
+      <label class="consent guest-consent"><input class="ekh-checkbox" type="checkbox" id="guestConsent"><span id="guestConsentText">Розӣ ҳастам, ки ин маълумот барои сохтани талони намоишӣ истифода шавад.</span></label>
       <p class="field-error" id="guestFormError" role="alert" hidden></p>
       <button class="btn btn-pri btn-lg" id="guestSubmit" type="submit" disabled>Сохтани талон</button>
     </form>
@@ -516,7 +538,7 @@
 <!-- ============ PROFILE ============ -->
 <section class="screen" id="scr-profile" hidden>
   <div class="prof">
-    <button class="back" data-go="home"><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
+    <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
 
     <div class="prof-head">
       <button class="prof-ava profile-photo-trigger" id="profilePhotoTrigger" type="button" aria-label="Иваз кардани сурат" data-i18n-aria="p.photo.change"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden><span class="profile-photo-trigger__edit"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span></button>
@@ -556,8 +578,6 @@
             <p data-i18n="p.warn.pass">Мӯҳлати шиноснома 14 октябр ба охир мерасад. Ҳоло нав кунед - бе навбат.</p>
             <button class="btn btn-sec btn-sm" data-toast="toast.demo" data-i18n="card.pass.cta">Нав кардан - 8 дақиқа</button>
           </div>
-
-          <div id="underReviewRoot"></div>
 
           <div class="plist">
             <div class="pr">
@@ -613,14 +633,14 @@
 
         <section class="pane" id="pane-docs" hidden data-i18n-aria="nav.wallet" aria-label="Ҳамёни ҳуҷҷатҳо">
           <p class="lead-s" data-i18n="w.sub">аслӣ ҳамин ҷост - нусхаи коғазӣ шарт нест</p>
-          <div class="filters" role="group" aria-label="Оила">
+          <div class="filters" role="group" data-i18n-aria="w.own" aria-label="Ҳуҷҷатҳои кӣ">
             <button class="chip" data-own="me" aria-pressed="true" data-i18n="w.me">Ман</button>
             <button class="chip" data-own="kids" aria-pressed="false" data-i18n="w.kids">Фарзандон</button>
             <button class="chip" data-own="parents" aria-pressed="false" data-i18n="w.par">Падару модар</button>
           </div>
 
           <div class="docs" id="docGrid">
-            <article class="doc" data-owner="me" data-doc-id="passport">
+            <article class="doc doc--passport" data-owner="me" data-doc-id="passport">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
               <button class="doc-open" type="button" data-i18n-aria="d.pass.k" aria-label="Шиноснома"></button>
               <button class="doc-qr" type="button" data-qr="d.pass.k" data-i18n-aria="d.pass.qr" aria-label="QR-коди шиноснома"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
@@ -632,7 +652,7 @@
               </div>
             </article>
 
-            <article class="doc earth" data-owner="kids" data-doc-id="birth" id="docBirth" hidden>
+            <article class="doc doc--birth" data-owner="kids" data-doc-id="birth" id="docBirth" hidden>
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
               <button class="doc-open" type="button" data-i18n-aria="d.birth.k" aria-label="Шаҳодатномаи таваллуд"></button>
               <button class="doc-qr" type="button" data-qr="d.birth.k" data-i18n-aria="d.birth.qr" aria-label="QR-коди шаҳодатномаи таваллуд"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
@@ -645,7 +665,7 @@
               </div>
             </article>
 
-            <article class="doc ink" data-owner="me" data-doc-id="tax">
+            <article class="doc doc--tax" data-owner="me" data-doc-id="tax">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
               <button class="doc-open" type="button" data-i18n-aria="d.inn.k" aria-label="Рақами андозсупоранда"></button>
               <button class="doc-qr" type="button" data-qr="d.inn.k" data-i18n-aria="d.inn.qr" aria-label="QR-коди рақами андозсупоранда"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
@@ -657,7 +677,7 @@
               </div>
             </article>
 
-            <article class="doc" data-owner="me" data-doc-id="driver">
+            <article class="doc doc--license" data-owner="me" data-doc-id="driver">
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
               <button class="doc-open" type="button" data-i18n-aria="d.drv.k" aria-label="Шаҳодатномаи ронандагӣ"></button>
               <button class="doc-qr" type="button" data-qr="d.drv.k" data-i18n-aria="d.drv.qr" aria-label="QR-коди шаҳодатномаи ронандагӣ"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
@@ -669,7 +689,7 @@
               </div>
             </article>
 
-            <article class="doc earth" data-owner="me" data-doc-id="temporary" id="docTemp" hidden>
+            <article class="doc doc--temp" data-owner="me" data-doc-id="temporary" id="docTemp" hidden>
               <svg class="girih"><use href="/design-system/assets/icons.svg#i-girih-tile"/></svg>
               <button class="doc-open" type="button" data-i18n-aria="d.temp.k" aria-label="Шиносномаи муваққатӣ"></button>
               <button class="doc-qr" type="button" data-qr="d.temp.k" data-i18n-aria="d.temp.qr" aria-label="QR-коди шиносномаи муваққатӣ"><svg><use href="/design-system/assets/icons.svg#i-qr"/></svg></button>
@@ -763,8 +783,8 @@
             </div>
             <div class="pr">
               <div class="tt">
-                <span class="v"><span data-i18n="p.sec.2fa">Вуруди дуқадама</span> <span class="status-pill status-pill--success" id="twoFactorStatus">Фаъол</span></span>
-                <span class="k"><span data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span> · <span id="twoFactorDefault">бо нобаёнӣ фаъол</span></span>
+                <span class="v" data-i18n="p.sec.2fa">Вуруди дуқадама</span>
+                <span class="k"><span id="twoFactorStatus">Фаъол</span> · <span data-i18n="p.sec.2fa.s">рамз ба +992 93 ··· 84 меояд</span> · <span id="twoFactorDefault">бо нобаёнӣ фаъол</span></span>
               </div>
               <label class="sw" data-i18n-aria="p.sec.2fa" aria-label="Вуруди дуқадама"><input type="checkbox" id="twoFactorToggle" checked><span class="knob"></span></label>
             </div>
@@ -958,9 +978,9 @@
     <h3 id="childH">Илова кардани фарзанд</h3>
     <p class="sub" id="childSub">Танҳо фарзандони то 18-сола метавонанд ба кабинети шумо пайваст шаванд.</p>
     <div class="field"><label for="familyName" id="familyNameLabel">Ному насаб</label><input class="input" id="familyName" autocomplete="name" required></div>
-    <div class="field"><label for="familyDob" id="familyDobLabel">Санаи таваллуд</label><input class="input" id="familyDob" type="date" required></div>
+    <div class="field"><label for="familyDob" id="familyDobLabel">Санаи таваллуд</label><input class="input input-date" id="familyDob" type="date" required><span class="field-help" id="familyDobHelp">рӯз.моҳ.сол</span></div>
     <div class="field"><label for="familyDocument" id="familyDocumentLabel">Рақами шаҳодатнома ё ҳуҷҷат</label><input class="input" id="familyDocument" autocomplete="off" required></div>
-    <div class="field"><label for="familyRelation" id="familyRelationLabel">Робита бо довталаб</label><select class="input" id="familyRelation" required><option value="">Интихоб кунед</option><option value="parent">Падар ё модар</option><option value="guardian">Сарпараст</option></select></div>
+    <div class="field"><label for="familyRelation" id="familyRelationLabel">Робита бо довталаб</label><span class="ekh-select"><select class="input" id="familyRelation" required><option value="">Интихоб кунед</option><option value="parent">Падар ё модар</option><option value="guardian">Сарпараст</option></select><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></span></div>
     <p class="field-error" id="childError" role="alert" hidden></p>
     <button class="btn btn-pri btn-block" id="childSave" type="submit">Илова кардан</button>
     <button class="btn btn-ghost btn-block" id="childCancel" type="button">Пӯшидан</button>
@@ -991,6 +1011,48 @@
     <button class="btn btn-ghost btn-block" id="biometricFail">Намоиши хатогӣ</button>
     <button class="btn btn-ghost btn-block" id="biometricClose">Пӯшидан</button>
   </div>
+</div>
+
+<!-- profile popover: identity, language and theme (design-guide §3 "Global preferences") -->
+<div class="ekh-profile-pop" id="citizenProfilePop" role="dialog" data-i18n-aria="pop.aria" aria-label="Профил ва танзимот" hidden>
+  <button class="ekh-profile-pop__card" type="button" data-pop-auth data-go="profile">
+    <span class="avatar profile-avatar pop-ava" aria-hidden="true"><span class="avatar-fallback">Ф</span><img class="avatar-image" alt="" hidden></span>
+    <span class="ekh-profile-pop__identity"><b>Фируза Раҳимова</b><span>+992 93 555 0184</span></span>
+  </button>
+  <div class="ekh-profile-pop__divider" data-pop-auth aria-hidden="true"></div>
+  <div class="ekh-profile-pop__preferences">
+    <button class="ekh-profile-pop__row ekh-profile-pop__row--link" type="button" data-pop-auth data-go="profile">
+      <span class="ekh-profile-pop__row-label" data-i18n="pop.cabinet">Кабинети шахсӣ</span>
+      <svg class="ekh-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+    </button>
+    <div class="dd lang ekh-profile-pop__row-host">
+      <button class="dd-btn ekh-profile-pop__row" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">
+        <span class="ekh-profile-pop__row-label" data-i18n="lang.label">Забон</span>
+        <span id="langCur">Тоҷикӣ</span>
+        <svg class="ekh-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+        <svg class="ekh-profile-pop__compact-icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"/></svg>
+      </button>
+      <div class="dd-menu" role="listbox" aria-label="Забон / Language">
+        <div class="dd-label" aria-hidden="true" data-i18n="lang.label">Забон</div>
+        <button role="option" data-lang="tg" aria-selected="true"><span>Тоҷикӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+        <button role="option" data-lang="ru" aria-selected="false"><span>Русский</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+        <button role="option" data-lang="en" aria-selected="false"><span>English</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+      </div>
+    </div>
+    <div class="ekh-profile-pop__row ekh-profile-pop__row--theme">
+      <span class="ekh-profile-pop__row-label" data-i18n="pop.theme">Мавзӯъ</span>
+      <div class="ekh-profile-pop__theme-options" role="group" data-i18n-aria="pop.theme" aria-label="Мавзӯъ">
+        <button class="ekh-profile-pop__theme-choice" type="button" data-theme-choice="system" aria-pressed="true" data-i18n-aria="pop.theme.system" aria-label="Аз система"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-theme-system"/></svg></button>
+        <button class="ekh-profile-pop__theme-choice" type="button" data-theme-choice="light" aria-pressed="false" data-i18n-aria="pop.theme.light" aria-label="Равшан"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-sun"/></svg></button>
+        <button class="ekh-profile-pop__theme-choice ekh-profile-pop__theme-choice--dark" type="button" data-theme-choice="dark" aria-pressed="false" data-i18n-aria="pop.theme.dark" aria-label="Торик"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-moon"/></svg></button>
+      </div>
+    </div>
+  </div>
+  <div class="ekh-profile-pop__divider" data-pop-auth aria-hidden="true"></div>
+  <button class="ekh-profile-pop__row ekh-profile-pop__row--danger" type="button" data-pop-auth data-logout>
+    <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-out"/></svg>
+    <span class="ekh-profile-pop__row-label" data-i18n="auth.out">Баромадан</span>
+  </button>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
