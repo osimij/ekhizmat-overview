@@ -34,6 +34,78 @@ async function expectLayerFits(page, layer) {
   expect(bounds.bottom).toBeLessThanOrEqual(bounds.viewportHeight + 1);
 }
 
+test('launcher is a centered two-column cluster with a stacked destination list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/?present=1&theme=dark&lang=ru');
+
+  const layout = await page.evaluate(() => {
+    const intro = document.querySelector('.launch-intro').getBoundingClientRect();
+    const list = document.querySelector('.platform-list').getBoundingClientRect();
+    const cards = [...document.querySelectorAll('.platform-card')].map((element) => element.getBoundingClientRect());
+    const chrome = document.querySelector('.launch-chrome').getBoundingClientRect();
+    const h1 = document.querySelector('h1');
+    const logo = document.querySelector('.brand-lockup').getBoundingClientRect();
+    const title = h1.getBoundingClientRect();
+    return {
+      introLeft: intro.left,
+      introRight: intro.right,
+      listLeft: list.left,
+      introMidY: intro.top + intro.height / 2,
+      listMidY: list.top + list.height / 2,
+      cardXs: cards.map((card) => Math.round(card.left)),
+      cardWidths: cards.map((card) => Math.round(card.width)),
+      chromeLeft: chrome.left,
+      chromeBottom: innerHeight - chrome.bottom,
+      logoAboveTitle: logo.bottom <= title.top + 1,
+      headerCount: document.querySelectorAll('.launch-header').length,
+      titleSize: Number.parseFloat(getComputedStyle(h1).fontSize),
+      overflowX: document.documentElement.scrollWidth - innerWidth,
+    };
+  });
+
+  expect(layout.headerCount).toBe(0);
+  expect(layout.logoAboveTitle).toBe(true);
+  expect(layout.listLeft).toBeGreaterThan(layout.introRight);
+  expect(new Set(layout.cardXs).size).toBe(1);
+  expect(new Set(layout.cardWidths).size).toBe(1);
+  expect(Math.abs(layout.introMidY - layout.listMidY)).toBeLessThan(48);
+  expect(layout.chromeLeft).toBeLessThan(80);
+  expect(layout.chromeBottom).toBeLessThan(80);
+  expect(layout.titleSize).toBeGreaterThanOrEqual(32);
+  expect(layout.overflowX).toBeLessThanOrEqual(1);
+});
+
+test('launcher stacks below 960px and never overflows across viewports', async ({ page }) => {
+  const viewports = [
+    [360, 800],
+    [620, 800],
+    [768, 1024],
+    [960, 700],
+    [1280, 720],
+    [1440, 700],
+    [1920, 1080],
+  ];
+  for (const [width, height] of viewports) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/?present=1&theme=light&lang=tg');
+    const layout = await page.evaluate(() => {
+      const intro = document.querySelector('.launch-intro').getBoundingClientRect();
+      const list = document.querySelector('.platform-list').getBoundingClientRect();
+      const cards = [...document.querySelectorAll('.platform-card')].map((element) => element.getBoundingClientRect());
+      return {
+        stacked: list.top >= intro.bottom - 1,
+        sideBySide: list.left >= intro.right - 1,
+        cardColumns: new Set(cards.map((card) => Math.round(card.left))).size,
+        overflowX: document.documentElement.scrollWidth - innerWidth,
+      };
+    });
+    expect(layout.overflowX, `${width}x${height}`).toBeLessThanOrEqual(1);
+    expect(layout.cardColumns, `${width}x${height}`).toBe(1);
+    if (width <= 960) expect(layout.stacked, `${width}x${height}`).toBe(true);
+    else expect(layout.sideBySide, `${width}x${height}`).toBe(true);
+  }
+});
+
 test('Authentication gates follow the responsive Figma composition across platforms', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1024 });
 
@@ -272,8 +344,9 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   await page.locator('[data-act="notif-open"]').click();
   await expectLayerFits(page, page.locator('.notif-pop'));
   await page.keyboard.press('Escape');
-  await page.locator('[data-act="user-open"]').click();
-  await expectLayerFits(page, page.locator('.user-pop'));
+  await page.locator('[data-act="nav-toggle"]').click();
+  await page.locator('.ekh-side__user[data-act="profile-open"]').click();
+  await expectLayerFits(page, page.locator('#pop.ekh-profile-pop'));
   await page.keyboard.press('Escape');
 
   await page.locator('[data-act="nav-toggle"]').click();

@@ -477,6 +477,12 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
 .ekh-profile-pop__theme-choice:disabled,.adm-profile-pop__theme-choice:disabled{cursor:default}
 .ekh-profile-pop__theme-choice:disabled:hover,.adm-profile-pop__theme-choice:disabled:hover{background:transparent;opacity:.5}
 .ekh-profile-pop__theme-choice svg,.adm-profile-pop__theme-choice svg{width:15px;height:15px}
+/* Action row: a leading glyph and a label (lock the workstation, reset the
+   demo, end the shift). The preference rows read label → value → chevron;
+   an action has no value, so the icon takes the first track. */
+.ekh-profile-pop__row--action{grid-template-columns:auto minmax(0,1fr)}
+.ekh-profile-pop__row--action svg{width:16px;height:16px;color:var(--ink-3)}
+.ekh-profile-pop__row--action .ekh-profile-pop__row-label{opacity:1}
 /* Sign-out / destructive row inside the popover. */
 .ekh-profile-pop__row--danger{grid-template-columns:auto minmax(0,1fr);color:var(--red-ink)}
 .ekh-profile-pop__row--danger:hover{background:var(--red-tint);color:var(--red-ink)}

@@ -1,9 +1,16 @@
 <!doctype html>
-<html lang="ru" data-theme="light">
+<html lang="ru">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eKhizmat · АРМ специалиста ведомства</title>
+<!-- Тема до первой отрисовки (design-guide §7: «вспышка темы — это баг»).
+     Раньше её ставил boot() уже после загрузки модуля, а <html> был прибит к
+     data-theme="light": оператор с тёмной темой получал белую вспышку на
+     каждой загрузке. Порядок разрешения тот же, что у
+     design-system/js/preferences.js, иначе после гидрации тема сменилась бы
+     второй раз. -->
+<script>try{var q=new URLSearchParams(location.search).get("theme");var s=localStorage.getItem("ekh.preferences.theme");var t=(q==="dark"||q==="light")?q:(s==="dark"||s==="light")?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
 <meta name="description" content="Интерактивный прототип автоматизированного рабочего места специалиста ведомства (§7Б ТЗ eKhizmat).">
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 

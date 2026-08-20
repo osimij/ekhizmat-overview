@@ -233,7 +233,7 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   });
   expect(ministryTypeScale.division).toBeLessThan(ministryTypeScale.name);
   expect(ministryTypeScale.name - ministryTypeScale.division).toBe(1);
-  expect(ministryTypeScale.title).toBe(24);
+  expect(ministryTypeScale.title).toBe(28);
   expect(ministryTypeScale.nameSpacing).toBe(0);
   expect(ministryTypeScale.divisionSpacing).toBe(0);
   expect(ministryTypeScale.titleSpacing).toBe(0);
@@ -243,7 +243,14 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   }));
   expect(alertValueColor.value).toBe(alertValueColor.defaultText);
   await expect(page.locator('.q-head')).toHaveCSS('border-bottom-width', '0px');
-  await expect(page.locator('.audience-badge--guest').first()).toBeVisible();
+  /* Guest is a fact about the applicant, and the queue row already says so in
+     the applicant cell — the badge belongs to the card header, where the status
+     of the request is the primary content (§3, rule 6). */
+  const guestRow = page.locator('.q-row', { hasText: 'GST-2026-0042' });
+  await expect(guestRow).toBeVisible();
+  await guestRow.click();
+  await expect(page.locator('.card-head__meta .audience-badge--guest')).toBeVisible();
+  await page.locator('.ekh-side__item[data-view="queue"]').click();
 
   await page.locator('.ekh-side__item[data-view="reports"]').click();
   const reportStyle = await page.evaluate(() => {
@@ -266,7 +273,24 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
   expect(Math.abs(reportStyle.specialistLeft - reportStyle.titleLeft)).toBeLessThanOrEqual(1);
   await page.locator('.ekh-side__item[data-view="queue"]').click();
 
-  await page.locator('[data-act="user-open"]').click();
+  /* §3: the right side is the bell only — the prototype platform switcher is
+     dev chrome and is hidden in presentation mode. */
+  await expect(page.locator('.topbar__actions > button')).toHaveCount(1);
+  await expect(page.locator('.topbar__actions [data-act="notif-open"]')).toBeVisible();
+  const profileTrigger = page.locator('.ekh-side__user[data-act="profile-open"]');
+  await profileTrigger.click();
+  await expect(profileTrigger).toHaveAttribute('aria-expanded', 'true');
+  const profilePop = page.locator('#pop.ekh-profile-pop');
+  await expect(profilePop).toBeVisible();
+  const langRow = profilePop.locator('.dd.lang .dd-btn');
+  await expect(langRow).toContainText('Язык');
+  await expect(langRow.locator('#langCur')).toHaveText('Русский');
+  /* §3: no leading globe beside the word "Язык" — the compact glyph exists
+     only for the collapsed rail, where the label itself is hidden. */
+  await expect(langRow.locator('.ekh-profile-pop__compact-icon')).toBeHidden();
+  await expect(langRow.locator('.ekh-profile-pop__chev')).toBeVisible();
+  await expect(profilePop.locator('[data-theme-choice="system"]')).toHaveAttribute('aria-pressed', /true|false/);
+  await expect(profilePop.locator('[data-theme-choice]')).toHaveCount(3);
   await page.locator('[data-act="lock"]').click();
   await expect(page.locator('#lock-root input[name="password"]')).toHaveValue('');
   await page.locator('[data-act="unlock"]').click();

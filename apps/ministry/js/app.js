@@ -1,5 +1,11 @@
 import './data.js';
 import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/js/lowcode.js';
+/* Theme and language belong to design-system/js/preferences.js — the single
+   owner of the `ekh.preferences.*` keys (§1 rule 7). Ministry used to keep its
+   own binary light/dark toggle, which could not store the third state
+   («как в системе») and applied the theme after boot, past first paint. The
+   pre-paint script lives in ministry/index.html (§7). */
+import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/preferences.js';
 
 /* ============================================================
    app.js — прототип «АРМ специалиста ведомства» (§7Б ТЗ eKhizmat).
@@ -12,8 +18,6 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   var D = window.DATA;
   var MIN = D.MIN, HOUR = D.HOUR, DAY = 24 * HOUR;
   var WARN = 60 * MIN;                 // порог «приближение срока» (§7Б.3)
-  var query = new URLSearchParams(location.search);
-  function pref(key, fallback) { try { return query.get(key) || localStorage.getItem('ekh.preferences.' + key) || fallback; } catch (e) { return fallback; } }
 
   /* ------------------------------------------------------------------ */
   /* Состояние                                                          */
@@ -21,8 +25,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   var S = {
     authed: false,
     loginStep: 1,
-    lang: pref('lang', 'ru'),
-    theme: pref('theme', 'light'),
+    lang: getLang() === 'tg' ? 'tg' : 'ru',
     sideCollapsed: (function () { try { return localStorage.getItem('ekh.ministry.side') === '1'; } catch (e) { return false; } })(),
     view: 'queue',
     cardId: null,
@@ -291,6 +294,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           ) +
         '</div>' +
         '<div class="login__legend"><span class="login__legend-copy">' + esc(t('login_legend_primary')) + '</span></div></div>' +
+        /* Rule 31 / §9: language must be switchable before sign-in, and it is
+           one quiet --ink-2 icon — a blue ghost gear beside the floating
+           platform switcher reads as a second primary on the gate. */
+        '<button class="btn btn--icon login__prefs" type="button" data-act="prefs-open" aria-label="' + esc(t('preferences')) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop">' + ic('i-gear','icon--20') + '</button>' +
       '</div>';
     document.getElementById('root').innerHTML = body;
     S._loginErr = false;
@@ -326,12 +333,14 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
             '<span class="field__affix">' + ic('i-search','icon--20') + '</span>' +
             '<input class="field__input" id="top-search" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q">' +
           '</div>' +
+          /* §3 «Top bar»: справа только слот роли. Язык и тема переехали в
+             поповер профиля у карточки оператора (§3 «Global preferences»,
+             правило 12) — их ставят раз в смену. Колокольчик остаётся: это
+             эскалации по срокам (§7Б.3), они глобальны и релевантны на любом
+             экране — тот самый тест, который §3 предъявляет постоянной раме. */
           '<div class="topbar__actions">' +
             '<button class="btn btn--icon iconbtn" data-act="notif-open" aria-label="' + esc(t('notifications')) + '" aria-haspopup="dialog" aria-expanded="false">' + ic('i-bell','icon--20') +
               (unreadNotifs() ? '<span class="badge-dot">' + unreadNotifs() + '</span>' : '') + '</button>' +
-            '<button class="btn btn--icon iconbtn" data-act="lang" aria-label="' + esc(t('language')) + ' · ' + (S.lang === 'ru' ? 'русский' : 'тоҷикӣ') + '">' + ic('i-globe','icon--20') + '</button>' +
-            '<button class="btn btn--icon iconbtn" data-act="theme" aria-label="' + esc(t('theme')) + '">' + ic(S.theme === 'dark' ? 'i-sun' : 'i-moon','icon--20') + '</button>' +
-            '<button class="btn btn--icon" data-act="user-open" aria-label="' + esc(t('profile')) + '" aria-haspopup="menu" aria-expanded="false"><span class="avatar">' + esc(D.ME.initials) + '</span></button>' +
           '</div>' +
         '</header>' +
 
@@ -347,10 +356,11 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
           '<div class="ekh-side__label">' + esc(t('nav_group3')) + '</div>' +
           navItem('forms', 'i-edit', t('nav_forms'), null, false) +
           '<div class="ekh-side__spacer"></div>' +
-          '<div class="ekh-side__user"><span class="ekh-side__avatar">' + esc(D.ME.initials) + '</span>' +
+          '<button type="button" class="ekh-side__user" data-act="profile-open" aria-haspopup="dialog" aria-expanded="false" aria-controls="ministryProfilePop" title="' + esc(D.ME.name + ' · ' + roleName()) + '">' +
+            '<span class="ekh-side__avatar" aria-hidden="true">' + esc(D.ME.initials) + '</span>' +
             '<span class="ekh-side__identity"><b>' + esc(D.ME.name) + '</b>' +
             '<span>' + esc(divisionName()) + '</span></span>' +
-          '</div>' +
+          '</button>' +
         '</nav></aside>' +
 
         /* основная область */
@@ -596,7 +606,10 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
 
     var citizenStep = ['confirm','fields','delivery','review'].indexOf(step);
     var stepContext = citizenStep >= 0 ? t('form_step_label') + ' ' + (citizenStep + 1) + ' · ' + t('form_flow_citizen') : t('form_flow_agency');
-    return '<section class="mfb-editor" role="tabpanel"><div class="mfb-editor__inner"><header class="mfb-editor__head"><span>' + ic((formStepGroups().reduce(function (all,g) { return all.concat(g.items); },[]).filter(function (item) { return item.id === step; })[0] || {icon:'i-edit'}).icon,'icon--14') + esc(stepContext) + '</span><h1>' + esc(heads[step][0]) + '</h1><p>' + esc(heads[step][1]) + '</p></header>' + body + '</div></section>';
+    /* The editor pane is its own scroll region (§5 shell-lock), so it must be
+       reachable from the keyboard — a scrollable box with no tab stop strands
+       anyone not using a mouse (§9). */
+    return '<section class="mfb-editor" role="tabpanel" tabindex="0"><div class="mfb-editor__inner"><header class="mfb-editor__head"><span>' + ic((formStepGroups().reduce(function (all,g) { return all.concat(g.items); },[]).filter(function (item) { return item.id === step; })[0] || {icon:'i-edit'}).icon,'icon--14') + esc(stepContext) + '</span><h1>' + esc(heads[step][0]) + '</h1><p>' + esc(heads[step][1]) + '</p></header>' + body + '</div></section>';
   }
 
   function viewFormBuilder() {
@@ -1118,7 +1131,9 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   /* ================================================================== */
   /* Модальные окна                                                     */
   /* ================================================================== */
-  function overlayEl() { return document.getElementById('overlay'); }
+  /* Слой поверх приложения. На воротах входа шелла ещё нет, а тихая
+     шестерёнка настроек уже есть — тогда слоем становится #root. */
+  function overlayEl() { return document.getElementById('overlay') || document.getElementById('root'); }
 
   function openModal(html, cls) {
     var previousController = S._modalController;
@@ -1354,22 +1369,100 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
         '<div class="notif-list">' + (items || '<div class="empty">' + ic('i-bell','icon--48') + '<div class="empty__title">' + esc(t('notifications_empty')) + '</div></div>') + '</div></div>');
     revealPop();
   }
-  function openUser() {
+  /* Профиль и настройки — общий компонент `.ekh-profile-pop`
+     (design-system/css/components.css, §3 «Global preferences», §6 «Profile
+     popover»). Третью рукописную копию этого поповера — после админки и ЦОН —
+     заводить нельзя (правило 21), поэтому здесь только разметка и поведение.
+     Строка языка: подпись + текущее значение + chevron, без глобуса; тема —
+     три состояния с aria-pressed, где «как в системе» это отдельный ответ. */
+  function langLabel(code) { return code === 'tg' ? t('lang_tg') : t('lang_ru'); }
+  function prefLangRow() {
+    return '<div class="dd lang ekh-profile-pop__row-host">' +
+      '<button class="dd-btn ekh-profile-pop__row" type="button" data-act="pref-lang" aria-haspopup="listbox" aria-expanded="false" aria-label="' + esc(t('language')) + '">' +
+        '<span class="ekh-profile-pop__row-label">' + esc(t('language')) + '</span>' +
+        '<span id="langCur">' + esc(langLabel(S.lang)) + '</span>' +
+        ic('i-chev-r','ekh-profile-pop__chev') + ic('i-globe','ekh-profile-pop__compact-icon') +
+      '</button>' +
+      '<div class="dd-menu" role="listbox" aria-label="' + esc(t('language')) + '">' +
+        ['ru','tg'].map(function (code) {
+          var on = S.lang === code;
+          return '<button role="option" type="button" data-act="pref-lang-set" data-lang="' + code + '" aria-selected="' + on + '">' +
+            '<span>' + esc(langLabel(code)) + '</span>' + ic('i-check','icon--16') + '</button>';
+        }).join('') +
+      '</div></div>';
+  }
+  function prefThemeRow() {
+    var current = getThemeChoice();
+    var options = [['system','i-theme-system','theme_system'], ['light','i-sun','theme_light'], ['dark','i-moon','theme_dark']];
+    return '<div class="ekh-profile-pop__row ekh-profile-pop__row--theme">' +
+      '<span class="ekh-profile-pop__row-label">' + esc(t('theme')) + '</span>' +
+      '<div class="ekh-profile-pop__theme-options" role="group" aria-label="' + esc(t('theme')) + '">' +
+        options.map(function (o) {
+          var label = t(o[2]);
+          return '<button type="button" class="ekh-profile-pop__theme-choice ekh-profile-pop__theme-choice--' + o[0] + '" data-act="pref-theme" data-theme-choice="' + o[0] + '" aria-pressed="' + (current === o[0]) + '" aria-label="' + esc(label) + '" title="' + esc(label) + '">' + ic(o[1],'') + '</button>';
+        }).join('') +
+      '</div></div>';
+  }
+  function prefActionRow(act, icon, label) {
+    return '<button class="ekh-profile-pop__row ekh-profile-pop__row--action" type="button" data-act="' + act + '">' +
+      ic(icon,'icon--16') + '<span class="ekh-profile-pop__row-label">' + esc(label) + '</span></button>';
+  }
+  function openProfile(trigger) {
     S.pop = 'user';
-    var ut = document.querySelector('[data-act="user-open"]'); if (ut) ut.setAttribute('aria-expanded', 'true');
+    trigger.setAttribute('aria-expanded', 'true');
+    var signedIn = S.authed;
     overlayEl().insertAdjacentHTML('beforeend',
-      '<div class="popover menu user-pop" id="pop" role="menu">' +
-        '<div class="menu__head"><b>' + esc(D.ME.name) + '</b><span class="small">' + esc(roleName()) + ' · ' + esc(agencyName()) + '</span></div>' +
-        '<hr class="rule">' +
-        '<button class="menu__item" data-act="lock">' + ic('i-lock','icon--20') + '<span class="grow">' + esc(t('lock')) + '</span></button>' +
-        '<button class="menu__item" data-act="reset">' + ic('i-refresh','icon--20') + '<span class="grow">' + esc(t('reset_demo')) + '</span></button>' +
-        '<button class="menu__item" data-act="logout">' + ic('i-out','icon--20') + '<span class="grow">' + esc(t('end_shift')) + '</span></button>' +
+      '<div class="ekh-profile-pop" id="pop" role="dialog" aria-label="' + esc(t(signedIn ? 'profile' : 'preferences')) + '">' +
+        (signedIn
+          ? '<div class="ekh-profile-pop__card">' +
+              '<span class="ekh-side__avatar" aria-hidden="true">' + esc(D.ME.initials) + '</span>' +
+              '<span class="ekh-profile-pop__identity"><b>' + esc(D.ME.name) + '</b><span>' + esc(roleName() + ' · ' + agencyName()) + '</span></span>' +
+            '</div>' +
+            '<div class="ekh-profile-pop__divider" aria-hidden="true"></div>'
+          : '') +
+        '<div class="ekh-profile-pop__preferences">' + prefLangRow() + prefThemeRow() + '</div>' +
+        (signedIn
+          ? '<div class="ekh-profile-pop__divider" aria-hidden="true"></div>' +
+            '<div class="ekh-profile-pop__preferences">' +
+              prefActionRow('lock', 'i-lock', t('lock')) +
+              prefActionRow('reset', 'i-refresh', t('reset_demo')) +
+              prefActionRow('logout', 'i-out', t('end_shift')) +
+            '</div>'
+          : '') +
       '</div>');
+    positionProfile(trigger);
     revealPop();
+  }
+  /* Поповер растёт из своего триггера (§8). У карточки оператора он всплывает
+     над ней по ширине рельса, у шестерёнки входа — из правого верхнего угла. */
+  function positionProfile(trigger) {
+    var pop = document.getElementById('pop'); if (!pop) return;
+    var rect = trigger.getBoundingClientRect();
+    var side = closest(trigger, '.ekh-side');
+    if (side) {
+      var cs = getComputedStyle(side), sideRect = side.getBoundingClientRect();
+      var left = sideRect.left + (parseFloat(cs.paddingLeft) || 0);
+      var right = sideRect.right - (parseFloat(cs.paddingRight) || 0);
+      pop.classList.add('ekh-profile-pop--side');
+      pop.style.setProperty('--profile-pop-max-w', (right - left) + 'px');
+      var popRect = pop.getBoundingClientRect();
+      var top = rect.top - popRect.height - 8;
+      pop.style.transformOrigin = 'bottom left';
+      if (top < 8) { top = rect.bottom + 8; pop.style.transformOrigin = 'top left'; }
+      pop.style.top = Math.max(8, Math.min(top, innerHeight - popRect.height - 8)) + 'px';
+      pop.style.left = Math.max(left, Math.min(left, right - popRect.width)) + 'px';
+      return;
+    }
+    var r = pop.getBoundingClientRect();
+    pop.style.transformOrigin = 'top right';
+    pop.style.top = Math.max(8, Math.min(rect.bottom + 8, innerHeight - r.height - 8)) + 'px';
+    pop.style.left = Math.max(8, Math.min(rect.right - r.width, innerWidth - r.width - 8)) + 'px';
   }
   function closePop() {
     S.pop = null; var p = document.getElementById('pop'); if (p) p.remove();
-    ['notif-open', 'user-open'].forEach(function (a) { var b = document.querySelector('[data-act="' + a + '"]'); if (b) b.setAttribute('aria-expanded', 'false'); });
+    ['notif-open', 'profile-open', 'prefs-open'].forEach(function (a) {
+      document.querySelectorAll('[data-act="' + a + '"]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
+    });
   }
   function closeLayers(all) { closePop(); if (all && S.modal) closeModal(); }
 
@@ -1522,7 +1615,7 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
     if (S.filterOpen && act !== 'filter-toggle' && act !== 'filter-option') closeFilterMenu();
 
     // не закрывать поповер при клике внутри него
-    if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'user-open') closePop();
+    if (S.pop && !closest(e.target, '#pop') && act !== 'notif-open' && act !== 'profile-open' && act !== 'prefs-open') closePop();
 
     switch (act) {
       case 'login-next': {
@@ -1658,7 +1751,39 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       case 'modal-backdrop': if (e.target === tgt) closeModal(); return;
 
       case 'notif-open': if (S.pop === 'notif') { closePop(); } else { closePop(); openNotif(); } return;
-      case 'user-open': if (S.pop === 'user') { closePop(); } else { closePop(); openUser(); } return;
+      case 'profile-open':
+      case 'prefs-open': {
+        var wasOpen = S.pop === 'user';
+        closePop();
+        if (!wasOpen) openProfile(tgt);
+        return;
+      }
+      case 'pref-lang': {
+        var dd = closest(tgt, '.dd');
+        var open = !dd.classList.contains('open');
+        dd.classList.toggle('open', open);
+        /* Внутри рельса выносной список уходит вправо, а не вниз: под карточкой
+           оператора места нет (§6 «Profile popover», dd-right). */
+        dd.classList.toggle('dd-right', open && !!closest(tgt, '.ekh-profile-pop--side'));
+        tgt.setAttribute('aria-expanded', String(open));
+        if (open) dd.querySelector('.dd-menu button')?.focus();
+        return;
+      }
+      case 'pref-lang-set': {
+        var nextLang = tgt.getAttribute('data-lang');
+        if (nextLang !== S.lang) { S.lang = nextLang; setLang(nextLang); }
+        closePop();
+        if (S.authed) renderApp(); else renderLogin();
+        return;
+      }
+      case 'pref-theme': {
+        setTheme(tgt.getAttribute('data-theme-choice'));
+        var choice = getThemeChoice();
+        document.querySelectorAll('#pop [data-act="pref-theme"]').forEach(function (b) {
+          b.setAttribute('aria-pressed', String(b.getAttribute('data-theme-choice') === choice));
+        });
+        return;
+      }
       case 'notif-go': {
         var nid = tgt.getAttribute('data-nid'); var nn = S.notifs.filter(function (x) { return x.id === nid; })[0];
         if (nn) nn.unread = false;
@@ -1666,8 +1791,6 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       }
       case 'notif-read': S.notifs.forEach(function (n) { n.unread = false; }); closePop(); refreshChrome(); persist(); return;
 
-      case 'lang': S.lang = S.lang === 'ru' ? 'tg' : 'ru'; localStorage.setItem('ekh.preferences.lang', S.lang); document.documentElement.lang = S.lang; renderApp(); return;
-      case 'theme': toggleTheme(); return;
       case 'lock': doLock(); return;
       case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast(t('reset_done'), 'success'); return;
       case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); clearArm(); renderLogin(); return;
@@ -1808,6 +1931,13 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
       filterOptions[optionIndex].focus(); return;
     }
     if (e.key === 'Escape') {
+      var openFlyout = document.querySelector('#pop .dd.open');
+      if (openFlyout) {
+        openFlyout.classList.remove('open', 'dd-right');
+        var flyoutTrigger = openFlyout.querySelector('.dd-btn');
+        if (flyoutTrigger) { flyoutTrigger.setAttribute('aria-expanded', 'false'); flyoutTrigger.focus(); }
+        return;
+      }
       if (S.filterOpen) {
         var openFilterName = S.filterOpen;
         closeFilterMenu();
@@ -1874,14 +2004,6 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   }
   function openCard(id) { S.cardId = id; S.view = 'card'; S.cardTab = 'overview'; closeLayers(false); var m = document.getElementById('main'); if (m) m.scrollTop = 0; renderMain(); }
 
-  function toggleTheme() {
-    S.theme = S.theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', S.theme);
-    localStorage.setItem('ekh.preferences.theme', S.theme);
-    // обновить иконку кнопки темы
-    var b = document.querySelector('[data-act="theme"]'); if (b) b.innerHTML = ic(S.theme === 'dark' ? 'i-sun' : 'i-moon','icon--20');
-  }
-
   function doLock() {
     closeLayers(true);
     S.locked = true;
@@ -1902,8 +2024,8 @@ import { dispatchLowCode, getLowCodeState, subscribeLowCode } from '../../admin/
   function startApp() { S.view = 'queue'; S.statIntroPending = true; renderApp(); writeArm(); }
 
   function boot() {
-    document.documentElement.setAttribute('data-theme', S.theme);
-    document.documentElement.lang = S.lang;
+    /* Тему и lang уже поставил preferences.js (и предотрисовочный скрипт в
+       <head>); здесь их только читают. */
     loadData();
     document.addEventListener('visibilitychange', syncToastTimers);
     window.addEventListener('resize', syncNavToggle);
