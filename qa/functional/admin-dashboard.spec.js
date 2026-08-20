@@ -6,7 +6,8 @@ test('admin dashboard is header, KPIs, tasks + SLA, and one activity feed', asyn
   await expect(page.locator('.dashboard-primary .panel')).toHaveCount(2);
   await expect(page.locator('.dashboard-activity')).toHaveCount(1);
   await expect(page.locator('.dashboard-quick')).toHaveCount(0);
-  await expect(page.locator('[data-activity-view]')).toHaveCount(4);
+  await expect(page.locator('select[data-activity-view]')).toHaveCount(1);
+  await expect(page.locator('select[data-activity-view] option')).toHaveCount(4);
 });
 
 test('the demo role has exactly one control, and it drives the task panel', async ({ page }) => {
@@ -32,11 +33,12 @@ test('the demo role has exactly one control, and it drives the task panel', asyn
 test('the activity feed is one panel with a working view switcher', async ({ page }) => {
   await page.goto('/admin/?lang=ru&theme=light');
   const all = await page.locator('.dashboard-activity .dashboard-row').count();
-  await page.locator('[data-activity-view="publication"]').click();
+  await page.locator('[data-activity-view]').selectOption('publication');
   const publications = await page.locator('.dashboard-activity .dashboard-row').count();
   expect(publications).toBeGreaterThan(0);
   expect(publications).toBeLessThan(all);
-  await expect(page.locator('[data-activity-view="publication"]')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('[data-activity-view]')).toHaveValue('publication');
+  await expect(page).toHaveURL(/activity=publication/);
 });
 
 for (const status of ['draft','in_review','approved','published','errors']) {

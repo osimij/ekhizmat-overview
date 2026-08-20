@@ -5,7 +5,7 @@ const COPY = {
   tg: {
     title:'Нишондиҳандаҳои хизматҳо',
     total:'Ҳамаи хизматҳо', draft:'Сиёҳнавис', review:'Дар баррасӣ', approved:'Интизори нашр', published:'Нашршуда', errors:'Хатои танзим',
-    tasks:'Вазифаҳои баррасии ман', sla:'Вайроншавии SLA', activity:'Навсозиҳои корӣ',
+    tasks:'Вазифаҳои баррасии ман', sla:'Вайроншавии SLA', activity:'Навсозиҳои корӣ', activityFilter:'Филтр',
     version:'Версия', overdue:'Дермонӣ',
     all:'Ҳама', changes:'Тағйирот', tests:'Санҷишҳо', publications:'Нашрҳо',
     success:'Санҷиш гузашт', failed:'Санҷиш нагузашт',
@@ -14,7 +14,7 @@ const COPY = {
   ru: {
     title:'Показатели услуг',
     total:'Все услуги', draft:'Черновики', review:'На проверке', approved:'Ожидают публикации', published:'Опубликованы', errors:'Ошибки настройки',
-    tasks:'Мои задачи проверки', sla:'Нарушения SLA', activity:'Рабочие обновления',
+    tasks:'Мои задачи проверки', sla:'Нарушения SLA', activity:'Рабочие обновления', activityFilter:'Фильтр',
     version:'Версия', overdue:'Просрочка',
     all:'Все', changes:'Изменения', tests:'Тесты', publications:'Публикации',
     success:'Тест пройден', failed:'Тест не пройден',
@@ -23,7 +23,7 @@ const COPY = {
   en: {
     title:'Service metrics',
     total:'All services', draft:'Drafts', review:'In review', approved:'Awaiting publication', published:'Published', errors:'Configuration errors',
-    tasks:'My review tasks', sla:'SLA violations', activity:'Work updates',
+    tasks:'My review tasks', sla:'SLA violations', activity:'Work updates', activityFilter:'Filter',
     version:'Version', overdue:'Overdue',
     all:'All', changes:'Changes', tests:'Tests', publications:'Publications',
     success:'Test passed', failed:'Test failed',
@@ -94,8 +94,24 @@ const c = () => COPY[lang()] || COPY.tg;
 const content = () => CONTENT[lang()] || CONTENT.tg;
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
-/* the feed's view switcher is page state, not app state — it never leaves this module */
-let activityView = 'all';
+/* This is a real list filter, so it follows the shared URL-state contract. */
+const ACTIVITY_VIEWS = new Set(['all','change','test','publication']);
+const activityViewFromUrl = () => {
+  try {
+    const value = new URLSearchParams(location.search).get('activity') || 'all';
+    return ACTIVITY_VIEWS.has(value) ? value : 'all';
+  } catch (_) { return 'all'; }
+};
+let activityView = activityViewFromUrl();
+
+function syncActivityViewToUrl() {
+  try {
+    const url = new URL(location.href);
+    if (activityView === 'all') url.searchParams.delete('activity');
+    else url.searchParams.set('activity', activityView);
+    history.replaceState(null, '', url);
+  } catch (_) {}
+}
 
 function metrics(x) {
   const values = [['all',x.total,612,''],['draft',x.draft,8,''],['in_review',x.review,4,''],['approved',x.approved,3,''],['published',x.published,596,''],['errors',x.errors,1,'stat--danger']];
@@ -112,7 +128,7 @@ function reviewPanel(role, x) {
   const rows = queue.slice(0, 5).map(({record, workflow}) => {
     const status = describeStatus(workflow.status);
     return `<a class="dashboard-row" href="review.html?service=${esc(record.id)}">
-      <span class="status-icon status-icon--${status.tone}" role="img" aria-label="${esc(status.label)}" title="${esc(status.label)}">${icon(status.icon)}</span>
+      <span class="dashboard-row__glyph dashboard-row__glyph--${status.tone}" role="img" aria-label="${esc(status.label)}" title="${esc(status.label)}">${icon(status.icon)}</span>
       <span class="dashboard-row__copy"><strong>${esc(localizeValue(record.name))}</strong><span>${esc(localizeValue(record.agency))} · v${esc(workflow.version)} · ${esc(record.submittedAt)}</span></span>
       ${icon('i-chev-r')}</a>`;
   }).join('');
@@ -128,7 +144,7 @@ function slaPanel(x, copy) {
       <span class="dashboard-row__copy"><strong>${esc(item.service)}</strong><span>${esc(item.agency)} · ${esc(item.stage)}</span></span>
       <span class="dashboard-row__overdue">${esc(item.overdue)}</span></a>`).join('');
   return `<section class="panel dashboard-panel dashboard-sla">
-    <div class="panel-h"><h3>${x.sla}</h3><span class="dashboard-count dashboard-count--danger">${copy.sla.length}</span></div>
+    <div class="panel-h"><h3>${x.sla}</h3><span class="dashboard-count">${copy.sla.length}</span></div>
     ${copy.sla.length ? `<div class="dashboard-rows">${rows}</div>` : emptyState(x.slaEmpty, x.slaEmptyHint)}
   </section>`;
 }
@@ -150,9 +166,13 @@ function activityPanel(x, copy) {
       <time>${esc(event.at)}</time></a>`;
   }).join('');
   return `<section class="panel dashboard-panel dashboard-activity">
-    <div class="panel-h"><h3>${x.activity}</h3></div>
-    <div class="tabs dashboard-activity__tabs" role="tablist" aria-label="${x.activity}">${views.map(([id,label]) =>
-      `<button class="tab" type="button" role="tab" data-activity-view="${id}" aria-selected="${activityView===id}" tabindex="${activityView===id?'0':'-1'}">${label}</button>`).join('')}</div>
+    <div class="panel-h"><h3>${x.activity}</h3>
+      <label class="ekh-filter dashboard-activity__filter" for="activityView">
+        <span class="ekh-filter__label">${icon('i-filter')}${x.activityFilter}</span>
+        <span class="ekh-filter__field"><select id="activityView" data-activity-view aria-label="${x.activityFilter}">${views.map(([id,label]) =>
+          `<option value="${id}"${activityView===id?' selected':''}>${label}</option>`).join('')}</select>${icon('i-chev-d')}</span>
+      </label>
+    </div>
     <div class="dashboard-rows" aria-live="polite">${rows}</div>
   </section>`;
 }
@@ -163,22 +183,12 @@ function render() {
   root.innerHTML=`<header class="dashboard-head"><h1>${x.title}</h1></header>${metrics(x)}<div class="dashboard-primary">${reviewPanel(state.role,x)}${slaPanel(x,copy)}</div>${activityPanel(x,copy)}`;
 }
 
-document.addEventListener('click', event => {
-  const tab=event.target.closest('[data-activity-view]'); if(!tab) return;
-  activityView=tab.dataset.activityView;
+document.addEventListener('change', event => {
+  const select=event.target.closest('[data-activity-view]'); if(!select) return;
+  activityView=ACTIVITY_VIEWS.has(select.value) ? select.value : 'all';
+  syncActivityViewToUrl();
   render();
-  document.querySelector(`[data-activity-view="${activityView}"]`)?.focus();
-});
-document.addEventListener('keydown', event => {
-  const tab=event.target.closest('[data-activity-view]');
-  if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
-  const tabs=[...document.querySelectorAll('[data-activity-view]')];
-  let index=tabs.indexOf(tab);
-  if(event.key==='Home') index=0;
-  else if(event.key==='End') index=tabs.length-1;
-  else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
-  event.preventDefault();
-  tabs[index].click();
+  document.querySelector('[data-activity-view]')?.focus();
 });
 document.addEventListener('bp:langchange',render);
 subscribeLowCode(render);

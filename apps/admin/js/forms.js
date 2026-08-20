@@ -118,10 +118,10 @@ function renderLibrary(){
   if(stats){
     stats.setAttribute('aria-label',c().statsLabel);
     stats.innerHTML=`
-    <button class="stat" type="button" data-st-go="live" aria-pressed="${libraryFilter==='live'}"><div class="big">${liveCount}</div><div class="k">${esc(c().liveForms)}</div></button>
-    <button class="stat" type="button" data-st-go="draft" aria-pressed="${libraryFilter==='draft'}"><div class="big">${draftCount}</div><div class="k">${esc(c().hasDraft)}</div></button>
-    <button class="stat" type="button" data-st-go="archived" aria-pressed="${libraryFilter==='archived'}"><div class="big">${archivedCount}</div><div class="k">${esc(c().archived)}</div></button>
-    <button class="stat" type="button" data-st-go="unused" aria-pressed="${libraryFilter==='unused'}"><div class="big">${unused}</div><div class="k">${esc(c().unused)}</div></button>`;
+    <button class="stat forms-stat" type="button" data-st-go="live" aria-pressed="${libraryFilter==='live'}"><span class="forms-stat__copy"><span class="big">${liveCount}</span><span class="k">${esc(c().liveForms)}</span></span><svg class="forms-stat__icon forms-stat__icon--live" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></button>
+    <button class="stat forms-stat" type="button" data-st-go="draft" aria-pressed="${libraryFilter==='draft'}"><span class="forms-stat__copy"><span class="big">${draftCount}</span><span class="k">${esc(c().hasDraft)}</span></span><svg class="forms-stat__icon forms-stat__icon--draft" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></button>
+    <button class="stat forms-stat" type="button" data-st-go="archived" aria-pressed="${libraryFilter==='archived'}"><span class="forms-stat__copy"><span class="big">${archivedCount}</span><span class="k">${esc(c().archived)}</span></span><svg class="forms-stat__icon forms-stat__icon--archived" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-history"/></svg></button>
+    <button class="stat forms-stat" type="button" data-st-go="unused" aria-pressed="${libraryFilter==='unused'}"><span class="forms-stat__copy"><span class="big">${unused}</span><span class="k">${esc(c().unused)}</span></span><svg class="forms-stat__icon forms-stat__icon--unused" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-inbox"/></svg></button>`;
   }
 }
 

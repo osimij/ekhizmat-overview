@@ -104,7 +104,7 @@ function ddFlipMenu(dd){
   if(!menu||!btn) return;
   dd.classList.remove("dd-up","dd-right");
   var pop=dd.closest("#admProfilePop");
-  if(pop&&pop.classList.contains("adm-profile-pop--side")){ dd.classList.add("dd-right"); return; }
+  if(pop&&pop.classList.contains("ekh-profile-pop--side")){ dd.classList.add("dd-right"); return; }
   var menuH=menu.offsetHeight||180, br=btn.getBoundingClientRect();
   if(br.bottom+8+menuH>window.innerHeight-8 && br.top-8-menuH>=8) dd.classList.add("dd-up");
 }
@@ -275,12 +275,12 @@ document.addEventListener("mouseover", function(e){
 });
 
 /* ---------- language switcher (lives in the profile popover — one source of truth) ---------- */
-var LANG_SWITCH='<div class="dd lang adm-profile-pop__row-host">'+
-  '<button class="dd-btn adm-profile-pop__row" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">'+
-    '<span class="adm-profile-pop__row-label">Забон</span>'+
+var LANG_SWITCH='<div class="dd lang ekh-profile-pop__row-host">'+
+  '<button class="dd-btn ekh-profile-pop__row" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Забон / Language">'+
+    '<span class="ekh-profile-pop__row-label">Забон</span>'+
     '<span id="langCur" data-no-i18n>Тоҷикӣ</span>'+
-    '<svg class="adm-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>'+
-    '<svg class="adm-profile-pop__compact-icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"/></svg></button>'+
+    '<svg class="ekh-profile-pop__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>'+
+    '<svg class="ekh-profile-pop__compact-icon" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-globe"/></svg></button>'+
   '<div class="dd-menu" role="listbox" aria-label="Забон / Language">'+
     '<div class="dd-label" aria-hidden="true">Забон</div>'+
     '<button role="option" data-lang="tg" aria-selected="true"><span data-no-i18n>Тоҷикӣ</span><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></button>'+
@@ -309,7 +309,7 @@ function profileThemeOptionHtml(value, icon){
   var active=profileThemeSource===value;
   var disabled=systemTheme?' disabled aria-disabled="true"':'';
   var label=profileThemeLabelFor(value);
-  return '<button type="button" class="adm-profile-pop__theme-choice adm-profile-pop__theme-choice--'+value+'" data-admin-theme-choice="'+value+'" aria-pressed="'+active+'" aria-label="'+label+'" title="'+label+'"'+disabled+'>'+
+  return '<button type="button" class="ekh-profile-pop__theme-choice ekh-profile-pop__theme-choice--'+value+'" data-admin-theme-choice="'+value+'" aria-pressed="'+active+'" aria-label="'+label+'" title="'+label+'"'+disabled+'>'+
     '<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#'+icon+'"/></svg></button>';
 }
 function profileThemeLabelFor(value){
@@ -317,9 +317,9 @@ function profileThemeLabelFor(value){
   return labels[value]||labels.system;
 }
 function profileThemeRowHtml(){
-  return '<div class="adm-profile-pop__row adm-profile-pop__row--theme" data-admin-theme-row>'+
-    '<span class="adm-profile-pop__row-label">Тема</span>'+
-    '<div class="adm-profile-pop__theme-options" role="group" aria-label="Тема">'+
+  return '<div class="ekh-profile-pop__row ekh-profile-pop__row--theme" data-admin-theme-row>'+
+    '<span class="ekh-profile-pop__row-label">Тема</span>'+
+    '<div class="ekh-profile-pop__theme-options" role="group" aria-label="Тема">'+
       profileThemeOptionHtml("system","i-theme-system")+
       profileThemeOptionHtml("light","i-sun")+
       profileThemeOptionHtml("dark","i-moon")+
@@ -346,13 +346,13 @@ function setProfileTheme(value){
   syncThemeRow();
 }
 function profilePopHtml(){
-  return '<div class="adm-profile-pop" id="admProfilePop" role="dialog" aria-modal="true" aria-labelledby="admProfileTitle" hidden>'+
-    '<div class="adm-profile-pop__card">'+
+  return '<div class="ekh-profile-pop" id="admProfilePop" role="dialog" aria-modal="true" aria-labelledby="admProfileTitle" hidden>'+
+    '<div class="ekh-profile-pop__card">'+
       '<span class="ekh-side__avatar" aria-hidden="true">'+PROFILE_USER.initials+'</span>'+
-      '<div class="adm-profile-pop__identity"><b id="admProfileTitle">'+PROFILE_USER.name+'</b><span>'+PROFILE_USER.role+'</span></div>'+
+      '<div class="ekh-profile-pop__identity"><b id="admProfileTitle">'+PROFILE_USER.name+'</b><span>'+PROFILE_USER.role+'</span></div>'+
     '</div>'+
-    '<div class="adm-profile-pop__divider" aria-hidden="true"></div>'+
-    '<div class="adm-profile-pop__preferences">'+LANG_SWITCH+profileThemeRowHtml()+'</div>'+
+    '<div class="ekh-profile-pop__divider" aria-hidden="true"></div>'+
+    '<div class="ekh-profile-pop__preferences">'+LANG_SWITCH+profileThemeRowHtml()+'</div>'+
   '</div>';
 }
 function mountProfilePop(){
@@ -372,8 +372,8 @@ function positionProfilePop(trigger){
   var top, left, popRect;
   if(side){
     var inset=profilePopSideInset(side);
-    profilePop.classList.add("adm-profile-pop--side");
-    profilePop.style.setProperty("--adm-profile-pop-max-w", inset.width+"px");
+    profilePop.classList.add("ekh-profile-pop--side");
+    profilePop.style.setProperty("--profile-pop-max-w", inset.width+"px");
     popRect=profilePop.getBoundingClientRect();
     top=rect.top-popRect.height-8;
     left=inset.left;
@@ -381,8 +381,8 @@ function positionProfilePop(trigger){
     profilePop.style.transformOrigin="bottom left";
     left=Math.max(inset.left, Math.min(left, inset.right-popRect.width));
   } else {
-    profilePop.classList.remove("adm-profile-pop--side");
-    profilePop.style.removeProperty("--adm-profile-pop-max-w");
+    profilePop.classList.remove("ekh-profile-pop--side");
+    profilePop.style.removeProperty("--profile-pop-max-w");
     popRect=profilePop.getBoundingClientRect();
     top=rect.bottom+8;
     left=rect.right-popRect.width;

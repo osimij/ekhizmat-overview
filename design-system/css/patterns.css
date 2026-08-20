@@ -220,6 +220,7 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
   font-weight:650;
   white-space:nowrap;
 }
+.audience-badge { font-weight:var(--weight-regular); }
 .audience-badge svg,.environment-badge svg,.review-badge svg,.demo-data-badge svg { width:14px; height:14px; }
 .audience-badge--guest { background:var(--h-violet-bg); color:var(--h-violet-fg); }
 .audience-badge--person { background:var(--h-blue-bg); color:var(--h-blue-fg); }

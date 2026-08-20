@@ -20,6 +20,28 @@ test('status filter lives in the URL and KPI shortcuts toggle it', async ({ page
   await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(4);
 });
 
+test('form KPIs use four distinct semantic icons on the right', async ({ page }) => {
+  const cards = page.locator('#formsStats .forms-stat');
+  await expect(cards).toHaveCount(4);
+  const icons = page.locator('#formsStats .forms-stat__icon');
+  await expect(icons).toHaveCount(4);
+  const hrefs = await icons.locator('use').evaluateAll((elements) => elements.map((icon) => icon.getAttribute('href')));
+  expect(hrefs).toEqual([
+    '/design-system/assets/icons.svg#i-check',
+    '/design-system/assets/icons.svg#i-edit',
+    '/design-system/assets/icons.svg#i-history',
+    '/design-system/assets/icons.svg#i-inbox',
+  ]);
+  const treatment = await cards.evaluateAll((elements) => elements.map((card) => {
+    const icon = card.querySelector('.forms-stat__icon');
+    const cardRect = card.getBoundingClientRect();
+    const iconRect = icon.getBoundingClientRect();
+    return { color:getComputedStyle(icon).color, rightGap:Math.round(cardRect.right-iconRect.right) };
+  }));
+  expect(new Set(treatment.map(item => item.color)).size).toBe(4);
+  expect(new Set(treatment.map(item => item.rightGap)).size).toBe(1);
+});
+
 test('form library metric columns stay aligned across rows', async ({ page }) => {
   const rows = page.locator('#formsList .ekh-list-row');
   await expect(rows).toHaveCount(4);
@@ -35,6 +57,22 @@ test('form library metric columns stay aligned across rows', async ({ page }) =>
   expect(new Set(xs.map((box) => box.fields)).size).toBe(1);
   expect(new Set(xs.map((box) => box.services)).size).toBe(1);
   expect(new Set(xs.map((box) => box.versions)).size).toBe(1);
+});
+
+test('only the versions column is aligned to its right edge', async ({ page }) => {
+  const alignment = await page.locator('#formsCatalog').evaluate((catalog) => {
+    const header = catalog.querySelector('.ekh-list-head > :last-child').getBoundingClientRect();
+    const rows = [...catalog.querySelectorAll('.ekh-list-row')];
+    return {
+      headerRight: Math.round(header.right),
+      stripRights: rows.map((row) => Math.round(row.querySelector('.form-version-strip').getBoundingClientRect().right)),
+      pillRights: rows.map((row) => Math.round(row.querySelector('.form-version-strip > :last-child').getBoundingClientRect().right)),
+      fieldsCentered: rows.every((row) => getComputedStyle(row.querySelector('.form-library-metric')).justifySelf === 'center'),
+    };
+  });
+  expect(new Set(alignment.stripRights)).toEqual(new Set([alignment.headerRight]));
+  expect(new Set(alignment.pillRights)).toEqual(new Set([alignment.headerRight]));
+  expect(alignment.fieldsCentered).toBe(true);
 });
 
 test('forms live in a separate library with visible version states', async ({ page }) => {

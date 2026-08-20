@@ -411,7 +411,7 @@ function actionBar(record){
 }
 function detailMarkup(record){
   const x=c(),workflow=workflowFor(record.id);
-  return `<button class="btn btn-ghost lc-back" type="button" data-lc-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg>${x.backToList}</button><article class="lc-detail-head"><h1>${escapeHtml(localized(record.name))}</h1><div class="lc-detail-head__meta">${statusBadge(workflow.status)}<span class="metachip">v${escapeHtml(workflow.version)}</span><span>${escapeHtml(localized(record.agency))}</span></div><p>${escapeHtml(localized(record.description))}</p></article><div class="lc-review-grid">${serviceOverviewMarkup(record)}${detailSidebar(record)}</div>${timelineMarkup(record)}${actionBar(record)}`;
+  return `<button class="btn btn-ghost lc-back" type="button" data-lc-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg>${x.backToList}</button><article class="lc-detail-head"><div class="lc-detail-head__title"><h1>${escapeHtml(localized(record.name))}</h1><span class="lc-detail-head__title-meta">${statusBadge(workflow.status)}<span class="metachip">v${escapeHtml(workflow.version)}</span></span></div><div class="lc-detail-head__meta">${escapeHtml(localized(record.agency))}</div><p>${escapeHtml(localized(record.description))}</p></article><div class="lc-review-grid">${serviceOverviewMarkup(record)}${detailSidebar(record)}</div>${timelineMarkup(record)}${actionBar(record)}`;
 }
 
 function renderReview(){

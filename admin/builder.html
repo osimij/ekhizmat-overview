@@ -52,9 +52,10 @@
 <div class="bld-work">
   <!-- ============ COLUMN 1 — the pipeline (process) ============ -->
   <aside class="bld-pipe" data-tabs data-tabs-scope=".bld-work" role="tablist" aria-label="Раванди хизмат">
-    <div class="pipe-h"><h2>Раванд</h2></div>
-
-    <div class="pipe-label">Чашми шаҳрванд</div>
+    <div class="pipe-heading">
+      <div class="pipe-h"><h2>Раванд</h2></div>
+      <div class="pipe-label">Чашми шаҳрванд</div>
+    </div>
     <div class="pipe">
       <button class="stg" role="tab" data-tab="confirm" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-slate"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg></span>
@@ -117,7 +118,7 @@
   <section class="bld-edit">
     <!-- confirm (once-only) -->
     <div class="edit-pane" role="tabpanel" data-panel="confirm" hidden>
-      <div class="eh"><span class="kick"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg>Қадами 1 · чашми шаҳрванд</span>
+      <div class="eh">
         <h1>Тасдиқи маълумоти мавҷуд</h1>
         <p>Кадом далелҳоро давлат аллакай медонад ва пешакӣ нишон медиҳем. Шаҳрванд танҳо тасдиқ мекунад — дубора пурсида намешавад. Ин принсипи «як бор» аст.</p>
       </div>
@@ -133,7 +134,7 @@
 
     <!-- FORM REFERENCE — forms are built and versioned in their own library -->
     <div class="edit-pane" role="tabpanel" data-panel="fields">
-      <div class="eh"><span class="kick"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg>Қадами 2 · чашми шаҳрванд</span>
+      <div class="eh">
         <h1>Шакли дархост</h1>
         <p>Шаклҳо аз хизмат ҷудо идора мешаванд. Барои ин хизмат як нусхаи нашршударо интихоб кунед — сиёҳнависҳо ба хизмати зинда таъсир намерасонанд.</p>
       </div>
@@ -151,7 +152,7 @@
 
     <!-- service metadata — the post-creation home for the wizard's step 3 -->
     <div class="edit-pane wide-pane" role="tabpanel" data-panel="meta" hidden>
-      <div class="eh"><span class="kick bk"><svg><use href="/design-system/assets/icons.svg#i-building"/></svg>Кабинети хизмат</span>
+      <div class="eh">
         <h1>Маълумоти хизмат</h1>
         <p>Ном, категория, гирандагон ва мӯҳлат — ҳамон чизе, ки ҳангоми сохтани хизмат пур карда шуд. Ин ҷо онҳо ҳамеша таҳриршавандаанд.</p>
       </div>
@@ -204,7 +205,7 @@
 
     <!-- delivery & payment -->
     <div class="edit-pane" role="tabpanel" data-panel="delivery" hidden>
-      <div class="eh"><span class="kick"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg>Қадами 3 · чашми шаҳрванд</span>
+      <div class="eh">
         <h1>Расондан ва пардохт</h1>
         <p>Чӣ гуна шаҳрванд ҳуҷҷатро мегирад ва оё боҷи давлатӣ ҳаст.</p>
       </div>
@@ -223,7 +224,7 @@
 
     <!-- review & e-sign -->
     <div class="edit-pane" role="tabpanel" data-panel="review" hidden>
-      <div class="eh"><span class="kick"><svg><use href="/design-system/assets/icons.svg#i-sign"/></svg>Қадами 4 · чашми шаҳрванд</span>
+      <div class="eh">
         <h1>Санҷиш ва имзои электронӣ</h1>
         <p>Ин қадам ба ҳамаи хизматҳо худкор илова мешавад. Шумо танҳо матни тасдиқро танзим мекунед.</p>
       </div>
@@ -237,7 +238,7 @@
 
     <!-- back-stage: auto-checks -->
     <div class="edit-pane" role="tabpanel" data-panel="checks" hidden>
-      <div class="eh"><span class="kick bk"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>Дар дохили идора · худкор</span>
+      <div class="eh">
         <h1>Санҷиши худкор</h1>
         <p>Пеш аз он ки кас бубинад, система маълумотро месанҷад. Ин вақти баррасиро кӯтоҳ мекунад.</p>
       </div>
@@ -252,7 +253,7 @@
 
     <!-- back-stage: routing -->
     <div class="edit-pane" role="tabpanel" data-panel="route" hidden>
-      <div class="eh"><span class="kick bk"><svg><use href="/design-system/assets/icons.svg#i-users"/></svg>Дар дохили идора</span>
+      <div class="eh">
         <h1>Баррасӣ ва масъул</h1>
         <p>Кӣ аризаро мебинад, дар кадом мӯҳлат. Ин рақамҳо ба шаҳрванд ҳам ошкоро нишон дода мешаванд — шаффофияти радикалӣ.</p>
       </div>
@@ -274,7 +275,7 @@
 
     <!-- back-stage: issue -->
     <div class="edit-pane" role="tabpanel" data-panel="issue" hidden>
-      <div class="eh"><span class="kick bk"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg>Дар дохили идора</span>
+      <div class="eh">
         <h1>Додани ҳуҷҷат</h1>
         <p>Ҳуҷҷати тайёр чӣ гуна сохта ва ба шаҳрванд расонида мешавад.</p>
       </div>
@@ -392,7 +393,6 @@
     <!-- ===== ADMIN CABINET · versions & rollout ===== -->
     <div class="edit-pane wide-pane" role="tabpanel" data-panel="versions" hidden>
       <div class="sec-head">
-        <span class="sh-ic t-violet"><svg><use href="/design-system/assets/icons.svg#i-history"/></svg></span>
         <div><h1>Нусхаҳо ва идораи нашр</h1>
           <p>Ҳар тағйир версия мегирад. Ҳолати ҳаётӣ, таърихи нусхаҳо бо имкони бозгашт, ва выкаткаи зинагӣ тавассути feature flags (canary).</p></div>
       </div>
