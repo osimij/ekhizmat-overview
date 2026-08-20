@@ -500,6 +500,7 @@
   "dash.network.warning": "Таваҷҷуҳ",
   "dash.network.danger": "Ҷиддӣ",
   "dash.network.distribution": "Тақсимот аз рӯи аудитория",
+  "dash.network.distributionAria": "Тақсимот аз рӯи аудитория: ФЛ {person}%, ЮЛ {business}%, Меҳмон {guest}%",
   "dash.network.alerts": "Таваҷҷуҳ лозим",
   "dash.network.alertWait": "{name}: интизории миёна {wait}",
   "dash.network.alertLoad": "{name}: сарборӣ {load}",

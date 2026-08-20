@@ -652,8 +652,8 @@ export const TSON_DASHBOARD = {
     ],
     audiences:[
       { id:'person', label:'ФЛ', value:69 },
-      { id:'business', label:'ЮЛ', value:23 },
-      { id:'guest', label:'Гость', value:8 },
+      { id:'business', label:'ЮЛ', value:33 },
+      { id:'guest', label:'Гость', value:16 },
     ],
   },
 };

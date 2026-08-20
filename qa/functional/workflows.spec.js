@@ -527,7 +527,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   expect(lockLayout.iconToTitle).toBeCloseTo(25.6, 1);
   expect(lockLayout.titleToHint).toBeCloseTo(6.4, 1);
   expect(lockLayout.hintToInput).toBeCloseTo(25.6, 1);
-  expect(lockLayout.inputToButton).toBeCloseTo(9.6, 1);
+  expect(lockLayout.inputToButton).toBeCloseTo(12.8, 1);
   expect(lockLayout.shellBlurred).toBe(true);
   await expect(card).toBeVisible();
 });
@@ -770,12 +770,17 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   });
   expect(networkColumnAlignment.identityColumnIsLeftAligned).toBe(true);
   for (const difference of networkColumnAlignment.columns) expect(difference).toBeLessThan(0.5);
-  const trend = await page.locator('.line-chart .line-chart__line').evaluate((line) => ({
-    namespace: line.namespaceURI,
-    length: line.getTotalLength(),
-  }));
-  expect(trend.namespace).toBe('http://www.w3.org/2000/svg');
-  expect(trend.length).toBeGreaterThan(0);
+  const weekChart = page.locator('.week-chart');
+  const weekDays = await weekChart.locator('.week-chart__day').allTextContents();
+  expect(weekDays.map((day) => day.replace(/\.$/, ''))).toEqual(['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']);
+  await expect(weekChart.locator('.week-chart__row')).toHaveCount(7);
+  await expect(weekChart.locator('.week-chart__row').first()).not.toHaveClass(/week-chart__row--peak/);
+  await expect(weekChart.locator('.week-chart__row').last()).toHaveClass(/week-chart__row--peak/);
+  await expect(weekChart.locator('.week-chart__row--peak .week-chart__value')).toHaveText(/2\s486/);
+  const weekFills = await weekChart.locator('.week-chart__fill').evaluateAll((fills) =>
+    fills.map((el) => el.getBoundingClientRect().width),
+  );
+  expect(Math.max(...weekFills)).toBe(weekFills.at(-1));
   const networkTotal = await page.locator('.dashboard-table-section tbody .data-row td:nth-child(2)').evaluateAll((cells) =>
     cells.reduce((sum, cell) => sum + Number(cell.textContent.trim()), 0),
   );
@@ -784,10 +789,49 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   // beside filters that change the whole screen. Distribution always shows all
   // three audiences, and the region filter now syncs to the URL (§7).
   await expect(page.locator('.audience-bar')).toHaveCount(3);
-  await page.getByLabel('Регион').selectOption('sughd');
+  await expect(page.locator('.audience-bar__value')).toHaveText(['69%', '33%', '16%']);
+  const audienceChart = await page.locator('.dashboard-section:has(.audience-bars)').evaluate((section) => {
+    const title = section.querySelector('.h3');
+    const value = section.querySelector('.audience-bar__value');
+    const fill = section.querySelector('.audience-bar__fill');
+    const fillStyle = getComputedStyle(fill);
+    const fills = [...section.querySelectorAll('.audience-bar__fill')].map((el, index) => {
+      const box = el.getBoundingClientRect();
+      const label = section.querySelectorAll('.audience-bar__label')[index];
+      return {
+        width: box.width,
+        height: box.height,
+        fillToLabel: label.getBoundingClientRect().top - box.bottom,
+      };
+    });
+    return {
+      titleLines: title.getClientRects().length,
+      titleWhiteSpace: getComputedStyle(title).whiteSpace,
+      titleToValue: value.getBoundingClientRect().top - title.getBoundingClientRect().bottom,
+      plotMinHeight: getComputedStyle(section.querySelector('.audience-bars')).minHeight,
+      radius: {
+        top: fillStyle.borderTopLeftRadius,
+        bottom: fillStyle.borderBottomLeftRadius,
+      },
+      fills,
+    };
+  });
+  expect(audienceChart.titleLines).toBe(1);
+  expect(audienceChart.titleWhiteSpace).toBe('nowrap');
+  expect(audienceChart.titleToValue).toBeGreaterThanOrEqual(20);
+  expect(audienceChart.titleToValue).toBeLessThan(36);
+  expect(audienceChart.plotMinHeight).toBe('190px');
+  expect(audienceChart.radius).toEqual({ top: '8px', bottom: '8px' });
+  expect(audienceChart.fills.every((bar) => bar.fillToLabel >= 12)).toBe(true);
+  expect(audienceChart.fills).toHaveLength(3);
+  expect(audienceChart.fills[0].width).toBeCloseTo(64, 0);
+  expect(audienceChart.fills[0].height).toBeGreaterThan(audienceChart.fills[0].width);
+  expect(audienceChart.fills[0].height).toBeGreaterThan(audienceChart.fills[1].height);
+  expect(audienceChart.fills[1].height).toBeGreaterThan(audienceChart.fills[2].height);
+  await page.getByLabel('Регион', { exact: true }).selectOption('sughd');
   await expect(page).toHaveURL(/region=sughd/);
   await expect(page.locator('.dashboard-table-section tbody .data-row')).toHaveCount(1);
-  await page.getByLabel('Регион').selectOption('all');
+  await page.getByLabel('Регион', { exact: true }).selectOption('all');
   await page.locator('.dashboard-table-section tbody .data-row').first().click();
   await expect(page).toHaveURL(/#\/dashboard-center/);
 

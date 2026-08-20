@@ -501,6 +501,7 @@
   "dash.network.warning": "Внимание",
   "dash.network.danger": "Критично",
   "dash.network.distribution": "Распределение по аудиториям",
+  "dash.network.distributionAria": "Распределение по аудиториям: ФЛ {person}%, ЮЛ {business}%, Гость {guest}%",
   "dash.network.alerts": "Требует внимания",
   "dash.network.alertWait": "{name}: среднее ожидание {wait}",
   "dash.network.alertLoad": "{name}: загрузка {load}",
