@@ -244,7 +244,7 @@ function recordFields(record){
 function commentsMarkup(record){
   const x=c(),workflow=workflowFor(record.id);
   if(!workflow.comments?.length)return `<div class="lc-comment-empty"><svg><use href="/design-system/assets/icons.svg#i-chat"/></svg><p>${x.noComments}</p></div>`;
-  return `<div class="comment-thread">${workflow.comments.map(comment=>`<article class="comment ${comment.reply?'comment--reply':''}"><div class="comment__meta"><b>${comment.author==='reviewer'?x.reviewer:comment.author==='portal-admin'?x.admin:x.author}</b><span>${escapeHtml(comment.at)}</span></div><span class="comment__anchor">${escapeHtml(localized(comment.anchor,x.general))}</span><p>${escapeHtml(localized(comment.body))}</p></article>`).join('')}</div>`;
+  return `<div class="lc-comment-thread">${workflow.comments.map(comment=>`<article class="lc-comment ${comment.reply?'lc-comment--reply':''}"><div class="lc-comment__meta"><b>${comment.author==='reviewer'?x.reviewer:comment.author==='portal-admin'?x.admin:x.author}</b><span>${escapeHtml(comment.at)}</span></div><span class="lc-comment__anchor">${escapeHtml(localized(comment.anchor,x.general))}</span><p>${escapeHtml(localized(comment.body))}</p></article>`).join('')}</div>`;
 }
 function timelineMarkup(record){
   const x=c(),workflow=workflowFor(record.id);
