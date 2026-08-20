@@ -49,6 +49,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | 🧩 Stats & Metrics | `Stat Card` (Default/Danger) | `.stat`, `.metric` |
 | | `Metric Inline` | dense strips |
 | 🧩 List Rows | `Library List` (Header + Row; `--list-columns` prop) | `.ekh-list-head` + `.ekh-list-row` + `.ekh-list-cell` in `design-system/css/components.css` — header and rows share one column definition (rule 18); identity column left, all others centred (rule 41). Consumers: admin service registry, admin form library |
+| 🧩 Field Composer | `Field Row` (Collapsed / Open; Type glyph swap) + `Field Body` (3-lang label, help, format, required, condition) | `apps/admin/js/field-composer.js` + `.fb-list`/`.fb-item`/`.fb-head`/`.fb-body`/`.fb-grip`/`.ml-tabs`/`.cond-row`. One composer for the console: the service builder consumes its *output* through the form binding |
 | | `Dashboard Row` (Task / Alert / Event) | `.dashboard-row` — glanceable dashboard card row (§5 casebook 2): island reserved in the box model, hover only paints |
 | | `Field Row` | `.fb-item` head |
 | 🧩 Pipeline & Steps | `Pipeline Stage` (Default/Selected; sub/count/dot toggles) | `.stg` |
@@ -64,7 +65,7 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Stepper` (Current / Done) | `.stepper`, `.stepper__step[aria-current='step']`, `.stepper__step.done` |
 | 🧩 Overlays | `Modal` (slot body, icon-only close, action pair) | `.modal` + `.mhd` |
 | | `Toast` | `.toast` |
-| | `Profile popover` (identity, language selector, three-theme choice) | `.adm-profile-pop` |
+| | `Profile popover` (identity, language selector, three-theme choice) | `.ekh-profile-pop` (shared; `.adm-profile-pop` is the admin alias) |
 
 ## Icon mapping — icons.svg → Hugeicons (stroke-rounded, 24px, 1.5px)
 

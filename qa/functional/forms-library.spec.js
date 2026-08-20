@@ -56,7 +56,10 @@ test('a new form can be built and saved without creating a service', async ({ pa
   await page.locator('#formDescription').fill('Форма без услуги');
   await page.locator('#addFormField').click();
   await page.locator('[data-form-add="text"]').click();
-  await expect(page.locator('.independent-field')).toHaveCount(1);
+  /* the shared composer opens the new field focused on its Tajik label */
+  await expect(page.locator('.fb-item')).toHaveCount(1);
+  await expect(page.locator('.fb-item.open')).toHaveCount(1);
+  await page.locator('.ml-tabs button[data-ml="ru"]').click();
   await page.locator('[data-field-prop="label.ru"]').fill('Контактное лицо');
   await page.locator('[data-form-action="save"]').click();
   await expect(page).toHaveURL(/form-builder\.html\?id=form-/);

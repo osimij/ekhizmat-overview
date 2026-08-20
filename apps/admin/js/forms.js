@@ -1,3 +1,4 @@
+import { createFieldComposer, normalizeField } from './field-composer.js';
 import {
   getForms, getForm, getVersion, liveVersion, newestVersion, editableVersion,
   createFormDraft, saveDraft, publishDraft, createNextDraft, localized,
@@ -13,11 +14,31 @@ let currentLang=(()=>{ try{return new URLSearchParams(location.search).get('lang
 const COPY={
   tg:{
     forms:'Шаклҳо',title:'Шаклҳо',newForm:'Шакли нав',allForms:'Ҳамаи шаклҳо',all:'Ҳама',live:'Зинда',draft:'Сиёҳнавис',archived:'Бойгонӣ',empty:'Ягон шакл ёфт нашуд',emptyBody:'Ҷустуҷӯ ё филтрро тағйир диҳед.',search:'Ҷустуҷӯи шакл, идора ё рамз…',filterLabel:'Филтр аз рӯи ҳолат',statsLabel:'Хулосаи шаклҳо',colForm:'Шакл',colFields:'Майдонҳо',colServices:'Хизматҳо',colVersions:'Нусхаҳо',fields:'майдон',services:'хизмат',hasDraft:'Бо сиёҳнавис',liveForms:'Шакли зинда',unused:'Бе хизмат',
-    back:'Шаклҳо',backServices:'Хизматрасониҳо',history:'Таърих',versionTitle:'Нусхаҳои шакл',versionHelp:'Сиёҳнависро озодона тағйир диҳед. Хизматҳо танҳо нусхаи нашршударо истифода мебаранд.',editorEyebrow:'Муҳаррири мустақили шакл',createTitle:'Сохтани шакл',editTitle:'Таҳрири шакл',editorLead:'Ном ва майдонҳоро дар ин ҷо идора кунед. Пайваст кардани шакл ба хизмат қадами алоҳида аст.',detailsTitle:'Маълумоти шакл',detailsLead:'Ин ном дар китобхона ва ҳангоми интихоби шакл нишон дода мешавад.',nameTg:'Ном ба тоҷикӣ',nameRu:'Ном ба русӣ',description:'Тавсифи кӯтоҳ',fieldsTitle:'Майдонҳои шакл',fieldsLead:'Тартиб ва талаботи майдонҳо дар худи шакл нигоҳ дошта мешаванд.',addField:'Илова кардани майдон',preview:'Пешнамоиш',citizenView:'Чашми шаҳрванд',liveNow:'зинда',continue:'Идома',paletteTitle:'Навъи майдонро интихоб кунед',paletteLead:'Майдон ба охири шакл илова мешавад.',save:'Захира кардани сиёҳнавис',publish:'Нашри нусха',newDraft:'Сохтани нусхаи нав',openLive:'Кушодани нусхаи зинда',readOnly:'Ин нусха танҳо барои хондан аст.',required:'Ҳатмӣ',requiredHelp:'Шаҳрванд бояд ин майдонро пур кунад',optional:'Ихтиёрӣ',fieldTg:'Номи майдон ба тоҷикӣ',fieldRu:'Номи майдон ба русӣ',options:'Вариантҳо (бо вергул)',moveUp:'Боло',moveDown:'Поён',remove:'Нест кардан',noFields:'Ҳоло майдон нест. Майдони аввалро илова кунед.',untitled:'Шакли беном',newCode:'FORM-NEW',saved:'Сиёҳнавис захира шуд',published:'Нусха нашр шуд ва ҳоло зинда аст',created:'Нусхаи нави сиёҳнавис сохта шуд',nameRequired:'Аввал номи шаклро ворид кунед',fieldRequired:'Барои нашр ҳадди ақал як майдон лозим аст',publishTitle:'Нашри ин нусха?',publishLead:'Нусхаи зиндаи ҳозира бойгонӣ мешавад. Хизматҳои нав метавонанд ин нусхаро интихоб кунанд.',publishSummary:(v,n)=>`v${v} · ${n} майдон`,cancel:'Бекор',statusDraft:'Сиёҳнавис',statusPublished:'Нашршуда · зинда',statusArchived:'Бойгонӣ',typeText:'Матни кӯтоҳ',typeEmail:'Почтаи электронӣ',typeTextarea:'Матни дароз',typeSelect:'Рӯйхати интихоб',typeDate:'Сана',typeFile:'Файл',typeCheckbox:'Тасдиқ',choose:'Интихоб кунед',fileHint:'PDF, JPG ё PNG',yes:'Тасдиқ мекунам',newField:'Майдони нав',descriptionPlaceholder:'Шакл барои чӣ истифода мешавад?',savedVersion:'Захира шуд',draftVersion:'Дар таҳрир',liveVersion:'Дар хизматҳо дастрас',archivedVersion:'Нусхаи пешина',
+    composer:{
+      required:'Ҳатмӣ',optional:'Ихтиёрӣ',optionsShort:'вариант',conditional:'шартӣ',
+      labelHeading:'Номи майдон (барои шаҳрванд) · 3 забон',typeLabel:'Навъи майдон',
+      options:'Вариантҳо (бо вергул)',help:'Матни ёрирасон',helpPlaceholder:'тавзеҳи кӯтоҳ зери майдон',
+      validation:'Санҷиш ва формат',format:'Формати вуруд',formatHelp:'маска ва санҷиши худкор — ИНН, телефон, сана',
+      requiredHelp:'шаҳрванд бояд онро пур кунад',conditionHeading:'Мантиқи шартӣ',always:'Ҳамеша нишон дода шавад',
+      equals:'баробар',value:'қимат',empty:'Ҳоло майдон нест. Майдони аввалро илова кунед.',untitled:'Майдони нав',
+      moveUp:'Боло',moveDown:'Поён',remove:'Нест кардан',dragHint:'Кашед барои тартиб',
+      formats:{free:'Матни озод',num:'Танҳо рақам',inn:'ИНН — 9 рақам',phone:'Телефон (+992…)',date:'Сана',email:'Почтаи электронӣ'},
+    },
+    back:'Шаклҳо',backServices:'Хизматрасониҳо',history:'Таърих',versionTitle:'Нусхаҳои шакл',versionHelp:'Сиёҳнависро озодона тағйир диҳед. Хизматҳо танҳо нусхаи нашршударо истифода мебаранд.',detailsTitle:'Маълумоти шакл',detailsLead:'Ин ном дар китобхона ва ҳангоми интихоби шакл нишон дода мешавад.',nameTg:'Ном ба тоҷикӣ',nameRu:'Ном ба русӣ',description:'Тавсифи кӯтоҳ',fieldsTitle:'Майдонҳои шакл',fieldsLead:'Тартиб ва талаботи майдонҳо дар худи шакл нигоҳ дошта мешаванд.',addField:'Илова кардани майдон',preview:'Пешнамоиш',citizenView:'Чашми шаҳрванд',liveNow:'зинда',continue:'Идома',paletteTitle:'Навъи майдонро интихоб кунед',paletteLead:'Майдон ба охири шакл илова мешавад.',save:'Захира кардани сиёҳнавис',publish:'Нашри нусха',newDraft:'Сохтани нусхаи нав',openLive:'Кушодани нусхаи зинда',readOnly:'Ин нусха танҳо барои хондан аст.',required:'Ҳатмӣ',requiredHelp:'Шаҳрванд бояд ин майдонро пур кунад',optional:'Ихтиёрӣ',fieldTg:'Номи майдон ба тоҷикӣ',fieldRu:'Номи майдон ба русӣ',options:'Вариантҳо (бо вергул)',moveUp:'Боло',moveDown:'Поён',remove:'Нест кардан',noFields:'Ҳоло майдон нест. Майдони аввалро илова кунед.',untitled:'Шакли беном',newCode:'FORM-NEW',saved:'Сиёҳнавис захира шуд',published:'Нусха нашр шуд ва ҳоло зинда аст',created:'Нусхаи нави сиёҳнавис сохта шуд',nameRequired:'Аввал номи шаклро ворид кунед',fieldRequired:'Барои нашр ҳадди ақал як майдон лозим аст',publishTitle:'Нашри ин нусха?',publishLead:'Нусхаи зиндаи ҳозира бойгонӣ мешавад. Хизматҳои нав метавонанд ин нусхаро интихоб кунанд.',publishSummary:(v,n)=>`v${v} · ${n} майдон`,cancel:'Бекор',statusDraft:'Сиёҳнавис',statusPublished:'Нашршуда · зинда',statusArchived:'Бойгонӣ',typeText:'Матни кӯтоҳ',typeEmail:'Почтаи электронӣ',typeTextarea:'Матни дароз',typeSelect:'Рӯйхати интихоб',typeDate:'Сана',typeFile:'Файл',typeCheckbox:'Тасдиқ',choose:'Интихоб кунед',fileHint:'PDF, JPG ё PNG',yes:'Тасдиқ мекунам',newField:'Майдони нав',descriptionPlaceholder:'Шакл барои чӣ истифода мешавад?',savedVersion:'Захира шуд',draftVersion:'Дар таҳрир',liveVersion:'Дар хизматҳо дастрас',archivedVersion:'Нусхаи пешина',
   },
   ru:{
     forms:'Формы',title:'Формы',newForm:'Новая форма',allForms:'Все формы',all:'Все',live:'Живые',draft:'Черновики',archived:'Архив',empty:'Формы не найдены',emptyBody:'Измените поиск или фильтр.',search:'Поиск формы, ведомства или кода…',filterLabel:'Фильтр по статусу',statsLabel:'Сводка форм',colForm:'Форма',colFields:'Поля',colServices:'Услуги',colVersions:'Версии',fields:'полей',services:'услуг',hasDraft:'С черновиком',liveForms:'Живые формы',unused:'Без услуг',
-    back:'Формы',backServices:'Услуги',history:'История',versionTitle:'Версии формы',versionHelp:'Черновик можно свободно менять. Услуги используют только опубликованную версию.',editorEyebrow:'Независимый редактор формы',createTitle:'Создание формы',editTitle:'Редактирование формы',editorLead:'Название и поля управляются здесь. Подключение формы к услуге — отдельный шаг.',detailsTitle:'Данные формы',detailsLead:'Это название видно в библиотеке и при выборе формы.',nameTg:'Название на таджикском',nameRu:'Название на русском',description:'Краткое описание',fieldsTitle:'Поля формы',fieldsLead:'Порядок и требования полей хранятся в самой форме.',addField:'Добавить поле',preview:'Предпросмотр',citizenView:'Глазами гражданина',liveNow:'вживую',continue:'Продолжить',paletteTitle:'Выберите тип поля',paletteLead:'Поле будет добавлено в конец формы.',save:'Сохранить черновик',publish:'Опубликовать версию',newDraft:'Создать новую версию',openLive:'Открыть живую версию',readOnly:'Эта версия доступна только для чтения.',required:'Обязательное',requiredHelp:'Гражданин должен заполнить это поле',optional:'Необязательное',fieldTg:'Название поля на таджикском',fieldRu:'Название поля на русском',options:'Варианты (через запятую)',moveUp:'Выше',moveDown:'Ниже',remove:'Удалить',noFields:'Полей пока нет. Добавьте первое поле.',untitled:'Форма без названия',newCode:'FORM-NEW',saved:'Черновик сохранён',published:'Версия опубликована и теперь живая',created:'Создан черновик новой версии',nameRequired:'Сначала укажите название формы',fieldRequired:'Для публикации нужно хотя бы одно поле',publishTitle:'Опубликовать эту версию?',publishLead:'Текущая живая версия уйдёт в архив. Новые услуги смогут выбрать эту версию.',publishSummary:(v,n)=>`v${v} · ${n} полей`,cancel:'Отмена',statusDraft:'Черновик',statusPublished:'Опубликована · живая',statusArchived:'В архиве',typeText:'Короткий текст',typeEmail:'Электронная почта',typeTextarea:'Длинный текст',typeSelect:'Список вариантов',typeDate:'Дата',typeFile:'Файл',typeCheckbox:'Подтверждение',choose:'Выберите',fileHint:'PDF, JPG или PNG',yes:'Подтверждаю',newField:'Новое поле',descriptionPlaceholder:'Для чего используется эта форма?',savedVersion:'Сохранена',draftVersion:'В работе',liveVersion:'Доступна услугам',archivedVersion:'Предыдущая версия',
+    composer:{
+      required:'Обязательное',optional:'Необязательное',optionsShort:'вариантов',conditional:'условное',
+      labelHeading:'Название поля (для гражданина) · 3 языка',typeLabel:'Тип поля',
+      options:'Варианты (через запятую)',help:'Подсказка',helpPlaceholder:'короткое пояснение под полем',
+      validation:'Проверка и формат',format:'Формат ввода',formatHelp:'маска и автопроверка — ИНН, телефон, дата',
+      requiredHelp:'гражданин должен заполнить это поле',conditionHeading:'Условная логика',always:'Показывать всегда',
+      equals:'равно',value:'значение',empty:'Полей пока нет. Добавьте первое поле.',untitled:'Новое поле',
+      moveUp:'Выше',moveDown:'Ниже',remove:'Удалить',dragHint:'Перетащите, чтобы изменить порядок',
+      formats:{free:'Свободный текст',num:'Только цифры',inn:'ИНН — 9 цифр',phone:'Телефон (+992…)',date:'Дата',email:'Электронная почта'},
+    },
+    back:'Формы',backServices:'Услуги',history:'История',versionTitle:'Версии формы',versionHelp:'Черновик можно свободно менять. Услуги используют только опубликованную версию.',detailsTitle:'Данные формы',detailsLead:'Это название видно в библиотеке и при выборе формы.',nameTg:'Название на таджикском',nameRu:'Название на русском',description:'Краткое описание',fieldsTitle:'Поля формы',fieldsLead:'Порядок и требования полей хранятся в самой форме.',addField:'Добавить поле',preview:'Предпросмотр',citizenView:'Глазами гражданина',liveNow:'вживую',continue:'Продолжить',paletteTitle:'Выберите тип поля',paletteLead:'Поле будет добавлено в конец формы.',save:'Сохранить черновик',publish:'Опубликовать версию',newDraft:'Создать новую версию',openLive:'Открыть живую версию',readOnly:'Эта версия доступна только для чтения.',required:'Обязательное',requiredHelp:'Гражданин должен заполнить это поле',optional:'Необязательное',fieldTg:'Название поля на таджикском',fieldRu:'Название поля на русском',options:'Варианты (через запятую)',moveUp:'Выше',moveDown:'Ниже',remove:'Удалить',noFields:'Полей пока нет. Добавьте первое поле.',untitled:'Форма без названия',newCode:'FORM-NEW',saved:'Черновик сохранён',published:'Версия опубликована и теперь живая',created:'Создан черновик новой версии',nameRequired:'Сначала укажите название формы',fieldRequired:'Для публикации нужно хотя бы одно поле',publishTitle:'Опубликовать эту версию?',publishLead:'Текущая живая версия уйдёт в архив. Новые услуги смогут выбрать эту версию.',publishSummary:(v,n)=>`v${v} · ${n} полей`,cancel:'Отмена',statusDraft:'Черновик',statusPublished:'Опубликована · живая',statusArchived:'В архиве',typeText:'Короткий текст',typeEmail:'Электронная почта',typeTextarea:'Длинный текст',typeSelect:'Список вариантов',typeDate:'Дата',typeFile:'Файл',typeCheckbox:'Подтверждение',choose:'Выберите',fileHint:'PDF, JPG или PNG',yes:'Подтверждаю',newField:'Новое поле',descriptionPlaceholder:'Для чего используется эта форма?',savedVersion:'Сохранена',draftVersion:'В работе',liveVersion:'Доступна услугам',archivedVersion:'Предыдущая версия',
   },
 };
 
@@ -160,37 +181,42 @@ function hydrateEditor(){
   editor.serviceDraftId=editor.serviceDraftId||editor.form?.serviceId||null;
   const requested=getVersion(editor.form,query.get('version'));
   editor.version=requested||editableVersion(editor.form)||newestVersion(editor.form);
-  editor.draft={name:clone(editor.form.name),description:clone(editor.form.description),fields:clone(editor.version.fields||[])};
+  editor.draft={name:clone(editor.form.name),description:clone(editor.form.description),fields:(clone(editor.version.fields)||[]).map(normalizeField)};
 }
 
-function fieldTypeOptions(selected){ return FIELD_TYPES.map(type=>`<option value="${type}" ${type===selected?'selected':''}>${esc(typeCopy(type))}</option>`).join(''); }
-
-function renderEditorFields(){
-  const root=$('#independentFields'); if(!root) return;
-  const editable=editorEditable();
-  if(!editor.draft.fields.length){ root.innerHTML=`<div class="form-fields-empty"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg><b>${esc(c().noFields)}</b></div>`; return; }
-  root.innerHTML=editor.draft.fields.map((field,index)=>{
-    const optionsTg=(field.options?.tg||[]).join(', '),optionsRu=(field.options?.ru||[]).join(', ');
-    return `<article class="independent-field" data-field-id="${esc(field.id)}">
-      <div class="independent-field__head"><span class="form-field-number">${index+1}</span><span class="form-field-type-icon"><svg><use href="/design-system/assets/icons.svg#${typeIcon(field.type)}"/></svg></span><div><b>${esc(label(field.label)||c().newField)}</b><span>${esc(typeCopy(field.type))} · ${esc(field.required?c().required:c().optional)}</span></div>${editable?`<div class="independent-field__actions"><button class="rowact" type="button" data-field-act="up" title="${esc(c().moveUp)}" ${index===0?'disabled':''}><svg style="transform:rotate(180deg)"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button><button class="rowact" type="button" data-field-act="down" title="${esc(c().moveDown)}" ${index===editor.draft.fields.length-1?'disabled':''}><svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button><button class="rowact rowact--danger" type="button" data-field-act="remove" title="${esc(c().remove)}"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button></div>`:''}</div>
-      <div class="independent-field__body">
-        <div class="field"><label>${esc(typeCopy(field.type))}</label><div class="select"><select data-field-prop="type" ${editable?'':'disabled'}>${fieldTypeOptions(field.type)}</select></div></div>
-        <div class="field"><label>${esc(c().fieldTg)}</label><input class="input" data-field-prop="label.tg" value="${esc(field.label?.tg||'')}" ${editable?'':'disabled'}></div>
-        <div class="field"><label>${esc(c().fieldRu)}</label><input class="input" data-field-prop="label.ru" value="${esc(field.label?.ru||'')}" ${editable?'':'disabled'}></div>
-        ${field.type==='select'?`<div class="field"><label>${esc(c().options)} · TG</label><input class="input" data-field-prop="options.tg" value="${esc(optionsTg)}" ${editable?'':'disabled'}></div><div class="field"><label>${esc(c().options)} · RU</label><input class="input" data-field-prop="options.ru" value="${esc(optionsRu)}" ${editable?'':'disabled'}></div>`:''}
-        <label class="pr independent-field__required"><div class="tt"><span class="v">${esc(c().required)}</span><span class="k">${esc(c().requiredHelp)}</span></div><span class="sw"><input type="checkbox" data-field-prop="required" ${field.required?'checked':''} ${editable?'':'disabled'}><span class="knob"></span></span></label>
-      </div>
-    </article>`;
-  }).join('');
+/* the shared composer owns the field rows; forms.js owns what a saved draft is */
+let composer=null;
+function ensureComposer(){
+  const root=$('#independentFields'); if(!root) return null;
+  if(!composer) composer=createFieldComposer({
+    root,
+    fields:()=>editor.draft.fields,
+    onChange:()=>{ renderEditorPreview(); },
+    editable:editorEditable,
+    copy:()=>c().composer,
+    typeLabel:typeCopy,
+    typeIcon,
+    types:FIELD_TYPES,
+    lang:()=>currentLang,
+  });
+  return composer;
 }
+function renderEditorFields(){ ensureComposer()?.render(); }
 
+const FORMAT_PLACEHOLDER={num:'123',inn:'123456789',phone:'+992 ',date:'',email:'name@example.tj'};
+/* the preview shows what the citizen gets, help text and conditions included */
 function previewControl(field){
   const name=esc(label(field.label)||c().newField),required=field.required?' <span class="req">*</span>':'';
-  if(field.type==='select') return `<div class="field"><label>${name}${required}</label><div class="select"><select disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(option=>`<option>${esc(option)}</option>`).join('')}</select></div></div>`;
-  if(field.type==='textarea') return `<div class="field"><label>${name}${required}</label><textarea class="input" rows="3" disabled></textarea></div>`;
-  if(field.type==='file') return `<div class="field"><label>${name}${required}</label><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().fileHint)}</span></div></div>`;
-  if(field.type==='checkbox') return `<label class="consent"><input type="checkbox" disabled><span>${name||esc(c().yes)}</span></label>`;
-  return `<div class="field"><label>${name}${required}</label><input class="input" type="${field.type==='email'?'email':field.type==='date'?'date':'text'}" disabled></div>`;
+  const help=field.help?.[currentLang]||field.help?.tg||'';
+  const source=field.condOn&&editor.draft.fields.find(item=>item.id===field.condOn);
+  const tail=(help?`<p class="help">${esc(help)}</p>`:'')
+    +(source?`<p class="help help--cond">↳ ${esc(c().composer.conditional)}: ${esc(label(source.label)||source.label.tg)} = «${esc(field.condVal||'…')}»</p>`:'');
+  const placeholder=FORMAT_PLACEHOLDER[field.format]||'';
+  if(field.type==='select') return `<div class="field"><label>${name}${required}</label><div class="select"><select disabled><option>${esc(c().choose)}</option>${(field.options?.[currentLang]||field.options?.tg||[]).map(option=>`<option>${esc(option)}</option>`).join('')}</select></div>${tail}</div>`;
+  if(field.type==='textarea') return `<div class="field"><label>${name}${required}</label><textarea class="input" rows="3" disabled></textarea>${tail}</div>`;
+  if(field.type==='file') return `<div class="field"><label>${name}${required}</label><div class="form-preview-upload"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><span>${esc(c().fileHint)}</span></div>${tail}</div>`;
+  if(field.type==='checkbox') return `<label class="consent"><input type="checkbox" disabled><span>${name||esc(c().yes)}</span></label>${tail}`;
+  return `<div class="field"><label>${name}${required}</label><input class="input" type="${field.type==='email'?'email':field.type==='date'?'date':'text'}" placeholder="${esc(placeholder)}" disabled>${tail}</div>`;
 }
 
 function renderEditorPreview(){
@@ -204,7 +230,8 @@ function renderVersionList(){
   root.innerHTML=versions.map(version=>{
     const selected=Number(version.number)===Number(editor.version.number);
     const updated=label(version.updated)||'';
-    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-item__copy"><b>v${version.number}</b>${updated?`<small>${esc(updated)}</small>`:''}<span class="sr-only">${esc(statusText(version.status))}</span></span><span class="form-version-item__icon">${statusIcon(version.status)}</span></button>`;
+    const note=label(version.note)||'';
+    return `<button class="form-version-item form-version-item--${statusTone(version.status)} ${selected?'is-selected':''}" type="button" data-version="${version.number}" ${editor.isNew?'disabled':''}><span class="form-version-item__copy"><b>v${version.number}</b>${updated?`<small>${esc(updated)}</small>`:''}${note?`<small class="form-version-item__note" title="${esc(note)}">${esc(note)}</small>`:''}<span class="sr-only">${esc(statusText(version.status))}</span></span><span class="form-version-item__icon">${statusIcon(version.status)}</span></button>`;
   }).join('');
   setText('versionCount',String(versions.length));
 }
@@ -217,13 +244,15 @@ function renderEditorActions(){
 }
 
 function renderEditorChrome(){
-  setText('formBackLabel',editor.serviceDraftId?c().backServices:c().back); setText('versionsEyebrow',c().history); setText('versionsTitle',c().versionTitle); setText('versionsHelp',c().versionHelp); setText('editorEyebrow',c().editorEyebrow); setText('editorTitle',editor.isNew?c().createTitle:c().editTitle); setText('editorLead',c().editorLead); setText('detailsTitle',c().detailsTitle); setText('detailsLead',c().detailsLead); setText('formNameTgLabel',c().nameTg); setText('formNameRuLabel',c().nameRu); setText('formDescriptionLabel',c().description); setText('fieldsTitle',c().fieldsTitle); setText('fieldsLead',c().fieldsLead); setText('addFieldLabel',c().addField); setText('previewEyebrow',c().preview); setText('previewTitle',c().citizenView); setText('previewLive',c().liveNow); setText('previewContinue',c().continue); setText('formPaletteTitle',c().paletteTitle); setText('formPaletteLead',c().paletteLead); setText('publishFormTitle',c().publishTitle); setText('publishFormLead',c().publishLead); setText('confirmFormPublish',c().publish); setText('cancelFormPublish',c().cancel); setPlaceholder('formDescription',c().descriptionPlaceholder);
+  setText('formBackLabel',editor.serviceDraftId?c().backServices:c().back); setText('versionsEyebrow',c().history); setText('versionsTitle',c().versionTitle); setText('versionsHelp',c().versionHelp); setText('detailsTitle',c().detailsTitle); setText('detailsLead',c().detailsLead); setText('formNameTgLabel',c().nameTg); setText('formNameRuLabel',c().nameRu); setText('formDescriptionLabel',c().description); setText('fieldsTitle',c().fieldsTitle); setText('fieldsLead',c().fieldsLead); setText('addFieldLabel',c().addField); setText('previewEyebrow',c().preview); setText('previewTitle',c().citizenView); setText('previewLive',c().liveNow); setText('previewContinue',c().continue); setText('formPaletteTitle',c().paletteTitle); setText('formPaletteLead',c().paletteLead); setText('publishFormTitle',c().publishTitle); setText('publishFormLead',c().publishLead); setText('confirmFormPublish',c().publish); setText('cancelFormPublish',c().cancel); setPlaceholder('formDescription',c().descriptionPlaceholder);
   const name=$('#formNameTg'),ru=$('#formNameRu'),desc=$('#formDescription');
   if(name){name.value=editor.draft.name?.tg||'';name.disabled=!editorEditable();}
   if(ru){ru.value=editor.draft.name?.ru||'';ru.disabled=!editorEditable();}
   if(desc){desc.value=label(editor.draft.description)||editor.draft.description?.tg||'';desc.disabled=!editorEditable();}
   setText('formEditorName',activeName()); setText('formEditorCode',editor.form?.code||c().newCode);
   const status=$('#formEditorStatus'); if(status) status.textContent=`v${editor.version.number} · ${statusText(editor.version.status)}`;
+  /* the read-only/live distinction is this page's central concept */
+  const live=$('#previewLive'); if(live){live.hidden=!(!editor.isNew&&editor.version.live&&editor.version.status==='published');live.textContent=c().liveNow;}
   const add=$('#addFormField'); if(add) add.hidden=!editorEditable();
   const palette=$('#formPaletteGrid'); if(palette) palette.innerHTML=FIELD_TYPES.map(type=>`<button class="form-type-option" type="button" data-form-add="${type}"><span><svg><use href="/design-system/assets/icons.svg#${typeIcon(type)}"/></svg></span><b>${esc(typeCopy(type))}</b></button>`).join('');
   renderVersionList(); renderEditorActions(); renderEditorFields(); renderEditorPreview();
@@ -236,7 +265,7 @@ function refreshDraftFromInputs(){
 
 function navigateToVersion(version){
   history.replaceState(null,'',`form-builder.html?id=${encodeURIComponent(editor.form.id)}&version=${version.number}&${editorContext()}`);
-  editor.version=version; editor.draft={name:clone(editor.form.name),description:clone(editor.form.description),fields:clone(version.fields||[])}; editor.isNew=false; renderEditorChrome();
+  editor.version=version; editor.draft={name:clone(editor.form.name),description:clone(editor.form.description),fields:(clone(version.fields)||[]).map(normalizeField)}; editor.isNew=false; composer?.close(); renderEditorChrome();
 }
 
 function saveEditor(){
@@ -277,28 +306,11 @@ function initEditor(){
   });
   $('#formPaletteGrid')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-form-add]'); if(!button||!editorEditable()) return;
-    const type=button.dataset.formAdd,id='field-'+Date.now();
-    const field={id,type,label:{tg:c().newField,ru:COPY.ru.newField},required:false};
+    const type=button.dataset.formAdd;
+    const field={type,label:{tg:c().newField,ru:COPY.ru.newField,en:''},required:false};
     if(type==='select') field.options={tg:['Варианти 1','Варианти 2'],ru:['Вариант 1','Вариант 2']};
-    editor.draft.fields.push(field); closeOverlay(button); renderEditorFields(); renderEditorPreview();
-  });
-  $('#independentFields')?.addEventListener('input',event=>{
-    const input=event.target.closest('[data-field-prop]'),row=input?.closest('[data-field-id]'); if(!input||!row) return;
-    const field=editor.draft.fields.find(item=>item.id===row.dataset.fieldId),prop=input.dataset.fieldProp; if(!field) return;
-    if(prop==='type') field.type=input.value;
-    else if(prop==='required') field.required=input.checked;
-    else if(prop.startsWith('label.')) field.label[prop.split('.')[1]]=input.value;
-    else if(prop.startsWith('options.')){field.options=field.options||{tg:[],ru:[]};field.options[prop.split('.')[1]]=input.value.split(',').map(item=>item.trim()).filter(Boolean);}
-    renderEditorFields(); renderEditorPreview();
-    const next=$(`[data-field-id="${CSS.escape(field.id)}"] [data-field-prop="${CSS.escape(prop)}"]`); if(next&&prop!=='type'&&prop!=='required'){next.focus();next.setSelectionRange?.(next.value.length,next.value.length);}
-  });
-  $('#independentFields')?.addEventListener('click',event=>{
-    const button=event.target.closest('[data-field-act]'),row=button?.closest('[data-field-id]'); if(!button||!row) return;
-    const index=editor.draft.fields.findIndex(item=>item.id===row.dataset.fieldId),action=button.dataset.fieldAct; if(index<0) return;
-    if(action==='remove') editor.draft.fields.splice(index,1);
-    if(action==='up'&&index>0) editor.draft.fields.splice(index-1,0,editor.draft.fields.splice(index,1)[0]);
-    if(action==='down'&&index<editor.draft.fields.length-1) editor.draft.fields.splice(index+1,0,editor.draft.fields.splice(index,1)[0]);
-    renderEditorFields(); renderEditorPreview();
+    if(type==='text'||type==='textarea') field.format='free';
+    closeOverlay(button); ensureComposer()?.add(field);
   });
   $('#formEditorActions')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-form-action]'); if(!button) return;
@@ -313,7 +325,7 @@ function initEditor(){
   });
   $('#confirmFormPublish')?.addEventListener('click',event=>{
     const form=publishDraft(editor.form.id,editor.version.number); if(!form) return;
-    closeOverlay(event.target); editor.form=form; editor.version=getVersion(form,editor.version.number); editor.draft={name:clone(form.name),description:clone(form.description),fields:clone(editor.version.fields)}; toast(c().published); renderEditorChrome();
+    closeOverlay(event.target); editor.form=form; editor.version=getVersion(form,editor.version.number); editor.draft={name:clone(form.name),description:clone(form.description),fields:(clone(editor.version.fields)||[]).map(normalizeField)}; composer?.close(); toast(c().published); renderEditorChrome();
   });
 }
 

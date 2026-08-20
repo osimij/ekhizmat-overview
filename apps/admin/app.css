@@ -176,7 +176,8 @@ label.pr{cursor:pointer}
 .s-row__wait{width:18px; height:18px; color:var(--amber)}
 .pr--flush{padding-inline:0}
 .help--cond{margin-top:-10px; margin-bottom:var(--s-4); color:var(--blue-ink)}
-.metachip.ok{color:var(--green); background:var(--green-tint)}
+.metachip.ok,.metachip--live{color:var(--green); background:var(--green-tint)}
+.metachip--live{font-weight:var(--weight-medium)}
 .metachip.ok svg{color:var(--green)}
 /* "what you get" / requirement ledger rows */
 .led{background:var(--panel); border-radius:var(--r-l); overflow:hidden}
@@ -598,7 +599,9 @@ label.pr{cursor:pointer}
 .fb-item.open .fb-ic{background-color:var(--blue); color:var(--on-blue)}
 .fb-ic svg{width:17px; height:17px}
 .fb-tt{min-width:0}
-.fb-tt b{display:block; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* §4: repeated row titles are 500; only the open row earns the extra weight */
+.fb-tt b{display:block; font-weight:var(--weight-medium); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.fb-item.open .fb-tt b{font-weight:var(--weight-semibold)}
 .fb-tt .meta{display:flex; align-items:center; gap:6px; font-size:var(--fs-12); color:var(--ink-3); margin-top:1px;
   flex-wrap:nowrap; white-space:nowrap; overflow:hidden; min-width:0}
 .ftype{display:inline-flex; align-items:center; padding:1px 7px; border-radius:var(--r-pill);
@@ -885,7 +888,6 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 
 /* the pipeline rail keeps one weight; only the selected stage steps up (§4) */
 .cfg-sub{font-size:var(--fs-13);font-weight:500;letter-spacing:0;text-transform:none}
-.fb-tt b{font-weight:550}
 .bld-pipe .stg .tt b{font-weight:var(--weight-regular)}
 .bld-pipe .stg[aria-selected="true"] .tt b{font-weight:var(--weight-medium)}
 .lc-review-side h3{font-weight:600}
@@ -1266,8 +1268,6 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
   min-width: 0;
 }
 
-.forms-eyebrow{display:inline-flex;align-items:center;gap:7px;color:var(--blue-ink);font-size:var(--fs-12);font-weight:650}
-.forms-eyebrow svg{width:15px;height:15px}
 .form-version-badge{display:inline-flex;align-items:center;gap:6px;width:max-content;padding:3px 5px 3px 10px;border-radius:var(--r-pill);background:var(--field);color:var(--ink-2);font-size:var(--fs-11);font-weight:550;white-space:nowrap}
 .form-version-badge .status-icon{flex-basis:22px;width:22px;height:22px}.form-version-badge .status-icon svg{width:13px;height:13px}
 
@@ -1283,19 +1283,14 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 .form-version-list{display:grid;gap:var(--s-2)}
 .form-version-item{display:grid;grid-template-columns:minmax(0,1fr) 28px;align-items:center;gap:var(--s-3);width:100%;height:fit-content;min-height:0;padding:10px var(--s-3) 10px var(--s-4);border-radius:var(--r-m);color:inherit;text-align:left;cursor:pointer;transition:background var(--t-fast) var(--ease)}
 .form-version-item:hover{background:var(--hover)}.form-version-item.is-selected{background:var(--blue-tint)}
-.form-version-item__copy{display:grid;gap:3px}.form-version-item__copy b{font-size:var(--fs-14)}.form-version-item__copy small{font-size:var(--fs-11);color:var(--ink-3)}.form-version-item__icon{display:grid;place-items:center}.form-version-item__icon .status-icon{width:28px;height:28px}.form-version-item__icon .status-icon svg{width:18px;height:18px}.form-version-item--draft .form-version-item__icon .status-icon{background:transparent;color:var(--blue-ink)}
+.form-version-item__copy{display:grid;gap:3px;min-width:0}.form-version-item__copy b{font-size:var(--fs-14)}.form-version-item__copy small{font-size:var(--fs-11);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* §4: selection earns weight, not only a border */
+.form-version-item.is-selected .form-version-item__copy b{font-weight:var(--weight-semibold)}
+.form-version-item__note{color:var(--ink-3)}.form-version-item__icon{display:grid;place-items:center}.form-version-item__icon .status-icon{width:28px;height:28px}.form-version-item__icon .status-icon svg{width:18px;height:18px}.form-version-item--draft .form-version-item__icon .status-icon{background:transparent;color:var(--blue-ink)}
 .form-editor-canvas{padding:var(--s-6) var(--s-6) var(--s-10);overflow:auto}
-.form-editor-intro,.form-details-panel,.form-fields-section{max-width:760px;margin-inline:auto}.form-editor-intro{margin-bottom:var(--s-5)}.form-editor-intro h1{font-size:var(--fs-28);margin:var(--s-2) 0 3px}.form-editor-intro p{color:var(--ink-3)}#editorLead{font-weight:400}
 .form-details-panel{margin-bottom:var(--s-6)}.form-details-panel .panel-h{border-bottom:1px solid var(--line-in)}.form-details-panel .panel-h>div{display:grid;gap:6px}.form-details-panel .panel-h h2{font-size:var(--fs-17)}.form-details-panel .panel-h p{color:var(--ink-3);font-size:var(--fs-12);margin-top:0}
 .form-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);padding:var(--s-5)}.form-details-grid .field{margin:0}.form-details-grid__wide{grid-column:1/-1}
 .form-section-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-4);margin-bottom:var(--s-3)}.form-section-heading>div{display:grid;gap:6px}.form-section-heading h2{font-size:var(--fs-17)}.form-section-heading p{font-size:var(--fs-12);color:var(--ink-3);margin-top:0}#detailsLead,#fieldsLead{letter-spacing:0}
-.independent-fields{display:grid;gap:var(--s-3)}
-.independent-field{border-radius:var(--r-l);background:var(--panel);overflow:hidden}
-.independent-field__head{display:grid;grid-template-columns:24px 34px minmax(0,1fr) auto;align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4);border-bottom:1px solid var(--line-in)}
-.form-field-number{display:grid;place-items:center;color:var(--ink-3);font-size:var(--fs-13);font-variant-numeric:tabular-nums}.form-field-type-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:var(--r-s);background:var(--blue-tint);color:var(--blue-ink)}.form-field-type-icon svg{width:17px;height:17px}.independent-field__head>div:nth-child(3){display:grid}.independent-field__head b{font-size:var(--fs-14)}.independent-field__head div>span{font-size:var(--fs-11);color:var(--ink-3)}
-.independent-field__actions{display:flex!important;align-items:center;gap:3px}.rowact--danger:hover{background:var(--red-tint);color:var(--red-ink)}
-.independent-field__body{display:grid;grid-template-columns:1fr 1fr;column-gap:var(--s-3);row-gap:var(--s-3);padding:var(--s-4)}.independent-field__body>.field{margin:0}.independent-field__required{grid-column:1/-1;margin-top:var(--s-2);padding:0}
-.form-fields-empty{display:flex;flex-direction:column;align-items:center;gap:var(--s-2);padding:var(--s-8);border:1px dashed var(--line);border-radius:var(--r-l);color:var(--ink-3);text-align:center}.form-fields-empty b{font-weight:400}.form-fields-empty svg{width:26px;height:26px}
 .form-live-preview{position:sticky;top:64px;align-self:start;height:calc(100vh - 64px);padding:var(--s-6) var(--s-5);overflow-y:auto;border-left:1px solid var(--line);background:radial-gradient(var(--line) 1px,transparent 1.3px) 0 0/20px 20px,var(--bg)}
 .form-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3);margin-bottom:var(--s-4)}
 .form-preview-card{padding:var(--s-5);border-radius:var(--r-xl);background:var(--panel)}.form-preview-brand{display:flex;align-items:center;gap:7px;margin-bottom:var(--s-3)}.form-preview-brand svg{width:24px;height:24px;color:var(--blue)}.form-preview-brand b{font-size:var(--fs-14)}.form-preview-card h3{font-size:var(--fs-20)}.form-preview-card>p{color:var(--ink-3);font-size:var(--fs-13);margin:var(--s-2) 0 var(--s-4)}#independentPreviewFields{display:grid;gap:var(--s-4);margin-bottom:var(--s-4)}#independentPreviewFields:empty{display:none}.form-preview-card .field,.form-preview-card .consent{margin:0}
