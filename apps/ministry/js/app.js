@@ -32,7 +32,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     cardTab: 'overview',
     apps: [],
     notifs: [],
-    filters: { svc: '', status: '', sla: 'all', priority: '', q: '' },
+    filters: { svc: '', status: '', sla: 'all', priority: '', io: '', q: '' },
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
     batchSvc: '',                       // услуга для экрана массовой обработки
@@ -53,13 +53,14 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
      попадает никогда: в ней бывает ФИО заявителя, а приватный контракт рабочего
      места запрещает персональные данные в адресной строке (§7, платформенное
      исключение). Восстанавливаем только по явному списку значений. */
-  var URL_FILTERS = ['svc', 'status', 'sla', 'priority'];
+  var URL_FILTERS = ['svc', 'status', 'sla', 'priority', 'io'];
   function filterAllowed(key, value) {
     if (!value) return key !== 'sla';
     if (key === 'svc') return Object.prototype.hasOwnProperty.call(D.SERVICE, value);
     if (key === 'status') return Object.prototype.hasOwnProperty.call(D.STATUS, value);
     if (key === 'sla') return value === 'all' || value === 'warn' || value === 'breach';
     if (key === 'priority') return value === 'high';
+    if (key === 'io') return value === 'pending' || value === 'received';
     return false;
   }
   function readFiltersFromUrl() {
@@ -1119,24 +1120,44 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     return h;
   }
 
-  /* ---- журнал межвед-запросов (§7Б.2, §13) ---- */
+  /* ---- журнал межвед-запросов (§7Б.2, §13) ----
+     Работа оператора на этом экране — «найти, что застряло», поэтому сверху
+     стоят сводные показатели, а плитка «Ожидают ответа» и есть фильтр этого
+     состояния (§3 «KPI / stat cards»). */
   function viewInterop() {
     var rows = [];
     S.apps.forEach(function (a) {
       (a.interop || []).forEach(function (r) { rows.push({ a: a, r: r }); });
     });
     rows.sort(function (x, y) { return y.r.at - x.r.at; });
-    var body = rows.map(function (x) {
+    var pendingN = rows.filter(function (x) { return x.r.status === 'pending'; }).length;
+    var io = S.filters.io;
+    var shown = rows.filter(function (x) {
+      if (io === 'pending') return x.r.status === 'pending';
+      if (io === 'received') return x.r.status !== 'pending';
+      return true;
+    });
+    var body = shown.map(function (x) {
       var pend = x.r.status === 'pending';
-      return '<div class="interop-item ' + (pend ? 'is-pending' : 'is-received') + '" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '">' +
-        '<span class="interop-item__ico">' + ic(pend ? 'i-clock' : 'i-check','') + '</span>' +
+      return '<div class="interop-item" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '">' +
+        ic('i-refresh','icon--20 interop-item__glyph') +
         '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(x.r.type)) + '</span>' +
         '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
-        (pend ? '<span class="spin"></span>' : statusIcon('success', t('ij_received'), 'i-check')) + '</div>';
+        (pend ? '<span class="spin" role="img" aria-label="' + esc(t('ij_pending')) + '" title="' + esc(t('ij_pending')) + '"></span>' : statusIcon('success', t('ij_received'), 'i-check')) + '</div>';
     }).join('');
     return '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('ij_title')) + '</h1>' +
       '<div class="view__sub">' + esc(t('ij_sub')) + '</div></div></div>' +
-      '<div class="panel panel--pad">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
+      '<div class="stat-grid">' +
+        statFilter(pendingN, t('ij_awaiting'), pendingN ? 'warn' : '', io === 'pending', 'stat-io') +
+        statTile('', D.INTEROP_DEMO.receivedToday, t('ij_received_today'), '') +
+        statTile('', esc(t('ij_avg_value')), t('ij_avg'), '') +
+      '</div>' +
+      '<div class="toolbar">' +
+        selectFilter('io', t('ij_all'), [{ v: 'pending', l: t('ij_state_pending') }, { v: 'received', l: t('ij_state_received') }], io, t('ij_state')) +
+        '<div class="toolbar__spacer"></div>' +
+        '<span class="small nowrap" aria-live="polite">' + shown.length + ' ' + esc(t('ij_count')) + '</span>' +
+      '</div>' +
+      '<div class="panel panel--pad" aria-live="polite">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
   }
 
   /* ---- отчётность по SLA (§7Б.3 → §14) ---- */
@@ -1725,6 +1746,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       case 'stat-sla': setFilter('sla', S.filters.sla === 'breach' ? 'all' : 'breach'); return;
       case 'stat-status': setFilter('status', S.filters.status === 'info_requested' ? '' : 'info_requested'); return;
       case 'stat-priority': setFilter('priority', S.filters.priority === 'high' ? '' : 'high'); return;
+      case 'stat-io': setFilter('io', S.filters.io === 'pending' ? '' : 'pending'); return;
 
       case 'form-create':
         S._lowCodeBusy = true; dispatchLowCode('RESET'); S._lowCodeBusy = false;

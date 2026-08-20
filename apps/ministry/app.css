@@ -395,9 +395,11 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
 /* Подпись перед полем — анатомия канонического фильтра (§3, §6): «Срок»
    называет контроль, а значение внутри отвечает. Услуга и статус называют себя
    сами первым пунктом списка («Все услуги»). */
-.filter-select--sla { display: flex; align-items: center; gap: var(--s-2); min-width: 0; flex: 0 1 260px; }
+.filter-select--sla,
+.filter-select--io { display: flex; align-items: center; gap: var(--s-2); min-width: 0; flex: 0 1 260px; }
 .filter-select__label { flex: none; color: var(--ink-2); font-size: var(--fs-13); white-space: nowrap; }
-.filter-select--sla .filter-select__trigger { flex: 1 1 auto; }
+.filter-select--sla .filter-select__trigger,
+.filter-select--io .filter-select__trigger { flex: 1 1 auto; }
 .filter-select--sla .filter-select__menu { left: auto; right: 0; transform-origin: top right; }
 .filter-select__trigger {
   width: 100%; height: var(--h-btn-s);
@@ -676,7 +678,20 @@ button.stat[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--blue); }
   border-bottom: 1px solid var(--line-in);
 }
 .interop-item:last-child { border-bottom: 0; }
-.interop-item[data-act] { cursor: pointer; }
+/* Кликабельная строка в панели с отступами — «остров» из casebook 2: место
+   под подсветку уже в боксовой модели, hover только красит, поэтому ничего не
+   сдвигается. */
+.interop-item[data-act] {
+  cursor: pointer;
+  width: calc(100% + var(--s-3) * 2);
+  padding-inline: var(--s-3);
+  margin-inline: calc(-1 * var(--s-3));
+  border-radius: var(--r-s);
+  transition: background-color var(--t-fast) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .interop-item[data-act]:hover { background: var(--hover); }
+}
 .interop-item__glyph { flex: none; color: var(--ink-3); }
 /* Заголовок строки и её метаданные — две строки, а не одна: пока оба span
    оставались inline, «Проверка апостиля» и название ведомства слипались в

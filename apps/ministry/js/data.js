@@ -352,6 +352,11 @@
     { name: 'Шарипов Т. А.',  initials: 'ШТ', total: 61,  onTime: 60 }
   ];
 
+  /* ---------- Демо-показатели межведомственного обмена ----------
+     Средний срок ответа считается на бэкенде по всей истории обменов; в
+     прототипе он — именованная демо-константа, а не литерал внутри вида. */
+  var INTEROP_DEMO = { avgReplyHours: 6, receivedToday: 3 };
+
   /* ---------- Словарь интерфейса (§6В.2, ru/tg) ---------- */
   var I18N = {
     ru: {
@@ -644,6 +649,15 @@
       ij_sub: 'Журнал обменов через Smart Bridge',
       ij_pending: 'В обработке',
       ij_received: 'Получен ответ',
+      ij_awaiting: 'Ожидают ответа',
+      ij_received_today: 'Получено сегодня',
+      ij_avg: 'Средний срок ответа',
+      ij_avg_value: '6 ч',
+      ij_state: 'Состояние',
+      ij_all: 'Все запросы',
+      ij_state_pending: 'Ожидает ответа',
+      ij_state_received: 'Получено',
+      ij_count: 'запросов',
       awaiting_reply: 'Ожидают сведений',
       // misc
       of_agency: 'Заявлений ведомства',
@@ -973,6 +987,15 @@
       ij_sub: 'Феҳристи мубодилаҳо тавассути Smart Bridge',
       ij_pending: 'Дар коркард',
       ij_received: 'Ҷавоб гирифта шуд',
+      ij_awaiting: 'Дар интизори ҷавоб',
+      ij_received_today: 'Имрӯз гирифта шуд',
+      ij_avg: 'Муҳлати миёнаи ҷавоб',
+      ij_avg_value: '6 соат',
+      ij_state: 'Ҳолат',
+      ij_all: 'Ҳамаи дархостҳо',
+      ij_state_pending: 'Дар интизори ҷавоб',
+      ij_state_received: 'Гирифта шуд',
+      ij_count: 'дархост',
       awaiting_reply: 'Интизори маълумот',
       of_agency: 'Аризаҳои идора',
       overdue_title: 'Аризаҳои мӯҳлаташон гузашта',
@@ -1044,7 +1067,7 @@
 
   global.DATA = {
     STATUS: STATUS, SERVICE: SERVICE, ME: ME, COLLEAGUES: COLLEAGUES,
-    I18N: I18N, REPORT_SPECIALISTS: REPORT_SPECIALISTS,
+    I18N: I18N, REPORT_SPECIALISTS: REPORT_SPECIALISTS, INTEROP_DEMO: INTEROP_DEMO,
     SOURCE_AGENCIES: SOURCE_AGENCIES, INFO_TYPES: INFO_TYPES,
     seed: seed, seedNotifs: seedNotifs,
     MIN: MIN, HOUR: HOUR
