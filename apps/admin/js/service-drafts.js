@@ -8,14 +8,6 @@ const AGENCIES={
   labor:{tg:'Вазорати меҳнат',ru:'Министерство труда'},
 };
 
-const CATEGORY_STYLE={
-  docs:['t-blue','i-cat-passport'],family:['t-rose sh-c','i-cat-family'],edu:['t-amber sh-r','i-cat-edu'],
-  health:['t-green sh-c','i-cat-health'],transport:['t-indigo','i-cat-transport'],land:['t-terra sh-r','i-cat-land'],
-  tax:['t-violet','i-cat-tax'],justice:['t-slate sh-c','i-cat-justice'],certs:['t-teal sh-r','i-cat-cert'],
-  culture:['t-pink sh-l','i-cat-culture'],gov:['t-steel','i-cat-gov'],license:['t-cyan sh-r','i-cat-license'],
-  accred:['t-olive','i-cat-accred'],other:['t-gray sh-c','i-cat-other'],
-};
-
 const COPY={
   tg:{draft:'сиёҳнавис',fields:'майдон',free:'ройгон',updated:'таҳрир: ҳозир',saved:'Сиёҳнависи хизмат захира шуд',untitled:'Хизмати беном',person:'шахси воқеӣ',business:'шахси ҳуқуқӣ',guest:'меҳмон',guestBadge:'Меҳмон'},
   ru:{draft:'черновик',fields:'полей',free:'бесплатно',updated:'изменено: только что',saved:'Черновик услуги сохранён',untitled:'Услуга без названия',person:'физлицо',business:'юрлицо',guest:'гость',guestBadge:'Гость'},
@@ -105,20 +97,23 @@ function initWizard(){
 
 function registryRow(draft){
   const l=lang(),c=copy(),agency=AGENCIES[draft.agencyId]||AGENCIES.sahsh;
-  const style=CATEGORY_STYLE[draft.category]||CATEGORY_STYLE.other;
   const name=draft.name?.[l]||draft.name?.tg||draft.name?.ru||c.untitled;
-  const audience=(draft.audience||[]).map(value=>c[value]).filter(Boolean).join(' · ');
   const price=draft.cost==='paid'?`${draft.amount||'0,00'} смн.`:c.free;
   const href=draft.formId
     ?targetUrl('form-builder.html',{id:draft.formId,service:draft.id})
     :targetUrl('form-builder.html',{new:'1',service:draft.id});
-  const audienceCell=(draft.audience||[]).includes('guest')
-    ?`<span class="svc-audience" title="${esc(c.guestBadge)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg><span>${esc(c.guestBadge)}</span></span>`
-    :`<span class="svc-audience" aria-hidden="true"></span>`;
-  return `<a class="svc-row" href="${esc(href)}" data-created-service="${esc(draft.id)}" data-audience="${esc((draft.audience||[]).join(' '))}">
-    <span class="tile ${esc(style[0])}" style="width:38px;height:38px"><svg style="width:18px;height:18px"><use href="/design-system/assets/icons.svg#${esc(style[1])}"/></svg></span>
-    <span class="nm"><b>${esc(name)}</b><span class="k">${esc(agency[l]||agency.tg)}${audience?' · '+esc(audience):''} · ${esc(draft.code)}</span></span>
-    <span class="cols">${audienceCell}<span><b>0</b> ${esc(c.fields)}</span><span>${esc(price)}</span><span>${esc(c.updated)}</span></span>
+  /* same anatomy as the static registry rows — two templates, one grid */
+  const audienceCell=(draft.audience||[]).map(value=>{
+    const icon=value==='business'?'i-biz':value==='guest'?'i-user':'i-role';
+    const label=c[value]||value;
+    return `<span class="audience-badge audience-badge--${esc(value)} lc-icon-badge" role="img" aria-label="${esc(label)}" title="${esc(label)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${icon}"/></svg></span>`;
+  }).join('');
+  return `<a class="ekh-list-row" href="${esc(href)}" data-created-service="${esc(draft.id)}" data-status="draft" data-audience="${esc((draft.audience||[]).join(' '))}">
+    <span class="nm"><b>${esc(name)}</b><span class="k">${esc(agency[l]||agency.tg)} · ${esc(draft.code)}</span></span>
+    <span class="ekh-list-cell svc-audience">${audienceCell}</span>
+    <span class="ekh-list-cell"><b>0</b></span>
+    <span class="ekh-list-cell">${esc(price)}</span>
+    <span class="ekh-list-cell">${esc(c.updated)}</span>
     <span class="status-icon status-icon--warning" role="img" aria-label="${esc(c.draft)}" title="${esc(c.draft)}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
   </a>`;
 }

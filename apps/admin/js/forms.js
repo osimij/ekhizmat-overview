@@ -81,7 +81,7 @@ function renderLibrary(){
   root.innerHTML=matches.map(form=>{
     const latest=editableVersion(form)||newestVersion(form);
     const fieldCount=(latest?.fields||[]).length;
-    return `<a class="svc-row form-library-row" href="form-builder.html?id=${encodeURIComponent(form.id)}&version=${latest.number}&${pageContext()}">
+    return `<a class="ekh-list-row" href="form-builder.html?id=${encodeURIComponent(form.id)}&version=${latest.number}&${pageContext()}">
       <span class="nm" title="${esc(label(form.name))}"><b>${esc(label(form.name))}</b><span class="k">${esc(form.code)} · ${esc(label(form.owner))}</span></span>
       <span class="form-library-metric"><b>${fieldCount}</b><span class="sr-only"> ${esc(c().fields)}</span></span>
       <span class="form-library-metric"><b>${form.usedBy}</b><span class="sr-only"> ${esc(c().services)}</span></span>

@@ -37,8 +37,6 @@
         <a class="btn services-create-action" href="new-service.html"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg><span>Хизмати нав</span></a>
       </div></div>
 
-      <section class="lc-registry" id="lowCodeRegistry" aria-live="polite"></section>
-
       <!-- registry KPIs double as filter shortcuts and match the dashboard contract -->
       <div class="reg-stats">
         <button class="stat" type="button" data-st-go="draft" aria-pressed="false"><div class="big" id="draftServiceCount">8</div><div class="k">Сиёҳнавис</div></button>
@@ -67,54 +65,82 @@
           </label>
         </div>
 
+        <div class="ekh-list-head" aria-hidden="true">
+          <span>Хизмат</span>
+          <span>Аудитория</span>
+          <span>Майдонҳо</span>
+          <span>Нарх</span>
+          <span>Таҳрир</span>
+          <span>Ҳолат</span>
+        </div>
+
+        <!-- the low-code demo service is simply the first live row of the list -->
+        <div class="lc-registry" id="lowCodeRegistry" aria-live="polite"></div>
+
         <div class="created-service-rows" id="createdServiceRows" aria-live="polite"></div>
 
-        <a class="svc-row" href="builder.html" data-audience="person guest" data-status="published">
-          <span class="tile t-teal sh-r tile--m"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
-          <span class="nm"><b>Маълумотнома — ҳайати оила</b><span class="k">САҲШ · шахси воқеӣ · рамзи SVC-FAM-01</span></span>
-          <span class="cols"><span class="svc-audience" title="Меҳмон"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg><span>Меҳмон</span></span><span><b>5</b> майдон</span><span>ройгон</span><span>таҳрир: 3 рӯз пеш</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="person guest" data-status="published">
+          <span class="nm"><b>Маълумотнома — ҳайати оила</b><span class="k">САҲШ · SVC-FAM-01</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span><span class="audience-badge audience-badge--guest lc-icon-badge" role="img" aria-label="бе воридшавӣ" title="бе воридшавӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-user"/></svg></span></span>
+          <span class="ekh-list-cell"><b>5</b></span>
+          <span class="ekh-list-cell">ройгон</span>
+          <span class="ekh-list-cell">3 рӯз пеш</span>
           <span class="status-icon status-icon--success" role="img" aria-label="нашршуда" title="нашршуда"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         </a>
-        <a class="svc-row" href="builder.html" data-status="published">
-          <span class="tile t-violet tile--m"><svg><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
-          <span class="nm"><b>Маълумотнома — қарзи андоз</b><span class="k">Кумитаи андоз · шахси воқеӣ · SVC-TAX-04</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>7</b> майдон</span><span>12,00 смн.</span><span>таҳрир: дирӯз</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="person" data-status="published">
+          <span class="nm"><b>Маълумотнома — қарзи андоз</b><span class="k">Кумитаи андоз · SVC-TAX-04</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span></span>
+          <span class="ekh-list-cell"><b>7</b></span>
+          <span class="ekh-list-cell">12,00 смн.</span>
+          <span class="ekh-list-cell">дирӯз</span>
           <span class="status-icon status-icon--success" role="img" aria-label="нашршуда" title="нашршуда"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         </a>
-        <a class="svc-row" href="review.html" data-status="approved">
-          <span class="tile t-amber sh-r tile--m"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
-          <span class="nm"><b>Нусхаи дубораи шаҳодатнома</b><span class="k">САҲШ · бойгонӣ · SVC-ARC-02</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>6</b> майдон</span><span>25,00 смн.</span><span>таҳрир: 1 ҳафта пеш</span></span>
+        <a class="ekh-list-row" href="review.html" data-audience="person" data-status="approved">
+          <span class="nm"><b>Нусхаи дубораи шаҳодатнома</b><span class="k">САҲШ · SVC-ARC-02</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span></span>
+          <span class="ekh-list-cell"><b>6</b></span>
+          <span class="ekh-list-cell">25,00 смн.</span>
+          <span class="ekh-list-cell">1 ҳафта пеш</span>
           <span class="status-icon status-icon--success" role="img" aria-label="интизори нашр" title="интизори нашр"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         </a>
-        <a class="svc-row" href="builder.html" data-status="draft">
-          <span class="tile t-violet sh-l tile--m"><svg><use href="/design-system/assets/icons.svg#i-rings"/></svg></span>
-          <span class="nm"><b>Ариза ба қайди никоҳ</b><span class="k">САҲШ · шахси воқеӣ · SVC-MAR-01</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>8</b> майдон</span><span>40,00 смн.</span><span>таҳрир: ҳозир</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="person" data-status="draft">
+          <span class="nm"><b>Ариза ба қайди никоҳ</b><span class="k">САҲШ · SVC-MAR-01</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span></span>
+          <span class="ekh-list-cell"><b>8</b></span>
+          <span class="ekh-list-cell">40,00 смн.</span>
+          <span class="ekh-list-cell">ҳозир</span>
           <span class="status-icon status-icon--warning" role="img" aria-label="сиёҳнавис" title="сиёҳнавис"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
         </a>
-        <a class="svc-row" href="builder.html" data-status="published">
-          <span class="tile t-indigo tile--m"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
-          <span class="nm"><b>Сабти соҳибкори инфиродӣ</b><span class="k">Кумитаи андоз · шахси ҳуқуқӣ · SVC-BIZ-03</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>9</b> майдон</span><span>ройгон</span><span>таҳрир: 2 ҳафта пеш</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="business" data-status="published">
+          <span class="nm"><b>Сабти соҳибкори инфиродӣ</b><span class="k">Кумитаи андоз · SVC-BIZ-03</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--business lc-icon-badge" role="img" aria-label="шахси ҳуқуқӣ" title="шахси ҳуқуқӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span></span>
+          <span class="ekh-list-cell"><b>9</b></span>
+          <span class="ekh-list-cell">ройгон</span>
+          <span class="ekh-list-cell">2 ҳафта пеш</span>
           <span class="status-icon status-icon--success" role="img" aria-label="нашршуда" title="нашршуда"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
         </a>
-        <a class="svc-row" href="review.html" data-status="in_review">
-          <span class="tile t-cyan sh-c tile--m"><svg><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></span>
-          <span class="nm"><b>Маълумотнома аз феҳристи замин</b><span class="k">Кумитаи замин · шахси воқеӣ · SVC-LND-02</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>4</b> майдон</span><span>18,00 смн.</span><span>таҳрир: 5 рӯз пеш</span></span>
+        <a class="ekh-list-row" href="review.html" data-audience="person business" data-status="in_review">
+          <span class="nm"><b>Маълумотнома аз феҳристи замин</b><span class="k">Кумитаи замин · SVC-LND-02</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span><span class="audience-badge audience-badge--business lc-icon-badge" role="img" aria-label="шахси ҳуқуқӣ" title="шахси ҳуқуқӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span></span>
+          <span class="ekh-list-cell"><b>4</b></span>
+          <span class="ekh-list-cell">18,00 смн.</span>
+          <span class="ekh-list-cell">5 рӯз пеш</span>
           <span class="status-icon status-icon--info" role="img" aria-label="дар баррасӣ" title="дар баррасӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg></span>
         </a>
-        <a class="svc-row" href="builder.html" data-status="errors">
-          <span class="tile t-steel sh-r tile--m"><svg><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg></span>
-          <span class="nm"><b>Иваз кардани шиноснома (синну сол)</b><span class="k">ВКД · шахси воқеӣ · SVC-PAS-07</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>6</b> майдон</span><span>30,00 смн.</span><span>таҳрир: 4 рӯз пеш</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="person" data-status="errors">
+          <span class="nm"><b>Иваз кардани шиноснома (синну сол)</b><span class="k">ВКД · SVC-PAS-07</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span></span>
+          <span class="ekh-list-cell"><b>6</b></span>
+          <span class="ekh-list-cell">30,00 смн.</span>
+          <span class="ekh-list-cell">4 рӯз пеш</span>
           <span class="status-icon status-icon--danger" role="img" aria-label="хатои танзим" title="хатои танзим"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"/></svg></span>
         </a>
-        <a class="svc-row" href="builder.html" data-status="draft">
-          <span class="tile t-rose sh-l tile--m"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
-          <span class="nm"><b>Бақайдгирии таваллуд</b><span class="k">САҲШ · шахси воқеӣ · SVC-BRT-01</span></span>
-          <span class="cols"><span class="svc-audience" aria-hidden="true"></span><span><b>3</b> майдон</span><span>ройгон</span><span>таҳрир: ҳозир</span></span>
+        <a class="ekh-list-row" href="builder.html" data-audience="person" data-status="draft">
+          <span class="nm"><b>Бақайдгирии таваллуд</b><span class="k">САҲШ · SVC-BRT-01</span></span>
+          <span class="ekh-list-cell svc-audience"><span class="audience-badge audience-badge--person lc-icon-badge" role="img" aria-label="шахси воқеӣ" title="шахси воқеӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-role"/></svg></span></span>
+          <span class="ekh-list-cell"><b>3</b></span>
+          <span class="ekh-list-cell">ройгон</span>
+          <span class="ekh-list-cell">ҳозир</span>
           <span class="status-icon status-icon--warning" role="img" aria-label="сиёҳнавис" title="сиёҳнавис"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
         </a>
 
@@ -148,7 +174,7 @@
   function rowStatus(r){ return r.getAttribute("data-status")||""; }
   function apply(){
     var q=state.q.trim().toLowerCase(), shown=0;
-    $$(".svc-row").forEach(function(r){
+    $$(".ekh-list-row").forEach(function(r){
       var okSt = state.st==="all" || rowStatus(r)===state.st;
       var okQ  = !q || r.textContent.toLowerCase().indexOf(q)>=0;
       var ok=okSt&&okQ; r.hidden=!ok; if(ok) shown++;

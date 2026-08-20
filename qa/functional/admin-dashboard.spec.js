@@ -45,7 +45,7 @@ for (const status of ['draft','in_review','approved','published','errors']) {
     await page.locator(`[data-metric-status="${status}"]`).click();
     await expect(page).toHaveURL(new RegExp(`services\\.html\\?status=${status}`));
     await expect(page.locator('#stFilter')).toHaveValue(status);
-    await expect(page.locator('.svc-row:visible')).not.toHaveCount(0);
+    await expect(page.locator('.ekh-list-row:visible')).not.toHaveCount(0);
   });
 }
 

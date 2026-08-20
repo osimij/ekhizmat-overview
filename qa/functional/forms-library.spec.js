@@ -11,25 +11,25 @@ test.beforeEach(async ({ page }) => {
 test('status filter lives in the URL and KPI shortcuts toggle it', async ({ page }) => {
   await page.locator('[data-st-go="draft"]').click();
   await expect(page).toHaveURL(/status=draft/);
-  await expect(page.locator('.form-library-row')).toHaveCount(3);
+  await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(3);
   await page.locator('#formStatusFilter').selectOption('unused');
   await expect(page).toHaveURL(/status=unused/);
-  await expect(page.locator('.form-library-row')).toHaveCount(1);
+  await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(1);
   await page.locator('[data-st-go="unused"]').click();
   await expect(page).not.toHaveURL(/status=/);
-  await expect(page.locator('.form-library-row')).toHaveCount(4);
+  await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(4);
 });
 
 test('form library metric columns stay aligned across rows', async ({ page }) => {
-  const rows = page.locator('.form-library-row');
+  const rows = page.locator('#formsList .ekh-list-row');
   await expect(rows).toHaveCount(4);
   const xs = await rows.evaluateAll((elements) => elements.map((row) => {
     const metric = row.querySelectorAll('.form-library-metric');
     const versions = row.querySelector('.form-version-strip');
     return {
-      fields: Math.round(metric[0].getBoundingClientRect().right),
-      services: Math.round(metric[1].getBoundingClientRect().right),
-      versions: Math.round(versions.getBoundingClientRect().right),
+      fields: Math.round(metric[0].getBoundingClientRect().left),
+      services: Math.round(metric[1].getBoundingClientRect().left),
+      versions: Math.round(versions.getBoundingClientRect().left),
     };
   }));
   expect(new Set(xs.map((box) => box.fields)).size).toBe(1);
@@ -38,8 +38,8 @@ test('form library metric columns stay aligned across rows', async ({ page }) =>
 });
 
 test('forms live in a separate library with visible version states', async ({ page }) => {
-  await expect(page.locator('.form-library-row')).toHaveCount(4);
-  const family = page.locator('.form-library-row').filter({ hasText: 'Справка — состав семьи' });
+  await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(4);
+  const family = page.locator('#formsList .ekh-list-row').filter({ hasText: 'Справка — состав семьи' });
   await expect(family.locator('.form-mini-version')).toHaveCount(3);
   await expect(family.locator('.form-mini-version').nth(0)).toContainText('v3');
   await expect(family.locator('.form-mini-version').nth(0)).toContainText('Черновик');
@@ -65,8 +65,8 @@ test('a new form can be built and saved without creating a service', async ({ pa
 
   await page.locator('.form-editor-top .back').click();
   await page.locator('#formsSearch').fill('Тестовая независимая форма');
-  await expect(page.locator('.form-library-row')).toHaveCount(1);
-  await expect(page.locator('.form-library-row')).toContainText('Тестовая независимая форма');
+  await expect(page.locator('#formsList .ekh-list-row')).toHaveCount(1);
+  await expect(page.locator('#formsList .ekh-list-row')).toContainText('Тестовая независимая форма');
 });
 
 test('publishing a draft archives the old live version and services opt in explicitly', async ({ page }) => {

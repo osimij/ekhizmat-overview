@@ -48,7 +48,8 @@ Every variable's **Web code syntax** is the exact CSS var, visible in Figma Dev 
 | | `Top Bar` | `.adm-top` |
 | 🧩 Stats & Metrics | `Stat Card` (Default/Danger) | `.stat`, `.metric` |
 | | `Metric Inline` | dense strips |
-| 🧩 List Rows | `Service Row` | `.svc-row` (also reuse for forms list, versions, tasks) |
+| 🧩 List Rows | `Library List` (Header + Row; `--list-columns` prop) | `.ekh-list-head` + `.ekh-list-row` + `.ekh-list-cell` in `design-system/css/components.css` — header and rows share one column definition (rule 18); identity column left, all others centred (rule 41). Consumers: admin service registry, admin form library |
+| | `Dashboard Row` (Task / Alert / Event) | `.dashboard-row` — glanceable dashboard card row (§5 casebook 2): island reserved in the box model, hover only paints |
 | | `Field Row` | `.fb-item` head |
 | 🧩 Pipeline & Steps | `Pipeline Stage` (Default/Selected; sub/count/dot toggles) | `.stg` |
 | | `Lifecycle Chip` (Done/Current/Upcoming) | `.lc .st` |

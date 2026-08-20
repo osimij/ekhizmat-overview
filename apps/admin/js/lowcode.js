@@ -288,9 +288,21 @@ function renderBuilder(){
   const publish=document.querySelector('#publishBtn');if(publish){publish.disabled=!(state.role==='portal-admin'&&state.status==='approved');}
 }
 
+/* The low-code demo service is a record like any other, so it renders as a
+   registry row rather than a hero card advertising one item on a browse page
+   (design-guide rules 4 and 6). */
 function renderRegistry(){
-  const root=document.querySelector('#lowCodeRegistry');if(!root)return;const x=c();
-  root.innerHTML=`<article class="lc-service-card"><div><div class="lc-card-badges">${stageBadge(x.stageEnv,true)}${statusBadge()}${audienceBadges(state.audience,true)}</div><h2>${escapeHtml(serviceLabel())}</h2><p>${escapeHtml(agencyLabel())} · ${x.version} ${escapeHtml(state.serviceVersion)} · ${escapeHtml(recordById(PRIMARY_SERVICE_ID).submittedAt)}</p></div><a class="btn btn-pri" href="${['draft','stage','changes_requested'].includes(state.status)?'builder.html':'review.html'}">${['draft','stage','changes_requested'].includes(state.status)?x.openBuilder:x.openService}</a></article>`;
+  const root=document.querySelector('#lowCodeRegistry');if(!root)return;
+  const x=c(),record=recordById(PRIMARY_SERVICE_ID),editable=['draft','stage','changes_requested'].includes(state.status);
+  const registryStatus=({draft:'draft',stage:'draft',in_review:'in_review',changes_requested:'in_review',resubmitted:'in_review',approved:'approved',published:'published'})[state.status]||'draft';
+  root.innerHTML=`<a class="ekh-list-row" href="${editable?'builder.html':`review.html?service=${record.id}`}" data-audience="${state.audience.join(' ')}" data-status="${registryStatus}">
+    <span class="nm"><b>${escapeHtml(serviceLabel())}</b><span class="k">${escapeHtml(agencyLabel())} · ${escapeHtml(record.code)}</span></span>
+    <span class="ekh-list-cell svc-audience">${audienceBadges(state.audience,true)}</span>
+    <span class="ekh-list-cell"><b>${(state.formFields||[]).length}</b></span>
+    <span class="ekh-list-cell">${escapeHtml(x.free.toLowerCase())}</span>
+    <span class="ekh-list-cell">${escapeHtml((state.audit?.[state.audit.length-1]?.at||record.submittedAt).split(' ·')[0])}</span>
+    ${statusBadge()}
+  </a>`;
 }
 
 function renderRoleControl(){

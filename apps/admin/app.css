@@ -73,7 +73,7 @@ label.pr{cursor:pointer}
   .sw .knob{position:relative; width:48px; height:29px}
 }
 @media (hover:none){
-  .svc-row:active{background:var(--press)}
+  .ekh-list-row:active{background:var(--press)}
   .btn-pri:active{background:var(--blue-press)}
   .btn-sec:active{background:var(--press)}
   .icon-btn:active,.dd-btn:active,.back:active,.dd-menu button:active{background:var(--hover)}
@@ -439,24 +439,35 @@ label.pr{cursor:pointer}
 .reg-stats .stat .k{display:block; margin-top:auto}
 @media(max-width:880px){ .reg-stats{grid-template-columns:repeat(2,1fr)} }
 
-.svc-row{display:grid; grid-template-columns:38px minmax(260px,1fr) minmax(420px,auto) 116px; align-items:center; gap:var(--s-4);
-  padding:var(--s-3) var(--s-5); border-radius:var(--r-m); text-decoration:none; color:inherit;
-  transition:background var(--t-fast) var(--ease)}
-.svc-row + .svc-row{border-top:1px solid var(--line-in)}
-.svc-row:hover{background:var(--hover)}
-.svc-row:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
-.svc-row .nm b{display:block; font-weight:600}
-.svc-row .nm .k{display:block; font-size:var(--fs-12); color:var(--ink-3); margin-top:1px}
-.svc-row .cols{display:grid; grid-template-columns:68px 112px 180px; align-items:center; gap:var(--s-4); color:var(--ink-3); font-size:var(--fs-13)}
-.svc-row .cols b{color:var(--ink-2); font-weight:600}
-.svc-row .status-pill,.svc-row .status-icon{justify-self:end}
-.created-service-rows:empty{display:none}
-.created-service-rows:not(:empty) + .svc-row{border-top:1px solid var(--line-in)}
+/* Registry record row: one flat grid shared with the .ekh-list-head above it
+   (rule 18), bleeding edge-to-edge on hover (§5 casebook 2). Identity column
+   left, every other column centred under its label (rule 41). No hue tile —
+   in a dense comparison row it competes with the fields being compared (§5). */
+#serviceRegistry{--list-columns:minmax(0,1.6fr) 96px 88px 104px 148px 56px}
+/* the row anatomy itself is the shared .ekh-list-row (components.css); admin
+   only names its columns and its identity cell */
+.ekh-list-row .nm b{display:block; font-size:var(--fs-14); font-weight:var(--weight-medium); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ekh-list-row .nm .k{display:block; margin-top:1px; font-size:var(--fs-12); font-weight:var(--weight-regular); color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.svc-audience{display:inline-flex; align-items:center; justify-content:center; gap:5px}
+.svc-audience .lc-icon-badge{width:22px; min-height:22px}
+.svc-audience .lc-icon-badge svg{width:13px; height:13px}
+.ekh-list-row .status-icon{justify-self:center}
+/* the demo service and saved drafts are rendered into their own containers, so
+   the hairline between consecutive rows has to cross those boundaries */
+.lc-registry:not(:empty) + * > .ekh-list-row:first-child,
+.lc-registry:not(:empty) + .created-service-rows:empty + .ekh-list-row,
+.created-service-rows:not(:empty) + .ekh-list-row{border-top:1px solid var(--line-in)}
+.lc-registry:empty,.created-service-rows:empty{display:none}
 @media(max-width:1120px){
-  .svc-row{grid-template-columns:38px minmax(220px,1fr) minmax(320px,auto) 104px}
-  .svc-row .cols{grid-template-columns:58px 96px 140px; gap:var(--s-3)}
+  #serviceRegistry{--list-columns:minmax(0,1.4fr) 84px 76px 92px 128px 56px}
+  .ekh-list-row,.ekh-list-head{column-gap:var(--s-5)}
 }
-@media(max-width:680px){ .svc-row{grid-template-columns:34px 1fr auto} .svc-row .cols{display:none} }
+@media(max-width:860px){
+  /* the comparison columns stop helping once they are this narrow (§9) */
+  #serviceRegistry{--list-columns:minmax(0,1fr) 84px 56px}
+  .ekh-list-head > :nth-child(3),.ekh-list-head > :nth-child(4),.ekh-list-head > :nth-child(5),
+  .ekh-list-row > .ekh-list-cell:not(.svc-audience){display:none}
+}
 
 /* ---------- new service starter (new-service.html) ---------- */
 @media(max-width:880px){ .start-grid{grid-template-columns:1fr} }
@@ -820,13 +831,6 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
    со старыми именами в синонимах — §3 называет его каноническим, и второй
    потребитель появился в ЦОН). Здесь остаётся только его место в шапке панели. */
 .registry-status-filter{margin-left:auto}
-.svc-row{grid-template-columns:minmax(260px,1fr) minmax(488px,auto) 104px;column-gap:var(--s-5);min-height:68px;padding:var(--s-3) var(--s-5);border-radius:0}
-.svc-row > .tile{display:none}
-.svc-row .nm,.svc-row .cols{min-width:0}
-.svc-row .nm b{font-size:var(--fs-14);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.svc-row .nm .k{font-weight:500}
-.svc-row .cols{grid-template-columns:94px 72px 108px 168px;gap:var(--s-4);font-size:var(--fs-13)}
-.svc-row .cols b{font-weight:550}
 
 .opt{border-radius:var(--r-m);padding:var(--s-3) var(--s-4)}
 .wz-body .opt{padding-left:var(--s-3)}
@@ -900,14 +904,14 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
   .adm-top:has(.at-search) .at-right{margin-left:auto}
 }
 @media(max-width:680px){
-  .svc-row{grid-template-columns:minmax(0,1fr) auto;gap:var(--s-3);min-height:72px;padding:var(--s-3) var(--s-4)}
-  .svc-row .nm b{white-space:normal}
+  .ekh-list-row{grid-template-columns:minmax(0,1fr) auto;gap:var(--s-3);min-height:72px;padding:var(--s-3) var(--s-4)}
+  .ekh-list-row .nm b{white-space:normal}
   .reg-stats{grid-template-columns:1fr 1fr}
   .reg-stats .stat{min-height:100px;padding:var(--s-4)}
   .lc-actionbar{position:static}
 }
 @media(prefers-reduced-motion:reduce){
-  .ekh-side-toggle:active,.svc-row:active,.opt:active{transform:none}
+  .ekh-side-toggle:active,.ekh-list-row:active,.opt:active{transform:none}
 }
 
 /* =====================================================================
@@ -980,14 +984,14 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 @keyframes flashRow{from{background:var(--blue-tint)}to{background:transparent}}
 .fb-item.just-added{animation:flashRow 1.1s var(--ease)}
 
-.stg:active,.ekh-side__item:active,.ptile:active,.svc-row:active,.opt:active,
+.stg:active,.ekh-side__item:active,.ptile:active,.ekh-list-row:active,.opt:active,
 .stat[data-st-go]:active{transform:scale(.985)}
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{
     animation-duration:.001ms !important; animation-iteration-count:1 !important;
     transition-duration:.001ms !important; scroll-behavior:auto !important}
-  .stg:active,.ekh-side__item:active,.ptile:active,.svc-row:active,.opt:active,
+  .stg:active,.ekh-side__item:active,.ptile:active,.ekh-list-row:active,.opt:active,
   .stat[data-st-go]:active,.pv-screen .btn:active{transform:none}
 }
 
@@ -1183,7 +1187,6 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
    Consolidated from a two-row block (main + controls) to cut header height ~60%. */
 .lc-builder{border-bottom:1px solid var(--line);background:var(--panel);padding:var(--s-2) var(--s-5)}
 .lc-builder-main{display:flex;align-items:center;gap:var(--s-1) var(--s-4);flex-wrap:wrap}
-.lc-card-badges{display:flex;align-items:center;gap:var(--s-2);flex-wrap:wrap}
 .lc-builder-id{display:flex;align-items:center;gap:var(--s-2);min-width:0}
 .lc-builder-ver{display:flex;align-items:baseline;gap:var(--s-2);flex-wrap:wrap;font-variant-numeric:tabular-nums}
 .lc-builder-ver b{font-size:var(--fs-14);font-weight:600}
@@ -1205,10 +1208,6 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 .lc-comments-tag svg{width:16px;height:16px;color:var(--ink-3)}
 .lc-comments-tag .metachip{min-height:22px;padding:0 8px;font-size:var(--fs-12);font-weight:600}
 .lc-builder-thread{margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line-in)}
-.lc-registry{display:grid;gap:var(--s-3);margin-bottom:var(--s-5)}
-.lc-service-card{display:flex;align-items:center;justify-content:space-between;gap:var(--s-5);padding:var(--s-5);border:1px solid var(--line);border-radius:var(--r-l);background:var(--panel)}
-.lc-service-card>div{min-width:0}.lc-service-card h2,.lc-service-card p{overflow-wrap:anywhere}
-.lc-service-card h2{font-size:var(--fs-18);margin:var(--s-2) 0 2px}.lc-service-card p{font-size:var(--fs-13);color:var(--ink-3)}
 .lc-review{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);padding-bottom:96px;min-width:0}
 .lc-review-head{padding-bottom:var(--s-2)}
 .lc-review-head h1{letter-spacing:0;margin:0 0 var(--s-2)}
@@ -1234,7 +1233,7 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 .lc-actionbar > span{font-size:var(--fs-13);color:var(--ink-3)}.lc-actionbar > div{display:flex;gap:var(--s-2);flex-wrap:wrap;justify-content:flex-end}
 .lc-comment__anchor{display:inline-flex;width:max-content;margin:var(--s-1) 0;padding:3px 8px;border-radius:var(--r-pill);background:var(--blue-tint);color:var(--blue-ink);font-size:var(--fs-11);font-weight:550}
 @media(max-width:1050px){.lc-review-grid{grid-template-columns:1fr}}
-@media(max-width:720px){.lc-service-card,.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h .seg{max-width:100%;overflow-x:auto}}
+@media(max-width:720px){.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h .seg{max-width:100%;overflow-x:auto}}
 @media(max-width:720px){.registry-status-filter{align-items:flex-start;flex-direction:column;width:100%;gap:var(--s-2);margin-left:0}.registry-filter-field{width:100%}}
 
 /* Final responsive composition: these rules deliberately come after the
@@ -1260,29 +1259,10 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
    ===================================================================== */
 .forms-list{display:grid}
 #formsCatalog{
-  --form-row-columns: minmax(0,1fr) 88px 88px 112px;
+  --list-columns: minmax(0,1fr) 88px 88px 112px;
 }
-.form-library-head,
-.svc-row.form-library-row{
-  display:grid;
-  grid-template-columns: var(--form-row-columns);
-  column-gap: var(--s-8);
-  padding-inline: var(--s-5);
-  min-width: 0;
-}
-.form-library-head{
-  align-items:end;
-  min-height: 36px;
-  padding-top: var(--s-1);
-  padding-bottom: var(--s-2);
-  border-bottom: 1px solid var(--line-in);
-  color: var(--ink-3);
-  font-size: var(--fs-13);
-  font-weight: 500;
-}
-.form-library-head > span:not(:first-child){justify-self:end; text-align:right}
 .form-library-metric{
-  justify-self:end;
+  justify-self:center;
   color: var(--ink-2);
   font-size: var(--fs-13);
   font-weight: 400;
@@ -1293,8 +1273,8 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 .form-version-strip{
   display:flex;
   align-items:center;
-  justify-content:flex-end;
-  justify-self:end;
+  justify-content:center;
+  justify-self:center;
   gap: var(--s-1);
   width: 100%;
   min-width: 0;
@@ -1689,16 +1669,12 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
 .adm-role-slot .lc-role--compact .input:focus-visible,.lc-builder .lc-role--compact .input:focus-visible{outline:none;border-color:var(--focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent)}
 /* Builder role select: re-add the dropdown chevron (compact style strips the select background) so it reads as a dropdown. */
 .lc-builder .lc-role--compact .input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363676D' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px}
-.lc-service-card > div{display:grid}
-.lc-service-card h2{order:0;margin:0}
-.lc-service-card p{order:1;margin-top:5px}
-.lc-service-card .lc-card-badges{order:2;margin-top:var(--s-3)}
 .lc-icon-badge{justify-content:center;width:26px;padding:0;gap:0}
 .service-registry-head h3{font-size:var(--fs-17)}
-.svc-row .nm .k{font-weight:400}
-.svc-row .svc-audience{display:inline-flex;align-items:center;gap:5px;color:var(--h-violet-fg);font-weight:400;white-space:nowrap}
-.svc-row .svc-audience svg{width:14px;height:14px;flex:none}
-.svc-row .cols,.svc-row .cols b{font-weight:400}
+.ekh-list-row .nm .k{font-weight:400}
+.ekh-list-row .svc-audience{display:inline-flex;align-items:center;gap:5px;color:var(--h-violet-fg);font-weight:400;white-space:nowrap}
+.ekh-list-row .svc-audience svg{width:14px;height:14px;flex:none}
+.ekh-list-row .cols,.ekh-list-row .cols b{font-weight:400}
 #serviceRegistry .status-icon--success{background:color-mix(in srgb,var(--green-tint) 58%,transparent)}
 .adm .ekh-side__item[aria-current] .ekh-side__count{background:transparent}
 .services-create-action{
@@ -1720,27 +1696,22 @@ html.side-collapsed .adm-profile-pop--side .adm-profile-pop__theme-choice:not([a
   .adm-role-slot .lc-role--compact .input,.lc-builder .lc-role--compact .input{width:152px}
 }
 @media(max-width:1120px){
-  .svc-row{grid-template-columns:minmax(220px,1fr) minmax(416px,auto) 104px}
-  .svc-row .cols{grid-template-columns:86px 58px 96px 140px;gap:var(--s-3)}
+  .ekh-list-row{grid-template-columns:minmax(220px,1fr) minmax(416px,auto) 104px}
+  .ekh-list-row .cols{grid-template-columns:86px 58px 96px 140px;gap:var(--s-3)}
 }
 
 .reg-stats--4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.svc-row.form-library-row{
-  grid-template-columns: var(--form-row-columns);
-}
-.svc-row.form-library-row .nm{min-width:0}
 @media(max-width:1120px){
-  #formsCatalog{--form-row-columns: minmax(0,1fr) 72px 72px 112px}
-  .form-library-head,
-  .svc-row.form-library-row{column-gap: var(--s-6)}
+  #formsCatalog{--list-columns: minmax(0,1fr) 72px 72px 112px}
+  #formsCatalog .ekh-list-row,#formsCatalog .ekh-list-head{column-gap: var(--s-6)}
 }
 @media(max-width:880px){
   .reg-stats--4{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:680px){
-  #formsCatalog{--form-row-columns: minmax(0,1fr) 112px}
-  .form-library-head > span:nth-child(2),
-  .form-library-head > span:nth-child(3),
+  #formsCatalog{--list-columns: minmax(0,1fr) 112px}
+  #formsCatalog .ekh-list-head > :nth-child(2),
+  #formsCatalog .ekh-list-head > :nth-child(3),
   .form-library-metric{display:none}
 }
 
