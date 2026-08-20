@@ -331,9 +331,10 @@
     <path d="M8 138H10M8 141H10M8 144H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M11.5 154V150C11.5 149.057 11.5 148.586 11.2071 148.293C10.9142 148 10.4428 148 9.5 148H8.5C7.55719 148 7.08579 148 6.79289 148.293C6.5 148.586 6.5 149.057 6.5 150V154" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
   </symbol>
-  <symbol id="i-history" viewBox="44 132 24 24">
-    <path d="M56 154C61.5228 154 66 149.523 66 144C66 138.477 61.5228 134 56 134C50.4772 134 46 138.477 46 144C46 149.523 50.4772 154 56 154Z" stroke="currentColor" stroke-width="1.5"/>
-    <path d="M53.5 141.5L56.9999 145M60 140L55 145" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <symbol id="i-history" viewBox="0 0 24 24">
+    <path d="M4.43186 14.9656C5.65759 18.4791 9.00032 21 12.9318 21C17.9024 21 21.9318 16.9706 21.9318 12C21.9318 7.02944 17.9024 3 12.9318 3C9.23111 3 5.83124 5.6756 4.62227 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.9319 7V12L15.9319 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M8.43054 8.74363C8.43054 8.74363 4.74691 9.3026 4.1879 8.7436C3.62888 8.1846 4.18791 4.50098 4.18791 4.50098" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
   <symbol id="i-money" viewBox="88 132 24 24">
     <path d="M90.0173 147C92.2169 147 94 148.783 94 150.983" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

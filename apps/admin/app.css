@@ -578,6 +578,7 @@ label.pr{cursor:pointer}
 .bld-edit{overflow:auto; padding:var(--s-6) var(--s-8) var(--s-10)}
 .bld-edit .eh,.bld-edit .edit-pane{max-width:var(--w-builder-editor); margin-inline:auto}
 .bld-edit .eh{margin-bottom:var(--s-5)}
+.bld-edit .edit-pane.wide-pane > .eh{max-width:none;margin-inline:0}
 .bld-edit .eh .kick{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-13);
   font-weight:500; letter-spacing:0; text-transform:none; color:var(--ink-3); margin-bottom:6px}
 .bld-edit .eh .kick.bk{color:var(--ink-3)}
@@ -1030,7 +1031,21 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 .stg[data-tab="rules"] .stg-ic,.stg[data-tab="templates"] .stg-ic,
 .stg[data-tab="sandbox"] .stg-ic,.stg[data-tab="versions"] .stg-ic,
 .stg[data-tab="access"] .stg-ic{ background:var(--field); color:var(--ink-2); }
+[data-theme="dark"] .bld-pipe .stg .stg-ic{
+  background:transparent;
+}
+[data-theme="dark"] .bld-pipe .stg:not([aria-selected="true"]) .stg-ic:not([class*="t-"]){
+  color:var(--ink-2);
+}
 .stg[aria-selected="true"] .stg-ic{ background:var(--blue); color:var(--pure-white); }
+[data-theme="dark"] .bld-pipe .stg[aria-selected="true"] .stg-ic{background:transparent}
+[data-theme="dark"] .bld-pipe .stg-ic.t-slate{color:var(--h-slate-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-blue{color:var(--h-blue-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-amber{color:var(--h-amber-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-violet{color:var(--h-violet-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-teal{color:var(--h-teal-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-steel{color:var(--h-steel-fg)}
+[data-theme="dark"] .bld-pipe .stg-ic.t-green{color:var(--h-green-fg)}
 
 /* --- drag-to-reorder field rows (grip-initiated) --- */
 .fb-grip{ flex:none; width:24px; align-self:stretch; display:grid; place-items:center; cursor:grab; color:var(--ink-faint); }
@@ -1544,6 +1559,12 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 /* notes: tinted fill → quiet outline */
 [data-platform="admin"] .note-info{background:transparent; border:1px solid var(--blue-ink)}
 [data-platform="admin"] .bld-edit [data-panel="fields"] > .note-info p{color:var(--ink);font-weight:400}
+[data-platform="admin"] .bld-edit [data-panel="fields"] > .service-form-version-note{
+  background:var(--version-note-bg);
+  border-color:var(--version-note-line);
+  gap:0;
+  padding:var(--s-3) var(--s-4);
+}
 
 /* green as small text needs the darker ink; icons/dots keep the bright base */
 [data-platform="admin"] .rv .v.ok{color:var(--green-ink)}

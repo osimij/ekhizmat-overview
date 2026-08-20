@@ -114,6 +114,8 @@
   --alpha-white-94: rgb(255 255 255 / 94%);
   --alpha-accent-04: rgb(0 136 255 / 4%);
   --alpha-accent-07: rgb(0 136 255 / 7%);
+  --version-note-bg: transparent;
+  --version-note-line: var(--blue-ink);
 }
 
 [data-theme='dark'] {
@@ -171,6 +173,8 @@
   --doc-tax: #43484f;
   --doc-birth: #8a5e31;
   --doc-temp: #9a6717;
+  --version-note-bg: #191f26;
+  --version-note-line: #203a4e;
 }
 
 /* Admin platform re-tune (Figma «eKhizmat Admin · Component Library»):
