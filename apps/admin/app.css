@@ -510,21 +510,25 @@ label.pr{cursor:pointer}
   display:flex; flex-direction:column; overflow:hidden; background:var(--bg);
 }
 
+/* one toolbar, on the shell's stable 60px anchor (§5) */
 .bld-top{position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:var(--s-3);
-  padding:var(--s-3) var(--s-5); background:var(--panel); border-bottom:1px solid var(--line)}
+  height:var(--h-topbar); padding:0 var(--s-4); background:var(--panel); border-bottom:1px solid var(--line)}
+.bld-top > *{flex:none}
+.bld-top .bld-name{flex:0 1 auto; min-width:0}
+.bld-top .spacer{flex:1 1 0; min-width:0}
 .bld-top .back{margin:0}
 .bld-divider{width:1px; height:24px; background:var(--line); margin:0 var(--s-1)}
-.bld-name{display:flex; align-items:center; gap:var(--s-2); min-width:0}
+.bld-name{position:relative; display:flex; align-items:center; gap:var(--s-2); min-width:0}
 .bld-name .tile{flex:none}
-.bld-name input{font:inherit; font-size:var(--fs-16); font-weight:600; color:var(--ink);
-  background:transparent; border:0; border-radius:var(--r-s); padding:4px 8px; max-width:42ch;
+.bld-name input{font:inherit; font-size:var(--fs-16); font-weight:550; color:var(--ink);
+  background:transparent; border:0; border-radius:var(--r-s); padding:4px 8px; min-width:0; max-width:42ch;
   text-overflow:ellipsis}
 .bld-name input:hover{background:var(--field)}
 .bld-name input:focus-visible{background:var(--field); outline:2px solid var(--focus); outline-offset:0}
 .bld-top .spacer{flex:1}
 .bld-actions{display:flex; align-items:center; gap:var(--s-2)}
 
-.bld-work{flex:1; display:grid; grid-template-columns:var(--w-builder-pipeline) minmax(0,1fr) clamp(var(--w-builder-preview-min),30vw,var(--w-builder-preview-max)); align-items:stretch; min-height:0; overflow:hidden}
+.bld-work{flex:1; display:grid; grid-template-columns:280px minmax(0,1fr) clamp(var(--w-builder-preview-min),30vw,var(--w-builder-preview-max)); align-items:stretch; min-height:0; overflow:hidden}
 .bld-work > *{min-width:0}
 .bld-pipe,.bld-prev{
   position:static; top:auto; align-self:stretch; height:auto; min-height:0;
@@ -532,17 +536,17 @@ label.pr{cursor:pointer}
 }
 
 /* --- column 1: the pipeline --- */
-.bld-pipe{border-right:1px solid var(--line); padding:var(--s-5) var(--s-4); overflow:auto; background:var(--bg)}
+.bld-pipe{border-right:1px solid var(--line); padding:var(--s-4) var(--s-3); overflow:auto; background:var(--bg)}
 .pipe-h{display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s-3); padding:0 var(--s-3)}
 .pipe-h h2{font-size:var(--fs-15)}
 .pipe-h .hint{font-size:var(--fs-12); color:var(--ink-3)}
-.pipe-label{font-size:var(--fs-14); font-weight:600; letter-spacing:0; text-transform:none;
+.pipe-label{font-size:var(--fs-13); font-weight:500; letter-spacing:0; text-transform:none;
   color:var(--ink-3); margin:var(--s-4) 0 var(--s-2); padding-left:var(--s-3)}
 .pipe-label:first-of-type{margin-top:0}
 
 .pipe{position:relative; display:flex; flex-direction:column; gap:var(--s-1)}
 .stg{display:grid; grid-template-columns:30px 1fr auto; align-items:center; gap:var(--s-3);
-  width:100%; text-align:start; padding:var(--s-2) var(--s-3); border:0; border-radius:var(--r-m);
+  width:100%; min-height:44px; text-align:start; padding:var(--s-2) var(--s-3); border:0; border-radius:var(--r-m);
   background:transparent; color:inherit; cursor:pointer; font:inherit;
   transition:background var(--t-fast) var(--ease)}
 .stg:hover{background:var(--hover)}
@@ -551,25 +555,27 @@ label.pr{cursor:pointer}
 .stg-ic{width:30px; height:30px; border-radius:var(--r-s); display:grid; place-items:center}
 .stg-ic svg{width:16px; height:16px}
 .stg[aria-selected="true"] .stg-ic{background:var(--blue); color:var(--pure-white)}
-.stg .tt b{display:block; font-size:var(--fs-14); font-weight:600; line-height:1.25}
-.stg .tt span{display:block; font-size:var(--fs-12); color:var(--ink-3)}
-.bld-pipe .stg .tt > span{display:none}
+.stg .tt b{display:block; font-size:var(--fs-14); font-weight:550; line-height:1.25}
 .stg .stg-n{font-size:var(--fs-12); color:var(--ink-3); font-variant-numeric:tabular-nums}
-.stg .stg-dot{width:7px; height:7px; border-radius:50%; background:var(--ink-faint)}
-.stg .stg-dot.on{background:var(--green)}
-.stg .stg-dot.warn{background:var(--amber)}
+/* §9: state has to survive without colour — the badge carries a glyph, a title
+   and screen-reader text, not just an amber dot */
+.stg .stg-n--warn{
+  display:grid;place-items:center;min-width:18px;height:18px;padding:0 5px;
+  border-radius:var(--r-pill);background:var(--amber-tint);color:var(--amber);
+  font-size:var(--fs-11);font-weight:600;
+}
 
 /* --- column 2: the editor --- */
-.bld-edit{overflow:auto; padding:var(--s-8) var(--s-8) var(--s-10)}
+.bld-edit{overflow:auto; padding:var(--s-6) var(--s-8) var(--s-10)}
 .bld-edit .eh,.bld-edit .edit-pane{max-width:var(--w-builder-editor); margin-inline:auto}
 .bld-edit .eh{margin-bottom:var(--s-5)}
-.bld-edit .eh .kick{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-14);
-  font-weight:600; letter-spacing:0; text-transform:none; color:var(--ink-3); margin-bottom:6px}
+.bld-edit .eh .kick{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-13);
+  font-weight:500; letter-spacing:0; text-transform:none; color:var(--ink-3); margin-bottom:6px}
 .bld-edit .eh .kick.bk{color:var(--ink-3)}
-.bld-edit .eh h1{font-size:var(--fs-24); line-height:1.2}
+.bld-edit .eh h1{font-size:var(--fs-24); font-weight:600; line-height:1.2}
 .bld-edit .eh p{color:var(--ink-2); margin-top:6px; max-width:60ch; font-weight:var(--weight-regular)}
 .edit-pane[hidden]{display:none}
-.edit-sub{font-size:var(--fs-14); font-weight:600; letter-spacing:0; text-transform:none;
+.edit-sub{font-size:var(--fs-13); font-weight:500; letter-spacing:0; text-transform:none;
   color:var(--ink-3); margin:var(--s-6) 0 var(--s-3)}
 .edit-sub:first-child{margin-top:0}
 
@@ -657,7 +663,9 @@ label.pr{cursor:pointer}
 @media(max-width:860px){
   /* sticky toolbar wraps to two rows so the name never collides with the actions */
   .bld{height:auto; min-height:100vh; min-height:100dvh; overflow:visible}
-  .bld-top{flex-wrap:wrap; gap:var(--s-2); padding:var(--s-2) var(--s-3)}
+  .bld-top{height:auto; flex-wrap:wrap; gap:var(--s-2); padding:var(--s-2) var(--s-3)}
+  .bld-top > *{flex:none}
+  .bld-version,.bld-comments{display:none}   /* both facts stay in the status icon's name */
   .bld-top .back span{display:none}
   .bld-divider{display:none}
   .bld-top .spacer{flex:0 0 100%; height:0}
@@ -1153,31 +1161,40 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
    ===================================================================== */
 /* builder context strip — identity + governance state on top, editable audiences +
    comments below. One version fact (no chip↔history duplication); calm meta typography. */
-/* Single-line builder bar: identity · audience · role/review/comments.
-   Consolidated from a two-row block (main + controls) to cut header height ~60%. */
-.lc-builder{border-bottom:1px solid var(--line);background:var(--panel);padding:var(--s-2) var(--s-5)}
-.lc-builder-main{display:flex;align-items:center;gap:var(--s-1) var(--s-4);flex-wrap:wrap}
-.lc-builder-id{display:flex;align-items:center;gap:var(--s-2);min-width:0}
-.lc-builder-ver{display:flex;align-items:baseline;gap:var(--s-2);flex-wrap:wrap;font-variant-numeric:tabular-nums}
-.lc-builder-ver b{font-size:var(--fs-14);font-weight:600}
-.lc-builder-ver span{font-size:var(--fs-13);color:var(--ink-3)}
-.lc-bar-sep{flex:none;align-self:center;width:1px;height:24px;background:var(--line-in)}
-.lc-builder-act{display:flex;align-items:center;gap:var(--s-3);margin-left:auto;flex-wrap:wrap}
+/* One builder toolbar: identity + status + version + comments on the left,
+   actions and the demo role on the right. The collaboration strip that used to
+   sit under it is gone — audiences are service configuration and live in the
+   "Маълумоти хизмат" pane (design-guide rules 6 and 7). */
+.bld-version{min-height:24px;padding:0 10px;font-size:var(--fs-12);font-weight:var(--weight-regular);font-variant-numeric:tabular-nums;white-space:nowrap}
+.bld-comments{position:relative;width:34px;height:34px}
+.bld-comments svg{width:17px;height:17px}
+.bld-comments__count{
+  position:absolute;top:2px;right:0;min-width:16px;height:16px;padding:0 4px;
+  display:grid;place-items:center;border-radius:var(--r-pill);
+  background:var(--blue);color:var(--on-blue);font-size:var(--fs-10);font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.bld-comments[aria-expanded="true"]{background:var(--hover);color:var(--ink)}
+/* §8: the popover grows from its trigger */
+.bld-comments-pop{
+  position:absolute;top:calc(100% + 10px);right:0;z-index:40;width:min(360px,90vw);
+  padding:var(--s-3);border:1px solid var(--line);border-radius:var(--r-l);
+  background:var(--raised);box-shadow:var(--shadow-1);
+  transform-origin:top right;transform:scale(.98);opacity:0;
+  transition:transform var(--t-popover) var(--ease-out),opacity var(--t-popover) var(--ease-out);
+}
+.bld-comments-pop.is-open{transform:none;opacity:1}
+.bld-comments-pop[hidden]{display:none}
+.bld-comments-pop__head{margin-bottom:var(--s-2);font-size:var(--fs-13);color:var(--ink-3)}
+.bld-comments-pop__head b{color:var(--ink);font-weight:var(--weight-medium)}
+.bld-top .adm-role-slot{flex:none}
 .lc-role{display:grid;gap:6px;min-width:200px}
 .lc-role > span{font-size:var(--fs-13);font-weight:400;letter-spacing:0;color:var(--ink-3)}
 .lc-role .input{height:38px;padding:0 var(--s-3);font-size:var(--fs-13)}
-.lc-aud{display:flex;align-items:center;gap:var(--s-3);min-width:0;flex-wrap:wrap}
-.lc-aud .lc-field-label{font-size:var(--fs-13);font-weight:500;color:var(--ink-3)}
 /* Compact audience pills for the fine-pointer admin editor; full 44px touch target restored under coarse pointer (§9). */
-.lc-builder .audience-selector{gap:var(--s-2)}
-.lc-builder .audience-selector label{min-height:32px;padding:0 var(--s-2);font-size:var(--fs-13)}
-/* Match the canonical #i-check glyph used elsewhere (e.g. the v2 form badge), scaled down inside the box. */
-.lc-builder .audience-selector input[type="checkbox"]:checked{background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -8 58.4072 59.0908'%3E%3Cpath d='M15.918 43.0908C16.9678 43.0908 17.7979 42.627 18.3838 41.7236L41.4551 5.39551C41.8945 4.6875 42.0654 4.15039 42.0654 3.58887C42.0654 2.24609 41.1865 1.36719 39.8438 1.36719C38.8672 1.36719 38.3301 1.68457 37.7441 2.6123L15.8203 37.5488L4.44336 22.6562C3.83301 21.8018 3.22266 21.46 2.34375 21.46C0.952148 21.46 0 22.4121 0 23.7549C0 24.3164 0.244141 24.9512 0.708008 25.5371L13.3789 41.6748C14.1113 42.627 14.8682 43.0908 15.918 43.0908Z' fill='white'/%3E%3C/svg%3E") center/11px no-repeat}
-@media (pointer:coarse){.lc-builder .audience-selector label{min-height:44px;padding:0 var(--s-4)}}
-.lc-comments-tag{display:inline-flex;align-items:center;gap:var(--s-2);flex:none;font-size:var(--fs-13);color:var(--ink-2)}
-.lc-comments-tag svg{width:16px;height:16px;color:var(--ink-3)}
-.lc-comments-tag .metachip{min-height:22px;padding:0 8px;font-size:var(--fs-12);font-weight:600}
-.lc-builder-thread{margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line-in)}
+.meta-panel .audience-selector{gap:var(--s-2)}
+.meta-panel{padding:var(--s-5)}
+.meta-panel .edit-sub:first-child{margin-top:0}
 .lc-review{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);padding-bottom:96px;min-width:0}
 .lc-review-head{padding-bottom:var(--s-2)}
 .lc-review-head h1{letter-spacing:0;margin:0 0 var(--s-2)}
@@ -1202,7 +1219,7 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 .lc-actionbar > span{font-size:var(--fs-13);color:var(--ink-3)}.lc-actionbar > div{display:flex;gap:var(--s-2);flex-wrap:wrap;justify-content:flex-end}
 .lc-comment__anchor{display:inline-flex;width:max-content;margin:var(--s-1) 0;padding:3px 8px;border-radius:var(--r-pill);background:var(--blue-tint);color:var(--blue-ink);font-size:var(--fs-11);font-weight:550}
 @media(max-width:1050px){.lc-review-grid{grid-template-columns:1fr}}
-@media(max-width:720px){.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h .seg{max-width:100%;overflow-x:auto}}
+@media(max-width:720px){.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}}
 @media(max-width:720px){.registry-status-filter{align-items:flex-start;flex-direction:column;width:100%;gap:var(--s-2);margin-left:0}.registry-filter-field{width:100%}}
 
 /* Final responsive composition: these rules deliberately come after the
@@ -1521,14 +1538,14 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
 @media(max-width:860px){
   .adm-top .adm-profile-trigger{display:inline-grid}
 }
-.adm-role-slot .lc-role--compact,.lc-builder .lc-role--compact{position:relative;display:flex;align-items:center;min-width:0}
-.adm-role-slot .lc-role--compact>span,.lc-builder .lc-role--compact>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-.adm-role-slot .lc-role__icon,.lc-builder .lc-role__icon{position:absolute;left:10px;z-index:1;width:15px;height:15px;color:var(--ink-3);pointer-events:none}
-.adm-role-slot .lc-role--compact .input,.lc-builder .lc-role--compact .input{width:176px;height:34px;padding:0 30px 0 32px;border:1px solid var(--line);border-radius:var(--r-s);background:transparent;color:var(--ink-2);font-size:var(--fs-12)}
-.adm-role-slot .lc-role--compact .input:hover,.lc-builder .lc-role--compact .input:hover{background:var(--hover);color:var(--ink)}
-.adm-role-slot .lc-role--compact .input:focus-visible,.lc-builder .lc-role--compact .input:focus-visible{outline:none;border-color:var(--focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent)}
+.adm-role-slot .lc-role--compact{position:relative;display:flex;align-items:center;min-width:0}
+.adm-role-slot .lc-role--compact>span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.adm-role-slot .lc-role__icon{position:absolute;left:10px;z-index:1;width:15px;height:15px;color:var(--ink-3);pointer-events:none}
+.adm-role-slot .lc-role--compact .input{width:176px;height:34px;padding:0 30px 0 32px;border:1px solid var(--line);border-radius:var(--r-s);background:transparent;color:var(--ink-2);font-size:var(--fs-12)}
+.adm-role-slot .lc-role--compact .input:hover{background:var(--hover);color:var(--ink)}
+.adm-role-slot .lc-role--compact .input:focus-visible{outline:none;border-color:var(--focus);box-shadow:0 0 0 2px color-mix(in srgb,var(--focus) 24%,transparent)}
 /* Builder role select: re-add the dropdown chevron (compact style strips the select background) so it reads as a dropdown. */
-.lc-builder .lc-role--compact .input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363676D' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px}
+.adm-role-slot .lc-role--compact .input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2363676D' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px}
 .lc-icon-badge{justify-content:center;width:26px;padding:0;gap:0}
 .service-registry-head h3{font-size:var(--fs-17)}
 .ekh-list-row .nm .k{font-weight:400}
@@ -1541,7 +1558,7 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
    у обоих появился второй потребитель (§1 правило 9, правило 21). */
 .wz-body [data-step="1"] > .lead{font-size:var(--fs-14);font-weight:400}
 @media(max-width:900px){
-  .adm-role-slot .lc-role--compact .input,.lc-builder .lc-role--compact .input{width:152px}
+  .adm-role-slot .lc-role--compact .input{width:152px}
 }
 @media(max-width:1120px){
   .ekh-list-row{grid-template-columns:minmax(220px,1fr) minmax(416px,auto) 104px}

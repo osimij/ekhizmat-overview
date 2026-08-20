@@ -30,7 +30,13 @@
   <div class="bld-name">
     <span class="tile tile--s t-teal sh-r"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></span>
     <input id="svcName" value="Маълумотнома — ҳайати оила" aria-label="Номи хизмат" spellcheck="false">
+    <!-- what am I editing, in what state: one fact cluster next to the status icon -->
     <span class="status-icon status-icon--warning" id="svcStatus" role="img" aria-label="Сиёҳнавис" title="Сиёҳнавис"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
+    <span class="metachip bld-version" id="bldVersion">v1.0 · Stage</span>
+    <button class="icon-btn bld-comments" id="bldCommentsBtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="bldCommentsPop" aria-label="Шарҳҳо">
+      <svg><use href="/design-system/assets/icons.svg#i-chat"/></svg><span class="bld-comments__count" id="bldCommentsCount">0</span>
+    </button>
+    <div class="bld-comments-pop" id="bldCommentsPop" role="dialog" aria-modal="false" aria-label="Шарҳҳо" hidden></div>
   </div>
   <span class="spacer"></span>
   <button class="btn btn-ghost btn-sm bld-prev-toggle" id="prevToggle" type="button" aria-expanded="false" aria-controls="bldPrev"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg>Пешнамоиш</button>
@@ -39,68 +45,71 @@
     <button class="btn btn-sec btn-sm" id="approveBtn" type="button"><svg><use href="/design-system/assets/icons.svg#i-users"/></svg>Ба созиш</button>
     <button class="btn btn-pri btn-sm" id="publishBtn" type="button" data-open="publishModal"><svg><use href="/design-system/assets/icons.svg#i-arrow-ur"/></svg>Нашр</button>
   </div>
+  <div class="adm-role-slot" id="adminRoleSlot"></div>
   <div class="hdr-acts"></div>
 </div>
-
-<div class="lc-builder" id="lowCodeBuilder" aria-live="polite"></div>
 
 <div class="bld-work">
   <!-- ============ COLUMN 1 — the pipeline (process) ============ -->
   <aside class="bld-pipe" data-tabs data-tabs-scope=".bld-work" role="tablist" aria-label="Раванди хизмат">
-    <div class="pipe-h"><h2>Раванд</h2><span class="hint">7 қадам</span></div>
+    <div class="pipe-h"><h2>Раванд</h2></div>
 
     <div class="pipe-label">Чашми шаҳрванд</div>
     <div class="pipe">
       <button class="stg" role="tab" data-tab="confirm" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-slate"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg></span>
-        <span class="tt"><b>Тасдиқи маълумот</b><span>аз феҳристҳо · «як бор»</span></span>      </button>
+        <span class="tt"><b>Тасдиқи маълумот</b></span>      </button>
       <button class="stg" role="tab" data-tab="fields" aria-selected="true" tabindex="0">
         <span class="stg-ic t-blue"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span>
-        <span class="tt"><b>Шакли дархост</b><span>аз китобхонаи шаклҳо</span></span>
+        <span class="tt"><b>Шакли дархост</b></span>
         <span class="stg-n" id="stgFieldsCount">2</span>
       </button>
       <button class="stg" role="tab" data-tab="delivery" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-amber"><svg><use href="/design-system/assets/icons.svg#i-wallet"/></svg></span>
-        <span class="tt"><b>Расондан ва пардохт</b><span>рақамӣ / коғазӣ · нарх</span></span>      </button>
+        <span class="tt"><b>Расондан ва пардохт</b></span>      </button>
       <button class="stg" role="tab" data-tab="review" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-violet"><svg><use href="/design-system/assets/icons.svg#i-sign"/></svg></span>
-        <span class="tt"><b>Санҷиш ва имзо</b><span>имзои электронӣ · худкор</span></span>      </button>
+        <span class="tt"><b>Санҷиш ва имзо</b></span>      </button>
     </div>
 
     <div class="pipe-label">Дар дохили идора</div>
     <div class="pipe">
       <button class="stg" role="tab" data-tab="checks" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-teal"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-        <span class="tt"><b>Санҷиши худкор</b><span>феҳристҳо · дубликат</span></span>      </button>
+        <span class="tt"><b>Санҷиши худкор</b></span>      </button>
       <button class="stg" role="tab" data-tab="route" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-steel"><svg><use href="/design-system/assets/icons.svg#i-users"/></svg></span>
-        <span class="tt"><b>Баррасӣ ва масъул</b><span>идора · нақш · SLA</span></span>
-        <span class="stg-dot warn" aria-hidden="true"></span>
+        <span class="tt"><b>Баррасӣ ва масъул</b></span>
+        <span class="stg-n stg-n--warn" role="img" aria-label="талаб мекунад диққат" title="талаб мекунад диққат">!<span class="sr-only">талаб мекунад диққат</span></span>
       </button>
       <button class="stg" role="tab" data-tab="issue" aria-selected="false" tabindex="-1">
         <span class="stg-ic t-green"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-        <span class="tt"><b>Додани ҳуҷҷат</b><span>қолаби ҳуҷҷат · ҳамён</span></span>      </button>
+        <span class="tt"><b>Додани ҳуҷҷат</b></span>      </button>
     </div>
 
     <div class="pipe-label">Кабинети хизмат</div>
     <div class="pipe">
+      <button class="stg" role="tab" data-tab="meta" aria-selected="false" tabindex="-1">
+        <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-building"/></svg></span>
+        <span class="tt"><b>Маълумоти хизмат</b></span>
+      </button>
       <button class="stg" role="tab" data-tab="rules" aria-selected="false" tabindex="-1">
         <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-gear"/></svg></span>
-        <span class="tt"><b>Қоидаҳо (DMN)</b><span>ҷадвали қарор · ҳисоб</span></span>
+        <span class="tt"><b>Қоидаҳо (DMN)</b></span>
         <span class="stg-n" id="stgRulesCount">4</span>
       </button>
       <button class="stg" role="tab" data-tab="templates" aria-selected="false" tabindex="-1">
         <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-mail"/></svg></span>
-        <span class="tt"><b>Шаблонҳо</b><span>огоҳӣ · ҳуҷҷат · 3 забон</span></span>      </button>
+        <span class="tt"><b>Шаблонҳо</b></span>      </button>
       <button class="stg" role="tab" data-tab="sandbox" aria-selected="false" tabindex="-1">
         <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-eye"/></svg></span>
-        <span class="tt"><b>Санҷиш (песочница)</b><span>сенарияҳои эталонӣ</span></span>      </button>
+        <span class="tt"><b>Санҷиш (песочница)</b></span>      </button>
       <button class="stg" role="tab" data-tab="versions" aria-selected="false" tabindex="-1">
         <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-history"/></svg></span>
-        <span class="tt"><b>Нусхаҳо ва нашр</b><span>версия · canary · бозгашт</span></span>      </button>
+        <span class="tt"><b>Нусхаҳо ва нашр</b></span>      </button>
       <button class="stg" role="tab" data-tab="access" aria-selected="false" tabindex="-1">
         <span class="stg-ic"><svg><use href="/design-system/assets/icons.svg#i-role"/></svg></span>
-        <span class="tt"><b>Дастрасӣ ва нақшҳо</b><span>муаллиф · созиш · нашр</span></span>      </button>
+        <span class="tt"><b>Дастрасӣ ва нақшҳо</b></span>      </button>
     </div>
   </aside>
 
@@ -138,7 +147,59 @@
         <div id="serviceFormReadonlyFields"></div>
       </section>
       <div class="note-info adm-mt-5"><svg><use href="/design-system/assets/icons.svg#i-info"/></svg><p>Хизмат ба нусхаи дақиқ пайваст аст. Ҳатто агар сиёҳнависи нав сохта шавад, ин хизмат то интихоби огоҳонаи нусхаи дигар тағйир намеёбад.</p></div>
-      <div hidden aria-hidden="true"><div class="fb-list" id="fbList"></div><button id="addField" type="button" data-open="paletteModal"></button></div>
+    </div>
+
+    <!-- service metadata — the post-creation home for the wizard's step 3 -->
+    <div class="edit-pane wide-pane" role="tabpanel" data-panel="meta" hidden>
+      <div class="eh"><span class="kick bk"><svg><use href="/design-system/assets/icons.svg#i-building"/></svg>Кабинети хизмат</span>
+        <h1>Маълумоти хизмат</h1>
+        <p>Ном, категория, гирандагон ва мӯҳлат — ҳамон чизе, ки ҳангоми сохтани хизмат пур карда шуд. Ин ҷо онҳо ҳамеша таҳриршавандаанд.</p>
+      </div>
+      <section class="panel meta-panel">
+        <div class="edit-sub">Ном ва идора</div>
+        <div class="fld-grid">
+          <div class="field"><label for="mTg">Номи хизмат (тоҷикӣ)</label><input class="input" id="mTg" spellcheck="false"></div>
+          <div class="field"><label for="mRu">Номи хизмат (русӣ)</label><input class="input" id="mRu" spellcheck="false" value="Справка — состав семьи"></div>
+        </div>
+        <div class="edit-sub">Намоиш дар феҳрист</div>
+        <div class="field"><label for="mCat">Категорияи хизмат</label>
+          <div class="select"><select id="mCat">
+            <option value="docs">Ҳуҷҷатҳо ва шиноснома</option>
+            <option value="family">Оила ва фарзандон</option>
+            <option value="land">Замин ва манзил</option>
+            <option value="tax">Андоз ва ҷарима</option>
+            <option value="certs" selected>Маълумотномаҳо</option>
+            <option value="gov">Идораҳо</option>
+            <option value="other">Дигар хизматҳо</option>
+          </select></div>
+        </div>
+        <div class="field"><label>Нишона ва ранг</label>
+          <div class="chips-row icon-picker" data-select>
+            <button class="tile t-teal sh-r" type="button" data-val="Маълумотнома" aria-pressed="true" aria-label="Маълумотнома"><svg><use href="/design-system/assets/icons.svg#i-cat-cert"/></svg></button>
+            <button class="tile t-violet" type="button" data-val="Андоз" aria-pressed="false" aria-label="Андоз"><svg><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></button>
+            <button class="tile t-blue" type="button" data-val="Ҳуҷҷат" aria-pressed="false" aria-label="Ҳуҷҷат"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></button>
+            <button class="tile t-rose sh-l" type="button" data-val="Оила" aria-pressed="false" aria-label="Оила"><svg><use href="/design-system/assets/icons.svg#i-cat-family"/></svg></button>
+            <button class="tile t-cyan sh-c" type="button" data-val="Замин" aria-pressed="false" aria-label="Замин"><svg><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></button>
+            <button class="tile t-steel sh-r" type="button" data-val="Шиноснома" aria-pressed="false" aria-label="Шиноснома"><svg><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg></button>
+            <button class="tile t-indigo" type="button" data-val="Соҳибкорӣ" aria-pressed="false" aria-label="Соҳибкорӣ"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></button>
+            <button class="tile t-amber sh-r" type="button" data-val="Дигар" aria-pressed="false" aria-label="Дигар"><svg><use href="/design-system/assets/icons.svg#i-cat-other"/></svg></button>
+          </div>
+        </div>
+        <div class="edit-sub">Шароит</div>
+        <div class="field"><label>Гирандагон</label>
+          <div class="audience-selector adm-w-full" id="mAudience"></div>
+          <p class="help">Ҳамин интихоб дар феҳрист ва дар маълумоти санҷиш нишон дода мешавад.</p>
+        </div>
+        <div class="field"><label for="mSla">Мӯҳлати иҷро</label>
+          <div class="select"><select id="mSla">
+            <option value="2 соат">2 соат</option>
+            <option value="1 рӯзи корӣ" selected>1 рӯзи корӣ</option>
+            <option value="3 рӯзи корӣ">3 рӯзи корӣ</option>
+            <option value="5 рӯзи корӣ">5 рӯзи корӣ</option>
+          </select></div>
+          <p class="help">Ҳамин мӯҳлат дар қадами «Баррасӣ ва масъул» истифода мешавад.</p>
+        </div>
+      </section>
     </div>
 
     <!-- delivery & payment -->
@@ -153,7 +214,7 @@
         <label class="pr"><div class="tt"><span class="v">Коғазӣ — гирифтан аз марказ</span><span class="k">аз маркази хизматрасонии интихобшуда</span></div><span class="sw"><input type="checkbox" checked><span class="knob"></span></span></label>
       </div>
       <div class="edit-sub">Нарх</div>
-      <div class="seg adm-w-cost" id="dCost">
+      <div class="cost-options adm-w-cost" id="dCost">
         <label><input type="radio" name="dcost" value="free" checked><span>Ройгон</span></label>
         <label><input type="radio" name="dcost" value="paid"><span>Музднок</span></label>
       </div>
@@ -202,7 +263,7 @@
       <div class="fld-grid adm-mb-4">
         <div class="field"><label for="rSla">Мӯҳлати SLA</label><input class="input" id="rSla" value="1 рӯз 4 соат"></div>
         <div class="field"><label>Тартиб</label>
-          <div class="seg adm-w-full"><label><input type="radio" name="ord" checked><span>Пай дар пай</span></label><label><input type="radio" name="ord"><span>Параллел</span></label></div>
+          <div class="cost-options"><label><input type="radio" name="ord" checked><span>Пай дар пай</span></label><label><input type="radio" name="ord"><span>Параллел</span></label></div>
         </div>
       </div>
       <div class="led">
@@ -266,10 +327,10 @@
       </div>
 
       <div class="tool-bar"><h2>Огоҳиномаҳо</h2>
-        <div class="seg adm-w-full adm-m-0" id="tplChan">
-          <label><input type="radio" name="tplchan" value="push" checked><span>Push</span></label>
-          <label><input type="radio" name="tplchan" value="email"><span>Email</span></label>
-          <label><input type="radio" name="tplchan" value="sms"><span>SMS</span></label>
+        <div class="ml-tabs adm-m-0" id="tplChan" role="tablist" aria-label="Канали огоҳинома">
+          <button type="button" role="tab" data-chan="push" aria-selected="true">Push</button>
+          <button type="button" role="tab" data-chan="email" aria-selected="false">Email</button>
+          <button type="button" role="tab" data-chan="sms" aria-selected="false">SMS</button>
         </div>
       </div>
       <div class="ml">
@@ -361,7 +422,7 @@
 
       <div class="tool-bar adm-mt-8"><h2>Выкаткаи зинагӣ (feature flags)</h2></div>
       <div class="roll">
-        <div class="seg adm-w-roll adm-m-0" id="rollMode">
+        <div class="cost-options cost-options--3 adm-m-0" id="rollMode">
           <label><input type="radio" name="roll" value="all" checked><span>Ҳама корбарон</span></label>
           <label><input type="radio" name="roll" value="canary"><span>Canary</span></label>
           <label><input type="radio" name="roll" value="off"><span>Хомӯш</span></label>
@@ -534,29 +595,6 @@
   </div>
 </div>
 
-<!-- ============ field-type palette ============ -->
-<div class="overlay" id="paletteModal" role="dialog" aria-modal="true" aria-labelledby="palH">
-  <div class="modal wide left">
-    <button class="mx" data-close aria-label="Пӯшидан"><svg><use href="/design-system/assets/icons.svg#i-x"/></svg></button>
-    <div class="mhd"><span class="mic"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span><div><h3 id="palH">Навъи майдонро интихоб кунед</h3><p>майдон ба қадами «Майдонҳои нав» илова мешавад</p></div></div>
-    <div class="palette-sec">Вуруди шаҳрванд</div>
-    <div class="palette">
-      <button class="ptile" type="button" data-add="text"><span class="tile t-slate sh-r tile--s"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg></span><b>Матн</b><span>як сатр: ном, рақам, тавзеҳ</span></button>
-      <button class="ptile" type="button" data-add="textarea"><span class="tile t-slate sh-r tile--s"><svg><use href="/design-system/assets/icons.svg#i-doc"/></svg></span><b>Матни дароз</b><span>якчанд сатр: эзоҳ, ариза</span></button>
-      <button class="ptile" type="button" data-add="select"><span class="tile t-blue tile--s"><svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></span><b>Рӯйхати интихоб</b><span>интихоб аз рӯйхати кушодашаванда</span></button>
-      <button class="ptile" type="button" data-add="segment"><span class="tile t-blue tile--s"><svg><use href="/design-system/assets/icons.svg#i-filter"/></svg></span><b>Интихоби сегментӣ</b><span>2–4 варианти паҳлуи ҳам</span></button>
-      <button class="ptile" type="button" data-add="date"><span class="tile t-violet sh-l tile--s"><svg><use href="/design-system/assets/icons.svg#i-calendar"/></svg></span><b>Сана ва вақт</b><span>тақвим ё интихоби вақт</span></button>
-      <button class="ptile" type="button" data-add="file"><span class="tile t-amber sh-r tile--s"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg></span><b>Боргузории файл</b><span>PDF, JPG — то 10 МБ</span></button>
-      <button class="ptile" type="button" data-add="address"><span class="tile t-cyan sh-c tile--s"><svg><use href="/design-system/assets/icons.svg#i-pin"/></svg></span><b>Суроға</b><span>суроға бо чипҳо</span></button>
-    </div>
-    <div class="palette-sec">Махсуси eKhizmat</div>
-    <div class="palette">
-      <button class="ptile" type="button" data-add="source"><span class="tile t-green sh-c tile--s"><svg><use href="/design-system/assets/icons.svg#i-shield"/></svg></span><b>Маълумоти феҳрист</b><span>пешакӣ пуршуда · принсипи «як бор»</span></button>
-      <button class="ptile" type="button" data-add="consent"><span class="tile t-teal sh-r tile--s"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg></span><b>Тасдиқ / ризоият</b><span>байрақчаи тасдиқи шаҳрванд</span></button>
-    </div>
-  </div>
-</div>
-
 <!-- ============ publish readiness gate (ТЗ §7В.3) ============ -->
 <div class="overlay" id="publishModal" role="dialog" aria-modal="true" aria-labelledby="pubH">
   <div class="modal wide left">
@@ -578,11 +616,11 @@
 <script type="module" src="/apps/admin/js/service-form-binding.js"></script>
 <script type="module" src="/design-system/js/app-shell.js"></script>
 <script>
-/* ===================== builder — form/field composer state =====================
-   The pipeline-stage switch is plain tabs (handled by builder.js). This block owns
-   only the live FIELD composer for the "Майдонҳои нав" step: an array of fields is
-   the single source of truth; the editor list and the citizen preview are both
-   rendered from it, so adding/editing a field updates the preview instantly. */
+/* ===================== builder — page wiring =====================
+   The pipeline-stage switch is plain tabs (handled by builder.js). This block
+   owns the admin-cabinet tools (rules, templates, sandbox, rollout, readiness
+   gate) and the service-metadata pane. Request fields are NOT owned here: they
+   are the bound published form version, rendered by service-form-binding.js. */
 (function(){
   "use strict";
   var $=function(s,r){return (r||document).querySelector(s);};
@@ -613,266 +651,12 @@
      synchronous script's run time — the "existing service" name and the SLA
      input are re-translated once bp:langchange fires (see bottom of file). */
 
-  var FTYPES={
-    text:    {label:"Матн",              icon:"i-edit",     ph:"Ҷавоби кӯтоҳ"},
-    textarea:{label:"Матни дароз",       icon:"i-doc",      ph:"Ҷавоби муфассал"},
-    select:  {label:"Рӯйхати интихоб",   icon:"i-chev-d"},
-    segment: {label:"Интихоби сегментӣ", icon:"i-filter"},
-    date:    {label:"Сана ва вақт",      icon:"i-calendar"},
-    file:    {label:"Боргузории файл",   icon:"i-upload"},
-    address: {label:"Суроға",            icon:"i-pin"},
-    source:  {label:"Маълумоти феҳрист", icon:"i-shield"},
-    consent: {label:"Тасдиқ / ризоият",  icon:"i-check"}
-  };
-  var seq=0; function uid(){ return "f"+(++seq); }
-
-  /* validation formats (ТЗ §6А.3): input masks / checks per field */
-  var FMT={
-    free:  "Матни озод",
-    num:   "Танҳо рақам",
-    inn:   "ИНН — 9 рақам",
-    phone: "Телефон (+992…)",
-    date:  "Сана",
-    email: "Почтаи электронӣ"
-  };
-  var FMT_ORDER=["free","num","inn","phone","date","email"];
-
-  function defField(type){
-    var f={id:uid(), type:type, label:FTYPES[type].label, labelRu:"", labelEn:"",
-           req:false, help:"", opts:[], src:"", fmt:(type==="text"||type==="textarea")?"free":"", condOn:"", condVal:""};
-    if(type==="select"){ f.label="Интихоб кунед"; f.opts=["Варианти 1","Варианти 2","Варианти 3"]; f.req=true; }
-    else if(type==="segment"){ f.label="Интихоб кунед"; f.opts=["Ҳа","Не"]; }
-    else if(type==="source"){ f.label="Маълумот аз феҳрист"; f.src="аз феҳристи давлатӣ"; }
-    else if(type==="consent"){ f.label="Тасдиқ мекунам, ки маълумот дуруст аст."; }
-    else if(type==="date"){ f.label="Санаи интихобшуда"; }
-    else if(type==="file"){ f.label="Ҳуҷҷати замима"; f.req=true; f.help="PDF, JPG, PNG · то 10 МБ"; }
-    else if(type==="address"){ f.label="Суроға"; }
-    else if(type==="textarea"){ f.label="Эзоҳ"; }
-    return f;
-  }
-
-  /* seed = the worked "family certificate" step-2 (matches apply.html) */
-  var fields=buildSource==='blank'?[]:[
-    {id:uid(), type:"select", label:"Мақсади маълумотнома", req:true, help:"то ҳуҷҷат дуруст таҳия шавад", opts:["Барои бонк (қарз/суратҳисоб)","Барои мактаб ё боғча","Барои субсидия","Барои суд","Дигар"], src:""},
-    {id:uid(), type:"text", label:"Ташкилоти қабулкунанда", req:false, help:"ихтиёрӣ — ба кадом ташкилот пешниҳод мешавад", opts:[], src:""}
-  ];
-
-  var hasReq={text:1,textarea:1,select:1,segment:1,date:1,file:1,address:1};
+  /* The service's request fields are the bound published form version, rendered
+     by service-form-binding.js into #pvFields / #stgFieldsCount / #pubFields.
+     The builder used to keep a second, hidden field composer here that fed the
+     same three targets from a local array; fields are edited in the form
+     library now (design-guide rule 21 — one composer, one source of truth). */
   function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-  function idx(id){ for(var i=0;i<fields.length;i++) if(fields[i].id===id) return i; return -1; }
-
-  /* ---- editor list ---- */
-  function metaHtml(f){
-    var t=FTYPES[f.type];
-    var h='<span class="ftype'+(f.type==="source"?" src":"")+'">'+tr(t.label)+'</span>';
-    if(f.type==="source"){ if(f.condOn) h+='<span>'+tr("· шартӣ")+'</span>'; return h; }
-    if(f.req) h+='<span class="fb-req">'+tr("ҳатмӣ")+'</span>'; else h+='<span>'+tr("ихтиёрӣ")+'</span>';
-    if((f.type==="select"||f.type==="segment")&&f.opts.length) h+='<span>· '+f.opts.length+' '+tr("вариант")+'</span>';
-    if(f.condOn) h+='<span>'+tr("· шартӣ")+'</span>';
-    return h;
-  }
-  function fbMark(v){ return v ? '' : '<span class="fb"> заминавӣ</span>'; }
-  function bodyHtml(f){
-    /* multilingual label — тоҷикӣ / русӣ / English (ТЗ §6А.3) */
-    var h='<div class="field ml"><label>'+tr("Номи майдон (барои шаҳрванд) · 3 забон")+'</label>'+
-      '<div class="ml-tabs" role="tablist">'+
-        '<button type="button" role="tab" data-ml="label" aria-selected="true">Тоҷикӣ</button>'+
-        '<button type="button" role="tab" data-ml="labelRu" aria-selected="false">Русӣ<span class="fbslot">'+fbMark(f.labelRu)+'</span></button>'+
-        '<button type="button" role="tab" data-ml="labelEn" aria-selected="false">English<span class="fbslot">'+fbMark(f.labelEn)+'</span></button>'+
-      '</div>'+
-      '<div class="ml-pane" data-mlp="label"><input class="input" data-cfg="label" value="'+esc(f.label)+'" spellcheck="false"></div>'+
-      '<div class="ml-pane" data-mlp="labelRu" hidden><input class="input" data-cfg="labelRu" value="'+esc(f.labelRu||"")+'" spellcheck="false" placeholder="Название поля (рус.)"></div>'+
-      '<div class="ml-pane" data-mlp="labelEn" hidden><input class="input" data-cfg="labelEn" value="'+esc(f.labelEn||"")+'" spellcheck="false" placeholder="Field label (eng.)"></div>'+
-    '</div>';
-    if(f.type==="select"||f.type==="segment"){
-      h+='<div class="field"><label>'+tr("Вариантҳо — ҳар сатр як вариант")+'</label><textarea class="input" data-cfg="opts" rows="'+(f.type==="segment"?2:3)+'" spellcheck="false">'+esc(f.opts.join("\n"))+'</textarea></div>';
-    }
-    if(f.type==="source"){
-      h+='<div class="field"><label>'+tr("Манбаъ (нишонаи сабз)")+'</label><input class="input" data-cfg="src" value="'+esc(f.src)+'" spellcheck="false" placeholder="'+esc(tr("аз феҳристи …"))+'"></div>';
-    }
-    if(f.type!=="source"&&f.type!=="consent"){
-      h+='<div class="field"><label>Матни ёрирасон <span class="opt-note">— ихтиёрӣ</span></label><input class="input" data-cfg="help" value="'+esc(f.help)+'" spellcheck="false" placeholder="'+esc(tr("тавзеҳи кӯтоҳ зери майдон"))+'"></div>';
-    }
-    /* validation format + required (ТЗ §6А.3) */
-    var showFmt=(f.type==="text"||f.type==="textarea"), showReq=hasReq[f.type];
-    if(showFmt||showReq){
-      h+='<div class="cfg-sub">'+tr("Санҷиш ва формат")+'</div>';
-      if(showFmt){
-        h+='<div class="field"><label>'+tr("Формати вуруд")+'</label><div class="select"><select data-cfg="fmt">'+
-           FMT_ORDER.map(function(k){return '<option value="'+k+'"'+((f.fmt||"free")===k?" selected":"")+'>'+tr(FMT[k])+'</option>';}).join("")+
-           '</select></div><p class="help">'+tr("маска ва санҷиши худкор — ИНН, телефон, сана")+'</p></div>';
-      }
-      if(showReq){
-        h+='<label class="pr pr--flush"><div class="tt"><span class="v">'+tr("Майдони ҳатмӣ")+'</span><span class="k">'+tr("шаҳрванд бояд онро пур кунад")+'</span></div><span class="sw"><input type="checkbox" data-cfg="req"'+(f.req?" checked":"")+'><span class="knob"></span></span></label>';
-      }
-    }
-    /* conditional logic — show/hide by another field's value (ТЗ §6А.3) */
-    var others=fields.filter(function(x){return x.id!==f.id;});
-    h+='<div class="cfg-sub">'+tr("Мантиқи шартӣ")+'</div>';
-    h+='<div class="cond-row">'+
-        '<div class="select"><select data-cfg="condOn"><option value="">'+tr("Ҳамеша нишон дода шавад")+'</option>'+
-          others.map(function(o){return '<option value="'+o.id+'"'+(f.condOn===o.id?" selected":"")+'>'+esc(tr("агар"))+' «'+esc(tr(o.label))+'»</option>';}).join("")+
-        '</select></div>'+
-        '<span class="mini-lbl adm-center">'+tr("баробар")+'</span>'+
-        '<input class="input" data-cfg="condVal" value="'+esc(f.condVal||"")+'" spellcheck="false" placeholder="'+esc(tr("қимат"))+'"'+(f.condOn?"":" disabled")+'>'+
-      '</div>';
-    return h;
-  }
-  function listHtml(){
-    if(!fields.length) return '<div class="fb-empty"><svg><use href="/design-system/assets/icons.svg#i-edit"/></svg><p>'+tr("Ягон майдони нав нест.")+'<br>'+tr("Аз палитра илова кунед — ё ин қадамро холӣ монед, агар ҳама чиз аз феҳрист гирифта шавад.")+'</p></div>';
-    return fields.map(function(f,i){
-      var t=FTYPES[f.type];
-      return '<div class="fb-item" data-id="'+f.id+'" draggable="true">'+
-        '<div class="fb-head">'+
-          '<span class="fb-grip" aria-hidden="true" title="'+esc(tr("Кашед барои тартиб"))+'"></span>'+
-          '<button class="fb-open" type="button" data-act="edit" aria-expanded="false">'+
-            '<span class="fb-ic"><svg><use href="/design-system/assets/icons.svg#'+t.icon+'"/></svg></span>'+
-            '<span class="fb-tt"><b>'+esc(tr(f.label))+'</b><span class="meta">'+metaHtml(f)+'</span></span>'+
-          '</button>'+
-          '<span class="fb-acts">'+
-            '<button class="rowact" type="button" data-act="up" aria-label="'+esc(tr("Боло"))+'"'+(i===0?" disabled":"")+'><svg class="adm-flip"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
-            '<button class="rowact" type="button" data-act="down" aria-label="'+esc(tr("Поён"))+'"'+(i===fields.length-1?" disabled":"")+'><svg><use href="/design-system/assets/icons.svg#i-chev-d"/></svg></button>'+
-            '<button class="rowact" type="button" data-act="del" aria-label="'+esc(tr("Нест кардан"))+'"><svg><use href="/design-system/assets/icons.svg#i-trash"/></svg></button>'+
-          '</span>'+
-        '</div>'+
-        '<div class="fb-body">'+bodyHtml(f)+'</div>'+
-      '</div>';
-    }).join("");
-  }
-
-  /* ---- citizen preview ---- */
-  function reqMark(f){ return f.req?' <span class="req">*</span>':''; }
-  function helpHtml(f){ return f.help?'<p class="help">'+esc(tr(f.help))+'</p>':''; }
-  function previewField(f){
-    var L=esc(tr(f.label)), controlId="pv-field-"+f.id;
-    switch(f.type){
-      case "textarea": return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><textarea id="'+controlId+'" class="input" rows="2" placeholder="'+esc(tr(FTYPES.textarea.ph))+'"></textarea>'+helpHtml(f)+'</div>';
-      case "select":   return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><div class="select"><select id="'+controlId+'">'+f.opts.map(function(o){return "<option>"+esc(tr(o))+"</option>";}).join("")+'</select></div>'+helpHtml(f)+'</div>';
-      case "segment":  return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="seg adm-w-full">'+f.opts.slice(0,4).map(function(o,i){return '<label><input type="radio" name="pv-'+f.id+'"'+(i===0?" checked":"")+'><span>'+esc(tr(o))+'</span></label>';}).join("")+'</div>'+helpHtml(f)+'</div>';
-      case "date":     return '<div class="field"><label>'+L+reqMark(f)+'</label><div class="opt opt--static"><span class="tile t-violet sh-l tile--s"><svg><use href="/design-system/assets/icons.svg#i-calendar"/></svg></span><div class="tt"><b>'+tr("Сана интихоб нашудааст")+'</b><p>'+tr("тақвим")+'</p></div><button class="btn btn-sec btn-sm" type="button">'+tr("Интихоб")+'</button></div>'+helpHtml(f)+'</div>';
-      case "file":     return '<div class="field"><label>'+L+reqMark(f)+'</label><button class="dropzone" type="button"><svg><use href="/design-system/assets/icons.svg#i-upload"/></svg><b>'+tr("Файлро интихоб кунед")+'</b><span>'+tr("PDF, JPG, PNG · то 10 МБ")+'</span></button>'+helpHtml(f)+'</div>';
-      case "address":  return '<div class="field"><label>'+L+reqMark(f)+'</label><span class="chip"><b>'+tr("Душанбе, кӯчаи Рӯдакӣ 84")+'</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>'+tr("аз феҳристи суроғаҳо")+'</span></div>';
-      case "source":   return '<div class="field"><label>'+L+'</label><span class="chip"><b>'+tr("Маълумоти намунавӣ")+'</b></span><span class="src-tag"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg>'+esc(tr(f.src||"аз феҳрист"))+'</span></div>';
-      case "consent":  return '<label class="consent"><input type="checkbox"><span>'+L+'</span></label>';
-      default:         return '<div class="field"><label for="'+controlId+'">'+L+reqMark(f)+'</label><input id="'+controlId+'" class="input" placeholder="'+esc(tr(FTYPES.text.ph))+'">'+helpHtml(f)+'</div>';
-    }
-  }
-  function condNote(f){
-    if(!f.condOn) return "";
-    var on=fields[idx(f.condOn)]; if(!on) return "";
-    return '<p class="help help--cond">↳ '+esc(tr("шартӣ"))+': '+esc(tr("агар"))+' «'+esc(tr(on.label))+'» = «'+esc(f.condVal||"…")+'»</p>';
-  }
-  function previewHtml(){
-    if(!fields.length) return '<div class="pv-empty">'+tr("Ягон майдони нав нест — шаҳрванд рост ба расондан мегузарад.")+'</div>';
-    return fields.map(function(f){ return previewField(f)+condNote(f); }).join("");
-  }
-
-  var listEl=$("#fbList"), pvEl=$("#pvFields"), cntEl=$("#stgFieldsCount"), pubCnt=$("#pubFields");
-  function renderPreview(){ pvEl.innerHTML=previewHtml(); }
-  function renderCount(){ var n=fields.length; if(cntEl) cntEl.textContent=n; if(pubCnt) pubCnt.textContent=n; }
-  function renderList(open){
-    listEl.innerHTML=listHtml();
-    if(open){ var it=listEl.querySelector('[data-id="'+open+'"]'); if(it){ it.classList.add("open"); var ob=it.querySelector(".fb-open"); if(ob) ob.setAttribute("aria-expanded","true"); var inp=it.querySelector('[data-cfg="label"]'); if(inp) inp.focus(); } }
-    renderCount();
-  }
-  function renderAll(open){ renderList(open); renderPreview(); }
-  renderAll();
-
-  /* delegated edits (no rebind on keystroke → focus is preserved) */
-  listEl.addEventListener("click", function(e){
-    var btn=e.target.closest("[data-act]"); if(!btn) return;
-    var item=btn.closest(".fb-item"); var id=item.getAttribute("data-id"); var i=idx(id);
-    var act=btn.getAttribute("data-act");
-    if(act==="edit"){ var op=item.classList.toggle("open"); var ob=item.querySelector(".fb-open"); if(ob) ob.setAttribute("aria-expanded", String(op)); if(op){ var inp=item.querySelector('[data-cfg="label"]'); if(inp) inp.focus(); } return; }
-    if(act==="del"){ fields.splice(i,1); renderAll(); window.bpToast&&window.bpToast("Майдон нест карда шуд"); return; }
-    if(act==="up"&&i>0){ fields.splice(i-1,0,fields.splice(i,1)[0]); renderAll(id); return; }
-    if(act==="down"&&i<fields.length-1){ fields.splice(i+1,0,fields.splice(i,1)[0]); renderAll(id); return; }
-  });
-  listEl.addEventListener("input", function(e){
-    var el=e.target.closest("[data-cfg]"); if(!el) return;
-    var item=el.closest(".fb-item"); var f=fields[idx(item.getAttribute("data-id"))]; if(!f) return;
-    var cfg=el.getAttribute("data-cfg");
-    if(cfg==="label"){ f.label=el.value; var b=item.querySelector(".fb-tt b"); if(b) b.textContent=el.value; }
-    else if(cfg==="labelRu"){ f.labelRu=el.value; var sr=item.querySelector('.ml-tabs button[data-ml="labelRu"] .fbslot'); if(sr) sr.innerHTML=fbMark(el.value); }
-    else if(cfg==="labelEn"){ f.labelEn=el.value; var se=item.querySelector('.ml-tabs button[data-ml="labelEn"] .fbslot'); if(se) se.innerHTML=fbMark(el.value); }
-    else if(cfg==="help"){ f.help=el.value; }
-    else if(cfg==="src"){ f.src=el.value; }
-    else if(cfg==="condVal"){ f.condVal=el.value; }
-    else if(cfg==="opts"){ f.opts=el.value.split("\n").map(function(s){return s.trim();}).filter(Boolean); var m=item.querySelector(".fb-tt .meta"); if(m) m.innerHTML=metaHtml(f); }
-    renderPreview();
-  });
-  listEl.addEventListener("change", function(e){
-    var el=e.target.closest("[data-cfg]"); if(!el) return;
-    var item=el.closest(".fb-item"); var f=fields[idx(item.getAttribute("data-id"))]; if(!f) return;
-    var cfg=el.getAttribute("data-cfg");
-    if(cfg==="req"){ f.req=el.checked; var m=item.querySelector(".fb-tt .meta"); if(m) m.innerHTML=metaHtml(f); }
-    else if(cfg==="fmt"){ f.fmt=el.value; }
-    else if(cfg==="condOn"){
-      f.condOn=el.value; if(!f.condOn) f.condVal="";
-      var cv=item.querySelector('[data-cfg="condVal"]'); if(cv){ cv.disabled=!f.condOn; if(!f.condOn) cv.value=""; }
-      var mm=item.querySelector(".fb-tt .meta"); if(mm) mm.innerHTML=metaHtml(f);
-    } else return;
-    renderPreview();
-  });
-  /* multilingual mini-tabs inside a field body */
-  listEl.addEventListener("click", function(e){
-    var tab=e.target.closest(".ml-tabs button[data-ml]"); if(!tab) return;
-    var box=tab.closest(".ml"); var key=tab.getAttribute("data-ml");
-    $$(".ml-tabs button",box).forEach(function(b){ b.setAttribute("aria-selected", String(b===tab)); });
-    $$(".ml-pane",box).forEach(function(p){ p.hidden = p.getAttribute("data-mlp")!==key; });
-    var inp=box.querySelector('.ml-pane:not([hidden]) input'); if(inp) inp.focus();
-  });
-
-  /* drag-and-drop reorder — grip-initiated, keyboard ▲▼ stays as fallback */
-  var dragId=null;
-  listEl.addEventListener("dragstart", function(e){
-    var item=e.target.closest(".fb-item"); if(!item){ return; }
-    if(!e.target.closest(".fb-grip")){ e.preventDefault(); return; }   /* only the grip drags */
-    dragId=item.getAttribute("data-id"); item.classList.add("dragging");
-    try{ e.dataTransfer.effectAllowed="move"; e.dataTransfer.setData("text/plain", dragId); }catch(_){}
-  });
-  listEl.addEventListener("dragover", function(e){
-    if(dragId==null) return; e.preventDefault();
-    var over=e.target.closest(".fb-item"); if(!over||over.getAttribute("data-id")===dragId) return;
-    var r=over.getBoundingClientRect(), after=e.clientY>r.top+r.height/2;
-    $$(".fb-item",listEl).forEach(function(x){ x.classList.remove("drop-b","drop-a"); });
-    over.classList.add(after?"drop-a":"drop-b");
-  });
-  listEl.addEventListener("drop", function(e){
-    if(dragId==null) return; e.preventDefault();
-    var over=e.target.closest(".fb-item");
-    var from=idx(dragId);
-    if(over && over.getAttribute("data-id")!==dragId){
-      var to=idx(over.getAttribute("data-id"));
-      var r=over.getBoundingClientRect(), after=e.clientY>r.top+r.height/2;
-      var moved=fields.splice(from,1)[0];
-      to=idx(over.getAttribute("data-id")); if(after) to++;
-      fields.splice(to,0,moved);
-      renderAll();
-    }
-    dragId=null;
-  });
-  listEl.addEventListener("dragend", function(){
-    dragId=null;
-    $$(".fb-item",listEl).forEach(function(x){ x.classList.remove("dragging","drop-a","drop-b"); });
-  });
-
-  /* palette → add field (with a brief highlight flash on the new row) */
-  document.addEventListener("click", function(e){
-    var p=e.target.closest("[data-add]"); if(!p) return;
-    var type=p.getAttribute("data-add");
-    fields.push(defField(type));
-    var ov=$("#paletteModal");
-    if(ov){
-      if(window.EKHDialog) window.EKHDialog.closeExistingDialog(ov);
-      else ov.classList.remove("open");
-    }
-    var newId=fields[fields.length-1].id;
-    renderAll(newId);
-    var row=listEl.querySelector('[data-id="'+newId+'"]');
-    if(row){ row.classList.add("just-added"); setTimeout(function(){ row.classList.remove("just-added"); }, 1200); row.scrollIntoView({block:"nearest", behavior:"smooth"}); }
-    window.bpToast&&window.bpToast(tr("Майдон илова шуд")+": "+tr(FTYPES[type].label));
-  });
 
   /* live preview is clickable: the citizen "Идома / Бозгашт" buttons walk the
      pipeline stages. */
@@ -887,7 +671,7 @@
     var j=dir==="next"?i+1:i-1; if(j<0||j>=CITIZEN.length) return;
     var stg=$('.stg[data-tab="'+CITIZEN[j]+'"]'); if(stg) stg.click();
   });
-  var ADMIN={rules:1,templates:1,sandbox:1,versions:1,access:1};
+  var ADMIN={meta:1,rules:1,templates:1,sandbox:1,versions:1,access:1};
   var work=$(".bld-work");
   if(work) work.setAttribute("data-mode","journey");
   document.addEventListener("click", function(e){
@@ -990,7 +774,10 @@
     }
     function tplLoad(){ tplText.value=TPL[tplState.chan][tplState.lang]||""; tplSync(); }
     tplText.addEventListener("input", function(){ TPL[tplState.chan][tplState.lang]=tplText.value; tplSync(); });
-    $$('#tplChan input').forEach(function(r){ r.addEventListener("change", function(){ tplState.chan=this.value; tplLoad(); }); });
+    $$('#tplChan [data-chan]').forEach(function(tab){ tab.addEventListener("click", function(){
+      $$('#tplChan [data-chan]').forEach(function(other){ other.setAttribute("aria-selected", String(other===tab)); });
+      tplState.chan=tab.getAttribute("data-chan"); tplLoad();
+    }); });
     var tplLangTabs=$("#tplLang");
     if(tplLangTabs) tplLangTabs.addEventListener("click", function(e){
       var b=e.target.closest("button[data-ml]"); if(!b) return;
@@ -1023,7 +810,7 @@
         var st=(states&&states[i])||"pend";
         var ic = st==="ok"?'<svg><use href="/design-system/assets/icons.svg#i-check"/></svg>' : st==="run"?'<svg class="spin"><use href="/design-system/assets/icons.svg#i-refresh"/></svg>' : '<svg><use href="/design-system/assets/icons.svg#i-clock"/></svg>';
         var rt = st==="ok"?(Math.floor(60+((i*97)%400))+" мс") : st==="run"?"иҷро…" : "";
-        return '<div class="sbx-step '+(st==="pend"?"pend":st)+'"><span class="si">'+ic+'</span><span class="tt"><b>'+esc(s)+'</b><span>қадами '+(i+1)+'</span></span><span class="rt">'+rt+'</span></div>';
+        return '<div class="sbx-step '+(st==="pend"?"pend":st)+'"><span class="si">'+ic+'</span><span class="tt"><b>'+esc(s)+'</b></span><span class="rt">'+rt+'</span></div>';
       }).join("");
     }
     sbxRender();
@@ -1069,12 +856,14 @@
   });
 
   /* ---- readiness gate: publish only when every required check passes ---- */
-  function fieldsOk(){ return fields.length>0 && fields.every(function(f){ return (f.label||"").trim(); }); }
+  /* the service's fields come from the bound published form version — the gate
+     asks whether a binding exists, not whether a local array was filled */
+  function formBound(){ var el=$("#serviceFormSelection"); return !!(el && el.querySelector(".attached-form-card")); }
   function dmnValid(){ return dmn.length>0 && dmn.every(function(r){ return r.every(function(c){ return String(c).trim(); }); }); }
   function templatesOk(){ return (TPL.push.tg||"").trim() && (TPL.email.tg||"").trim(); }
   function checklist(){
     return [
-      {label:"Майдонҳои шакл пур", desc:"ҳадди ақал як майдони номдор", ok:fieldsOk()},
+      {label:"Шакли нашршуда пайваст аст", desc:"нусхаи зинда аз китобхонаи шаклҳо", ok:formBound()},
       {label:"Раванди пайваст (BPMN)", desc:"7 қадам танзим шуда", ok:true},
       {label:"Қоидаҳо (DMN) валид", desc:dmn.length+" "+tr("қоида · зиддият нест"), ok:dmnValid()},
       {label:"Матн дар 3 забон", desc:"тоҷикӣ ва русӣ мавҷуд", ok:true},
@@ -1092,7 +881,7 @@
     if(box) box.innerHTML=list.map(function(x){
       return '<div class="chk-row '+(x.ok?"ok":"miss")+'">'+
         '<span class="ci"><svg><use href="/design-system/assets/icons.svg#'+(x.ok?"i-check":"i-info")+'"/></svg></span>'+
-        '<span class="tt"><b>'+esc(tr(x.label))+'</b><span>'+esc(tr(x.desc))+'</span></span>'+
+        '<span class="tt"><b>'+esc(tr(x.label))+'</b></span>'+
         '<span class="rr">'+esc(tr(x.ok?"тайёр":"диққат"))+'</span>'+
       '</div>';
     }).join("");
@@ -1110,7 +899,6 @@
     if(buildSource!=="blank"&&buildSource!=="copy") $("#svcName").value=tr(svcNameSource);
     if(rSla) rSla.value=tr(rSlaSource);
     if(dmnBody) dmnRender();
-    renderAll();
     syncName();
   });
 })();

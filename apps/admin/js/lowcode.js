@@ -294,7 +294,7 @@ function timelineMarkup(record){
 function renderBuilder(){
   if(!document.querySelector('.bld-top'))return;const x=c();
   const version=document.querySelector('#bldVersion');
-  if(version){version.textContent=`${x.version} ${state.serviceVersion} · ${x.stageEnv}`;version.title=MAIN_AUDIT[MAIN_AUDIT.length-1].at;}
+  if(version){version.textContent=`v${state.serviceVersion} · ${x.stageEnv}`;version.title=`${x.version} ${state.serviceVersion} · ${MAIN_AUDIT[MAIN_AUDIT.length-1].at}`;}
   const commentsCount=document.querySelector('#bldCommentsCount');
   if(commentsCount){commentsCount.textContent=String(state.comments.length);commentsCount.hidden=!state.comments.length;}
   const commentsBtn=document.querySelector('#bldCommentsBtn');
@@ -473,9 +473,48 @@ function bind(){
     const confirm=event.target.closest('[data-lc-confirm]');if(confirm){const serviceId=confirm.dataset.lcConfirmService||PRIMARY_SERVICE_ID;dispatchLowCode(confirm.dataset.lcConfirm,{serviceId});document.querySelector('#lowCodeActionOverlay')?.remove();toast(c().publishedToast);return;}
     const action=event.target.closest('[data-lc-action]');if(action){handleAction(action.dataset.lcAction);return;}
   },true);
+  bindCommentsPopover();
+  bindServiceMetaPane();
   document.querySelector('#saveBtn')?.addEventListener('click',event=>{event.stopImmediatePropagation();dispatchLowCode('SAVE_STAGE');},true);
   document.querySelector('#approveBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();if(state.role==='agency-author')dispatchLowCode(state.status==='changes_requested'?'RESUBMIT':'SEND_REVIEW');},true);
   document.querySelector('#publishBtn')?.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();if(state.role==='portal-admin'&&state.status==='approved')openPublishSummary(recordById(PRIMARY_SERVICE_ID));},true);
+}
+
+/* §6: a custom layer needs the whole keyboard model — Escape closes, focus
+   returns to the trigger, click-outside dismisses. */
+function bindCommentsPopover(){
+  const trigger=document.querySelector('#bldCommentsBtn'),pop=document.querySelector('#bldCommentsPop');
+  if(!trigger||!pop)return;
+  const close=(focusTrigger)=>{
+    if(pop.hidden)return;
+    pop.classList.remove('is-open');
+    trigger.setAttribute('aria-expanded','false');
+    setTimeout(()=>{pop.hidden=true;},160);
+    if(focusTrigger)trigger.focus();
+  };
+  trigger.addEventListener('click',event=>{
+    event.stopPropagation();
+    if(!pop.hidden){close(false);return;}
+    pop.hidden=false;trigger.setAttribute('aria-expanded','true');
+    requestAnimationFrame(()=>pop.classList.add('is-open'));
+  });
+  document.addEventListener('click',event=>{ if(!pop.hidden&&!pop.contains(event.target)&&!trigger.contains(event.target))close(false); });
+  document.addEventListener('keydown',event=>{ if(event.key==='Escape'&&!pop.hidden)close(true); });
+}
+
+/* the toolbar name input and the metadata pane edit the same fact */
+function bindServiceMetaPane(){
+  const pane=document.querySelector('[data-panel="meta"]');if(!pane)return;
+  const toolbar=document.querySelector('#svcName'),paneTg=document.querySelector('#mTg');
+  if(toolbar&&paneTg){
+    paneTg.value=toolbar.value;
+    toolbar.addEventListener('input',()=>{paneTg.value=toolbar.value;});
+    paneTg.addEventListener('input',()=>{toolbar.value=paneTg.value;toolbar.dispatchEvent(new Event('input',{bubbles:true}));});
+  }
+  const sla=document.querySelector('#mSla'),route=document.querySelector('#rSla');
+  if(sla&&route){
+    sla.addEventListener('change',()=>{route.value=sla.value;});
+  }
 }
 
 function renderAll(){renderRoleControl();renderBuilder();renderRegistry();renderReview();}
