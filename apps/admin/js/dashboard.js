@@ -1,72 +1,83 @@
-import { getLowCodeState, subscribeLowCode } from './lowcode.js';
+import { describeStatus, getLowCodeState, getReviewQueue, getRoleHint, localizeValue, subscribeLowCode } from './lowcode.js';
 
 const icon = name => `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${name}"/></svg>`;
 const COPY = {
   tg: {
     title:'Нишондиҳандаҳои хизматҳо',
     total:'Ҳамаи хизматҳо', draft:'Сиёҳнавис', review:'Дар баррасӣ', approved:'Интизори нашр', published:'Нашршуда', errors:'Хатои танзим',
-    tasks:'Вазифаҳои баррасии ман', sla:'Вайроншавии SLA — аз рӯи идора', changes:'Тағйироти охирин', tests:'Натиҷаҳои санҷиш', publications:'Нашрҳои охирин',
-    service:'Хизмат', agency:'Идора', version:'Версия', deadline:'Муҳлати SLA', status:'Ҳолат', action:'Амал', stage:'Марҳила', overdue:'Дермонӣ', authorCol:'Муаллиф', change:'Тағйир', date:'Сана ва вақт', result:'Натиҷа', publisher:'Нашркунанда',
-    openReview:'Кушодани баррасӣ', openService:'Кушодани хизмат', requested:'Ислоҳ дархост шуд', inReview:'Дар баррасӣ', awaiting:'Интизори нашр', overdueValue:'1 р. 4 с.', publishedStatus:'Нашр шуд', success:'Муваффақ', failed:'Хато',
-    empty:'Вазифаи баррасӣ нест.', quick:'Конструктор', registry:'Феҳристи хизматҳо', newService:'Хизмати нав', editor:'Муҳаррири шакл', allFeeds:'Навсозиҳои корӣ'
+    tasks:'Вазифаҳои баррасии ман', sla:'Вайроншавии SLA', activity:'Навсозиҳои корӣ',
+    version:'Версия', overdue:'Дермонӣ',
+    all:'Ҳама', changes:'Тағйирот', tests:'Санҷишҳо', publications:'Нашрҳо',
+    success:'Санҷиш гузашт', failed:'Санҷиш нагузашт',
+    empty:'Ҳоло вазифаи баррасӣ нест.', slaEmpty:'Вайроншавии SLA нест.', slaEmptyHint:'Ҳамаи хизматҳо дар муҳлат коркард мешаванд.',
   },
   ru: {
     title:'Показатели услуг',
     total:'Все услуги', draft:'Черновики', review:'На проверке', approved:'Ожидают публикации', published:'Опубликованы', errors:'Ошибки настройки',
-    tasks:'Мои задачи проверки', sla:'Нарушения SLA — по ведомствам', changes:'Последние изменения', tests:'Результаты тестов', publications:'Последние публикации',
-    service:'Услуга', agency:'Ведомство', version:'Версия', deadline:'Срок SLA', status:'Статус', action:'Действие', stage:'Этап', overdue:'Просрочка', authorCol:'Автор', change:'Изменение', date:'Дата и время', result:'Результат', publisher:'Опубликовал',
-    openReview:'Открыть проверку', openService:'Открыть услугу', requested:'Запрошены изменения', inReview:'На проверке', awaiting:'Ожидает публикации', overdueValue:'1 д. 4 ч.', publishedStatus:'Опубликовано', success:'Успешно', failed:'Ошибка',
-    empty:'Задач проверки нет.', quick:'Конструктор', registry:'Реестр услуг', newService:'Новая услуга', editor:'Редактор формы', allFeeds:'Рабочие обновления'
+    tasks:'Мои задачи проверки', sla:'Нарушения SLA', activity:'Рабочие обновления',
+    version:'Версия', overdue:'Просрочка',
+    all:'Все', changes:'Изменения', tests:'Тесты', publications:'Публикации',
+    success:'Тест пройден', failed:'Тест не пройден',
+    empty:'Задач проверки пока нет.', slaEmpty:'Нарушений SLA нет.', slaEmptyHint:'Все услуги обрабатываются в срок.',
   },
   en: {
     title:'Service metrics',
     total:'All services', draft:'Drafts', review:'In review', approved:'Awaiting publication', published:'Published', errors:'Configuration errors',
-    tasks:'My review tasks', sla:'SLA violations — by agency', changes:'Recent changes', tests:'Test results', publications:'Recent publications',
-    service:'Service', agency:'Agency', version:'Version', deadline:'SLA deadline', status:'Status', action:'Action', stage:'Stage', overdue:'Overdue', authorCol:'Author', change:'Change', date:'Date and time', result:'Result', publisher:'Published by',
-    openReview:'Open review', openService:'Open service', requested:'Changes requested', inReview:'In review', awaiting:'Awaiting publication', overdueValue:'1 d. 4 hr.', publishedStatus:'Published', success:'Success', failed:'Failed',
-    empty:'No review tasks.', quick:'Constructor', registry:'Service registry', newService:'New service', editor:'Form editor', allFeeds:'Work updates'
+    tasks:'My review tasks', sla:'SLA violations', activity:'Work updates',
+    version:'Version', overdue:'Overdue',
+    all:'All', changes:'Changes', tests:'Tests', publications:'Publications',
+    success:'Test passed', failed:'Test failed',
+    empty:'No review tasks yet.', slaEmpty:'No SLA violations.', slaEmptyHint:'Every service is being handled inside its deadline.',
   }
 };
 
+/* SLA breaches and the activity stream are named demo data: one list each, so a
+   number on this page can never disagree with the list beneath it. */
 const CONTENT = {
   tg: {
-    tasks: [
-      { name:'Маълумотнома — ҳайати оила', agency:'САҲШ', deadline:'имрӯз, 16:30' },
-      { name:'Нусхаи дубораи шаҳодатнома', agency:'САҲШ', deadline:'имрӯз, 17:00' },
-      { name:'Маълумотнома аз феҳристи замин', agency:'Кумитаи замин', deadline:'имрӯз, 15:20' }
+    sla: [
+      { service:'Иваз кардани ID-корт', agency:'ВКД', stage:'Санҷиши ҳуҷҷатҳо', overdue:'1 р. 4 с.' },
+      { service:'Маълумотномаи андоз', agency:'Кумитаи андоз', stage:'Баррасии мутахассис', overdue:'6 с.' },
     ],
-    sla: [['ВКД','Иваз кардани ID-корт','6 с.'],['Кумитаи андоз','Маълумотномаи андоз','6 с.']],
-    feeds: {
-      changes: [['Фируза Н.','Маълумотнома — ҳайати оила','Майдонҳои шакл'],['Аброр К.','Бақайдгирии таваллуд','Раванди хизмат']],
-      tests: ['Маълумотнома — ҳайати оила','Иваз кардани ID-корт'],
-      publications: [['Сабти соҳибкори инфиродӣ','Аброр К.'],['Маълумотномаи доғи судӣ','Меҳринисо С.']]
-    }
+    events: [
+      { type:'change',      at:'12.08, 14:20', ts:'2026-08-12T14:20', title:'Маълумотнома — ҳайати оила', meta:'Фируза Н. · майдонҳои шакл' },
+      { type:'test-pass',   at:'12.08, 14:18', ts:'2026-08-12T14:18', title:'Маълумотнома — ҳайати оила · v2.3', meta:'8 сенария · 0 хато' },
+      { type:'change',      at:'12.08, 11:05', ts:'2026-08-12T11:05', title:'Бақайдгирии таваллуд', meta:'Аброр К. · раванди хизмат' },
+      { type:'publication', at:'12.08, 10:30', ts:'2026-08-12T10:30', title:'Сабти соҳибкори инфиродӣ · v5.2', meta:'Аброр К.' },
+      { type:'test-fail',   at:'12.08, 13:44', ts:'2026-08-12T13:44', title:'Иваз кардани ID-корт · v4.0', meta:'6 сенария · 1 хато' },
+      { type:'change',      at:'11.08, 17:40', ts:'2026-08-11T17:40', title:'Иқтибос аз феҳристи замин', meta:'Меҳринисо С. · натиҷаи хизмат' },
+      { type:'publication', at:'11.08, 16:12', ts:'2026-08-11T16:12', title:'Маълумотномаи доғи судӣ · v2.1', meta:'Меҳринисо С.' },
+    ],
   },
   ru: {
-    tasks: [
-      { name:'Справка о составе семьи', agency:'ЗАГС', deadline:'сегодня, 16:30' },
-      { name:'Повторное свидетельство', agency:'ЗАГС', deadline:'сегодня, 17:00' },
-      { name:'Справка из земельного реестра', agency:'Земельный комитет', deadline:'сегодня, 15:20' }
+    sla: [
+      { service:'Замена ID-карты', agency:'МВД', stage:'Проверка документов', overdue:'1 д. 4 ч.' },
+      { service:'Налоговая справка', agency:'Налоговый комитет', stage:'Проверка специалистом', overdue:'6 ч.' },
     ],
-    sla: [['МВД','Замена ID-карты','6 ч.'],['Налоговый комитет','Налоговая справка','6 ч.']],
-    feeds: {
-      changes: [['Фируза Н.','Справка о составе семьи','Поля формы'],['Аброр К.','Регистрация рождения','Процесс услуги']],
-      tests: ['Справка о составе семьи','Замена ID-карты'],
-      publications: [['Регистрация индивидуального предпринимателя','Аброр К.'],['Справка о наличии судимости','Мехринисо С.']]
-    }
+    events: [
+      { type:'change',      at:'12.08, 14:20', ts:'2026-08-12T14:20', title:'Справка о составе семьи', meta:'Фируза Н. · поля формы' },
+      { type:'test-pass',   at:'12.08, 14:18', ts:'2026-08-12T14:18', title:'Справка о составе семьи · v2.3', meta:'8 сценариев · 0 ошибок' },
+      { type:'change',      at:'12.08, 11:05', ts:'2026-08-12T11:05', title:'Регистрация рождения', meta:'Аброр К. · процесс услуги' },
+      { type:'publication', at:'12.08, 10:30', ts:'2026-08-12T10:30', title:'Регистрация ИП · v5.2', meta:'Аброр К.' },
+      { type:'test-fail',   at:'12.08, 13:44', ts:'2026-08-12T13:44', title:'Замена ID-карты · v4.0', meta:'6 сценариев · 1 ошибка' },
+      { type:'change',      at:'11.08, 17:40', ts:'2026-08-11T17:40', title:'Выписка из земельного реестра', meta:'Мехринисо С. · результат услуги' },
+      { type:'publication', at:'11.08, 16:12', ts:'2026-08-11T16:12', title:'Справка о наличии судимости · v2.1', meta:'Мехринисо С.' },
+    ],
   },
   en: {
-    tasks: [
-      { name:'Family composition certificate', agency:'Civil Registry Office', deadline:'today, 16:30' },
-      { name:'Duplicate certificate', agency:'Civil Registry Office', deadline:'today, 17:00' },
-      { name:'Land registry certificate', agency:'Land Committee', deadline:'today, 15:20' }
+    sla: [
+      { service:'ID card replacement', agency:'Ministry of Internal Affairs', stage:'Document check', overdue:'1 d. 4 hr.' },
+      { service:'Tax certificate', agency:'Tax Committee', stage:'Specialist review', overdue:'6 hr.' },
     ],
-    sla: [['Ministry of Internal Affairs','ID card replacement','6 hr.'],['Tax Committee','Tax certificate','6 hr.']],
-    feeds: {
-      changes: [['Firuza N.','Family composition certificate','Form fields'],['Abror K.','Birth registration','Service process']],
-      tests: ['Family composition certificate','ID card replacement'],
-      publications: [['Individual entrepreneur registration','Abror K.'],['Certificate of no criminal record','Mehriniso S.']]
-    }
+    events: [
+      { type:'change',      at:'12.08, 14:20', ts:'2026-08-12T14:20', title:'Family composition certificate', meta:'Firuza N. · form fields' },
+      { type:'test-pass',   at:'12.08, 14:18', ts:'2026-08-12T14:18', title:'Family composition certificate · v2.3', meta:'8 scenarios · 0 failures' },
+      { type:'change',      at:'12.08, 11:05', ts:'2026-08-12T11:05', title:'Birth registration', meta:'Abror K. · service process' },
+      { type:'publication', at:'12.08, 10:30', ts:'2026-08-12T10:30', title:'Sole trader registration · v5.2', meta:'Abror K.' },
+      { type:'test-fail',   at:'12.08, 13:44', ts:'2026-08-12T13:44', title:'ID card replacement · v4.0', meta:'6 scenarios · 1 failure' },
+      { type:'change',      at:'11.08, 17:40', ts:'2026-08-11T17:40', title:'Land registry extract', meta:'Mehriniso S. · service result' },
+      { type:'publication', at:'11.08, 16:12', ts:'2026-08-11T16:12', title:'Certificate of no criminal record · v2.1', meta:'Mehriniso S.' },
+    ],
   }
 };
 
@@ -81,54 +92,93 @@ const lang = () => {
 };
 const c = () => COPY[lang()] || COPY.tg;
 const content = () => CONTENT[lang()] || CONTENT.tg;
-const statusIcon = (tone,label) => `<span class="status-icon status-icon--${tone}" role="img" aria-label="${label}" title="${label}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${tone==='success'?'i-check':tone==='warning'?'i-edit':tone==='danger'?'i-x':tone==='info'?'i-clock':'i-dots'}"/></svg></span>`;
+const esc = value => String(value ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
-function taskForRole(role, x, copy) {
-  if (role === 'agency-author') return { ...copy.tasks[0], version:'2.3', label:x.requested, tone:'warning', href:'builder.html' };
-  if (role === 'portal-admin') return { ...copy.tasks[1], version:'1.8', label:x.awaiting, tone:'success', href:'review.html' };
-  return { ...copy.tasks[2], version:'3.1', label:x.inReview, tone:'info', href:'review.html' };
-}
+/* the feed's view switcher is page state, not app state — it never leaves this module */
+let activityView = 'all';
 
 function metrics(x) {
   const values = [['all',x.total,612,''],['draft',x.draft,8,''],['in_review',x.review,4,''],['approved',x.approved,3,''],['published',x.published,596,''],['errors',x.errors,1,'stat--danger']];
   return `<nav class="reg-stats reg-stats--dashboard" aria-label="${x.title}">${values.map(([status,label,value,tone])=>`<a class="stat ${tone}" href="services.html${status==='all'?'':`?status=${status}`}" data-metric-status="${status}"><div class="big">${value}</div><div class="k">${label}</div></a>`).join('')}</nav>`;
 }
 
-function reviewPanel(role, x, copy) {
-  const t=taskForRole(role,x,copy);
-  return `<section class="panel dashboard-panel dashboard-tasks"><div class="panel__head"><h2>${x.tasks}</h2><span class="status-pill status-pill--info">1</span></div><a class="dashboard-task-row" href="${t.href}">${statusIcon(t.tone,t.label)}<span class="dashboard-task-row__copy"><strong>${t.name}</strong><span>${t.agency} · ${x.version} ${t.version} · ${x.deadline}: ${t.deadline}</span><span class="dashboard-task-row__action">${x.openReview}${icon('i-chev-r')}</span></span></a></section>`;
+/* §6 empty state: what happened, whether that is good, what to do next */
+function emptyState(title, body) {
+  return `<div class="dashboard-empty"><b>${esc(title)}</b><p>${esc(body)}</p></div>`;
+}
+
+function reviewPanel(role, x) {
+  const queue = getReviewQueue(role);
+  const rows = queue.slice(0, 5).map(({record, workflow}) => {
+    const status = describeStatus(workflow.status);
+    return `<a class="dashboard-row" href="review.html?service=${esc(record.id)}">
+      <span class="status-icon status-icon--${status.tone}" role="img" aria-label="${esc(status.label)}" title="${esc(status.label)}">${icon(status.icon)}</span>
+      <span class="dashboard-row__copy"><strong>${esc(localizeValue(record.name))}</strong><span>${esc(localizeValue(record.agency))} · v${esc(workflow.version)} · ${esc(record.submittedAt)}</span></span>
+      ${icon('i-chev-r')}</a>`;
+  }).join('');
+  return `<section class="panel dashboard-panel dashboard-tasks">
+    <div class="panel-h"><h3>${x.tasks}</h3><span class="dashboard-count">${queue.length}</span></div>
+    ${queue.length ? `<div class="dashboard-rows">${rows}</div>` : emptyState(x.empty, getRoleHint(role))}
+  </section>`;
 }
 
 function slaPanel(x, copy) {
-  const [[agencyA,serviceA,overdueA],[agencyB,serviceB,overdueB]]=copy.sla;
-  return `<section class="panel dashboard-panel dashboard-sla"><div class="panel__head"><h2>${x.sla}</h2><span class="status-pill status-pill--danger">2</span></div><div class="panel__body panel-table-body"><div class="data-table-wrap"><table class="data-table"><colgroup><col class="dashboard-sla__agency"><col class="dashboard-sla__service"><col class="dashboard-sla__stage"><col class="dashboard-sla__overdue"></colgroup><thead><tr><th>${x.agency}</th><th>${x.service}</th><th>${x.stage}</th><th>${x.overdue}</th></tr></thead><tbody><tr><td>${agencyA}</td><td><a href="builder.html">${serviceA}</a></td><td>${statusIcon('info',x.inReview)}</td><td><span class="status-pill status-pill--danger">${x.overdueValue || overdueA}</span></td></tr><tr><td>${agencyB}</td><td><a href="builder.html">${serviceB}</a></td><td>${statusIcon('info',x.inReview)}</td><td><span class="status-pill status-pill--danger">${overdueB}</span></td></tr></tbody></table></div></div></section>`;
+  const rows = copy.sla.map(item => `<a class="dashboard-row dashboard-row--alert" href="review.html">
+      ${icon('i-clock')}
+      <span class="dashboard-row__copy"><strong>${esc(item.service)}</strong><span>${esc(item.agency)} · ${esc(item.stage)}</span></span>
+      <span class="dashboard-row__overdue">${esc(item.overdue)}</span></a>`).join('');
+  return `<section class="panel dashboard-panel dashboard-sla">
+    <div class="panel-h"><h3>${x.sla}</h3><span class="dashboard-count dashboard-count--danger">${copy.sla.length}</span></div>
+    ${copy.sla.length ? `<div class="dashboard-rows">${rows}</div>` : emptyState(x.slaEmpty, x.slaEmptyHint)}
+  </section>`;
 }
 
-function feedPanels(x, copy) {
-  const [firstChange,secondChange]=copy.feeds.changes;
-  const [firstTest,secondTest]=copy.feeds.tests;
-  const [firstPublication,secondPublication]=copy.feeds.publications;
-  return `<section class="dashboard-feeds" aria-labelledby="dashboardFeedsH"><h2 class="sr-only" id="dashboardFeedsH">${x.allFeeds}</h2><div class="tabs dashboard-feed-tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" data-feed-tab="changes">${x.changes}</button><button class="tab" role="tab" aria-selected="false" data-feed-tab="tests">${x.tests}</button><button class="tab" role="tab" aria-selected="false" data-feed-tab="publications">${x.publications}</button></div>
-  <section class="panel dashboard-feed" data-feed="changes"><div class="panel__head"><h2><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-history"/></svg>${x.changes}</h2></div><div class="dashboard-feed-list"><a href="builder.html"><strong>${firstChange[0]}</strong><span>${firstChange[1]}</span><small>${x.change}: ${firstChange[2]} · 12.08, 14:20</small></a><a href="builder.html"><strong>${secondChange[0]}</strong><span>${secondChange[1]}</span><small>${x.change}: ${secondChange[2]} · 12.08, 11:05</small></a></div></section>
-  <section class="panel dashboard-feed" data-feed="tests"><div class="panel__head"><h2><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg>${x.tests}</h2></div><div class="dashboard-feed-list"><a class="dashboard-test-run" href="builder.html"><strong>${firstTest} · v2.3</strong><span>12.08, 14:18</span><span class="dashboard-test-result dashboard-test-result--success" role="img" aria-label="${x.success}" title="${x.success}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span></a><a class="dashboard-test-run" href="builder.html"><strong>${secondTest} · v4.0</strong><span>12.08, 13:44</span><span class="dashboard-test-result dashboard-test-result--danger" role="img" aria-label="${x.failed}" title="${x.failed}"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"/></svg></span></a></div></section>
-  <section class="panel dashboard-feed" data-feed="publications"><div class="panel__head"><h2><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-upload"/></svg>${x.publications}</h2></div><div class="dashboard-feed-list"><a href="builder.html"><strong>${firstPublication[0]} · v5.2</strong><span>${firstPublication[1]}</span><small>12.08, 10:30 · ${x.publishedStatus}</small></a><a href="builder.html"><strong>${secondPublication[0]} · v2.1</strong><span>${secondPublication[1]}</span><small>11.08, 16:12 · ${x.publishedStatus}</small></a></div></section></section>`;
-}
+const EVENT_ICON = { change:'i-history', 'test-pass':'i-check', 'test-fail':'i-x', publication:'i-arrow-ur' };
 
-function quickActions(x) {
-  return `<section class="dashboard-quick" aria-labelledby="quickH"><h2 id="quickH">${x.quick}</h2><div><a class="btn btn-sec" href="services.html">${icon('i-cat-cert')}${x.registry}</a><a class="btn btn-sec" href="new-service.html">${icon('i-plus')}${x.newService}</a><a class="btn btn-sec" href="builder.html">${icon('i-edit')}${x.editor}</a></div></section>`;
+function activityPanel(x, copy) {
+  const views = [['all',x.all],['change',x.changes],['test',x.tests],['publication',x.publications]];
+  if (!views.some(([id]) => id === activityView)) activityView = 'all';
+  const visible = copy.events
+    .filter(event => activityView === 'all' || (activityView === 'test' ? event.type.startsWith('test') : event.type === activityView))
+    .slice()
+    .sort((a, b) => (a.ts < b.ts ? 1 : a.ts > b.ts ? -1 : 0));
+  const rows = visible.map(event => {
+    const label = event.type === 'test-pass' ? x.success : event.type === 'test-fail' ? x.failed : '';
+    return `<a class="dashboard-row dashboard-row--${esc(event.type)}" href="builder.html">
+      ${label ? `<span class="dashboard-row__glyph" role="img" aria-label="${esc(label)}" title="${esc(label)}">${icon(EVENT_ICON[event.type])}</span>` : `<span class="dashboard-row__glyph">${icon(EVENT_ICON[event.type])}</span>`}
+      <span class="dashboard-row__copy"><strong>${esc(event.title)}</strong><span>${esc(event.meta)}</span></span>
+      <time>${esc(event.at)}</time></a>`;
+  }).join('');
+  return `<section class="panel dashboard-panel dashboard-activity">
+    <div class="panel-h"><h3>${x.activity}</h3></div>
+    <div class="tabs dashboard-activity__tabs" role="tablist" aria-label="${x.activity}">${views.map(([id,label]) =>
+      `<button class="tab" type="button" role="tab" data-activity-view="${id}" aria-selected="${activityView===id}" tabindex="${activityView===id?'0':'-1'}">${label}</button>`).join('')}</div>
+    <div class="dashboard-rows" aria-live="polite">${rows}</div>
+  </section>`;
 }
 
 function render() {
   const root=document.querySelector('#adminDashboard'); if(!root) return;
   const x=c(), copy=content(), state=getLowCodeState();
-  root.innerHTML=`<header class="dashboard-head"><h1>${x.title}</h1></header>${metrics(x)}<div class="dashboard-primary">${reviewPanel(state.role,x,copy)}${slaPanel(x,copy)}</div>${feedPanels(x,copy)}${quickActions(x)}`;
+  root.innerHTML=`<header class="dashboard-head"><h1>${x.title}</h1></header>${metrics(x)}<div class="dashboard-primary">${reviewPanel(state.role,x)}${slaPanel(x,copy)}</div>${activityPanel(x,copy)}`;
 }
 
 document.addEventListener('click', event => {
-  const tab=event.target.closest('[data-feed-tab]'); if(!tab) return;
-  const key=tab.dataset.feedTab;
-  document.querySelectorAll('[data-feed-tab]').forEach(button=>button.setAttribute('aria-selected',String(button===tab)));
-  document.querySelectorAll('[data-feed]').forEach(panel=>panel.classList.toggle('is-mobile-active',panel.dataset.feed===key));
+  const tab=event.target.closest('[data-activity-view]'); if(!tab) return;
+  activityView=tab.dataset.activityView;
+  render();
+  document.querySelector(`[data-activity-view="${activityView}"]`)?.focus();
+});
+document.addEventListener('keydown', event => {
+  const tab=event.target.closest('[data-activity-view]');
+  if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+  const tabs=[...document.querySelectorAll('[data-activity-view]')];
+  let index=tabs.indexOf(tab);
+  if(event.key==='Home') index=0;
+  else if(event.key==='End') index=tabs.length-1;
+  else index=(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+  event.preventDefault();
+  tabs[index].click();
 });
 document.addEventListener('bp:langchange',render);
 subscribeLowCode(render);

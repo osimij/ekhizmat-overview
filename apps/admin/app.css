@@ -742,7 +742,11 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 /* Overview joins the operational shell instead of behaving like a microsite. */
 .admin-overview{padding-top:var(--s-8)}
 
-/* Admin business dashboard */
+/* Admin business dashboard.
+   Header / KPI row / tasks + SLA / one activity feed — nothing else. The three
+   panels share one row anatomy (§5 casebook 2, glanceable dashboard cards):
+   the row rests transparent and text-aligned with the panel title, the rounded
+   island is already reserved in the box model, and hover only paints. */
 .dashboard-head{margin-bottom:var(--s-6)}
 .dashboard-head h1{font-size:var(--fs-28);margin:0}
 .reg-stats--dashboard{grid-template-columns:repeat(6,minmax(0,1fr))}
@@ -750,71 +754,63 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 .reg-stats--dashboard a.stat:hover{background:var(--hover)}
 .reg-stats--dashboard a.stat:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .reg-stats--dashboard .stat--danger .big{color:var(--red-ink)}
-.dashboard-primary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s-4);margin-bottom:var(--s-4)}
-.dashboard-panel{min-width:0;overflow:hidden}
-.dashboard-panel .panel__head h2,.dashboard-feed .panel__head h2{display:flex;align-items:center;gap:var(--s-2);font-size:var(--fs-17);font-weight:var(--weight-medium);line-height:1}
-.dashboard-feed .panel__head h2 svg{width:17px;height:17px;color:var(--blue-ink)}
-.dashboard-panel .panel__head .status-pill{flex-shrink:0;min-height:0;padding:0;line-height:1;background:none;border-radius:0;color:var(--ink-3);font-size:var(--fs-17);font-weight:var(--weight-medium)}
-.dashboard-task-row{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:var(--s-3);min-height:68px;padding:var(--s-3) var(--s-4);color:inherit;text-decoration:none;transition:background var(--t-fast) var(--ease)}
-.dashboard-task-row:hover{background:var(--hover)}
-.dashboard-task-row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.dashboard-task-row>.status-icon{flex-shrink:0;margin-top:1px}
-.dashboard-task-row__copy{display:grid;gap:var(--s-1);min-width:0}
-.dashboard-task-row__copy strong{font-size:var(--fs-14);font-weight:var(--weight-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dashboard-task-row__copy>span:not(.dashboard-task-row__action){font-size:var(--fs-13);font-weight:var(--weight-regular);color:var(--ink-3)}
-.dashboard-task-row__action{display:inline-flex;align-items:center;gap:var(--s-1);font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--blue-ink)}
-.dashboard-task-row__action svg{width:14px;height:14px}
-.panel-table-body{padding:0}
-.panel-table-body .data-table-wrap{border:0;border-radius:0}
-.dashboard-panel .data-table{font-size:var(--fs-13)}
-.dashboard-panel .data-table th{font-size:var(--fs-13)}
-.dashboard-panel .data-table th,.dashboard-panel .data-table td{padding:12px 14px;line-height:1.35;vertical-align:middle;white-space:normal}
-.dashboard-panel .data-table a{color:var(--ink);font-weight:500}
-.dashboard-sla .data-table{table-layout:fixed}
-.dashboard-sla__agency{width:23%}.dashboard-sla__service{width:31%}.dashboard-sla__stage{width:21%}.dashboard-sla__overdue{width:25%}
-.dashboard-sla .status-pill{max-width:100%;justify-content:center}
-.dashboard-sla .data-table td:first-child{font-weight:var(--weight-regular)}
-.dashboard-sla .data-table a{font-weight:var(--weight-regular)}
-.dashboard-sla tbody .status-pill--danger{background:color-mix(in srgb,var(--red-tint) 64%,transparent)}
-.dashboard-feeds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4);margin-bottom:var(--s-5)}
-.dashboard-feed-tabs{display:none}
-.dashboard-feed{min-width:0;overflow:hidden}
-.dashboard-feed-list{display:grid}
-.dashboard-feed-list>a{display:grid;gap:3px;min-width:0;padding:var(--s-4) var(--s-5);color:var(--ink)}
-.dashboard-feed-list>a+a{border-top:1px solid var(--line-in)}
-.dashboard-feed-list>a:hover{background:var(--hover)}
-.dashboard-feed-list strong,.dashboard-feed-list span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dashboard-feed-list strong{font-weight:var(--weight-regular)}
-.dashboard-feed-list span{font-size:var(--fs-13);font-weight:var(--weight-regular)}
-.dashboard-feed-list small{color:var(--ink-3)}
-.dashboard-feed-list small .status-pill{vertical-align:middle}
-.dashboard-test-run{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"title result" "time result";column-gap:var(--s-3)}
-.dashboard-test-run strong{grid-area:title;font-weight:var(--weight-regular)}
-.dashboard-test-run>span:not(.dashboard-test-result){grid-area:time;color:var(--ink-3);font-weight:400}
-.dashboard-test-result{grid-area:result;align-self:center;width:24px;height:24px;border-radius:50%;display:grid;place-items:center}
-.dashboard-test-result svg{width:14px;height:14px}
-.dashboard-test-result--success{background:var(--green-tint);color:var(--green)}
-.dashboard-test-result--danger{background:var(--red-tint);color:var(--red-ink)}
-.dashboard-quick{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);padding-top:var(--s-4);border-top:1px solid var(--line-in)}
-.dashboard-quick h2{font-size:var(--fs-17);font-weight:var(--weight-medium)}
-.dashboard-quick>div{display:flex;gap:var(--s-2);flex-wrap:wrap}
-.dashboard-quick .btn{font-weight:400}
-.dashboard-quick svg{width:16px;height:16px}
+
+/* the tasks panel is the denser of the two, so it takes the wider track */
+.dashboard-primary{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:var(--s-4);margin-bottom:var(--s-4)}
+.dashboard-panel{min-width:0;display:flex;flex-direction:column}
+/* §5 casebook 4: the title participates in the list, it does not float above it */
+.dashboard-panel > .panel-h{padding-bottom:var(--s-2)}
+.dashboard-count{color:var(--ink-3);font-size:var(--fs-17);font-weight:var(--weight-medium);font-variant-numeric:tabular-nums}
+.dashboard-count--danger{color:var(--red-ink)}
+/* rows already carry --s-2 of trailing space; together with this it matches the top (§5) */
+.dashboard-rows{display:grid;padding:0 var(--s-5) calc(var(--s-4) - var(--s-2))}
+
+.dashboard-row{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:var(--s-3);
+  width:calc(100% + var(--s-3) * 2);margin-inline:calc(var(--s-3) * -1);
+  padding:var(--s-2) var(--s-3);border-radius:var(--r-s);
+  color:inherit;text-decoration:none;transition:background var(--t-fast) var(--ease);
+}
+.dashboard-row:hover{background:var(--hover)}
+.dashboard-row:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.dashboard-row > .status-icon{flex:none}
+/* §6 icon fills: inside a dashboard-card row the glyph is bare, 2px stroke */
+.dashboard-row__glyph,.dashboard-row--alert > svg{
+  display:grid;place-items:center;width:20px;height:20px;color:var(--ink-3);
+}
+.dashboard-row__glyph svg,.dashboard-row--alert > svg{width:18px;height:18px;stroke-width:2}
+.dashboard-row--alert > svg{color:var(--amber)}
+.dashboard-row--test-pass .dashboard-row__glyph{color:var(--green)}
+.dashboard-row--test-fail .dashboard-row__glyph{color:var(--red-ink)}
+.dashboard-row--publication .dashboard-row__glyph{color:var(--blue-ink)}
+.dashboard-row__copy{display:grid;gap:2px;min-width:0}
+.dashboard-row__copy strong{font-size:var(--fs-14);font-weight:var(--weight-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dashboard-row__copy span{font-size:var(--fs-12);font-weight:var(--weight-regular);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dashboard-row > time{color:var(--ink-3);font-size:var(--fs-12);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dashboard-row__overdue{color:var(--red-ink);font-size:var(--fs-13);font-weight:var(--weight-medium);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dashboard-row > svg:last-child{width:16px;height:16px;color:var(--ink-faint)}
+.dashboard-row:hover > svg:last-child{color:var(--ink-2)}
+
+/* §5 casebook 6: an empty panel holds its ground instead of collapsing */
+.dashboard-empty{display:grid;gap:var(--s-2);padding:var(--s-10) var(--s-5) var(--s-12);text-align:center}
+.dashboard-empty b{font-size:var(--fs-14);font-weight:var(--weight-medium)}
+.dashboard-empty p{color:var(--ink-3);font-size:var(--fs-13);line-height:1.5;max-width:44ch;margin-inline:auto}
+
+/* one feed, one view switcher — at every width (§2 frequency map) */
+.dashboard-activity{margin-bottom:var(--s-4)}
+.dashboard-activity__tabs{margin:0 var(--s-5) var(--s-3);width:max-content;max-width:calc(100% - var(--s-5) * 2);overflow:auto}
+.dashboard-activity .dashboard-rows{grid-auto-rows:min-content}
 
 @media(max-width:1180px){
   .reg-stats--dashboard{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .dashboard-primary{grid-template-columns:1fr}
-}
-@media(max-width:920px){
-  .dashboard-feeds{display:block}
-  .dashboard-feed-tabs{display:flex;overflow-x:auto;margin-bottom:var(--s-3)}
-  .dashboard-feed{display:none}
-  .dashboard-feed.is-mobile-active,.dashboard-feed[data-feed="changes"]:not(:has(~ .is-mobile-active)){display:block}
+  .dashboard-primary{grid-template-columns:minmax(0,1fr)}
 }
 @media(max-width:720px){
   .reg-stats--dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}
   .reg-stats--dashboard .stat{min-height:76px;padding:var(--s-4) var(--s-3)}
-  .dashboard-quick{align-items:flex-start;flex-direction:column}
+  .dashboard-row{grid-template-columns:auto minmax(0,1fr)}
+  .dashboard-row > time,.dashboard-row__overdue{grid-column:2;justify-self:start}
+  .dashboard-row > svg:last-child{display:none}   /* the whole row is the link */
 }
 
 /* Registry: rows prioritise comparable data. */

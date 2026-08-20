@@ -182,6 +182,20 @@ export function getReviewQueue(role=state.role){
     .map(record=>({record,workflow:workflowFor(record.id)}))
     .filter(item=>statuses.includes(item.workflow.status));
 }
+/* one status vocabulary for the rail, the dashboard and the queue */
+export function describeStatus(status){
+  const tone=statusTone(status);
+  return {
+    label:c()[status]||status,
+    tone:({draft:'neutral',stage:'info',review:'info',changes:'warning',approved:'success',published:'success'})[tone]||'neutral',
+    icon:statusIconName(status),
+  };
+}
+export function localizeValue(value,fallback=''){ return localized(value,fallback); }
+export function getRoleHint(role=state.role){
+  const x=c();
+  return role==='portal-admin'?x.publisherHint:role==='agency-author'?x.authorHint:x.approverHint;
+}
 function workflowFor(id){
   if(id===PRIMARY_SERVICE_ID) return {status:state.status,version:String(state.serviceVersion),comments:state.comments||[],review:state.review,publishedAt:state.publishedAt,audit:state.audit||[]};
   return state.queueStates[id] || clone(INITIAL_QUEUE_STATES[id]);
