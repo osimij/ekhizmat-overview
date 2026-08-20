@@ -1,9 +1,9 @@
-import { dispatchLowCode, getLowCodeState, subscribeLowCode } from './lowcode.js';
+import { getLowCodeState, subscribeLowCode } from './lowcode.js';
 
 const icon = name => `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${name}"/></svg>`;
 const COPY = {
   tg: {
-    title:'Нишондиҳандаҳои хизматҳо', lead:'Ҳолати нашр, вазифаҳои баррасӣ ва мушкилоти талабкунандаи амал — дар як экран.', role:'Нақши намоишӣ', author:'Муаллифи идора', reviewer:'Баррасӣкунанда', admin:'Маъмури портал',
+    title:'Нишондиҳандаҳои хизматҳо',
     total:'Ҳамаи хизматҳо', draft:'Сиёҳнавис', review:'Дар баррасӣ', approved:'Интизори нашр', published:'Нашршуда', errors:'Хатои танзим',
     tasks:'Вазифаҳои баррасии ман', sla:'Вайроншавии SLA — аз рӯи идора', changes:'Тағйироти охирин', tests:'Натиҷаҳои санҷиш', publications:'Нашрҳои охирин',
     service:'Хизмат', agency:'Идора', version:'Версия', deadline:'Муҳлати SLA', status:'Ҳолат', action:'Амал', stage:'Марҳила', overdue:'Дермонӣ', authorCol:'Муаллиф', change:'Тағйир', date:'Сана ва вақт', result:'Натиҷа', publisher:'Нашркунанда',
@@ -11,7 +11,7 @@ const COPY = {
     empty:'Вазифаи баррасӣ нест.', quick:'Конструктор', registry:'Феҳристи хизматҳо', newService:'Хизмати нав', editor:'Муҳаррири шакл', allFeeds:'Навсозиҳои корӣ'
   },
   ru: {
-    title:'Показатели услуг', lead:'Статусы публикации, задачи проверки и проблемы, требующие действий — на одном экране.', role:'Демо-роль', author:'Автор ведомства', reviewer:'Проверяющий', admin:'Администратор портала',
+    title:'Показатели услуг',
     total:'Все услуги', draft:'Черновики', review:'На проверке', approved:'Ожидают публикации', published:'Опубликованы', errors:'Ошибки настройки',
     tasks:'Мои задачи проверки', sla:'Нарушения SLA — по ведомствам', changes:'Последние изменения', tests:'Результаты тестов', publications:'Последние публикации',
     service:'Услуга', agency:'Ведомство', version:'Версия', deadline:'Срок SLA', status:'Статус', action:'Действие', stage:'Этап', overdue:'Просрочка', authorCol:'Автор', change:'Изменение', date:'Дата и время', result:'Результат', publisher:'Опубликовал',
@@ -19,7 +19,7 @@ const COPY = {
     empty:'Задач проверки нет.', quick:'Конструктор', registry:'Реестр услуг', newService:'Новая услуга', editor:'Редактор формы', allFeeds:'Рабочие обновления'
   },
   en: {
-    title:'Service metrics', lead:'Publishing status, review tasks, and issues requiring action — in one workspace.', role:'Demo role', author:'Agency author', reviewer:'Reviewer', admin:'Portal admin',
+    title:'Service metrics',
     total:'All services', draft:'Drafts', review:'In review', approved:'Awaiting publication', published:'Published', errors:'Configuration errors',
     tasks:'My review tasks', sla:'SLA violations — by agency', changes:'Recent changes', tests:'Test results', publications:'Recent publications',
     service:'Service', agency:'Agency', version:'Version', deadline:'SLA deadline', status:'Status', action:'Action', stage:'Stage', overdue:'Overdue', authorCol:'Author', change:'Change', date:'Date and time', result:'Result', publisher:'Published by',
@@ -89,10 +89,6 @@ function taskForRole(role, x, copy) {
   return { ...copy.tasks[2], version:'3.1', label:x.inReview, tone:'info', href:'review.html' };
 }
 
-function roleSelect(role, x) {
-  return `<div class="admin-role"><span class="admin-role__control"><select class="input" id="dashboardRole" aria-label="${x.role}"><option value="agency-author" ${role==='agency-author'?'selected':''}>${x.author}</option><option value="reviewer" ${role==='reviewer'?'selected':''}>${x.reviewer}</option><option value="portal-admin" ${role==='portal-admin'?'selected':''}>${x.admin}</option></select>${icon('i-chev-d')}</span></div>`;
-}
-
 function metrics(x) {
   const values = [['all',x.total,612,''],['draft',x.draft,8,''],['in_review',x.review,4,''],['approved',x.approved,3,''],['published',x.published,596,''],['errors',x.errors,1,'stat--danger']];
   return `<nav class="reg-stats reg-stats--dashboard" aria-label="${x.title}">${values.map(([status,label,value,tone])=>`<a class="stat ${tone}" href="services.html${status==='all'?'':`?status=${status}`}" data-metric-status="${status}"><div class="big">${value}</div><div class="k">${label}</div></a>`).join('')}</nav>`;
@@ -125,12 +121,9 @@ function quickActions(x) {
 function render() {
   const root=document.querySelector('#adminDashboard'); if(!root) return;
   const x=c(), copy=content(), state=getLowCodeState();
-  root.innerHTML=`<header class="dashboard-head"><div><h1>${x.title}</h1></div>${roleSelect(state.role,x)}</header>${metrics(x)}<div class="dashboard-primary">${reviewPanel(state.role,x,copy)}${slaPanel(x,copy)}</div>${feedPanels(x,copy)}${quickActions(x)}`;
+  root.innerHTML=`<header class="dashboard-head"><h1>${x.title}</h1></header>${metrics(x)}<div class="dashboard-primary">${reviewPanel(state.role,x,copy)}${slaPanel(x,copy)}</div>${feedPanels(x,copy)}${quickActions(x)}`;
 }
 
-document.addEventListener('change', event => {
-  if (event.target.id === 'dashboardRole') dispatchLowCode('SET_ROLE',{role:event.target.value});
-});
 document.addEventListener('click', event => {
   const tab=event.target.closest('[data-feed-tab]'); if(!tab) return;
   const key=tab.dataset.feedTab;

@@ -167,6 +167,21 @@ export function getLowCodeState(){ return state; }
 export function subscribeLowCode(fn){ listeners.add(fn); return ()=>listeners.delete(fn); }
 
 function recordById(id){ return SERVICE_RECORDS.find(record=>record.id===id); }
+
+/* Which records are actionable for a role right now. One selector feeds the rail
+   badge, the dashboard task panel and the review queue, so the three can never
+   disagree about how much work is waiting. */
+const ACTIONABLE = {
+  reviewer:['in_review','resubmitted'],
+  'portal-admin':['approved'],
+  'agency-author':['changes_requested'],
+};
+export function getReviewQueue(role=state.role){
+  const statuses=ACTIONABLE[role]||ACTIONABLE.reviewer;
+  return SERVICE_RECORDS
+    .map(record=>({record,workflow:workflowFor(record.id)}))
+    .filter(item=>statuses.includes(item.workflow.status));
+}
 function workflowFor(id){
   if(id===PRIMARY_SERVICE_ID) return {status:state.status,version:String(state.serviceVersion),comments:state.comments||[],review:state.review,publishedAt:state.publishedAt,audit:state.audit||[]};
   return state.queueStates[id] || clone(INITIAL_QUEUE_STATES[id]);
@@ -274,6 +289,31 @@ let selectedServiceId=null;
 let reviewQuery='';
 let reviewAgency='all';
 
+/* §7: tab, agency and the open service live in the URL so reload, back and a
+   shared link land on what the reviewer was looking at. All three are ASCII
+   slugs from a closed allow-list; the free-text query stays out (same rule the
+   registry follows). */
+function syncReviewUrl(){
+  if(typeof history?.replaceState!=='function')return;
+  const url=new URL(location.href);
+  const set=(key,value)=>value?url.searchParams.set(key,value):url.searchParams.delete(key);
+  set('tab',reviewTab!==defaultTabForRole()?reviewTab:'');
+  set('agency',reviewAgency!=='all'?reviewAgency:'');
+  set('service',reviewView==='detail'&&selectedServiceId?selectedServiceId:'');
+  if(url.href!==location.href)history.replaceState(null,'',url);
+}
+function restoreReviewUrl(){
+  if(!document.querySelector('#lowCodeReview'))return;
+  let params;
+  try{ params=new URLSearchParams(location.search); }catch(e){ return; }
+  const agency=params.get('agency');
+  if(agency&&SERVICE_RECORDS.some(record=>record.id===agency))reviewAgency=agency;
+  const tab=params.get('tab');
+  if(tab&&tabsForRole().some(item=>item.id===tab))reviewTab=tab;
+  const service=params.get('service');
+  if(service&&SERVICE_RECORDS.some(record=>record.id===service)){selectedServiceId=service;reviewView='detail';}
+}
+
 function tabsForRole(){
   const x=c();
   if(state.role==='portal-admin')return [{id:'ready',label:x.readyTab,statuses:['approved']},{id:'published',label:x.publishedTab,statuses:['published']},{id:'all',label:x.allTab,statuses:null}];
@@ -326,9 +366,10 @@ function detailMarkup(record){
 
 function renderReview(){
   const root=document.querySelector('#lowCodeReview');if(!root)return;const x=c();
+  syncReviewUrl();
   const tabs=tabsForRole();if(!tabs.some(tab=>tab.id===reviewTab))reviewTab=defaultTabForRole();
   const selected=selectedServiceId&&recordById(selectedServiceId);
-  root.innerHTML=`<header class="lc-review-head"><div><h1>${x.reviewQueue}</h1><p>${x.reviewLead}</p></div>${roleSelect()}</header>${reviewView==='list'?`<div class="lc-review-context"><span class="lc-context-icon"><svg><use href="/design-system/assets/icons.svg#${state.role==='portal-admin'?'i-arrow-ur':state.role==='agency-author'?'i-edit':'i-check'}"/></svg></span><p>${roleHint()}</p></div><div class="lc-review-tabs" role="tablist">${tabs.map(tab=>`<button class="tab" type="button" role="tab" data-lc-tab="${tab.id}" aria-selected="${reviewTab===tab.id}" tabindex="${reviewTab===tab.id?'0':'-1'}">${tab.label}</button>`).join('')}</div>${queueMarkup()}`:(selected?detailMarkup(selected):queueMarkup())}`;
+  root.innerHTML=`<header class="lc-review-head"><div><h1>${x.reviewQueue}</h1><p>${x.reviewLead}</p></div></header>${reviewView==='list'?`<div class="lc-review-context"><span class="lc-context-icon"><svg><use href="/design-system/assets/icons.svg#${state.role==='portal-admin'?'i-arrow-ur':state.role==='agency-author'?'i-edit':'i-check'}"/></svg></span><p>${roleHint()}</p></div><div class="lc-review-tabs" role="tablist">${tabs.map(tab=>`<button class="tab" type="button" role="tab" data-lc-tab="${tab.id}" aria-selected="${reviewTab===tab.id}" tabindex="${reviewTab===tab.id?'0':'-1'}">${tab.label}</button>`).join('')}</div>${queueMarkup()}`:(selected?detailMarkup(selected):queueMarkup())}`;
 }
 
 function openPublishSummary(record){
@@ -383,6 +424,6 @@ function bind(){
 }
 
 function renderAll(){renderRoleControl();renderBuilder();renderRegistry();renderReview();}
-bind();subscribeLowCode(renderAll);renderAll();
+restoreReviewUrl();bind();subscribeLowCode(renderAll);renderAll();
 const originalSetLang=window.bpSetLang;
 if(originalSetLang)window.bpSetLang=function(next){originalSetLang(next);renderAll();};

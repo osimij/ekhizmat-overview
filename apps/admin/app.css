@@ -743,13 +743,8 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 .admin-overview{padding-top:var(--s-8)}
 
 /* Admin business dashboard */
-.dashboard-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-6);margin-bottom:var(--s-6)}
-.dashboard-head h1{font-size:var(--fs-28);margin:0 0 var(--s-2)}
-.dashboard-head p{max-width:760px;color:var(--ink-3)}
-.admin-role{min-width:220px}
-.admin-role__control{position:relative;display:block}
-.admin-role .input{height:42px;padding:0 44px 0 var(--s-3);appearance:none;cursor:pointer;font-size:var(--fs-14);font-weight:var(--weight-regular)}
-.admin-role__control svg{position:absolute;top:50%;right:var(--s-3);width:16px;height:16px;color:var(--ink-3);pointer-events:none;translate:0 -50%}
+.dashboard-head{margin-bottom:var(--s-6)}
+.dashboard-head h1{font-size:var(--fs-28);margin:0}
 .reg-stats--dashboard{grid-template-columns:repeat(6,minmax(0,1fr))}
 .reg-stats--dashboard a.stat{display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:background var(--t-fast) var(--ease)}
 .reg-stats--dashboard a.stat:hover{background:var(--hover)}
@@ -817,8 +812,6 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
   .dashboard-feed.is-mobile-active,.dashboard-feed[data-feed="changes"]:not(:has(~ .is-mobile-active)){display:block}
 }
 @media(max-width:720px){
-  .dashboard-head{align-items:flex-start;flex-direction:column}
-  .admin-role{width:100%}
   .reg-stats--dashboard{grid-template-columns:repeat(2,minmax(0,1fr))}
   .reg-stats--dashboard .stat{min-height:76px;padding:var(--s-4) var(--s-3)}
   .dashboard-quick{align-items:flex-start;flex-direction:column}
@@ -897,37 +890,13 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
   .cost-options{grid-template-columns:1fr}
 }
 
-/* Focused builder */
-.bld-top{min-height:60px;padding:var(--s-2) var(--s-4)}
-.bld-name input{font-weight:550}
-.bld-work{grid-template-columns:280px minmax(0,1fr) clamp(var(--w-builder-preview-min),30vw,var(--w-builder-preview-max))}
-.bld-pipe{padding:var(--s-4) var(--s-3)}
-.pipe-label,.bld-edit .eh .kick,.edit-sub,.cfg-sub{font-size:var(--fs-13);font-weight:500;letter-spacing:0;text-transform:none}
-.stg{min-height:44px;padding:var(--s-2) var(--s-3)}
-.stg .tt b,.fb-tt b{font-weight:550}
+/* the pipeline rail keeps one weight; only the selected stage steps up (§4) */
+.cfg-sub{font-size:var(--fs-13);font-weight:500;letter-spacing:0;text-transform:none}
+.fb-tt b{font-weight:550}
 .bld-pipe .stg .tt b{font-weight:var(--weight-regular)}
 .bld-pipe .stg[aria-selected="true"] .tt b{font-weight:var(--weight-medium)}
-.bld-edit{padding:var(--s-6) var(--s-8) var(--s-10)}
-.bld-edit .eh h1{font-size:var(--fs-24);font-weight:600}
-.fb-list{border:1px solid var(--line-in);border-radius:var(--r-l)}
-.fb-body{background:var(--field-on-panel)}
-
-/* Review preserves a stable 340px context column and quieter action chrome. */
-.lc-review{gap:var(--s-5);padding-bottom:var(--s-8)}
-.lc-review-head{align-items:center}
-.lc-review-head h1{margin:var(--s-1) 0}
-.lc-review-tabs{gap:2px;padding:3px}
-.lc-review-filters .input{height:36px}
-.lc-review-grid{grid-template-columns:minmax(0,1fr) 340px;gap:var(--s-4)}
-.lc-service-card{padding:var(--s-4) var(--s-5);border-color:var(--line-in)}
-.lc-service-card h2{font-size:var(--fs-16);font-weight:var(--weight-medium)}
-.lc-role > span,.lc-review-filters label>span{font-weight:550}
 .lc-review-side h3{font-weight:600}
-.lc-actionbar{border-color:var(--line-in);box-shadow:0 -8px 24px color-mix(in srgb,var(--ink) 5%,transparent)}
 
-@media(max-width:1180px){
-  .lc-review-grid{grid-template-columns:1fr}
-}
 @media(max-width:860px){
   .adm-body{padding:var(--s-5) var(--s-4)}
   .adm > .ekh-side{padding:var(--s-2) var(--s-4)}
@@ -1245,7 +1214,7 @@ body[data-platform="admin"] :where(.input,.select select){font-size:var(--fs-14)
 .lc-service-card>div{min-width:0}.lc-service-card h2,.lc-service-card p{overflow-wrap:anywhere}
 .lc-service-card h2{font-size:var(--fs-18);margin:var(--s-2) 0 2px}.lc-service-card p{font-size:var(--fs-13);color:var(--ink-3)}
 .lc-review{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s-4);padding-bottom:96px;min-width:0}
-.lc-review-head{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--s-5);padding-bottom:var(--s-2)}
+.lc-review-head{padding-bottom:var(--s-2)}
 .lc-review-head h1{letter-spacing:0;margin:0 0 var(--s-2)}
 .lc-review-head p{max-width:700px;line-height:1.55;font-weight:var(--weight-regular);margin:0}
 .lc-review-tabs{display:flex;gap:var(--s-1);margin-top:var(--s-1);padding:var(--s-1);border-radius:var(--r-pill);background:var(--field);width:max-content;max-width:100%;overflow:auto}
@@ -1265,12 +1234,11 @@ body[data-platform="admin"] select.input{
   background-size:16px;
 }
 body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
-.admin-role__control select.input{background-image:none}
 .lc-actionbar{position:sticky;bottom:0;z-index:8;display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);margin-top:0;padding:var(--s-3) var(--s-4);border:1px solid var(--line);border-radius:var(--r-l);background:color-mix(in srgb,var(--panel) 92%,transparent);backdrop-filter:blur(12px);box-shadow:var(--shadow-2)}
 .lc-actionbar > span{font-size:var(--fs-13);color:var(--ink-3)}.lc-actionbar > div{display:flex;gap:var(--s-2);flex-wrap:wrap;justify-content:flex-end}
 .lc-comment__anchor{display:inline-flex;width:max-content;margin:var(--s-1) 0;padding:3px 8px;border-radius:var(--r-pill);background:var(--blue-tint);color:var(--blue-ink);font-size:var(--fs-11);font-weight:550}
 @media(max-width:1050px){.lc-review-grid{grid-template-columns:1fr}}
-@media(max-width:720px){.lc-review-head,.lc-service-card,.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h .seg{max-width:100%;overflow-x:auto}}
+@media(max-width:720px){.lc-service-card,.lc-actionbar{align-items:flex-start;flex-direction:column}.lc-actionbar>div{justify-content:flex-start}.lc-metadata>div{grid-template-columns:1fr}.lc-preview .panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h{align-items:flex-start;flex-direction:column}.adm-body>.panel>.panel-h .seg{max-width:100%;overflow-x:auto}}
 @media(max-width:720px){.registry-status-filter{align-items:flex-start;flex-direction:column;width:100%;gap:var(--s-2);margin-left:0}.registry-filter-field{width:100%}}
 
 /* Final responsive composition: these rules deliberately come after the
@@ -1575,7 +1543,6 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
   .lc-review-side{position:static;max-height:none;grid-template-columns:1fr 1fr;overflow-y:visible}.lc-review-side>.lc-comments-panel{grid-row:span 2}
 }
 @media(max-width:760px){
-  .lc-review-head{align-items:stretch}.lc-review-head .lc-role{width:100%}
   .lc-queue-toolbar,.lc-queue-panel>.lc-review-filters{align-items:stretch;flex-direction:column}
   .lc-queue-panel .lc-search-field,.lc-review-filters label{width:100%;min-width:0}
   .lc-queue-row{grid-template-columns:minmax(0,1fr) auto 16px;gap:var(--s-2);min-height:112px;padding:var(--s-4)}

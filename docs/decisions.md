@@ -2,7 +2,7 @@
 
 ## One static multi-page application
 
-Vite serves clean HTML routes without iframes. This preserves browser history, deep links, full-screen presentation, keyboard behavior, and reliable screenshots. The launcher contains exactly four agency-facing cards.
+Vite serves clean HTML routes without iframes. This preserves browser history, deep links, full-screen presentation, keyboard behavior, and reliable screenshots. The launcher contains exactly four agency-facing destinations.
 
 ## One canonical design system
 
@@ -13,6 +13,21 @@ The binding visual rules — action color, typography, surfaces, density variant
 ## Privacy on one shared origin
 
 Only `ekh.preferences.*` and approved non-personal, app-namespaced settings may persist. Ministry application fixtures stay in memory. ЦОН uses an explicit storage allow-list and wipes citizen session data when the visit ends, is revoked, or the page reloads. Operator sign-in for ЦОН and Ministry may live in `sessionStorage` (`ekh.tson.arm`, `ekh.ministry.arm`) for the life of the tab so a normal refresh does not return to MFA; it must never include citizen fields. Deterministic query parameters affect a visit but do not overwrite saved preferences.
+
+## One theme contract per console
+
+Every page of a console resolves the theme the same way, before first paint:
+query override → stored `ekh.preferences.theme` → OS preference. Two Admin
+pages (`admin/services.html`, `admin/forms.html`) were pinned to
+`data-system-theme` so screenshot runs always matched the host OS; the cost was
+that navigating registry → form editor flipped the whole console from dark to
+light, and the profile popover's theme choice was disabled on two pages out of
+seven. Screenshot runs pass `?theme=` explicitly, which the shared boot script
+honours, so the pin bought nothing the query parameter does not.
+
+The `data-system-theme` mechanism stays in `design-system/js/preferences.js`
+for surfaces that genuinely must follow the OS (embedded or kiosk views); no
+page uses it today.
 
 ## Presentation and developer separation
 

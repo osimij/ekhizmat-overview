@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="tg" data-theme="light" data-system-theme>
+<html lang="tg" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
 <title>eKhizmat · Конструктор — Феҳристи хизматҳо</title>
-<script>try{document.documentElement.dataset.theme=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}catch(e){};try{if(localStorage.getItem("ekh.admin.rail")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
+<script>try{var q=new URLSearchParams(location.search),t=q.get("theme")||localStorage.getItem("ekh.preferences.theme");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.dataset.theme="dark"}catch(e){};try{if(localStorage.getItem("ekh.admin.rail")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/design-system/global.css">
 <link rel="stylesheet" href="/apps/admin/app.css">
@@ -32,7 +32,10 @@
     </div>
 
     <div class="adm-body">
-      <div class="adm-h"><h1>Хизматрасониҳо</h1></div>
+      <div class="adm-h"><div class="row">
+        <div><h1>Хизматрасониҳо</h1></div>
+        <a class="btn services-create-action" href="new-service.html"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg><span>Хизмати нав</span></a>
+      </div></div>
 
       <section class="lc-registry" id="lowCodeRegistry" aria-live="polite"></section>
 

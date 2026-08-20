@@ -606,14 +606,15 @@ document.addEventListener("click", function(e){
 });
 
 /* ---------- builder-console rail (services + independent form library) ---------- */
+/* Four permanent destinations. Creating a service is an occasional task, not a
+   place — it is launched from the registry header (design-guide rule 45). */
 var BLD_NAV = [
   ["__label","Конструктор"],
   ["overview",  "Лавҳаи идора",     "i-star8"],
   ["services",  "Хизматрасониҳо", "i-cat-cert", "612"],
-  ["new",       "Хизмати нав",    "i-plus"],
-  ["review",    "Санҷиш ва нашр", "i-check", "3"],
+  ["review",    "Санҷиш ва нашр", "i-check", "", "review"],
   ["__label","Кутубхона"],
-  ["forms",     "Шаклҳо",         "i-doc", "4"]
+  ["forms",     "Шаклҳо",         "i-doc", "", "forms"]
 ];
 var BLD_HREF = { overview:"index.html", services:"services.html", "new":"new-service.html", review:"review.html", forms:"forms.html" };
 /* collapsible-rail state: icon-only when collapsed, persisted across pages.
@@ -635,7 +636,7 @@ $$("[data-bld-rail]").forEach(function(rail){
     var icon = '<svg><use href="/design-system/assets/icons.svg#'+it[2]+'"/></svg>';
     h += '<a class="ekh-side__item" href="'+(BLD_HREF[it[0]]||"#")+'"'+(cur?' aria-current="true"':'')+' title="'+it[1]+'">'+
          icon+'<span class="ekh-side__text">'+it[1]+'</span>'+
-         (it[3]?'<span class="ekh-side__count">'+it[3]+'</span>':'')+'</a>';
+         (it[3]||it[4]?'<span class="ekh-side__count"'+(it[4]?' data-rail-count="'+it[4]+'"':'')+'>'+it[3]+'</span>':'')+'</a>';
   });
   h += '<div class="ekh-side__spacer"></div>';
   h += '<button type="button" class="ekh-side__user" data-admin-profile-trigger aria-haspopup="dialog" aria-expanded="false" aria-controls="admProfilePop" title="Аброр Каримов · Маъмури платформа">'+
@@ -657,6 +658,29 @@ $$("[data-bld-rail]").forEach(function(rail){
     else adm.appendChild(btn);
   }
 });
+/* A badge that never changes when the state machine moves reads as a bug in a
+   demo. Both counts are selectors over the same data the pages render. */
+function setRailCount(key, value){
+  $$('[data-rail-count="'+key+'"]').forEach(function(el){
+    el.textContent = value ? String(value) : '';
+    el.hidden = !value;
+  });
+}
+if($$("[data-bld-rail]").length){
+  Promise.all([
+    import('./lowcode.js').then(function(m){ return m; }).catch(function(){ return null; }),
+    import('./forms-data.js').catch(function(){ return null; })
+  ]).then(function(mods){
+    var lc=mods[0], formsData=mods[1];
+    function sync(){
+      if(lc) setRailCount('review', lc.getReviewQueue(lc.getLowCodeState().role).length);
+      if(formsData) setRailCount('forms', formsData.getForms().length);
+    }
+    if(lc) lc.subscribeLowCode(sync);
+    sync();
+  });
+}
+
 var railHandle=null;
 if($$("[data-bld-rail]").length){
   railHandle=initSidebar({
