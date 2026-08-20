@@ -106,3 +106,17 @@ SVGs pull from `https://cdn.hugeicons.com/icons/<name>-stroke-rounded.svg`.
 4. **Optional verbosity.** Section leads, field help, stage sub-lines and nav labels are all
    boolean props — the compact mode is "toggles off", already designed in.
 5. **Tighter density.** Paddings sit on the `space/2–space/3` steps; headers are one line.
+
+## Promoted out of admin into `design-system/`
+
+These started life in `apps/admin/app.css` and moved to the design system when a
+second console needed them (§1 rule 9, guide rule 21). Admin still consumes them
+under the same class names — the Figma components above map to the shared rule
+now, not to an admin-local copy:
+
+| Class | Was | Now | Second consumer |
+|---|---|---|---|
+| `.pv-phone`, `.pv-screen`, `.pv-island`, `.pv-app`, `.pv-caption` | `apps/admin/app.css` | `design-system/css/components.css` | Ministry form builder preview |
+| `.cost-options` | `apps/admin/app.css` | `design-system/css/components.css` | Ministry form builder, delivery step |
+| `.btn--quiet` (alias `.services-create-action`) | `apps/admin/app.css` | `design-system/css/components.css` | Ministry forms library header |
+| `.form-mini-version`, `.form-mini-more` | `apps/admin/app.css` | `design-system/css/components.css` | Ministry forms library rows |
