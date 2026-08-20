@@ -128,24 +128,6 @@ body {
   width: var(--launch-tile);
   height: var(--launch-tile);
   border-radius: calc(var(--r-launch-tile) * var(--launch-scale));
-  transition:
-    background-color var(--t-fast) var(--ease),
-    color var(--t-fast) var(--ease);
-}
-/* The row being chosen answers with the canon selected-tile state — solid
-   --blue well, --on-blue glyph (§3, builder .stg-ic). Category hue is the
-   idle signal, so it steps aside the moment the choice is being made. */
-.platform-card:focus-visible .platform-icon,
-.mobile-concept-card:focus-visible .mobile-concept-icon {
-  background: var(--blue);
-  color: var(--on-blue);
-}
-@media (hover: hover) and (pointer: fine) {
-  .platform-card:hover .platform-icon,
-  .mobile-concept-card:hover .mobile-concept-icon {
-    background: var(--blue);
-    color: var(--on-blue);
-  }
 }
 .platform-icon svg,
 .mobile-concept-icon svg {
