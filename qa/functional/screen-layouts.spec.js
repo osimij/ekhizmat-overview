@@ -34,7 +34,7 @@ async function expectLayerFits(page, layer) {
   expect(bounds.bottom).toBeLessThanOrEqual(bounds.viewportHeight + 1);
 }
 
-test('launcher is a centered two-column cluster with a stacked destination list', async ({ page }) => {
+test('launcher splits one content column: intro left, destination stack right', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/?present=1&theme=dark&lang=tg');
 
@@ -43,6 +43,7 @@ test('launcher is a centered two-column cluster with a stacked destination list'
     const list = document.querySelector('.platform-list').getBoundingClientRect();
     const cards = [...document.querySelectorAll('.platform-card')].map((element) => element.getBoundingClientRect());
     const chrome = document.querySelector('.launch-chrome').getBoundingClientRect();
+    const langGlyph = document.querySelector('#langToggle svg').getBoundingClientRect();
     const h1 = document.querySelector('h1');
     const logo = document.querySelector('.brand-lockup').getBoundingClientRect();
     const title = h1.getBoundingClientRect();
@@ -54,8 +55,11 @@ test('launcher is a centered two-column cluster with a stacked destination list'
       listMidY: list.top + list.height / 2,
       cardXs: cards.map((card) => Math.round(card.left)),
       cardWidths: cards.map((card) => Math.round(card.width)),
-      chromeLeft: chrome.left,
       chromeBottom: innerHeight - chrome.bottom,
+      chromeGlyphLeft: langGlyph.left,
+      titleLeft: title.left,
+      listRight: list.right,
+      stageMidY: (intro.top + intro.height / 2 + list.top + list.height / 2) / 2,
       logoAboveTitle: logo.bottom <= title.top + 1,
       headerCount: document.querySelectorAll('.launch-header').length,
       titleSize: Number.parseFloat(getComputedStyle(h1).fontSize),
@@ -70,10 +74,14 @@ test('launcher is a centered two-column cluster with a stacked destination list'
   expect(new Set(layout.cardXs).size).toBe(1);
   expect(new Set(layout.cardWidths).size).toBe(1);
   expect(Math.abs(layout.introMidY - layout.listMidY)).toBeLessThan(48);
-  expect(layout.chromeLeft).toBeLessThan(80);
+  // The stage centers on the viewport, not on what the bottom chrome leaves.
+  expect(Math.abs(layout.stageMidY - 500)).toBeLessThan(8);
+  // Destinations end on the content edge; preferences start on the other one.
+  expect(layout.listRight).toBeGreaterThan(layout.titleLeft + 800);
+  expect(Math.abs(layout.chromeGlyphLeft - layout.titleLeft)).toBeLessThanOrEqual(1);
   expect(layout.chromeBottom).toBeLessThan(80);
-  expect(layout.titleSize).toBe(28);
-  expect(layout.titleHeight).toBeLessThan(40);
+  expect(layout.titleSize).toBe(36);
+  expect(layout.titleHeight).toBeLessThan(50);
   expect(layout.overflowX).toBeLessThanOrEqual(1);
 });
 
@@ -325,7 +333,10 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   expect(queueGeometry.mainRight).toBeLessThanOrEqual(queueGeometry.viewportWidth + 1);
   expect(queueGeometry.queueRowRight).toBeLessThanOrEqual(queueGeometry.viewportWidth + 1);
 
-  for (const view of ['queue', 'all', 'overdue', 'batch', 'interop', 'reports', 'forms']) {
+  /* «batch» is gone: bulk processing is a temporary mode revealed by the
+     contextual batch bar when rows are selected, not a permanent destination
+     (rule 45). */
+  for (const view of ['queue', 'all', 'overdue', 'interop', 'reports', 'forms']) {
     if (view !== 'queue') {
       await page.locator('[data-act="nav-toggle"]').click();
       await page.locator(`.ekh-side__item[data-view="${view}"]`).click();
@@ -350,9 +361,8 @@ test('Ministry operational views, popovers, and dialogs fit a phone viewport', a
   await page.locator('[data-act="nav-toggle"]').click();
   await page.locator('.ekh-side__user[data-act="profile-open"]').click();
   await expectLayerFits(page, page.locator('#pop.ekh-profile-pop'));
+  /* Escape closes the top layer only, so the drawer is still open underneath. */
   await page.keyboard.press('Escape');
-
-  await page.locator('[data-act="nav-toggle"]').click();
   await page.locator('.ekh-side__item[data-view="queue"]').click();
   await page.locator('.q-row').first().click();
   await expectPageFits(page);

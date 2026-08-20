@@ -16,8 +16,10 @@
 .sg-title { display:grid; gap:6px; }
 .sg-demo { display:grid; gap:16px; min-width:0; padding:24px; border:1px solid var(--line); border-radius:var(--r-xl); background:var(--panel); }
 /* The lock card is normally the only opaque surface on a tinted overlay; the
-   showcase stands it on the page background so the card itself is readable. */
-.sg-lock-demo { justify-items:center; background:var(--bg); }
+   showcase stands it on the page background so the card itself is readable.
+   Its inner column is a fixed 400px credential width, so on a phone the demo
+   scrolls inside its own box rather than widening the page. */
+.sg-lock-demo { justify-items:center; background:var(--bg); overflow-x:auto; }
 .sg-demo > * { min-width:0; max-width:100%; }
 .sg-row { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
 .swatches { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
@@ -78,5 +80,5 @@
    flow so the anatomy can be read next to the shared select skin. */
 .sg-popover-stage { display:flex; flex-wrap:wrap; align-items:flex-start; gap:24px; }
 .sg-popover-static { position:static; opacity:1; }
-.sg-select-demo { display:flex; align-items:center; gap:12px; min-width:260px; }
-.sg-select-demo .ekh-select { width:210px; }
+.sg-select-demo { display:flex; flex-wrap:wrap; align-items:center; gap:12px; min-width:0; }
+.sg-select-demo .ekh-select { width:min(210px,100%); }

@@ -35,7 +35,6 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     filters: { svc: '', status: '', sla: 'all', priority: '', io: '', period: '', q: '' },
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
-    batchSvc: '',                       // услуга для экрана массовой обработки
     formDraft: null,
     formReadOnly: false,
     formStep: 'fields',
@@ -91,7 +90,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   /* Сессия оператора в этой вкладке. F5 оставляет на месте; Cmd+Shift+R /
      Ctrl+F5 / выход / закрытие вкладки возвращают на вход. Заявки ведомства
      по-прежнему только в памяти. */
-  var ARM_VIEWS = { queue:1, all:1, overdue:1, reports:1, interop:1, forms:1, batch:1 };
+  var ARM_VIEWS = { queue:1, all:1, overdue:1, reports:1, interop:1, forms:1 };
   function readArm() {
     try { return JSON.parse(sessionStorage.getItem('ekh.ministry.arm') || 'null'); }
     catch (e) { return null; }
@@ -135,7 +134,10 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     else s = m + 'м';
     return (neg ? '−' : '') + s;
   }
-  function locale() { return S.lang === 'tg' ? 'tg-TJ' : 'ru-RU'; }
+  /* Таджикского нет в ICU браузеров: Intl молча падает на en-US и печатает
+     07/26/2026 вместо 26.07.2026. Список локалей оставляет намерение и
+     деградирует к той же кириллической конвенции дат (§9). */
+  function locale() { return S.lang === 'tg' ? ['tg-TJ', 'ru-RU'] : 'ru-RU'; }
   function fmtDate(ts) { return new Intl.DateTimeFormat(locale(), { day:'2-digit', month:'2-digit', year:'numeric' }).format(new Date(ts)); }
   function fmtDateTime(ts) {
     var dt = new Date(ts);
@@ -416,6 +418,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       '</div>' +
       '<div id="overlay"></div>' +
       '<div class="ekh-toast-region ekh-toast-region--top ekh-toast-region--stack" id="toasts" aria-live="polite"></div>';
+    document.documentElement.classList.toggle('side-collapsed', S.sideCollapsed);
     document.getElementById('root').innerHTML = shell;
     renderMain();
   }
@@ -446,6 +449,10 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       /* arm the width tween only for a real toggle — re-renders stay static */
       app.classList.add('ekh-side-anim');
       app.classList.toggle('side-collapsed', S.sideCollapsed);
+      /* The shared rail reads the state from <html> (§3 sidebar contract), and
+         so does the compact profile popover; the shell grid reads it from
+         `.app`. Both must agree. */
+      document.documentElement.classList.toggle('side-collapsed', S.sideCollapsed);
     }
     syncNavToggle();
   }
@@ -467,7 +474,6 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     else if (S.view === 'form-builder') html = viewFormBuilder();
     else if (S.view === 'reports') html = viewReports();
     else if (S.view === 'interop') html = viewInterop();
-    else if (S.view === 'batch') html = viewBatch();
     else html = viewQueue();     // queue | all | overdue
     main.innerHTML = html;
     if (S.statIntroPending) S.statIntroPending = false;
@@ -645,7 +651,9 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     return '<aside class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" id="formPreview" tabindex="0" aria-label="' + esc(t('form_preview')) + '">' +
       '<div class="mfb-preview__bar">' +
       '<button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div>' +
-      '<div class="mfb-preview__stage"><div class="pv-phone"><div class="pv-screen"><span class="pv-island" aria-hidden="true"></span><div class="pv-app">' +
+      /* Экран внутри макета — своя область прокрутки, поэтому у него должен быть
+       свой таб-стоп: прокручиваемый блок без него недостижим с клавиатуры (§9). */
+      '<div class="mfb-preview__stage"><div class="pv-phone"><div class="pv-screen"><span class="pv-island" aria-hidden="true"></span><div class="pv-app" tabindex="0" role="group" aria-label="' + esc(t('form_preview_caption')) + '">' +
       '<div class="mfb-preview-head">' + ic('i-logo','icon--20') + '<b>eKhizmat</b><span>Ф</span></div>' +
       '<div class="mfb-preview-progress"><i class="is-on"></i><i></i><i></i><i></i></div>' +
       '<div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_preview_intro')) + '</p>' +
@@ -815,7 +823,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
       sortHead('submitted', t('col_submitted'), sortLabel) +
       '<span>' + esc(t('col_status')) + '</span>' +
       sortHead('sla', t('col_sla'), sortLabel) +
-    '</div><div class="q-list">';
+    '</div><div class="q-list" aria-live="polite">';
 
     list.forEach(function (a) { h += rowQueue(a); });
     h += '</div>';
@@ -1111,50 +1119,6 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   }
   function defRow(k, vHtml) {
     return '<div class="def__row"><span class="def__key">' + esc(k) + '</span><span class="def__val">' + vHtml + '</span></div>';
-  }
-
-  /* ---- массовая обработка (§7Б.2) ---- */
-  function viewBatch() {
-    var h = '<div class="view"><div class="view__head"><div class="view__titles">' +
-      '<h1 class="h2">' + esc(t('batch_title')) + '</h1><div class="view__sub">' + esc(t('batch_sub')) + '</div></div></div>';
-    // выбор услуги
-    var svcCounts = {};
-    mineActive().forEach(function (a) { svcCounts[a.svc] = (svcCounts[a.svc] || 0) + 1; });
-    h += '<div class="small mt-2" style="margin-bottom:var(--s-3)">' + esc(t('pick_service')) + '</div><div class="chips-row" style="margin-bottom:var(--s-3)">';
-    var anySvc = false;
-    Object.keys(D.SERVICE).forEach(function (k) {
-      var n = svcCounts[k] || 0; if (!n || D.SERVICE[k].critical) return;   // критичные — только «четыре глаза», по одному
-      anySvc = true;
-      h += '<button class="chip ' + (S.batchSvc === k ? '' : 'chip--locked') + '" data-act="batch-svc" data-svc="' + k + '">' +
-        ic(D.SERVICE[k].icon,'icon--16') + esc(serviceName(D.SERVICE[k])) + ' · ' + n + '</button>';
-    });
-    h += '</div>';
-    h += '<div class="banner banner--info" style="margin-bottom:var(--s-5)">' + ic('i-shield','icon--20') +
-      '<span class="banner__text">' + esc(t('batch_no_critical')) + '</span></div>';
-    if (!anySvc) { h += '<div class="panel panel--pad"><div class="empty">' + ic('i-users','icon--48') +
-      '<div class="empty__title">' + esc(t('empty_queue_title')) + '</div>' +
-      '<div class="empty__hint">' + esc(t('batch_no_batchable')) + '</div></div></div></div>'; return h; }
-
-    if (!S.batchSvc) { h += '<div class="panel panel--pad"><div class="empty">' + ic('i-users','icon--48') +
-      '<div class="empty__title">' + esc(t('pick_service')) + '</div></div></div></div>'; return h; }
-
-    var list = mineActive().filter(function (a) { return a.svc === S.batchSvc; });
-    var selIds = list.filter(function (a) { return S.sel[a.id]; });
-    h += '<div class="queue"><div class="q-head">' +
-      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all-batch" ' + (selIds.length === list.length && list.length ? 'checked' : '') + ' aria-label="' + esc(t('select_all')) + '"></span>' +
-      '<span>' + esc(t('col_num')) + '</span><span>' + esc(t('col_service')) + '</span><span>' + esc(t('col_applicant')) +
-      '</span><span>' + esc(t('col_submitted')) + '</span><span>' + esc(t('col_status')) + '</span><span>' + esc(t('col_sla')) + '</span></div><div class="q-list">';
-    list.forEach(function (a) { h += rowQueue(a); });
-    h += '</div>';
-    if (selIds.length) {
-      var bbs = batchStatus(list);
-      h += '<div class="batchbar"><span class="batchbar__count">' + esc(t('selected')) + ': <b>' + selIds.length + '</b></span>' +
-        '<div class="batchbar__spacer"></div>' +
-        '<button class="btn btn--secondary btn--s" data-act="sel-clear">' + esc(t('clear_sel')) + '</button>' +
-        '<button class="btn btn--primary btn--s" data-act="batch-decide" ' + (bbs === 'ok' ? '' : 'aria-disabled="true"') + '>' + ic('i-check','icon--20') + esc(t('batch_decide')) + ' ' + selIds.length + '</button></div>';
-    }
-    h += '</div></div>';
-    return h;
   }
 
   /* ---- журнал межвед-запросов (§7Б.2, §13) ----
@@ -1521,8 +1485,11 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
   function openNotif() {
     S.pop = 'notif';
     var items = S.notifs.slice().sort(function (x, y) { return y.at - x.at; }).map(function (n) {
+      /* §6 «Icon fills»: заливка живёт только в статус-кружках таблиц и на
+         плитках каталога. В ленте уведомлений — голый цветной глиф, потолще
+         штрихом взамен потерянного кружка (канон строки-алерта). */
       return '<button class="notif notif--' + n.kind + '" data-act="notif-go" data-id="' + esc(n.appId) + '" data-nid="' + esc(n.id) + '">' +
-        '<span class="notif__ico">' + ic(n.kind === 'breach' ? 'i-clock' : n.kind === 'warn' ? 'i-info' : 'i-check','') + '</span>' +
+        ic(n.kind === 'breach' ? 'i-clock' : n.kind === 'warn' ? 'i-info' : 'i-check','icon--20 notif__glyph') +
         '<span class="notif__body"><span class="notif__t"><b>' + esc(localValue(n.title)) + '</b> — ' + esc(localValue(n.text)) + '</span>' +
         '<span class="notif__time">' + fmtAgo(n.at) + '</span></span></button>';
     }).join('');
@@ -1603,18 +1570,26 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
     var pop = document.getElementById('pop'); if (!pop) return;
     var rect = trigger.getBoundingClientRect();
     var side = closest(trigger, '.ekh-side');
+    S._profileSide = !!side;
     if (side) {
       var cs = getComputedStyle(side), sideRect = side.getBoundingClientRect();
       var left = sideRect.left + (parseFloat(cs.paddingLeft) || 0);
       var right = sideRect.right - (parseFloat(cs.paddingRight) || 0);
-      pop.classList.add('ekh-profile-pop--side');
-      pop.style.setProperty('--profile-pop-max-w', (right - left) + 'px');
+      /* Свёрнутый рельс уже 66px: компактный вариант поповера прячет подписи, а
+         у ведомства в нём ещё и три действия — «Заблокировать» одной иконкой
+         это загадка, а не контрол. Поэтому под рельсом поповер сохраняет свою
+         ширину и встаёт рядом с ним, а не внутри. */
+      if (!S.sideCollapsed) {
+        pop.classList.add('ekh-profile-pop--side');
+        pop.style.setProperty('--profile-pop-max-w', (right - left) + 'px');
+      }
       var popRect = pop.getBoundingClientRect();
       var top = rect.top - popRect.height - 8;
       pop.style.transformOrigin = 'bottom left';
       if (top < 8) { top = rect.bottom + 8; pop.style.transformOrigin = 'top left'; }
       pop.style.top = Math.max(8, Math.min(top, innerHeight - popRect.height - 8)) + 'px';
-      pop.style.left = Math.max(left, Math.min(left, right - popRect.width)) + 'px';
+      var x = S.sideCollapsed ? sideRect.right + 8 : left;
+      pop.style.left = Math.max(8, Math.min(x, innerWidth - popRect.width - 8)) + 'px';
       return;
     }
     var r = pop.getBoundingClientRect();
@@ -1921,18 +1896,10 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
         var allSel = list.every(function (a) { return S.sel[a.id]; });
         list.forEach(function (a) { S.sel[a.id] = !allSel; }); renderMain(); return;
       }
-      case 'sel-all-batch': {
-        var l = mineActive().filter(function (a) { return a.svc === S.batchSvc; });
-        var allS = l.every(function (a) { return S.sel[a.id]; });
-        l.forEach(function (a) { S.sel[a.id] = !allS; }); renderMain(); return;
-      }
       case 'sel-clear': S.sel = {}; renderMain(); return;
-      case 'batch-svc': S.batchSvc = tgt.getAttribute('data-svc'); S.sel = {}; renderMain(); return;
 
       case 'batch-decide': {
-        var scopeList = (S.view === 'batch')
-          ? mineActive().filter(function (a) { return a.svc === S.batchSvc; })
-          : sortList(applyFilters(currentBase()));
+        var scopeList = sortList(applyFilters(currentBase()));
         var bstat = batchStatus(scopeList);
         if (bstat === 'mixed') { toast(t('batch_only_same'), 'warn'); return; }
         if (bstat === 'critical') { toast(t('batch_critical'), 'warn'); return; }
@@ -1968,7 +1935,7 @@ import { getLang, setLang, getThemeChoice, setTheme } from '/design-system/js/pr
         dd.classList.toggle('open', open);
         /* Внутри рельса выносной список уходит вправо, а не вниз: под карточкой
            оператора места нет (§6 «Profile popover», dd-right). */
-        dd.classList.toggle('dd-right', open && !!closest(tgt, '.ekh-profile-pop--side'));
+        dd.classList.toggle('dd-right', open && !!S._profileSide);
         tgt.setAttribute('aria-expanded', String(open));
         if (open) dd.querySelector('.dd-menu button')?.focus();
         return;

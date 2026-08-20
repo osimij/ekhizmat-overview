@@ -10,7 +10,8 @@
      каждой загрузке. Порядок разрешения тот же, что у
      design-system/js/preferences.js, иначе после гидрации тема сменилась бы
      второй раз. -->
-<script>try{var q=new URLSearchParams(location.search).get("theme");var s=localStorage.getItem("ekh.preferences.theme");var t=(q==="dark"||q==="light")?q:(s==="dark"||s==="light")?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var q=new URLSearchParams(location.search).get("theme");var s=localStorage.getItem("ekh.preferences.theme");var t=(q==="dark"||q==="light")?q:(s==="dark"||s==="light")?s:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}catch(e){}
+try{if(localStorage.getItem("ekh.ministry.side")==="1")document.documentElement.classList.add("side-collapsed")}catch(e){}</script>
 <meta name="description" content="Интерактивный прототип автоматизированного рабочего места специалиста ведомства (§7Б ТЗ eKhizmat).">
 <link rel="icon" href="/design-system/assets/logo.svg" type="image/svg+xml">
 
