@@ -305,6 +305,7 @@ test('Citizen deep screens, profile panes, and dialogs fit a phone viewport', as
 
   for (const destination of ['category', 'journey', 'emergency', 'notifs']) {
     if (destination === 'category') await page.locator('.cat').first().click();
+    else if (destination === 'emergency') await page.goto('/citizen/?lang=tg&theme=light#/emergency');
     else await page.locator(`[data-go="${destination}"]`).first().click();
     await expect(page.locator(`#scr-${destination}`)).toBeVisible();
     await expectPageFits(page);

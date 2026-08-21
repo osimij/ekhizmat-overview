@@ -325,17 +325,6 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .moment:hover .go,.moment:focus-visible .go{translate:var(--s-1) 0; color:var(--ink)}
 .moment .go svg{width:16px; height:16px}
 
-/* ============ EMERGENCY STRIP (home) ============ */
-.emerg{
-  margin-top:var(--s-12); display:flex; align-items:center; gap:var(--s-4); flex-wrap:wrap;
-  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-xl); padding:var(--s-5) var(--s-6);
-}
-/* the glyph carries the state; the tinted blob was decoration (rule 39) */
-.emerg > svg{width:26px; height:26px; flex:none; color:var(--red-ink); stroke-width:2}
-.emerg b{display:block}
-.emerg p{color:var(--ink-2); font-size:var(--fs-14)}
-.emerg .btn{margin-left:auto}
-
 /* ============ FOOTER ============ */
 footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
 .ft-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:var(--s-8); padding:var(--s-10) 0}
@@ -873,7 +862,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   }
   .cats{grid-template-columns:repeat(4,1fr)}
   .moments{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .emerg .btn{margin-left:0; width:100%}
   .feed-grid{grid-template-columns:1fr}
   /* the portal's main verb comes first on a phone: search, then the catalogue */
   .hero-in{display:flex; flex-direction:column}

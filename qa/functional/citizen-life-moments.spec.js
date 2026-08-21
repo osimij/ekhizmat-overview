@@ -4,6 +4,8 @@ test('life moments use four wide rectangular cards per desktop row', async ({ pa
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/citizen/?present=1&theme=light&lang=ru');
 
+  await expect(page.locator('.emerg')).toHaveCount(0);
+  await expect(page.locator('#searchInput')).toHaveAttribute('placeholder', 'Ищу…');
   const cards = page.locator('.moments > .moment');
   await expect(cards).toHaveCount(4);
 
@@ -49,6 +51,12 @@ test('popular services use compact catalogue cards and service rows stay regular
 
   const cards = page.locator('.popular-services__grid > .popular-card');
   await expect(cards).toHaveCount(3);
+  const sectionOrder = await page.evaluate(() => {
+    const meta = document.querySelector('.cp-meta').getBoundingClientRect();
+    const popular = document.querySelector('.popular-services').getBoundingClientRect();
+    return { metaBottom: meta.bottom, popularTop: popular.top };
+  });
+  expect(sectionOrder.metaBottom).toBeLessThanOrEqual(sectionOrder.popularTop);
   await expect(page.locator('.popular-services')).toHaveCSS('row-gap', '8px');
   const popularLetterSpacing = await page.locator('.popular-services__label')
     .evaluate((el) => getComputedStyle(el).letterSpacing);
