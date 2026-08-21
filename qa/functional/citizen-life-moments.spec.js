@@ -117,27 +117,56 @@ test('category pay filter is compact and sub-groups collapse', async ({ page }) 
   await expect(page.locator('#cpPayLabel svg')).toHaveCount(0);
   await expect(page.locator('#cpPay')).toHaveAttribute('aria-label', 'Стоимость');
   await expect(page.locator('#cpFilters')).toHaveCSS('gap', '8px');
-  await expect(page.locator('#cpSearch')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(page.locator('#cpSearch')).toHaveCSS('height', '52px');
+  const searchColors = await page.locator('#cpSearch').evaluate((search) => {
+    const probe = document.createElement('span');
+    probe.style.background = 'var(--field)';
+    probe.style.borderColor = 'var(--line)';
+    document.body.append(probe);
+    const values = {
+      search: getComputedStyle(search).backgroundColor,
+      field: getComputedStyle(probe).backgroundColor,
+      border: getComputedStyle(search).borderTopColor,
+      line: getComputedStyle(probe).borderTopColor,
+    };
+    probe.remove();
+    return values;
+  });
+  expect(searchColors.search).toBe(searchColors.field);
+  expect(searchColors.border).toBe(searchColors.line);
+  await expect(page.locator('#cpSearch')).toHaveCSS('border-top-width', '1px');
   await expect(page.locator('#cpCount')).toHaveCSS('font-size', '13px');
   await expect(page.locator('#cpCount')).toHaveCSS('font-weight', '400');
   const countLetterSpacing = await page.locator('#cpCount')
     .evaluate((el) => getComputedStyle(el).letterSpacing);
   expect(countLetterSpacing === 'normal' || parseFloat(countLetterSpacing) === 0).toBe(true);
   await expect(page.locator('.cp-controls > .cp-search')).toHaveCount(1);
-  await expect(page.locator('.cp-controls > #cpFilters')).toHaveCount(1);
-  const metaLayout = await page.locator('.cp-meta').evaluate((meta) => {
-    const count = meta.querySelector('.cp-count').getBoundingClientRect();
-    const search = meta.querySelector('.cp-search').getBoundingClientRect();
-    const filter = meta.querySelector('#cpFilters').getBoundingClientRect();
+  await expect(page.locator('.cp-head > #cpFilters')).toHaveCount(1);
+  const categoryLayout = await page.locator('.catpage').evaluate((pageRoot) => {
+    const title = pageRoot.querySelector('.cp-head h1').getBoundingClientRect();
+    const count = pageRoot.querySelector('.cp-count').getBoundingClientRect();
+    const search = pageRoot.querySelector('.cp-search').getBoundingClientRect();
+    const filter = pageRoot.querySelector('#cpFilters').getBoundingClientRect();
     return {
       countBottom: count.bottom,
       searchTop: search.top,
-      searchCenter: search.top + search.height / 2,
+      titleCenter: title.top + title.height / 2,
       filterCenter: filter.top + filter.height / 2,
     };
   });
-  expect(metaLayout.countBottom).toBeLessThanOrEqual(metaLayout.searchTop);
-  expect(metaLayout.searchCenter).toBeCloseTo(metaLayout.filterCenter, 0);
+  expect(categoryLayout.countBottom).toBeLessThanOrEqual(categoryLayout.searchTop);
+  expect(categoryLayout.titleCenter).toBeCloseTo(categoryLayout.filterCenter, 0);
+  const contentWidth = await page.locator('.catpage').evaluate((pageRoot) => {
+    const style = getComputedStyle(pageRoot);
+    const usable = pageRoot.getBoundingClientRect().width
+      - parseFloat(style.paddingLeft)
+      - parseFloat(style.paddingRight);
+    return {
+      usable: Math.round(usable),
+      results: Math.round(pageRoot.querySelector('.cp-results').getBoundingClientRect().width),
+    };
+  });
+  expect(contentWidth.results).toBe(contentWidth.usable);
 
   const group = page.locator('.svc-group').first();
   const toggle = group.locator('.svc-group__toggle');

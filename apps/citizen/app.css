@@ -351,28 +351,26 @@ a.ft-c:hover{color:var(--ink)}
 .ft-bottom a:hover{color:var(--ink)}
 
 /* ============ CATEGORY PAGE ============ */
-/* The screen sits on the portal's one content container, so its left edge is
-   the same as home's; the reading measure inside it is the named --w-browse
-   (§5 "one content container", rule 17). A browse page is not a centered flow. */
+/* The category screen uses the portal's full content container. Its standard
+   gutters align with home, while the registry rows consume the usable width. */
 .catpage{width:min(100%,var(--maxw)); margin-inline:auto; padding-inline:var(--s-6)}
-.catpage > *{max-width:var(--w-browse)}
-.cp-head{margin:var(--s-2) 0 var(--s-4)}
+.cp-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-5);margin:var(--s-2) 0 var(--s-4)}
 .cp-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
+.cp-head #cpFilters{flex:none;gap:var(--s-2)}
 .cp-meta{
   display:grid; gap:var(--s-2);
   margin-bottom:var(--s-6);
 }
 .cp-count{color:var(--ink); font-size:var(--fs-13); font-weight:var(--weight-regular); letter-spacing:0; margin:0}
-.cp-controls{display:flex; align-items:center; gap:var(--s-4); min-width:0}
-.cp-meta #cpFilters{flex:none; gap:var(--s-2)}
+.cp-controls{display:block;min-width:0}
 #cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill)}
 .cp-results{display:block}
 .cp-search{position:relative; flex:1; min-width:0}
-.cp-search .ic{position:absolute; left:var(--s-3); top:50%; translate:0 -50%; width:16px; height:16px; color:var(--ink-3); pointer-events:none}
+.cp-search .ic{position:absolute; left:var(--s-4); top:50%; translate:0 -50%; width:20px; height:20px; color:var(--ink-2); pointer-events:none}
 .cp-search input{
-  width:100%; height:var(--h-btn-s); border:1px solid var(--line); border-radius:var(--r-pill);
-  background:var(--panel); color:var(--ink);
-  padding:0 var(--s-3) 0 calc(var(--s-3) + 16px + var(--s-2)); font-size:var(--fs-14);
+  width:100%; height:var(--h-btn-l); border:1px solid var(--line); border-radius:var(--r-m);
+  background:var(--field); color:var(--ink);
+  padding:0 var(--s-4) 0 calc(var(--s-4) + 20px + var(--s-3)); font-size:var(--fs-15);
   transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
 .cp-search input::placeholder{color:var(--ink-3)}
@@ -882,9 +880,9 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .ft-grid{grid-template-columns:1fr 1fr}
 }
 @media (max-width:560px){
-  .cp-controls{flex-wrap:wrap; gap:var(--s-3)}
-  .cp-search{flex:1 1 100%}
-  .cp-meta #cpFilters{margin-left:auto}
+  .cp-head{align-items:flex-start;flex-direction:column;gap:var(--s-3)}
+  .cp-head #cpFilters{align-self:stretch;justify-content:space-between}
+  .cp-search{width:100%}
   .moments{grid-template-columns:minmax(0,1fr)}
   .hdr-in{padding:10px 0; row-gap:8px; gap:var(--s-2) var(--s-3)}
   .ft-grid{grid-template-columns:1fr}
