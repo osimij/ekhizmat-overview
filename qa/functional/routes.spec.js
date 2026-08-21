@@ -112,6 +112,7 @@ test('citizen category cards keep identical dimensions', async ({ page }) => {
       height: Math.round(rect.height),
       iconTopGap: Math.round(icon.top - rect.top),
       titleBottomGap: Math.round(rect.bottom - title.bottom),
+      titleMinHeight: getComputedStyle(element.querySelector('span:last-child')).minHeight,
       titleLines: Math.round(title.height / parseFloat(getComputedStyle(element.querySelector('span:last-child')).lineHeight)),
     };
   }));
@@ -122,6 +123,7 @@ test('citizen category cards keep identical dimensions', async ({ page }) => {
   expect(sizes[0].height).toBe(120);
   expect(new Set(sizes.map(({ iconTopGap }) => iconTopGap)).size).toBe(1);
   expect(new Set(sizes.map(({ titleBottomGap }) => titleBottomGap)).size).toBe(1);
+  expect(new Set(sizes.map(({ titleMinHeight }) => titleMinHeight))).toEqual(new Set(['auto']));
 });
 
 test('every platform renders with the bundled Google Sans font', async ({ page }) => {
