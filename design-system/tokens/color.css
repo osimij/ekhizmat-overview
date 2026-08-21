@@ -185,6 +185,7 @@
   --ink: #1d1d1f; --ink-2: #565656; --ink-3: #6c6c6c; --ink-faint: #6c6c6c;
   --green: #0f9a5c; --green-ink: #0f7a4a;
 }
+[data-theme='light'] [data-platform='admin'] { --bg-side: var(--bg); }
 [data-theme='dark'] [data-platform='admin'] {
   --ink: #f0f0ee; --ink-2: #a8abaf; --ink-3: #a1a4a9; --ink-faint: #a1a4a9;
   --green: #55c78f; --green-ink: #55c78f;

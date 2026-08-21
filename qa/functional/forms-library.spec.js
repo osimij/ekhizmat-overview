@@ -8,6 +8,44 @@ test.beforeEach(async ({ page }) => {
   });
   await page.reload();
 });
+test('forms chrome uses a neutral selected sidebar item and medium top title', async ({ page }) => {
+  const current = page.locator('#admRail .ekh-side__item[aria-current]');
+  const treatment = await current.evaluate((item) => {
+    const probe = document.createElement('span');
+    document.body.append(probe);
+    const resolveColor = (token) => {
+      probe.style.color = `var(${token})`;
+      return getComputedStyle(probe).color;
+    };
+    probe.style.backgroundColor = 'var(--hover)';
+    const hover = getComputedStyle(probe).backgroundColor;
+    probe.style.backgroundColor = 'var(--bg)';
+    const values = {
+      background: getComputedStyle(item).backgroundColor,
+      hover,
+      railBackground: getComputedStyle(document.querySelector('#admRail')).backgroundColor,
+      canvas: getComputedStyle(probe).backgroundColor,
+      text: getComputedStyle(item).color,
+      icon: getComputedStyle(item.querySelector('svg')).color,
+      count: getComputedStyle(item.querySelector('.ekh-side__count')).color,
+      ink: resolveColor('--ink'),
+      secondary: resolveColor('--ink-2'),
+      blue: resolveColor('--blue-ink'),
+    };
+    probe.remove();
+    return values;
+  });
+  expect(treatment.background).toBe(treatment.hover);
+  expect(treatment.railBackground).toBe(treatment.canvas);
+  expect(treatment.text).toBe(treatment.ink);
+  expect(treatment.icon).toBe(treatment.secondary);
+  expect(treatment.count).toBe(treatment.secondary);
+  expect([treatment.text, treatment.icon, treatment.count]).not.toContain(treatment.blue);
+  const countBackgrounds = await page.locator('#admRail .ekh-side__count').evaluateAll((counts) =>
+    counts.map((count) => getComputedStyle(count).backgroundColor));
+  expect(new Set(countBackgrounds)).toEqual(new Set(['rgba(0, 0, 0, 0)']));
+  await expect(page.locator('#formsTopTitle')).toHaveCSS('font-weight', '500');
+});
 test('status filter lives in the URL and KPI shortcuts toggle it', async ({ page }) => {
   await page.locator('[data-st-go="draft"]').click();
   await expect(page).toHaveURL(/status=draft/);
@@ -38,8 +76,80 @@ test('form KPIs use four distinct semantic icons on the right', async ({ page })
     const iconRect = icon.getBoundingClientRect();
     return { color:getComputedStyle(icon).color, rightGap:Math.round(cardRect.right-iconRect.right) };
   }));
+  const semanticColors = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    document.body.append(probe);
+    const resolve = (token) => {
+      probe.style.color = `var(${token})`;
+      return getComputedStyle(probe).color;
+    };
+    const colors = { green:resolve('--green'), amber:resolve('--amber') };
+    probe.remove();
+    return colors;
+  });
   expect(new Set(treatment.map(item => item.color)).size).toBe(4);
+  expect(treatment[0].color).toBe(semanticColors.green);
+  expect(treatment[1].color).toBe(semanticColors.amber);
   expect(new Set(treatment.map(item => item.rightGap)).size).toBe(1);
+  await expect(cards.first()).toHaveCSS('padding-right', '20px');
+});
+
+test('published form version badge uses only a subtle outline', async ({ page }) => {
+  await page.goto('/admin/builder.html?lang=ru&theme=light');
+  const badge = page.locator('#serviceFormSelection .form-version-badge--published');
+  await expect(badge).toBeVisible();
+
+  const treatment = await badge.evaluate((element) => {
+    const probe = document.createElement('span');
+    probe.style.borderColor = 'var(--line)';
+    document.body.append(probe);
+    const style = getComputedStyle(element);
+    const iconStyle = getComputedStyle(element.querySelector('.status-icon'));
+    const values = {
+      background: style.backgroundColor,
+      borderColor: style.borderTopColor,
+      borderWidth: style.borderTopWidth,
+      line: getComputedStyle(probe).borderTopColor,
+      iconBackground: iconStyle.backgroundColor,
+    };
+    probe.remove();
+    return values;
+  });
+
+  expect(treatment.background).toBe('rgba(0, 0, 0, 0)');
+  expect(treatment.iconBackground).toBe('rgba(0, 0, 0, 0)');
+  expect(treatment.borderWidth).toBe('1px');
+  expect(treatment.borderColor).toBe(treatment.line);
+});
+
+test('published form editor uses a white field body and a clearer live icon', async ({ page }) => {
+  await page.goto('/admin/form-builder.html?id=family-certificate&version=3&lang=ru&theme=light');
+  const firstField = page.locator('#independentFields .fb-item').first();
+  await firstField.locator('[data-field-act="toggle"]').click();
+  await expect(firstField.locator('.fb-body')).toBeVisible();
+  const treatment = await page.evaluate(() => {
+    const probe = document.createElement('span');
+    document.body.append(probe);
+    const resolveBackground = (value) => {
+      probe.style.background = value;
+      return getComputedStyle(probe).backgroundColor;
+    };
+    const values = {
+      body: getComputedStyle(document.querySelector('#independentFields .fb-item.open .fb-body')).backgroundColor,
+      panel: resolveBackground('var(--panel)'),
+      liveIcon: getComputedStyle(document.querySelector('.form-version-item--published .status-icon')).backgroundColor,
+      liveCheck: getComputedStyle(document.querySelector('.form-version-item--published .status-icon')).color,
+      solidGreen: resolveBackground('var(--green)'),
+      baseGreen: resolveBackground('var(--green-tint)'),
+    };
+    probe.remove();
+    return values;
+  });
+
+  expect(treatment.body).toBe(treatment.panel);
+  expect(treatment.liveIcon).toBe(treatment.solidGreen);
+  expect(treatment.liveIcon).not.toBe(treatment.baseGreen);
+  expect(treatment.liveCheck).toBe(treatment.panel);
 });
 
 test('form library metric columns stay aligned across rows', async ({ page }) => {

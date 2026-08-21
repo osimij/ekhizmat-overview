@@ -300,7 +300,7 @@ label.pr{cursor:pointer}
   border-bottom:1px solid var(--line);
   view-transition-name:adm-top;
 }
-.adm-top .at-title{font-size:var(--fs-15); font-weight:600; white-space:nowrap; flex:none}
+.adm-top .at-title{font-size:var(--fs-15); font-weight:var(--weight-medium); white-space:nowrap; flex:none}
 /* the search is optically centred in the bar, not pinned to the title (§3 top bar) */
 .adm-top .at-search{position:relative; flex:0 1 460px; width:100%; min-width:0; max-width:460px; margin-inline:auto}
 .adm-top .at-search svg{position:absolute; left:14px; top:50%; translate:0 -50%; width:17px; height:17px; color:var(--ink-3)}
@@ -619,7 +619,7 @@ label.pr{cursor:pointer}
 .fb-req{color:var(--ink-2); font-weight:600}
 .fb-acts{display:flex; align-items:center; gap:var(--s-1)}
 .fb-acts .rowact{width:36px; height:36px}
-.fb-body{display:none; padding:var(--s-4); border-top:1px solid var(--line-in); background:var(--bg)}
+.fb-body{display:none; padding:var(--s-4); border-top:1px solid var(--line-in); background:var(--panel)}
 .fb-body .field{margin-bottom:var(--s-4)}
 .fb-item.open .fb-body{display:block}
 .fb-empty{text-align:center; padding:var(--s-8) var(--s-5); color:var(--ink-3)}
@@ -1390,6 +1390,8 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 
 .form-version-badge{display:inline-flex;align-items:center;gap:6px;width:max-content;padding:3px 5px 3px 10px;border-radius:var(--r-pill);background:var(--field);color:var(--ink-2);font-size:var(--fs-11);font-weight:550;white-space:nowrap}
 .form-version-badge .status-icon{flex-basis:22px;width:22px;height:22px}.form-version-badge .status-icon svg{width:13px;height:13px}
+.form-version-badge--published{padding:2px 4px 2px 9px;border:1px solid var(--line);background:transparent}
+.form-version-badge--published .status-icon{background:transparent}
 
 .form-editor{min-height:100vh;background:var(--bg)}
 .form-editor-top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:var(--s-3);min-height:64px;padding:var(--s-3) var(--s-5);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 94%,transparent);backdrop-filter:blur(12px)}
@@ -1407,6 +1409,7 @@ body[data-platform="admin"] select.input:disabled{cursor:not-allowed}
 /* §4: selection earns weight, not only a border */
 .form-version-item.is-selected .form-version-item__copy b{font-weight:var(--weight-semibold)}
 .form-version-item__note{color:var(--ink-3)}.form-version-item__icon{display:grid;place-items:center}.form-version-item__icon .status-icon{width:28px;height:28px}.form-version-item__icon .status-icon svg{width:18px;height:18px}.form-version-item--draft .form-version-item__icon .status-icon{background:transparent;color:var(--blue-ink)}
+[data-theme="light"] .form-version-item--published .form-version-item__icon .status-icon{background:var(--green);color:var(--panel)}
 .form-editor-canvas{padding:var(--s-6) var(--s-6) var(--s-10);overflow:auto}
 .form-details-panel{margin-bottom:var(--s-6)}.form-details-panel .panel-h{border-bottom:1px solid var(--line-in)}.form-details-panel .panel-h>div{display:grid;gap:6px}.form-details-panel .panel-h h2{font-size:var(--fs-17)}.form-details-panel .panel-h p{color:var(--ink-3);font-size:var(--fs-12);margin-top:0}
 .form-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);padding:var(--s-5)}.form-details-grid .field{margin:0}.form-details-grid__wide{grid-column:1/-1}
@@ -1673,7 +1676,11 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
 .lc-icon-badge{justify-content:center;width:26px;padding:0;gap:0}
 .service-registry-head h3{font-size:var(--fs-17)}
 #serviceRegistry .status-icon--success{background:color-mix(in srgb,var(--green-tint) 58%,transparent)}
-.adm .ekh-side__item[aria-current] .ekh-side__count{background:transparent}
+.adm .ekh-side__count{background:transparent}
+.adm .ekh-side__item[aria-current]{background:var(--hover);color:var(--ink)}
+.adm .ekh-side__item[aria-current] > svg,
+.adm .ekh-side__item[aria-current] > .icon{color:var(--ink-2)}
+.adm .ekh-side__item[aria-current] .ekh-side__count{background:transparent;color:var(--ink-2)}
 /* Тихая пилюля и полоса версий переехали в design-system/css/components.css:
    у обоих появился второй потребитель (§1 правило 9, правило 21). */
 .wz-body [data-step="1"] > .lead{font-size:var(--fs-14);font-weight:400}
@@ -1681,11 +1688,11 @@ button.ekh-side__user:focus-visible{outline:2px solid var(--focus); outline-offs
   .adm-role-slot .lc-role--compact .input{width:152px}
 }
 .reg-stats--4{grid-template-columns:repeat(4,minmax(0,1fr))}
-.reg-stats--4 .forms-stat{flex-direction:row;align-items:center;gap:var(--s-4)}
+.reg-stats--4 .forms-stat{flex-direction:row;align-items:center;gap:var(--s-4);padding-inline-end:var(--s-5)}
 .forms-stat__copy{display:flex;align-self:stretch;flex-direction:column;min-width:0}
 .forms-stat__icon{flex:none;width:24px;height:24px;margin-inline-start:auto}
-.forms-stat__icon--live{color:var(--green-ink)}
-.forms-stat__icon--draft{color:var(--amber-ink)}
+.forms-stat__icon--live{color:var(--green)}
+.forms-stat__icon--draft{color:var(--amber)}
 .forms-stat__icon--archived{color:var(--blue-ink)}
 .forms-stat__icon--unused{color:var(--h-violet-fg)}
 @media(max-width:1120px){
