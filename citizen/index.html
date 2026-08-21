@@ -160,7 +160,6 @@
     <section class="sect" aria-labelledby="momH">
       <div class="sect-h">
         <h2 id="momH" data-i18n="mom.t">Лаҳзаҳои зиндагӣ</h2>
-        <span class="sub" data-i18n="mom.sub">аз рӯи вазъият интихоб кунед - идораҳоро мо меёбем</span>
       </div>
       <div class="moments">
         <button class="moment" data-toast="toast.demo">
@@ -228,24 +227,28 @@
     <div class="cp-head">
       <h1 id="cpTitle"></h1>
     </div>
-    <div class="cp-search">
-      <svg class="ic"><use href="/design-system/assets/icons.svg#i-search"/></svg>
-      <input id="cpSearch" type="search" autocomplete="off" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" data-i18n-ph="cp.search.ph" placeholder="Ҷустуҷӯ дар ин бахш...">
-    </div>
-    <div class="pills" id="cpPills"></div>
-    <div class="ekh-filter" id="cpFilters">
-      <span class="ekh-filter__label" id="cpPayLabel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-card"/></svg><span data-i18n="cp.f.label">Пардохт</span></span>
-      <span class="ekh-filter__field">
-        <select id="cpPay" data-i18n-aria="cp.f.label" aria-label="Пардохт">
-          <option value="all" data-i18n="cp.f.all">Ҳама</option>
-          <option value="free" data-i18n="cp.f.free">Ройгон</option>
-          <option value="paid" data-i18n="cp.f.paid">Музднок</option>
-        </select>
-        <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
-      </span>
+    <div class="popular-services" id="cpPills"></div>
+    <div class="cp-meta">
+      <p class="cp-count" id="cpCount" role="status"></p>
+      <div class="cp-controls">
+        <div class="cp-search">
+          <svg class="ic" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-search"/></svg>
+          <input id="cpSearch" type="search" autocomplete="off" data-i18n-aria="search.btn" aria-label="Ҷустуҷӯ" data-i18n-ph="cp.search.ph" placeholder="Ҷустуҷӯ дар ин бахш...">
+        </div>
+        <div class="ekh-filter" id="cpFilters">
+          <span class="ekh-filter__label" id="cpPayLabel" data-i18n="cp.f.label">Арзиш</span>
+          <span class="ekh-filter__field">
+            <select id="cpPay" data-i18n-aria="cp.f.label" aria-label="Арзиш">
+              <option value="all" data-i18n="cp.f.all">Ҳама</option>
+              <option value="free" data-i18n="cp.f.free">Ройгон</option>
+              <option value="paid" data-i18n="cp.f.paid">Музднок</option>
+            </select>
+            <svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>
+          </span>
+        </div>
+      </div>
     </div>
     <div class="cp-results" aria-live="polite">
-      <p class="cp-count" id="cpCount" role="status"></p>
       <div class="svc-list" id="cpList"></div>
       <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
     </div>
@@ -433,7 +436,7 @@
     <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
     <div class="j-head">
       <h2 data-i18n="nav.notif">Огоҳиҳо</h2>
-      <p class="muted small" data-i18n="n.sub">3 огоҳии нав</p>
+      <p class="muted small" data-i18n="n.sub">3 нав</p>
     </div>
 
     <div class="n-group" data-i18n="f.g.new">Нав</div>
@@ -1076,7 +1079,7 @@
 <div class="notif-pop" id="citizenNotifPop" role="dialog" data-i18n-aria="nav.notif" aria-label="Огоҳиҳо" hidden>
   <div class="notif-pop__head">
     <strong data-i18n="nav.notif">Огоҳиҳо</strong>
-    <span data-i18n="n.sub">3 огоҳии нав</span>
+    <span data-i18n="n.sub">3 нав</span>
   </div>
   <div class="notif-pop__list">
     <button class="notif-pop__item" type="button" data-go="journey">

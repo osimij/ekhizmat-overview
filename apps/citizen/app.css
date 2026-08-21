@@ -288,7 +288,6 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .sect{margin-top:var(--s-12)}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
 .sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
-.sect-h .sub{color:var(--ink-3); font-size:var(--fs-14)}
 
 /* ============ LIFE MOMENTS — up to four wide catalogue cards per row ============ */
 .moments{
@@ -368,34 +367,74 @@ a.ft-c:hover{color:var(--ink)}
    (§5 "one content container", rule 17). A browse page is not a centered flow. */
 .catpage{width:min(100%,var(--maxw)); margin-inline:auto; padding-inline:var(--s-6)}
 .catpage > *{max-width:var(--w-browse)}
-.cp-head{margin:var(--s-2) 0 var(--s-6)}
+.cp-head{margin:var(--s-2) 0 var(--s-4)}
 .cp-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
-.cp-count{color:var(--ink-3); font-size:var(--fs-13); margin:0 0 var(--s-3)}
+.cp-meta{
+  display:grid; gap:var(--s-2);
+  margin-bottom:var(--s-6);
+}
+.cp-count{color:var(--ink); font-size:var(--fs-13); font-weight:var(--weight-regular); letter-spacing:0; margin:0}
+.cp-controls{display:flex; align-items:center; gap:var(--s-4); min-width:0}
+.cp-meta #cpFilters{flex:none; gap:var(--s-2)}
+#cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill)}
 .cp-results{display:block}
-.cp-search{position:relative; margin:0 0 var(--s-3)}
-.cp-search .ic{position:absolute; left:18px; top:50%; translate:0 -50%; width:19px; height:19px; color:var(--ink-3); pointer-events:none}
+.cp-search{position:relative; flex:1; min-width:0}
+.cp-search .ic{position:absolute; left:var(--s-3); top:50%; translate:0 -50%; width:16px; height:16px; color:var(--ink-3); pointer-events:none}
 .cp-search input{
-  width:100%; height:54px; border:0; border-radius:var(--r-m);
-  background:var(--field); color:var(--ink); padding:0 var(--s-4) 0 50px; font-size:var(--fs-16);
-  transition:box-shadow var(--t-fast) var(--ease);
+  width:100%; height:var(--h-btn-s); border:1px solid var(--line); border-radius:var(--r-pill);
+  background:var(--panel); color:var(--ink);
+  padding:0 var(--s-3) 0 calc(var(--s-3) + 16px + var(--s-2)); font-size:var(--fs-14);
+  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
 .cp-search input::placeholder{color:var(--ink-3)}
-.cp-search input:focus-visible{outline:none; box-shadow:0 0 0 2px var(--blue) inset}
-.pills{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-2); margin-bottom:var(--s-5)}
-.pills .plabel{display:inline-flex; align-items:center; gap:6px; font-size:var(--fs-13); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none; color:var(--ink-3); margin-right:var(--s-1)}
-.pills .plabel svg{width:14px; height:14px; color:var(--blue-ink)}
-.pill{
-  background:var(--blue-tint); color:var(--blue-ink); border-radius:var(--r-pill);
-  padding:9px 16px; font-size:var(--fs-13); font-weight:var(--weight-medium);
-  max-width:340px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+.cp-search input:focus-visible{outline:none; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue)}
+.popular-services{display:grid; gap:var(--s-2); margin-bottom:var(--s-5)}
+.popular-services__label{
+  width:max-content;
+  font-size:var(--fs-13); font-weight:var(--weight-regular); letter-spacing:0; color:var(--ink);
+}
+.popular-services__grid{
+  display:flex; flex-wrap:wrap; gap:var(--s-3); align-items:stretch;
+}
+.popular-card{
+  display:inline-flex; align-items:center; gap:var(--s-2);
+  width:fit-content; max-width:100%;
+  min-height:38px; padding:var(--s-2) var(--s-3) var(--s-2) var(--s-2); text-align:left;
+  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-m);
+  color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular); line-height:1.35;
   transition:background var(--t-fast) var(--ease);
 }
-.pill:hover{background:color-mix(in srgb,var(--blue) 16%,var(--panel))}
+.popular-card:hover,.popular-card:focus-visible{background:var(--panel-hover)}
+.popular-card__icon{width:24px; height:24px; display:grid; place-items:center; flex:none}
+.popular-card__icon svg{width:20px; height:20px}
+.popular-card__icon--blue{color:var(--h-blue-fg)}
+.popular-card__icon--violet{color:var(--h-violet-fg)}
+.popular-card__icon--teal{color:var(--h-teal-fg)}
+.popular-card > span:last-child{
+  min-width:0; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+}
 .filters{display:flex; gap:var(--s-2); margin-bottom:var(--s-5); flex-wrap:wrap}
-#cpFilters{margin-bottom:var(--s-5)}
 .svc-list{display:grid; gap:var(--s-2)}
-.svc-sub{font-size:var(--fs-13); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none; color:var(--ink-3); margin:var(--s-5) 0 var(--s-1)}
-.svc-list .svc-sub:first-child{margin-top:0}
+.svc-group{display:grid; gap:var(--s-3)}
+.svc-group__toggle{
+  display:block; width:fit-content; max-width:100%;
+  margin:var(--s-5) 0 0; padding:0; border:0; background:transparent;
+  text-align:left; color:inherit; cursor:pointer;
+}
+.svc-list .svc-group:first-child .svc-group__toggle{margin-top:0}
+.svc-group__toggle:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r-s)}
+.svc-sub{
+  display:block; min-width:0; max-inline-size:76ch; margin:0;
+  font-size:var(--fs-13); font-weight:var(--weight-regular); letter-spacing:0; text-transform:none;
+  color:var(--ink-2); line-height:1.45; text-wrap:balance;
+}
+.svc-group__chev{
+  display:inline-block; width:16px; height:16px; margin-left:var(--s-1);
+  vertical-align:-3px; color:var(--ink-3);
+  transition:rotate var(--t-fast) var(--ease);
+}
+.svc-group.is-collapsed .svc-group__chev{rotate:-90deg}
+.svc-group.is-collapsed .rows{display:none}
 .rows{background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l); overflow:hidden}
 .rows > * + *{border-top:1px solid var(--line-in)}
 .svc-row{
@@ -405,7 +444,7 @@ a.ft-c:hover{color:var(--ink)}
 }
 .svc-row:hover{background:var(--hover)}
 .svc-row .tt{flex:1; min-width:0}
-.svc-row .tt b{display:block; font-weight:var(--weight-medium); font-size:var(--fs-14); line-height:1.45; color:var(--ink)}
+.svc-row .tt b{display:block; font-weight:var(--weight-regular); font-size:var(--fs-14); line-height:1.45; color:var(--ink)}
 .svc-row .tt .org{display:block; margin-top:4px; font-size:var(--fs-13); color:var(--ink-3)}
 /* free is the exception worth an anchor; "музднок" rides the quiet meta line */
 .svc-row .tag{flex:none; margin-top:2px}
@@ -855,6 +894,9 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .ft-grid{grid-template-columns:1fr 1fr}
 }
 @media (max-width:560px){
+  .cp-controls{flex-wrap:wrap; gap:var(--s-3)}
+  .cp-search{flex:1 1 100%}
+  .cp-meta #cpFilters{margin-left:auto}
   .moments{grid-template-columns:minmax(0,1fr)}
   .hdr-in{padding:10px 0; row-gap:8px; gap:var(--s-2) var(--s-3)}
   .ft-grid{grid-template-columns:1fr}
@@ -882,7 +924,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
   .ftab{white-space:nowrap; flex:none}
   .frow{padding:var(--s-4)}
-  .pill{max-width:100%}
   .cp-head h1,.e-hero h1,.prof-head h1{font-size:var(--fs-24)}
   .svc{flex-wrap:wrap}
   .svc .tt{flex:1 1 0; min-width:0}
@@ -914,7 +955,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 }
 @media (pointer:coarse){
   button.btn{min-height:44px}
-  button.btn-sm,.dd-btn,.pill,.filters .chip{min-height:44px}
+  button.btn-sm,.dd-btn,.filters .chip,.popular-card,.svc-group__toggle{min-height:44px}
   .dd-menu button{min-height:44px}
   .back,.feed-all,.ftab,.pn{min-height:44px}
   .s-item{min-height:48px}
@@ -924,7 +965,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 }
 @media (hover:none){
   .cat:active,.frow:active,.app-row:active,.svc-row:active,.moment:active,.s-item:active{background:var(--press)}
-  .pill:active{background:color-mix(in srgb,var(--blue) 16%,var(--panel))}
+  .popular-card:active{background:var(--press)}
   .btn-pri:active{background:var(--blue-press)}
   .btn-sec:active{background:var(--press)}
   .icon-btn:active,.dd-btn:active,.back:active,.dd-menu button:active{background:var(--hover)}

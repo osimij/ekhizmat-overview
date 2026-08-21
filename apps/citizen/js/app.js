@@ -667,6 +667,11 @@ const CAT_TILES = {
   certs:"t-teal sh-r", culture:"t-pink sh-l", gov:"t-steel", other:"t-gray sh-c",
   license:"t-cyan sh-r", accred:"t-olive"
 };
+const POPULAR_CARD_VISUALS = [
+  { tone:"popular-card__icon--blue", icon:"i-doc" },
+  { tone:"popular-card__icon--violet", icon:"i-star8" },
+  { tone:"popular-card__icon--teal", icon:"i-card" }
+];
 const COPY_GUEST = { tg:"меҳмон", ru:"гость", en:"guest" };
 let currentCat = null;
 let payFilter = "all";
@@ -703,13 +708,19 @@ function svcRow(it, showOrg, showPaid){
     '<svg class="svc-go" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>' +
   '</button>';
 }
-/* A fact the whole group shares belongs above the group, not on every row: the
-   agency, and "музднок" when the section is paid throughout (rule 6). */
+/* The agency belongs above the group rather than repeating on every row. The
+   payment filter already exposes cost, so section headings stay focused. */
 function svcGroup(items, label, org){
   const allPaid = items.every(it => it[2] & 4);
-  const head = [label, org, allPaid ? t("meta.paid") : null].filter(Boolean).join(" · ");
-  return (head ? '<h3 class="svc-sub">' + esc(head) + '</h3>' : '') +
-    '<div class="rows">' + items.map(it => svcRow(it, !org, !allPaid)).join("") + '</div>';
+  const head = [label, org].filter(Boolean).join(" · ");
+  const rows = '<div class="rows">' + items.map(it => svcRow(it, !org, !allPaid)).join("") + '</div>';
+  if (!head) return rows;
+  return '<section class="svc-group">' +
+    '<button type="button" class="svc-group__toggle" aria-expanded="true">' +
+      '<span class="svc-sub">' + esc(head) +
+        '<svg class="svc-group__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-d"/></svg>' +
+      '</span>' +
+    '</button>' + rows + '</section>';
 }
 function renderCatList(){
   const g = findGroup(currentCat); if (!g) return;
@@ -738,10 +749,17 @@ function renderCategory(id){
   const g = findGroup(id); if (!g) return false;
   currentCat = id;
   $("#cpTitle").textContent = g.label[lang];
-  /* "popular" pills: the shortest names read as the most common everyday services */
+  /* The shortest names stand in for common everyday services. They remain
+     full catalogue choices rather than compressed filter chips. */
   const pop = g.subs.flatMap(s => s.items).sort((a, b) => svcName(a).length - svcName(b).length).slice(0, 3);
-  $("#cpPills").innerHTML = '<span class="plabel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-fire"/></svg>' + t("cp.popular") + '</span>' +
-    pop.map(it => '<button class="pill">' + esc(svcName(it)) + '</button>').join("");
+  $("#cpPills").innerHTML = '<span class="popular-services__label">' + t("cp.popular") + '</span>' +
+    '<div class="popular-services__grid">' + pop.map((it, index) => {
+      const visual = POPULAR_CARD_VISUALS[index];
+      const name = esc(svcName(it));
+      return '<button class="popular-card" title="' + name + '">' +
+        '<span class="popular-card__icon ' + visual.tone + '"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#' + visual.icon + '"/></svg></span>' +
+        '<span>' + name + '</span></button>';
+    }).join("") + '</div>';
   renderCatList();
   return true;
 }
@@ -759,8 +777,16 @@ $("#cpPay").addEventListener("change", e => {
   navigate(hashFor(currentRoute), { params:{ pay:payFilter }, replace:true });
 });
 $("#cpSearch").addEventListener("input", renderCatList);
+$("#cpList").addEventListener("click", e => {
+  const toggle = e.target.closest(".svc-group__toggle");
+  if (!toggle) return;
+  const group = toggle.closest(".svc-group");
+  const open = toggle.getAttribute("aria-expanded") === "true";
+  toggle.setAttribute("aria-expanded", String(!open));
+  group.classList.toggle("is-collapsed", open);
+});
 $("#cpPills").addEventListener("click", e => {
-  const p = e.target.closest(".pill"); if (!p) return;
+  const p = e.target.closest(".popular-card"); if (!p) return;
   $("#cpSearch").value = p.textContent;
   renderCatList();
 });
