@@ -117,11 +117,11 @@ test('category pay filter is compact and sub-groups collapse', async ({ page }) 
   await expect(page.locator('#cpPayLabel svg')).toHaveCount(0);
   await expect(page.locator('#cpPay')).toHaveAttribute('aria-label', 'Стоимость');
   await expect(page.locator('#cpFilters')).toHaveCSS('gap', '8px');
-  await expect(page.locator('#cpSearch')).toHaveCSS('height', '52px');
-  const searchColors = await page.locator('#cpSearch').evaluate((search) => {
+  await expect(page.locator('.cp-search')).toHaveCSS('height', '52px');
+  const searchColors = await page.locator('.cp-search').evaluate((search) => {
     const probe = document.createElement('span');
     probe.style.background = 'var(--field)';
-    probe.style.borderColor = 'var(--line)';
+    probe.style.borderColor = 'var(--control-line)';
     document.body.append(probe);
     const values = {
       search: getComputedStyle(search).backgroundColor,
@@ -134,13 +134,14 @@ test('category pay filter is compact and sub-groups collapse', async ({ page }) 
   });
   expect(searchColors.search).toBe(searchColors.field);
   expect(searchColors.border).toBe(searchColors.line);
-  await expect(page.locator('#cpSearch')).toHaveCSS('border-top-width', '1px');
+  await expect(page.locator('.cp-search')).toHaveCSS('border-top-width', '1px');
   await expect(page.locator('#cpCount')).toHaveCSS('font-size', '13px');
   await expect(page.locator('#cpCount')).toHaveCSS('font-weight', '400');
   const countLetterSpacing = await page.locator('#cpCount')
     .evaluate((el) => getComputedStyle(el).letterSpacing);
   expect(countLetterSpacing === 'normal' || parseFloat(countLetterSpacing) === 0).toBe(true);
   await expect(page.locator('.cp-controls > .cp-search')).toHaveCount(1);
+  await expect(page.locator('.cp-search > #cpCount')).toHaveCount(1);
   await expect(page.locator('.cp-head > #cpFilters')).toHaveCount(1);
   const categoryLayout = await page.locator('.catpage').evaluate((pageRoot) => {
     const title = pageRoot.querySelector('.cp-head h1').getBoundingClientRect();
@@ -148,13 +149,16 @@ test('category pay filter is compact and sub-groups collapse', async ({ page }) 
     const search = pageRoot.querySelector('.cp-search').getBoundingClientRect();
     const filter = pageRoot.querySelector('#cpFilters').getBoundingClientRect();
     return {
-      countBottom: count.bottom,
-      searchTop: search.top,
+      countRight: count.right,
+      searchRight: search.right,
+      countCenter: count.top + count.height / 2,
+      searchCenter: search.top + search.height / 2,
       titleCenter: title.top + title.height / 2,
       filterCenter: filter.top + filter.height / 2,
     };
   });
-  expect(categoryLayout.countBottom).toBeLessThanOrEqual(categoryLayout.searchTop);
+  expect(categoryLayout.countRight).toBeLessThan(categoryLayout.searchRight);
+  expect(categoryLayout.countCenter).toBeCloseTo(categoryLayout.searchCenter, 0);
   expect(categoryLayout.titleCenter).toBeCloseTo(categoryLayout.filterCenter, 0);
   const contentWidth = await page.locator('.catpage').evaluate((pageRoot) => {
     const style = getComputedStyle(pageRoot);
@@ -204,4 +208,38 @@ test('category pay filter is compact and sub-groups collapse', async ({ page }) 
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   await expect(rows).toBeVisible();
+});
+
+test('paid and free services share the trailing cost badge slot', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/citizen/?present=1&theme=light&lang=ru#/category/other');
+
+  const rows = page.locator('.svc-group').first().locator('.svc-row');
+  const paid = rows.first();
+  const free = rows.nth(1);
+  await expect(paid.locator('.tag.pay')).toHaveText('платно');
+  await expect(free.locator('.tag.free')).toHaveText('бесплатно');
+  await expect(paid.locator('.tt .org')).toHaveCount(0);
+
+  const badgeSlot = await rows.evaluateAll((items) => items.slice(0, 2).map((row) => {
+    const badge = row.querySelector('.tag').getBoundingClientRect();
+    return Math.round(badge.right);
+  }));
+  expect(new Set(badgeSlot).size).toBe(1);
+
+  const verticalCenters = await paid.evaluate((row) => {
+    const center = (element) => {
+      const box = element.getBoundingClientRect();
+      return box.top + box.height / 2;
+    };
+    return {
+      row: center(row),
+      title: center(row.querySelector('.tt')),
+      badge: center(row.querySelector('.tag')),
+      arrow: center(row.querySelector('.svc-go')),
+    };
+  });
+  expect(verticalCenters.title).toBeCloseTo(verticalCenters.row, 0);
+  expect(verticalCenters.badge).toBeCloseTo(verticalCenters.row, 0);
+  expect(verticalCenters.arrow).toBeCloseTo(verticalCenters.row, 0);
 });

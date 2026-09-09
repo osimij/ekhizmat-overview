@@ -689,31 +689,27 @@ function renderCats(){
       '<span>' + esc((g.chip && g.chip[lang]) || g.label[lang]) + '</span>' +
     '</button>').join("");
 }
-/* One row = one service. The payment fact is a chip only where it is the
-   exception (free); "музднок" repeated on 37 rows is noise, so it joins the
-   quiet meta line instead (rule 6). showOrg is false when the whole group
-   shares one agency — then the agency is printed once, in the subheading. */
-function svcRow(it, showOrg, showPaid){
+/* One row = one service. Cost always occupies the same trailing badge slot;
+   showOrg is false when the group already names its shared agency. */
+function svcRow(it, showOrg){
   const paid = it[2] & 4;
   const action = it[5] === "guest-appointment" ? ' data-go="guestService"' : ' data-toast="toast.demo"';
   const guestBadge = acct === "guest" ? '<span class="audience-badge audience-badge--guest">' + t("meta.free") + ' · ' + ((COPY_GUEST[lang]) || COPY_GUEST.tg) + '</span>' : '';
   const meta = [];
   if (showOrg) meta.push(esc(svcOrg(it)));
-  if (paid && showPaid) meta.push(t("meta.paid"));
   return '<button class="svc-row"' + action + '>' +
     '<span class="tt"><b>' + esc(svcName(it)) + '</b>' +
       (meta.length ? '<span class="org">' + meta.join(" · ") + '</span>' : '') + '</span>' +
     guestBadge +
-    (paid ? '' : '<span class="tag free">' + t("meta.free") + '</span>') +
+    '<span class="tag ' + (paid ? 'pay' : 'free') + '">' + t(paid ? "meta.paid" : "meta.free") + '</span>' +
     '<svg class="svc-go" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>' +
   '</button>';
 }
 /* The agency belongs above the group rather than repeating on every row. The
    payment filter already exposes cost, so section headings stay focused. */
 function svcGroup(items, label, org){
-  const allPaid = items.every(it => it[2] & 4);
   const head = [label, org].filter(Boolean).join(" · ");
-  const rows = '<div class="rows">' + items.map(it => svcRow(it, !org, !allPaid)).join("") + '</div>';
+  const rows = '<div class="rows">' + items.map(it => svcRow(it, !org)).join("") + '</div>';
   if (!head) return rows;
   return '<section class="svc-group">' +
     '<button type="button" class="svc-group__toggle" aria-expanded="true">' +

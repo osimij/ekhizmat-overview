@@ -358,23 +358,21 @@ a.ft-c:hover{color:var(--ink)}
 .cp-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
 .cp-head #cpFilters{flex:none;gap:var(--s-2)}
 .cp-meta{
-  display:grid; gap:var(--s-2);
   margin-bottom:var(--s-6);
 }
-.cp-count{color:var(--ink); font-size:var(--fs-13); font-weight:var(--weight-regular); letter-spacing:0; margin:0}
+.cp-count{flex:none;padding-right:var(--s-4);color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-regular);letter-spacing:0;margin:0;white-space:nowrap}
 .cp-controls{display:block;min-width:0}
 #cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill)}
 .cp-results{display:block}
-.cp-search{position:relative; flex:1; min-width:0}
+.cp-search{position:relative;display:flex;align-items:center;width:100%;height:var(--h-btn-l);min-width:0;border:1px solid var(--control-line);border-radius:var(--r-m);background:var(--field);transition:border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 .cp-search .ic{position:absolute; left:var(--s-4); top:50%; translate:0 -50%; width:20px; height:20px; color:var(--ink-2); pointer-events:none}
 .cp-search input{
-  width:100%; height:var(--h-btn-l); border:1px solid var(--line); border-radius:var(--r-m);
-  background:var(--field); color:var(--ink);
-  padding:0 var(--s-4) 0 calc(var(--s-4) + 20px + var(--s-3)); font-size:var(--fs-15);
-  transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
+  flex:1;width:auto;height:100%;min-width:0;border:0;background:transparent;color:var(--ink);
+  padding:0 var(--s-2) 0 calc(var(--s-4) + 20px + var(--s-3));font-size:var(--fs-15);
 }
 .cp-search input::placeholder{color:var(--ink-3)}
-.cp-search input:focus-visible{outline:none; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue)}
+.cp-search input:focus-visible{outline:none}
+.cp-search:focus-within{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
 .popular-services{display:grid; gap:var(--s-2); margin-bottom:var(--s-5)}
 .popular-services__label{
   width:max-content;
@@ -425,7 +423,7 @@ a.ft-c:hover{color:var(--ink)}
 .rows{background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l); overflow:hidden}
 .rows > * + *{border-top:1px solid var(--line-in)}
 .svc-row{
-  display:flex; gap:var(--s-4); align-items:flex-start; width:100%; text-align:left;
+  display:flex; gap:var(--s-4); align-items:center; width:100%; text-align:left;
   padding:var(--s-4) var(--s-5);
   transition:background var(--t-fast) var(--ease);
 }
@@ -433,10 +431,9 @@ a.ft-c:hover{color:var(--ink)}
 .svc-row .tt{flex:1; min-width:0}
 .svc-row .tt b{display:block; font-weight:var(--weight-regular); font-size:var(--fs-14); line-height:1.45; color:var(--ink)}
 .svc-row .tt .org{display:block; margin-top:4px; font-size:var(--fs-13); color:var(--ink-3)}
-/* free is the exception worth an anchor; "музднок" rides the quiet meta line */
-.svc-row .tag{flex:none; margin-top:2px}
+.svc-row .tag{flex:none}
 .svc-row .tag.free{color:var(--green-ink); background:var(--green-tint)}
-.svc-row .svc-go{width:16px; height:16px; flex:none; margin-top:3px; color:var(--ink-3)}
+.svc-row .svc-go{width:16px; height:16px; flex:none; color:var(--ink-3)}
 .cp-empty{
   background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
   padding:var(--s-10) var(--s-8); text-align:center; color:var(--ink-3); font-size:var(--fs-14);
