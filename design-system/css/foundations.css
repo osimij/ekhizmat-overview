@@ -48,6 +48,15 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--action); }
   *:hover { scrollbar-color: color-mix(in srgb, var(--ink) 22%, transparent) transparent; }
   *:hover::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 22%, transparent); }
 }
+/* Sanctioned exception (design guide §5): the public citizen portal draws no
+   scrollbars, page and inner rows alike. Scrolling itself stays — wheel, touch,
+   keys, and the paged rows' own arrows. */
+html:has(body[data-platform="citizen"]),
+body[data-platform="citizen"],
+body[data-platform="citizen"] * { scrollbar-width: none; }
+html:has(body[data-platform="citizen"])::-webkit-scrollbar,
+body[data-platform="citizen"]::-webkit-scrollbar,
+body[data-platform="citizen"] *::-webkit-scrollbar { display: none; }
 
 .skip, .skip-link {
   position: fixed;

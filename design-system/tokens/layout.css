@@ -1,5 +1,7 @@
 :root {
   --maxw: 1120px;
+  /* citizen portal container: 1250px of content inside the --s-6 gutters */
+  --maxw-portal: 1298px;
   --w-launcher: 1440px;
   --col: 640px;
   /* mid-width reading column for browse/registry screens (citizen category page) */

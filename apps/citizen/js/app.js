@@ -673,13 +673,12 @@ const CAT_TILES = {
   certs:"t-teal", culture:"t-pink", gov:"t-steel", other:"t-gray",
   license:"t-cyan", accred:"t-olive"
 };
-/* the hero leads with the seven most-used groups; "more" discloses the rest in
-   place, so no category is ever only reachable through search */
+/* the hero shows every group in a 3×4 grid, most-used first and the catch-all
+   last (Figma «Web» 152:2932) — no category hides behind a disclosure */
 const HOME_CATS = {
-  person:["docs", "family", "edu", "health", "tax", "justice", "certs"],
-  biz:["license", "tax", "justice", "accred", "land", "transport", "certs"]
+  person:["docs", "family", "edu", "health", "tax", "justice", "certs", "transport", "land", "culture", "gov", "other"],
+  biz:["license", "tax", "justice", "accred", "land", "transport", "certs", "edu", "health", "culture", "gov", "other"]
 };
-let catsOpen = false;
 const POPULAR_CARD_VISUALS = [
   { tone:"popular-card__icon--blue", icon:"i-doc" },
   { tone:"popular-card__icon--violet", icon:"i-star8" },
@@ -702,22 +701,13 @@ function catTile(cls, icon, label, attrs){
   '</button>';
 }
 function renderCats(){
-  const all = CATALOG[acct], lead = HOME_CATS[acct];
-  const collapsed = lead && !catsOpen;
-  const shown = collapsed ? lead.map(id => all.find(g => g.id === id)).filter(Boolean)
-              : lead ? lead.map(id => all.find(g => g.id === id)).filter(Boolean).concat(all.filter(g => !lead.includes(g.id)))
+  const all = CATALOG[acct], order = HOME_CATS[acct];
+  const shown = order ? order.map(id => all.find(g => g.id === id)).filter(Boolean).concat(all.filter(g => !order.includes(g.id)))
               : all;
+  /* the catch-all reads as «Другие услуги» on the home, not the registry's «Прочее» */
   $("#cats").innerHTML = shown.map(g =>
     catTile(CAT_TILES[g.id] || "t-gray", CAT_ICONS[g.id] || "i-cat-other",
-            (g.chip && g.chip[lang]) || g.label[lang], 'data-cat="' + g.id + '"')).join("") +
-    (collapsed ? catTile("t-gray", "i-cat-other", t("cats.more"), 'data-cats-more aria-expanded="false" aria-controls="cats"') : "");
-}
-function openAllCats(){
-  catsOpen = true;
-  renderCats();
-  /* focus lands on the first group the disclosure revealed */
-  const first = $$("#cats .cat")[HOME_CATS[acct].length];
-  if (first) first.focus();
+            g.id === "other" ? t("cats.more") : (g.chip && g.chip[lang]) || g.label[lang], 'data-cat="' + g.id + '"')).join("");
 }
 /* One row = one service. Cost always occupies the same trailing badge slot;
    showOrg is false when the group already names its shared agency. */
@@ -848,7 +838,6 @@ document.addEventListener("click", e => {
   if (goBtn){ go(goBtn.dataset.go, goBtn.dataset.own); return; }
   const catBtn = e.target.closest("[data-cat]");
   if (catBtn){ openCat(catBtn.dataset.cat); return; }
-  if (e.target.closest("[data-cats-more]")){ openAllCats(); return; }
   if (e.target.closest("[data-services]")){ showServices(); return; }
   const arrow = e.target.closest("[data-moments]");
   if (arrow){ pageMoments(Number(arrow.dataset.moments)); return; }

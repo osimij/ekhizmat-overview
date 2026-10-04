@@ -27,6 +27,16 @@ test('every platform and nested scroll surface uses the shared subtle scrollbar'
       color: getComputedStyle(element).scrollbarColor,
       webkitWidth: getComputedStyle(element, '::-webkit-scrollbar').width,
     }));
+    /* the sanctioned portal exception (design-guide §5): the citizen portal
+       hides its bars, page and inner rows alike, from the shared foundation */
+    if (route === '/citizen/') {
+      expect(style.width, route).toBe('none');
+      const inner = await page.locator('#cats, .moments').evaluateAll((elements) =>
+        elements.map((element) => getComputedStyle(element).scrollbarWidth),
+      );
+      expect(new Set(inner), route).toEqual(new Set(['none']));
+      continue;
+    }
     expect(style.width, route).toBe('thin');
     expect(style.color, route).not.toBe('auto');
     expect(style.webkitWidth, route).toBe('6px');
@@ -101,47 +111,50 @@ test('canonical stroke icons never fall back to a black SVG fill', async ({ page
   expect(new Set(citizenFills)).toEqual(new Set(['none']));
 });
 
-test('citizen category tiles form an aligned two-row grid with a disclosure', async ({ page }) => {
+test('citizen category tiles show every group in an aligned 3×4 grid', async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 982 });
   await page.goto('/citizen/?lang=ru&theme=light');
-  // seven leading groups and "more" (Figma «Web» 131:4575)
-  await expect(page.locator('#cats .cat')).toHaveCount(8);
+  // all twelve groups, catch-all last, no disclosure (Figma «Web» 152:2932)
+  await expect(page.locator('#cats .cat')).toHaveCount(12);
+  await expect(page.locator('#cats .cat').last()).toHaveText('Другие услуги');
+  await expect(page.locator('#cats .cat').nth(7)).toHaveText('Транспорт и права');
+  await expect(page.locator('[data-cats-more]')).toHaveCount(0);
   const tiles = await page.locator('#cats .cat').evaluateAll((elements) => elements.map((element) => {
     const rect = element.getBoundingClientRect();
     const icon = element.querySelector('.tile').getBoundingClientRect();
     const title = element.querySelector('span:last-child');
     return {
       left: Math.round(rect.left),
+      right: Math.round(rect.right),
       top: Math.round(rect.top),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
       iconWidth: Math.round(icon.width),
       iconCenterOffset: Math.round((icon.top + icon.height / 2) - (rect.top + rect.height / 2)),
       titleLines: Math.round(title.getBoundingClientRect().height / parseFloat(getComputedStyle(title).lineHeight)),
+      titleOverflows: title.scrollWidth > title.clientWidth,
     };
   }));
   const rows = [...new Set(tiles.map(({ top }) => top))];
-  expect(rows).toHaveLength(2);
+  expect(rows).toHaveLength(3);
   for (const row of rows) {
     const inRow = tiles.filter(({ top }) => top === row);
     expect(inRow).toHaveLength(4);
     expect(new Set(inRow.map(({ height }) => height)).size).toBe(1);
   }
-  // a column shares its edges across the two rows
+  // columns share a width, and each column keeps its edges across the rows
+  expect(new Set(tiles.map(({ width }) => width)).size).toBe(1);
   for (let column = 0; column < 4; column += 1) {
     expect(tiles[column].left).toBe(tiles[column + 4].left);
-    expect(tiles[column].width).toBe(tiles[column + 4].width);
+    expect(tiles[column].left).toBe(tiles[column + 8].left);
   }
+  // the grid ends where the search field ends
+  const search = await page.locator('.hero-in > .search').evaluate((element) => Math.round(element.getBoundingClientRect().right));
+  expect(tiles[3].right).toBe(search);
   expect(tiles.every(({ iconWidth }) => iconWidth === 40)).toBe(true);
   expect(tiles.every(({ iconCenterOffset }) => Math.abs(iconCenterOffset) <= 1)).toBe(true);
   expect(Math.max(...tiles.map(({ titleLines }) => titleLines))).toBeLessThanOrEqual(2);
-
-  const more = page.locator('[data-cats-more]');
-  await expect(more).toHaveText('Другие услуги');
-  await more.click();
-  await expect(page.locator('#cats .cat')).toHaveCount(12);
-  await expect(page.locator('[data-cats-more]')).toHaveCount(0);
-  await expect(page.locator('#cats .cat').nth(7)).toBeFocused();
+  expect(tiles.some(({ titleOverflows }) => titleOverflows)).toBe(false);
 });
 
 test('every platform renders with the bundled Google Sans font', async ({ page }) => {

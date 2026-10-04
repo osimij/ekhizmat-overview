@@ -5,6 +5,10 @@
 
 html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-hover)}
 
+/* the portal's one content container (§5): every citizen screen — header, home,
+   catalogue, profile — routes through --maxw, widened here to the portal's 1250px */
+body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
+
 /* ============ HEADER ============ */
 /* Figma «Web» 130:4119: brand + audience on the left, links then language and
    sign-in on the right. On the home hero the bar is part of the wash — no
@@ -106,9 +110,9 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .dd.acct .dd-menu{box-shadow:var(--shadow-1)}
 
 /* ============ HOME / HERO ============ */
-/* Figma «Web» 130:4065. The wash starts under the transparent header (the band
-   pulls itself up by the bar's height), the photo is pinned to the right edge
-   and its baked haze melts into the wash — no overlay needed in light. */
+/* Figma «Web» 152:2932. The wash starts under the transparent header (the band
+   pulls itself up by the bar's height); the painted tower is a cutout sitting
+   on the band's foot at the right edge, so it needs no melt in either theme. */
 .hero{
   position:relative; isolation:isolate; /* keeps the z-index:-1 art above the band bg */
   margin-top:calc(-1 * var(--h-portalbar));
@@ -116,34 +120,12 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
   background:linear-gradient(-87deg, var(--hero) 10%, var(--hero-soft) 97%);
 }
 .hero-in > .search{max-width:720px}
-/* the photo is 866px wide on a 1512 screen (1019 × .85) and bleeds 1.8% past the
-   right edge; below that it scales with the viewport so the tower never meets the copy */
+/* the art is 573px of a 1512 frame (37.9vw), flush right, its foot 12px above the
+   band's edge; its brushed left edge may tuck under the last tile column */
 .hero-art{
-  --art-w:min(866px, 57.3vw);
-  position:absolute; z-index:-1; top:var(--h-portalbar); right:0; bottom:0;
-  width:calc(var(--art-w) * .982);
-  background:url("./assets/home-hero.webp") left top / var(--art-w) auto no-repeat;
-}
-/* the haze ends a shade off the wash where the photo starts: a short melt hides the seam */
-.hero-art::before{
-  content:""; position:absolute; inset:0;
-  background:
-    linear-gradient(to bottom, var(--hero) 0, transparent 12%),
-    linear-gradient(to right, color-mix(in srgb, var(--hero) 50%, var(--hero-soft)) 0, transparent 10%);
-}
-/* night: the same scene under the wash, so the switch never changes the place —
-   the haze and sky sink into it and the tower keeps its lights */
-.hero-art::after{
-  content:""; position:absolute; inset:0; opacity:0;
-  background:
-    linear-gradient(to bottom, var(--hero-dark) 0, transparent 35%),
-    linear-gradient(to right, var(--hero-dark) 0, var(--hero-dark) 15%, color-mix(in srgb, var(--hero-dark) 55%, transparent) 55%, transparent),
-    color-mix(in srgb, var(--hero-dark) 40%, transparent);
-  transition:opacity var(--t-theme) var(--ease);
-}
-[data-theme="dark"] .hero-art::after{opacity:1}
-@media (prefers-reduced-motion:reduce){
-  .hero-art::after{transition:none}
+  position:absolute; z-index:-1; right:0; bottom:var(--s-3);
+  width:min(560px, 37.9vw); aspect-ratio:1000 / 728;
+  background:url("./assets/home-hero-art.webp") right bottom / contain no-repeat;
 }
 .hero h1{font-size:var(--fs-32); line-height:1.2}
 #heroTitle{letter-spacing:-0.02em;}
@@ -205,12 +187,13 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .s-item svg{width:19px; height:19px; color:var(--ink-3); flex:none}
 .s-item .meta{margin-left:auto; font-size:var(--fs-12); color:var(--ink-3); white-space:nowrap; font-weight:500}
 
-/* category tiles — white chips on the wash, hue on the icon well (Figma 131:4575).
-   Four auto-sized columns: tiles in a column share a width, tiles in a row a height */
-.cats{display:grid; grid-template-columns:repeat(4, auto); justify-content:start; gap:var(--s-2)}
+/* category tiles — white chips on the wash, hue on the icon well (Figma 152:2932).
+   Four equal columns spanning the search field, so the grid's right edge is the
+   search's; every group is a tile, three rows of four */
+.cats{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); max-width:720px; gap:var(--s-2)}
 .cat{
   display:flex; align-items:center; gap:var(--s-3); min-width:0;
-  padding:var(--s-2) var(--s-4) var(--s-2) var(--s-2); border-radius:var(--r-m);
+  padding:var(--s-2); border-radius:var(--r-m); /* equal columns leave no hug slack: an even inset keeps «недвижимость» (104px) on one line */
   background:var(--panel); color:var(--ink); text-align:left;
   font-size:var(--fs-14); font-weight:var(--weight-medium); line-height:1.45;
   transition:background var(--t-fast) var(--ease);
@@ -895,13 +878,13 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 
 /* ============ RESPONSIVE ============ */
 @media (max-width:1080px){
-  /* the tower would meet the copy: the photo becomes a full-bleed strip at the
-     band's foot, cropped around the tower, its sky melting into the wash */
+  /* the tower would meet the copy: the art moves below the catalogue, centred
+     on the band's foot */
   .hero-art{
-    position:relative; inset:auto; width:auto;
-    height:clamp(240px, 36vw, 380px);
-    margin:var(--s-8) calc(-1 * var(--s-6)) calc(-1 * var(--s-12));
-    background-size:cover; background-position:72% 15%;
+    position:relative; inset:auto; width:auto; aspect-ratio:auto;
+    height:clamp(220px, 40vw, 360px);
+    margin:var(--s-6) 0 calc(-1 * var(--s-10));
+    background-position:center bottom;
   }
   .moments{--per-view:3}
   .news-grid{grid-template-columns:minmax(0,1fr)}
@@ -911,8 +894,8 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   /* the two rows of tiles stop fitting: they become one two-row rail
      rather than four rows above the fold */
   .cats{
-    grid-template-columns:none; grid-template-rows:repeat(2,auto);
-    grid-auto-flow:column; grid-auto-columns:max-content;
+    max-width:none; grid-template-columns:none; grid-template-rows:repeat(2,auto);
+    grid-auto-flow:column; grid-auto-columns:176px; /* every tile the same box; fits «недвижимость» */
     overflow-x:auto; scroll-snap-type:x mandatory;
     margin:0 calc(var(--s-6) * -1); padding:0 var(--s-6) 4px; scroll-padding-inline:var(--s-6);
     mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
