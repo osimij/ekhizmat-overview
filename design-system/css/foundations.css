@@ -11,6 +11,15 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+/* No rubber-band bounce for mouse and trackpad, on every platform: a hard fling
+   stops at the page's top or bottom instead of overshooting and snapping back.
+   Vertical only, so a two-finger horizontal swipe still navigates back/forward.
+   Gated to fine pointers so touch devices keep their native bounce and
+   pull-to-refresh. Never set on every element: a sideways row would then
+   swallow the vertical wheel and the page would stop scrolling over it. */
+@media (pointer: fine) {
+  html, body { overscroll-behavior-y: none; }
+}
 
 h1, h2, h3 { margin: 0; line-height: var(--leading-tight); letter-spacing: var(--tracking); }
 h1 { font-size: var(--fs-44); font-weight: var(--weight-semibold); }

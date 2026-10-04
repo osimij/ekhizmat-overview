@@ -65,6 +65,52 @@ test('every platform and nested scroll surface uses the shared subtle scrollbar'
   expect(sample).toEqual({ width: 'thin', scrollable: true });
 });
 
+test('nothing rubber-bands under a mouse or trackpad, on every platform', async ({ page }) => {
+  const platformRoutes = ['/', '/citizen/', '/mobile/', '/tson/', '/ministry/', '/admin/', '/admin/services.html',
+    '/admin/forms.html', '/admin/builder.html', '/admin/form-builder.html', '/admin/new-service.html', '/admin/review.html',
+    '/design-system/styleguide.html'];
+  for (const route of platformRoutes) {
+    await page.goto(`${route}?theme=light`);
+    const behavior = await page.evaluate(() => [document.documentElement, document.body].map((element) => {
+      const style = getComputedStyle(element);
+      return [style.overscrollBehaviorY, style.overscrollBehaviorX];
+    }));
+    // vertical edges stop dead; horizontal stays free for two-finger back/forward
+    expect(behavior, route).toEqual([['none', 'auto'], ['none', 'auto']]);
+  }
+  await page.goto('/admin/services.html?theme=light');
+  await expect(page.locator('.ekh-side')).toHaveCSS('overscroll-behavior-y', 'none');
+});
+
+test('a vertical wheel over a sideways row or a console body still scrolls the page', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const wheelOver = async (selector) => {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.locator(selector).first().scrollIntoViewIfNeeded();
+    const before = await page.evaluate(() => window.scrollY);
+    await page.locator(selector).first().hover();
+    await page.mouse.wheel(0, 300);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
+  };
+  await page.goto('/citizen/?lang=ru&theme=light');
+  await wheelOver('.moments');
+  await page.setViewportSize({ width: 800, height: 900 });
+  await page.goto('/citizen/?lang=ru&theme=light');
+  await wheelOver('#cats');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/services.html?theme=light');
+  await wheelOver('.adm-body');
+});
+
+test.describe('on a touch phone', () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test('the page keeps its native bounce and pull-to-refresh', async ({ page }) => {
+    await page.goto('/citizen/?theme=light');
+    expect(await page.evaluate(() => matchMedia('(pointer: fine)').matches)).toBe(false);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overscrollBehaviorY)).toBe('auto');
+  });
+});
+
 test('launcher exposes exactly four real platform links', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('.platform-card');
