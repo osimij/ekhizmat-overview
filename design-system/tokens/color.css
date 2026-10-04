@@ -9,9 +9,13 @@
   --panel: #ffffff;
   --panel-hover: #fafafa;
   --raised: #ffffff;
-  --hero-light: #e7eef5;
+  /* Citizen home wash (Figma «Web» 130:4065): a near-flat sky gradient whose
+     lighter end sits under the copy; the photo's baked haze melts into it. */
+  --hero-light: #e4edf8;
+  --hero-light-soft: #e9f2fb;
   --hero-dark: #090d15;
   --hero: var(--hero-light);
+  --hero-soft: var(--hero-light-soft);
   /* Workstation login is a flat canvas: the controls provide hierarchy, not
      a card-on-wash composition. The semantic alias keeps both themes aligned. */
   --login-bg: var(--panel);
@@ -130,6 +134,7 @@
   --panel-hover: #202022;
   --raised: #1a1a1b;
   --hero: var(--hero-dark);
+  --hero-soft: var(--hero-dark);
   --login-bg: var(--panel);
   --launch-bg: var(--bg);
   --field: #26272b;

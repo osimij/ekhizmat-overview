@@ -34,9 +34,15 @@ function applyLang(){
   $$("[data-i18n-aria]").forEach(el => { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
   /* a status glyph needs the same string in its tooltip as in its accessible name */
   $$("[data-i18n-title]").forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  $$("[data-i18n-alt]").forEach(el => { el.alt = t(el.dataset.i18nAlt); });
   $$("[data-lang][role='option']").forEach(b => b.setAttribute("aria-selected", String(b.dataset.lang === lang)));
   /* the popover row is "label + current value + chevron" — the value is the language's own name */
   $("#langCur").textContent = {tg:"Тоҷикӣ", ru:"Русский", en:"English"}[lang];
+  /* signed out, the preferences trigger shows the current language; its name
+     still starts with the visible code (label-in-name) */
+  const code = {tg:"ТҶ", ru:"РУ", en:"EN"}[lang];
+  $("#prefsLang").textContent = code;
+  $("#prefsBtn").setAttribute("aria-label", code + " - " + t("pop.prefs"));
   if (acct === "guest") $("#acctCur").textContent = (COPY_GUEST[lang] || COPY_GUEST.tg).replace(/^./, ch => ch.toUpperCase());
   if (searchPop.classList.contains("open")) renderSearch(searchInput.value);
   renderCats();
@@ -370,8 +376,8 @@ function logout(){
 $("#logoutBtn").addEventListener("click", logout);
 
 /* ---------- profile popover: identity + preferences (§3 "Global preferences") ----------
-   Signed in the avatar opens it; signed out and in guest mode the quiet gear
-   opens the same layer minus the identity. Language and theme never return to
+   Signed in the avatar opens it; signed out and in guest mode the language
+   pill opens the same layer minus the identity. Language and theme never return to
    permanent chrome. */
 const profilePop = $("#citizenProfilePop");
 let popTrigger = null;
@@ -660,13 +666,20 @@ const CAT_ICONS = {
   certs:"i-cat-cert", culture:"i-cat-culture", gov:"i-cat-gov", other:"i-cat-other",
   license:"i-cat-license", accred:"i-cat-accred"
 };
-/* each category tile gets its own hue and silhouette */
+/* each category keeps its own hue; the well is one rounded square (Figma «Web» 131:4575) */
 const CAT_TILES = {
-  docs:"t-blue", family:"t-rose sh-c", edu:"t-amber sh-r", health:"t-green sh-c",
-  transport:"t-indigo", land:"t-terra sh-r", tax:"t-violet", justice:"t-slate sh-c",
-  certs:"t-teal sh-r", culture:"t-pink sh-l", gov:"t-steel", other:"t-gray sh-c",
-  license:"t-cyan sh-r", accred:"t-olive"
+  docs:"t-blue", family:"t-rose", edu:"t-indigo", health:"t-green",
+  transport:"t-slate", land:"t-terra", tax:"t-amber", justice:"t-violet",
+  certs:"t-teal", culture:"t-pink", gov:"t-steel", other:"t-gray",
+  license:"t-cyan", accred:"t-olive"
 };
+/* the hero leads with the seven most-used groups; "more" discloses the rest in
+   place, so no category is ever only reachable through search */
+const HOME_CATS = {
+  person:["docs", "family", "edu", "health", "tax", "justice", "certs"],
+  biz:["license", "tax", "justice", "accred", "land", "transport", "certs"]
+};
+let catsOpen = false;
 const POPULAR_CARD_VISUALS = [
   { tone:"popular-card__icon--blue", icon:"i-doc" },
   { tone:"popular-card__icon--violet", icon:"i-star8" },
@@ -682,12 +695,29 @@ function groupTotal(g){ return g.subs.reduce((a, s) => a + s.items.length, 0); }
 function svcName(it){ return (lang !== "tg" && it[3]) || it[0]; }
 function svcOrg(it){ return (lang !== "tg" && it[4]) || it[1]; }
 function paySel(it){ return payFilter === "all" || ((it[2] & 4) ? "paid" : "free") === payFilter; }
+function catTile(cls, icon, label, attrs){
+  return '<button class="cat" type="button" ' + attrs + '>' +
+    '<span class="tile ' + cls + '"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#' + icon + '"/></svg></span>' +
+    '<span>' + esc(label) + '</span>' +
+  '</button>';
+}
 function renderCats(){
-  $("#cats").innerHTML = CATALOG[acct].map(g =>
-    '<button class="cat" data-cat="' + g.id + '">' +
-      '<span class="tile ' + (CAT_TILES[g.id] || "t-gray") + '"><svg><use href="/design-system/assets/icons.svg#' + (CAT_ICONS[g.id] || "i-cat-other") + '"/></svg></span>' +
-      '<span>' + esc((g.chip && g.chip[lang]) || g.label[lang]) + '</span>' +
-    '</button>').join("");
+  const all = CATALOG[acct], lead = HOME_CATS[acct];
+  const collapsed = lead && !catsOpen;
+  const shown = collapsed ? lead.map(id => all.find(g => g.id === id)).filter(Boolean)
+              : lead ? lead.map(id => all.find(g => g.id === id)).filter(Boolean).concat(all.filter(g => !lead.includes(g.id)))
+              : all;
+  $("#cats").innerHTML = shown.map(g =>
+    catTile(CAT_TILES[g.id] || "t-gray", CAT_ICONS[g.id] || "i-cat-other",
+            (g.chip && g.chip[lang]) || g.label[lang], 'data-cat="' + g.id + '"')).join("") +
+    (collapsed ? catTile("t-gray", "i-cat-other", t("cats.more"), 'data-cats-more aria-expanded="false" aria-controls="cats"') : "");
+}
+function openAllCats(){
+  catsOpen = true;
+  renderCats();
+  /* focus lands on the first group the disclosure revealed */
+  const first = $$("#cats .cat")[HOME_CATS[acct].length];
+  if (first) first.focus();
 }
 /* One row = one service. Cost always occupies the same trailing badge slot;
    showOrg is false when the group already names its shared agency. */
@@ -818,6 +848,10 @@ document.addEventListener("click", e => {
   if (goBtn){ go(goBtn.dataset.go, goBtn.dataset.own); return; }
   const catBtn = e.target.closest("[data-cat]");
   if (catBtn){ openCat(catBtn.dataset.cat); return; }
+  if (e.target.closest("[data-cats-more]")){ openAllCats(); return; }
+  if (e.target.closest("[data-services]")){ showServices(); return; }
+  const arrow = e.target.closest("[data-moments]");
+  if (arrow){ pageMoments(Number(arrow.dataset.moments)); return; }
   const tBtn = e.target.closest("[data-toast]");
   if (tBtn){ toast(tBtn.dataset.toast); return; }
   const back = e.target.closest("[data-jback]");
@@ -834,6 +868,42 @@ document.addEventListener("click", e => {
   }
   if (!e.target.closest("#searchWrap")) closeSearch();
 });
+/* "Services" in the header: the catalogue lives in the home hero */
+function showServices(){
+  if (currentRoute.screen !== "home") navigate("#/");
+  const first = $("#cats .cat");
+  if (first) first.focus();
+}
+
+/* ---------- life situations: a paged row (Figma «Web» 130:4138) ----------
+   The arrows page one view at a time and dim at either end; when every card
+   already fits there is nothing to page, so they leave. */
+const momentsRow = $("#moments"), momentsNav = $(".moments-nav");
+function paintMomentArrows(){
+  const max = momentsRow.scrollWidth - momentsRow.clientWidth;
+  momentsNav.hidden = max <= 1;
+  $$("[data-moments]", momentsNav).forEach(b => {
+    const atEnd = Number(b.dataset.moments) < 0 ? momentsRow.scrollLeft <= 1 : momentsRow.scrollLeft >= max - 1;
+    b.setAttribute("aria-disabled", String(atEnd));
+  });
+}
+function pageMoments(dir){
+  const card = $(".moment", momentsRow);
+  if (!card) return;
+  const gap = parseFloat(getComputedStyle(momentsRow).columnGap) || 0;
+  const step = card.getBoundingClientRect().width + gap;
+  const perView = Math.max(1, Math.floor((momentsRow.clientWidth + gap) / step));
+  momentsRow.scrollBy({ left:dir * perView * step, behavior:reduceMotion() ? "instant" : "smooth" });
+}
+momentsRow.addEventListener("scroll", paintMomentArrows, { passive:true });
+new ResizeObserver(paintMomentArrows).observe(momentsRow);
+
+/* ---------- header: part of the hero wash until the page moves under it ---------- */
+const hdr = $(".hdr");
+function paintHdr(){ hdr.classList.toggle("is-scrolled", window.scrollY > 0); }
+window.addEventListener("scroll", paintHdr, { passive:true });
+paintHdr();
+
 $("#bellBtn").addEventListener("click", e => { e.stopPropagation(); openNotifPop(e.currentTarget); });
 /* the dot is a fact, not decoration: it shows only while the "new" group has rows */
 (function syncBellDot(){

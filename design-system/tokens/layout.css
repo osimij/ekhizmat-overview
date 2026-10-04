@@ -7,6 +7,9 @@
   --content-consumer: 1120px;
   --content-workspace: 1200px;
   --h-topbar: 60px;
+  /* citizen portal bar (Figma «Web» 130:4119 at the home's .85 presentation):
+     36px controls, padded — it sits on the hero wash */
+  --h-portalbar: 64px;
   --w-side: 264px;
   --w-side-collapsed: 66px;
   --h-sessionbar: 48px;
@@ -42,4 +45,8 @@
   --z-modal: 70;
   --z-toast: 80;
   --z-lock: 90;
+}
+/* on a phone the bar wraps to two rows (brand + actions, then the audience) */
+@media (max-width:560px) {
+  [data-platform='citizen'] { --h-portalbar: 104px; }
 }

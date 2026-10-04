@@ -101,29 +101,47 @@ test('canonical stroke icons never fall back to a black SVG fill', async ({ page
   expect(new Set(citizenFills)).toEqual(new Set(['none']));
 });
 
-test('citizen category cards keep identical dimensions', async ({ page }) => {
+test('citizen category tiles form an aligned two-row grid with a disclosure', async ({ page }) => {
+  await page.setViewportSize({ width: 1512, height: 982 });
   await page.goto('/citizen/?lang=ru&theme=light');
-  const sizes = await page.locator('.cat').evaluateAll((elements) => elements.map((element) => {
+  // seven leading groups and "more" (Figma «Web» 131:4575)
+  await expect(page.locator('#cats .cat')).toHaveCount(8);
+  const tiles = await page.locator('#cats .cat').evaluateAll((elements) => elements.map((element) => {
     const rect = element.getBoundingClientRect();
     const icon = element.querySelector('.tile').getBoundingClientRect();
-    const title = element.querySelector('span:last-child').getBoundingClientRect();
+    const title = element.querySelector('span:last-child');
     return {
+      left: Math.round(rect.left),
+      top: Math.round(rect.top),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
-      iconTopGap: Math.round(icon.top - rect.top),
-      titleBottomGap: Math.round(rect.bottom - title.bottom),
-      titleMinHeight: getComputedStyle(element.querySelector('span:last-child')).minHeight,
-      titleLines: Math.round(title.height / parseFloat(getComputedStyle(element.querySelector('span:last-child')).lineHeight)),
+      iconWidth: Math.round(icon.width),
+      iconCenterOffset: Math.round((icon.top + icon.height / 2) - (rect.top + rect.height / 2)),
+      titleLines: Math.round(title.getBoundingClientRect().height / parseFloat(getComputedStyle(title).lineHeight)),
     };
   }));
-  expect(new Set(sizes.map(({ width }) => width)).size).toBe(1);
-  expect(sizes[0].width).toBe(124);
-  expect(Math.max(...sizes.map(({ titleLines }) => titleLines))).toBeLessThanOrEqual(2);
-  expect(new Set(sizes.map(({ height }) => height)).size).toBe(1);
-  expect(sizes[0].height).toBe(120);
-  expect(new Set(sizes.map(({ iconTopGap }) => iconTopGap)).size).toBe(1);
-  expect(new Set(sizes.map(({ titleBottomGap }) => titleBottomGap)).size).toBe(1);
-  expect(new Set(sizes.map(({ titleMinHeight }) => titleMinHeight))).toEqual(new Set(['auto']));
+  const rows = [...new Set(tiles.map(({ top }) => top))];
+  expect(rows).toHaveLength(2);
+  for (const row of rows) {
+    const inRow = tiles.filter(({ top }) => top === row);
+    expect(inRow).toHaveLength(4);
+    expect(new Set(inRow.map(({ height }) => height)).size).toBe(1);
+  }
+  // a column shares its edges across the two rows
+  for (let column = 0; column < 4; column += 1) {
+    expect(tiles[column].left).toBe(tiles[column + 4].left);
+    expect(tiles[column].width).toBe(tiles[column + 4].width);
+  }
+  expect(tiles.every(({ iconWidth }) => iconWidth === 40)).toBe(true);
+  expect(tiles.every(({ iconCenterOffset }) => Math.abs(iconCenterOffset) <= 1)).toBe(true);
+  expect(Math.max(...tiles.map(({ titleLines }) => titleLines))).toBeLessThanOrEqual(2);
+
+  const more = page.locator('[data-cats-more]');
+  await expect(more).toHaveText('Другие услуги');
+  await more.click();
+  await expect(page.locator('#cats .cat')).toHaveCount(12);
+  await expect(page.locator('[data-cats-more]')).toHaveCount(0);
+  await expect(page.locator('#cats .cat').nth(7)).toBeFocused();
 });
 
 test('every platform renders with the bundled Google Sans font', async ({ page }) => {

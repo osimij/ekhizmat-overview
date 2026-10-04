@@ -139,45 +139,32 @@ test('the account menu uses the quiet popover shadow', async ({ page }) => {
   expect(shadow).not.toContain('12px 36px');
 });
 
-test('life-situation cards group copy, tighten metadata, and hover without a border change', async ({ page }) => {
-  await expect(page.locator('#momH')).toHaveCSS('font-size', '20px');
-  await expect(page.locator('#momH')).toHaveCSS('font-weight', '500');
-
+test('life-situation cards group copy, keep two-line descriptions, and hover without a border', async ({ page }) => {
   const cards = page.locator('.moment');
   const first = cards.first();
-  await expect(cards).toHaveCount(4);
-  await expect(first.locator('.mi svg')).toHaveCSS('width', '32px');
-  await expect(first.locator('.mi svg')).toHaveCSS('height', '32px');
+  await expect(cards).toHaveCount(6);
   await expect(first.locator('.moment-copy')).toHaveCount(1);
   await expect(first.locator('.moment-copy > *')).toHaveCount(2);
-  for (const description of await cards.locator('.moment-copy p').all()) {
+  await expect(first.locator('.moment-title')).toHaveCSS('font-size', '16px');
+  await expect(first.locator('.moment-title')).toHaveCSS('font-weight', '500');
+  for (const description of await cards.locator('.moment-text').all()) {
     const lines = await description.evaluate((text) => Math.round(text.getBoundingClientRect().height / parseFloat(getComputedStyle(text).lineHeight)));
     expect(lines).toBeLessThanOrEqual(2);
   }
 
-  const gap = await first.evaluate((card) => {
-    const copy = card.querySelector('.moment-copy').getBoundingClientRect();
-    const meta = card.querySelector('.meta').getBoundingClientRect();
-    return meta.top - copy.bottom;
-  });
-  expect(gap).toBeCloseTo(12, 0);
+  // illustrated cards hug the action, plain cards span it across the card
+  const ctaWidths = await cards.evaluateAll((items) => items.map((card) => ({
+    art: card.classList.contains('moment--art'),
+    span: Math.round(card.getBoundingClientRect().width - card.querySelector('.moment-cta').getBoundingClientRect().width),
+  })));
+  for (const { art, span } of ctaWidths) {
+    if (art) expect(span).toBeGreaterThan(100);
+    else expect(span).toBe(24);
+  }
 
-  const wrapperBottomGap = await first.locator('.mt').evaluate((wrapper) => {
-    const wrapperBox = wrapper.getBoundingClientRect();
-    const metaBox = wrapper.querySelector('.meta').getBoundingClientRect();
-    return wrapperBox.bottom - metaBox.bottom;
-  });
-  expect(wrapperBottomGap).toBeCloseTo(0, 0);
-
-  const bottomAlignment = await cards.evaluateAll((items) => items.slice(0, 4).map((card) => {
-    const cardBox = card.getBoundingClientRect();
-    const textBox = card.querySelector('.mt').getBoundingClientRect();
-    return cardBox.bottom - textBox.bottom;
-  }));
-  for (const inset of bottomAlignment) expect(inset).toBeCloseTo(21, 0);
-
-  const borderBefore = await first.evaluate((card) => getComputedStyle(card).borderColor);
+  await expect(first).toHaveCSS('border-top-width', '0px');
+  const restBackground = await first.evaluate((card) => getComputedStyle(card).backgroundColor);
   await first.hover();
-  await expect(first).toHaveCSS('background-color', 'rgb(250, 250, 250)');
-  await expect(first).toHaveCSS('border-color', borderBefore);
+  await expect(first).not.toHaveCSS('background-color', restBackground);
+  await expect(first).toHaveCSS('border-top-width', '0px');
 });

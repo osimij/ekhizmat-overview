@@ -6,18 +6,48 @@
 html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-hover)}
 
 /* ============ HEADER ============ */
+/* Figma «Web» 130:4119: brand + audience on the left, links then language and
+   sign-in on the right. On the home hero the bar is part of the wash — no
+   fill, no rule — until the page scrolls under it. Like the launcher, the home
+   composition is presented at .85 of the Figma frame (which draws the shared
+   chrome at ~1.2×): every metric below is the Figma value × .85, snapped to
+   the token scale. */
 .hdr{
   position:sticky; top:0; z-index:40;
   background:color-mix(in srgb,var(--bg) 84%,transparent);
   backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 var(--line); /* a shadow, not a border: the bar stays exactly --h-portalbar */
+  transition:background-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
-.hdr-in{position:relative; display:flex; align-items:center; gap:var(--s-4); height:var(--h-topbar)}
-.brand{display:flex; align-items:center; gap:10px; padding:var(--s-1) 0; color:var(--ink)}
+body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
+  background:transparent; box-shadow:none;
+  backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+.hdr-in{position:relative; display:flex; align-items:center; gap:var(--s-3); height:var(--h-portalbar)}
+.brand{display:flex; align-items:center; gap:var(--s-2); padding:var(--s-1) 0; color:var(--ink)}
 .brand .mark{width:30px; height:30px; color:var(--blue); flex:none}
-.brand b{font-size:var(--fs-17); font-weight:var(--weight-semibold); letter-spacing:0}
-.hdr-acts{display:flex; align-items:center; gap:var(--s-1); margin-left:auto}
-.hdr-acts .btn-sm{padding:9px 18px; font-size:var(--fs-14); margin-left:var(--s-2)}
+.brand b{font-size:var(--fs-18); font-weight:var(--weight-medium); letter-spacing:0}
+.hdr .dd.acct .dd-btn{gap:var(--s-2); color:var(--ink); font-size:var(--fs-15); font-weight:var(--weight-regular)}
+.hdr-acts{display:flex; align-items:center; gap:var(--s-2); margin-left:auto}
+/* text gap between the two links is 20 (Figma 24 × .85): 8 + the links' own 2×6 padding */
+.hdr-nav{display:flex; align-items:center; gap:var(--s-2); margin-right:var(--s-5)}
+.hdr-link{
+  padding:6px; border-radius:var(--r-s);
+  color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular); white-space:nowrap;
+  transition:background var(--t-fast) var(--ease);
+}
+.hdr-link:hover{background:var(--hover)}
+/* signed out, preferences open from the current language (§3 citizen portal header) */
+.lang-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:var(--h-btn-s); padding:0 9px 0 12px; border-radius:var(--r-s);
+  background:var(--panel-hover); box-shadow:inset 0 0 0 1px var(--line-in);
+  color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular);
+  transition:background var(--t-fast) var(--ease);
+}
+.lang-btn:hover,.lang-btn[aria-expanded="true"]{background:var(--field)}
+.lang-btn svg{width:12px; height:12px; color:var(--ink-2)}
+.hdr-acts .hdr-login{min-height:var(--h-btn-s); padding:0 var(--s-4); border-radius:var(--r-s); font-size:var(--fs-14)}
 .icon-btn{
   width:40px; height:40px; display:grid; place-items:center;
   color:var(--ink-2); border-radius:var(--r-s); position:relative;
@@ -76,58 +106,48 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .dd.acct .dd-menu{box-shadow:var(--shadow-1)}
 
 /* ============ HOME / HERO ============ */
-/* the hero is one composition: the artwork bleeds to the band's top, right
-   and bottom edges, and gradient overlays of the same wash colour melt its
-   left and top edges into the band — no visible seam in either theme */
+/* Figma «Web» 130:4065. The wash starts under the transparent header (the band
+   pulls itself up by the bar's height), the photo is pinned to the right edge
+   and its baked haze melts into the wash — no overlay needed in light. */
 .hero{
   position:relative; isolation:isolate; /* keeps the z-index:-1 art above the band bg */
-  padding:var(--s-12) 0 var(--s-10); background:var(--hero);
-  /* wash animates between the same endpoints the art layers fade into,
-     so the melt stays seamless mid-transition */
-  transition:background-color var(--t-theme) var(--ease);
+  margin-top:calc(-1 * var(--h-portalbar));
+  padding:calc(var(--h-portalbar) + var(--s-8)) 0 var(--s-10);
+  background:linear-gradient(-87deg, var(--hero) 10%, var(--hero-soft) 97%);
 }
-/* content sits on the standard centered rail — same edge as the header
-   brand and the feed below — with the artwork filling the right side */
 .hero-in > .search{max-width:720px}
-.hero-in > .cats{max-width:784px}
-/* the phone rail below reuses .cats; keep the desktop grid definition here */
+/* the photo is 866px wide on a 1512 screen (1019 × .85) and bleeds 1.8% past the
+   right edge; below that it scales with the viewport so the tower never meets the copy */
 .hero-art{
-  position:absolute; z-index:-1; top:0; bottom:0; right:0;
-  /* slides under the content column's right end (the wrap is centered, so
-     50% anchors to it); capped so the scene never balloons on ultrawide */
-  left:max(calc(50% + 60px), calc(100% - 1200px));
-  /* 44% keeps the statue past the long fade as panes narrow;
-     20% vertical protects the crown when short, wide bands crop the sky */
-  --art-pos:44% 20%;
+  --art-w:min(866px, 57.3vw);
+  position:absolute; z-index:-1; top:var(--h-portalbar); right:0; bottom:0;
+  width:calc(var(--art-w) * .982);
+  background:url("./assets/home-hero.webp") left top / var(--art-w) auto no-repeat;
 }
-/* day and night renders of the same scene, stacked; the night layer
-   cross-fades in over the day one. Each layer bakes its own fade overlay
-   (gradients can't animate) ending in its theme's exact wash colour,
-   which the band's background-color transition passes through — so the
-   left melt holds at every frame of the switch. */
-.hero-art::before,.hero-art::after{content:""; position:absolute; inset:0}
+/* the haze ends a shade off the wash where the photo starts: a short melt hides the seam */
 .hero-art::before{
+  content:""; position:absolute; inset:0;
   background:
-    linear-gradient(to right, var(--hero-light) 0, transparent 55%),
-    url("./assets/hero.webp") var(--art-pos) / cover no-repeat;
+    linear-gradient(to bottom, var(--hero) 0, transparent 12%),
+    linear-gradient(to right, color-mix(in srgb, var(--hero) 50%, var(--hero-soft)) 0, transparent 10%);
 }
+/* night: the same scene under the wash, so the switch never changes the place —
+   the haze and sky sink into it and the tower keeps its lights */
 .hero-art::after{
+  content:""; position:absolute; inset:0; opacity:0;
   background:
-    linear-gradient(to right, var(--hero-dark) 0, transparent 55%),
-    url("./assets/hero-dark.webp") var(--art-pos) / cover no-repeat;
-  opacity:0; transition:opacity var(--t-theme) var(--ease);
+    linear-gradient(to bottom, var(--hero-dark) 0, transparent 35%),
+    linear-gradient(to right, var(--hero-dark) 0, var(--hero-dark) 15%, color-mix(in srgb, var(--hero-dark) 55%, transparent) 55%, transparent),
+    color-mix(in srgb, var(--hero-dark) 40%, transparent);
+  transition:opacity var(--t-theme) var(--ease);
 }
 [data-theme="dark"] .hero-art::after{opacity:1}
 @media (prefers-reduced-motion:reduce){
-  .hero,.hero-art::after{transition:none}
+  .hero-art::after{transition:none}
 }
-@media (max-width:1360px){
-  /* pane too narrow for the statue: show the park side — palace, fountains, flag */
-  .hero-art{--art-pos:100% 20%}
-}
-.hero h1{max-width:21ch}
+.hero h1{font-size:var(--fs-32); line-height:1.2}
 #heroTitle{letter-spacing:-0.02em;}
-.hero .sub{color:var(--ink-2); font-size:var(--fs-17); margin:var(--s-4) 0 0; max-width:54ch}
+.hero .sub{color:var(--ink-2); font-size:var(--fs-16); line-height:1.5; margin:var(--s-1) 0 0}
 
 /* auth states are keyed off <html data-auth>, set inline in <head>,
    so the first paint already matches the stored session */
@@ -140,26 +160,26 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 [data-auth="in"] #heroSub{display:none}
 
 /* signed in: the pitch gives way to a greeting — categories lead, search below */
-[data-auth="in"] .hero{padding-top:var(--s-10)}
-[data-auth="in"] .hero h1{font-size:var(--fs-32); margin-bottom:var(--s-6)}
-[data-auth="in"] .search{margin:var(--s-6) 0 var(--s-2)}
+[data-auth="in"] .hero h1{font-size:var(--fs-28); margin-bottom:var(--s-5)}
+[data-auth="in"] .search{margin:var(--s-4) 0 0}
 
-/* hero search — the portal's main verb */
-.search{position:relative; max-width:780px; margin:var(--s-8) 0 var(--s-10); z-index:5; text-align:left}
+/* hero search — the portal's main verb (Figma 130:4110: a 64px field, blue glyph,
+   a 48px button inset 8px so its 12px corners stay concentric with the field's 20) */
+.search{position:relative; margin:var(--s-3) 0 var(--s-4); z-index:5; text-align:left}
 .search input{
   width:100%; height:64px; border:1px solid var(--line); border-radius:20px;
-  background:var(--panel); color:var(--ink); padding:0 150px 0 56px; font-size:var(--fs-17);
+  background:var(--panel); color:var(--ink); padding:0 148px 0 56px; font-size:var(--fs-17);
   transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
 .search input::placeholder{color:var(--ink-3)}
 .search input:focus-visible{outline:none; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue)}
-.search .ic{position:absolute; left:22px; top:32px; translate:0 -50%; width:20px; height:20px; color:var(--ink-3); pointer-events:none}
+.search .ic{position:absolute; left:22px; top:32px; translate:0 -50%; width:20px; height:20px; color:var(--blue); pointer-events:none}
 .search-btn{
   position:absolute; right:8px; top:32px; translate:0 -50%;
-  display:inline-flex; align-items:center; gap:8px;
-  border-radius:12px; /* concentric with the field's 20px at 8px inset */
-  height:48px; padding:0 24px; background:var(--blue); color:var(--on-blue);
-  font-weight:600; font-size:var(--fs-15);
+  display:inline-flex; align-items:center; gap:var(--s-2);
+  border-radius:12px;
+  height:48px; padding:0 var(--s-6); background:var(--blue); color:var(--on-blue);
+  font-weight:var(--weight-semibold); font-size:var(--fs-15);
   transition:background var(--t-fast) var(--ease);
 }
 .search-btn:hover{background:var(--blue-hover)}
@@ -185,20 +205,20 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .s-item svg{width:19px; height:19px; color:var(--ink-3); flex:none}
 .s-item .meta{margin-left:auto; font-size:var(--fs-12); color:var(--ink-3); white-space:nowrap; font-weight:500}
 
-/* category grid — white cards on the hero wash, hue on the icon tiles */
-.cats{
-  display:grid; grid-template-columns:repeat(6,124px); gap:var(--s-2);
-  grid-auto-rows:120px;
-  margin:0 0 var(--s-2);
-}
+/* category tiles — white chips on the wash, hue on the icon well (Figma 131:4575).
+   Four auto-sized columns: tiles in a column share a width, tiles in a row a height */
+.cats{display:grid; grid-template-columns:repeat(4, auto); justify-content:start; gap:var(--s-2)}
 .cat{
-  display:flex; flex-direction:column; align-items:flex-start; justify-content:space-between; gap:0;
-  border-radius:var(--r-m); padding:var(--s-3); min-width:0;
-  background:var(--panel);
-  color:var(--ink); font-size:var(--fs-13); font-weight:var(--weight-medium); line-height:1.3;
+  display:flex; align-items:center; gap:var(--s-3); min-width:0;
+  padding:var(--s-2) var(--s-4) var(--s-2) var(--s-2); border-radius:var(--r-m);
+  background:var(--panel); color:var(--ink); text-align:left;
+  font-size:var(--fs-14); font-weight:var(--weight-medium); line-height:1.45;
   transition:background var(--t-fast) var(--ease);
 }
-.cat span:last-child{display:block; max-width:100%; text-align:left; text-wrap:balance; overflow-wrap:anywhere}
+.cat .tile{width:40px; height:40px; border-radius:var(--r-s)}
+.cat .tile svg{width:20px; height:20px}
+/* long names wrap at the Figma 116px measure (× .85); short ones stay on one line */
+.cat span:last-child{max-width:7.5em; text-wrap:balance; overflow-wrap:anywhere}
 .cat:hover{background-image:linear-gradient(var(--hover),var(--hover))}
 
 /* ============ FOR-YOU FEED ============ */
@@ -288,42 +308,85 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
 .sect{margin-top:var(--s-12)}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
 .sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
+/* home sections are the Figma «Body» bands (× .85): 48 above each title, 48
+   between bands (so two bands sit 96 apart), the footer's own 64 after the last */
+.home-sect{margin-top:0; padding-top:var(--s-12)}
+.home-sect + .home-sect{margin-top:var(--s-12)}
+.home-sect .sect-h{margin-bottom:var(--s-6)}
+.home-sect .sect-h h2{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
 
-/* ============ LIFE MOMENTS — up to four wide catalogue cards per row ============ */
+/* ============ LIFE SITUATIONS — a paged row of tinted cards (Figma 130:4141) ============ */
 .moments{
-  display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--s-3); align-items:stretch;
+  --per-view:4;
+  display:grid; grid-auto-flow:column; gap:var(--s-3);
+  grid-auto-columns:calc((100% - (var(--per-view) - 1) * var(--s-3)) / var(--per-view));
+  overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory;
+  /* room for the focus ring, which the scroller would otherwise clip (§9) */
+  padding:var(--s-1); margin:calc(-1 * var(--s-1)); scroll-padding-inline:var(--s-1);
 }
 .moment{
   position:relative; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
-  min-height:calc(var(--s-16) * 4); padding:var(--s-5); text-align:left;
-  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
+  min-height:212px; /* Figma 248 × .85; text never needs more */
+  padding:var(--s-5) var(--s-5) var(--s-3); overflow:hidden;
+  background:var(--blue-tint); border-radius:var(--r-l); text-align:left; scroll-snap-align:start;
   transition:background var(--t-fast) var(--ease);
 }
-.moment:hover,.moment:focus-visible{background:var(--panel-hover)}
-.moment .mi{width:var(--s-16); height:var(--s-16); flex:none; display:grid; place-items:center; border-radius:var(--r-m)}
-.moment .mi svg{width:var(--s-8); height:var(--s-8)}
-.moment .mt{
-  width:100%; min-width:0; display:flex; flex-direction:column;
-  margin-top:auto; padding-top:var(--s-8);
-}
-.moment-copy{display:grid; gap:var(--s-1)}
-.moment h3{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.35}
-.moment p{
-  color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; overflow:hidden;
+.moment:hover,.moment:focus-visible{background:var(--blue-tint-hover)}
+.moment-copy{position:relative; z-index:1; display:grid; gap:var(--s-1); max-width:100%}
+.moment-title{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.4}
+.moment-text{
+  color:var(--ink-2); font-size:var(--fs-13); line-height:1.5; overflow:hidden;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
 }
-.moment .meta{
-  font-size:var(--fs-13); color:var(--ink-3); display:flex; align-items:center; gap:var(--s-2);
-  margin-top:var(--s-3);
+/* illustrations are full Figma canvases (mostly transparent); each is placed so
+   its object lands where the frame draws it — right edge, above the action */
+.moment-art{position:absolute; height:auto; pointer-events:none}
+.moment-art--rings{width:263px; top:-8px; right:-7px}
+.moment-art--bouquet{width:207px; top:37px; right:15px}
+.moment--art .moment-text{max-width:60%}
+/* the action pill sits on the card's own inset, below the copy's edge;
+   with art it hugs its label, without art it spans the card */
+.moment-cta{
+  position:relative; z-index:1; margin:auto 0 0 calc(var(--s-3) - var(--s-5));
+  display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
+  padding:var(--s-2) var(--s-3); border-radius:var(--r-pill); background:var(--panel);
+  color:var(--blue-ink); font-size:var(--fs-13); line-height:1.5; white-space:nowrap;
 }
-.moment .meta svg{width:14px; height:14px}
-.moment .go{
-  position:absolute; top:var(--s-4); right:var(--s-4);
-  width:24px; height:24px; display:grid; place-items:center; color:var(--ink-3);
-  transition:translate var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+.moment:not(.moment--art) .moment-cta{align-self:stretch; margin-right:calc(var(--s-3) - var(--s-5))}
+.moment-cta svg{width:10px; height:10px; flex:none; transition:translate var(--t-fast) var(--ease)}
+.moment:hover .moment-cta svg,.moment:focus-visible .moment-cta svg{translate:2px 0}
+.moments-nav{display:flex; justify-content:flex-end; gap:var(--s-2); margin-top:var(--s-6)}
+.moments-arrow{
+  display:grid; place-items:center; width:44px; height:32px;
+  border-radius:var(--r-pill); background:var(--field); color:var(--ink-2);
+  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
 }
-.moment:hover .go,.moment:focus-visible .go{translate:var(--s-1) 0; color:var(--ink)}
-.moment .go svg{width:16px; height:16px}
+.moments-arrow svg{width:14px; height:14px}
+.moments-arrow:hover{background:var(--press); color:var(--ink)}
+.moments-arrow:active{transform:scale(.96)}
+.moments-arrow[aria-disabled="true"]{background:var(--field); color:var(--ink-3); opacity:.45; transform:none}
+
+/* ============ NEWS + APP (Figma 130:4170) ============ */
+.news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--s-4)}
+.news-card,.app-card{
+  position:relative; overflow:hidden; min-height:430px; /* Figma 506 × .85 */ padding:var(--s-8);
+  background:var(--blue-tint); border-radius:var(--r-s);
+}
+.news-card{display:flex; flex-direction:column; align-items:flex-start}
+.news-card__title,.app-card__title{
+  position:relative; z-index:1;
+  font-size:var(--fs-24); font-weight:var(--weight-medium); line-height:1.25;
+}
+.news-card__title{max-width:23em; text-wrap:pretty}
+.news-card__date{margin-top:var(--s-3); color:var(--ink-2); font-size:var(--fs-15); font-variant-numeric:tabular-nums}
+.news-card__cta{position:relative; z-index:1; margin-top:auto; border-radius:var(--r-s)}
+.news-card__art{position:absolute; right:4.6%; bottom:5.7%; width:39%; height:auto; pointer-events:none}
+.app-card__title{max-width:9em}
+.app-card__stores{position:relative; z-index:1; display:block; width:88px; height:auto; margin-top:var(--s-4)}
+.app-card__qr{position:absolute; left:var(--s-8); bottom:var(--s-8); width:62px; height:auto}
+.app-card__phone{position:absolute; top:72px; right:var(--s-6); width:224px; height:auto; pointer-events:none}
+/* a black QR needs paper under it to scan on a dark card */
+[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); background:var(--pure-white); border-radius:var(--r-s); left:calc(var(--s-8) - var(--s-1)); bottom:calc(var(--s-8) - var(--s-1))}
 
 /* ============ FOOTER ============ */
 footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
@@ -832,31 +895,32 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 
 /* ============ RESPONSIVE ============ */
 @media (max-width:1080px){
-  .hdr-in{flex-wrap:wrap; height:auto; padding:var(--s-3) 0; row-gap:var(--s-2)}
-  .moments{grid-template-columns:repeat(3,minmax(0,1fr))}
+  /* the tower would meet the copy: the photo becomes a full-bleed strip at the
+     band's foot, cropped around the tower, its sky melting into the wash */
+  .hero-art{
+    position:relative; inset:auto; width:auto;
+    height:clamp(240px, 36vw, 380px);
+    margin:var(--s-8) calc(-1 * var(--s-6)) calc(-1 * var(--s-12));
+    background-size:cover; background-position:72% 15%;
+  }
+  .moments{--per-view:3}
+  .news-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:880px){
-  .hero{padding-top:var(--s-8)}
-  .hero-in > .search,.hero-in > .cats{max-width:none}
-  /* the artwork becomes a full-bleed strip at the band's foot:
-     plaza, fountains and flag, melting up into the wash */
-  .hero-art{
-    position:relative; inset:auto; /* desktop's left/right would shift the relative box */
-    height:150px;
-    margin:var(--s-8) calc(-1 * var(--s-6)) calc(-1 * var(--s-10));
+  .hdr-nav{display:none} /* the catalogue is the hero itself; help stays in the footer */
+  /* the two rows of tiles stop fitting: they become one two-row rail
+     rather than four rows above the fold */
+  .cats{
+    grid-template-columns:none; grid-template-rows:repeat(2,auto);
+    grid-auto-flow:column; grid-auto-columns:max-content;
+    overflow-x:auto; scroll-snap-type:x mandatory;
+    margin:0 calc(var(--s-6) * -1); padding:0 var(--s-6) 4px; scroll-padding-inline:var(--s-6);
+    mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
+    -webkit-mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
   }
-  .hero-art::before{
-    background:
-      linear-gradient(to bottom, var(--hero-light), transparent 64px),
-      url("./assets/hero.webp") right 62% / cover no-repeat;
-  }
-  .hero-art::after{
-    background:
-      linear-gradient(to bottom, var(--hero-dark), transparent 64px),
-      url("./assets/hero-dark.webp") right 62% / cover no-repeat;
-  }
-  .cats{grid-template-columns:repeat(4,1fr)}
-  .moments{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cat{scroll-snap-align:start}
+  .hero-in > .search{max-width:none}
+  .moments{--per-view:2}
   .feed-grid{grid-template-columns:1fr}
   /* the portal's main verb comes first on a phone: search, then the catalogue */
   .hero-in{display:flex; flex-direction:column}
@@ -880,28 +944,33 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .cp-head{align-items:flex-start;flex-direction:column;gap:var(--s-3)}
   .cp-head #cpFilters{align-self:stretch;justify-content:space-between}
   .cp-search{width:100%}
-  .moments{grid-template-columns:minmax(0,1fr)}
-  .hdr-in{padding:10px 0; row-gap:8px; gap:var(--s-2) var(--s-3)}
+  /* one card and a peek of the next says "this row scrolls" */
+  .moments{--per-view:1.15}
+  /* two rows: brand + actions, then the audience switch (--h-portalbar grows to match) */
+  .hdr-in{flex-wrap:wrap; align-content:center; row-gap:var(--s-1); gap:var(--s-1) var(--s-2)}
+  .brand b{font-size:var(--fs-17)}
+  .hero h1{font-size:var(--fs-28)}
+  .home-sect{padding-top:var(--s-10)}
+  .home-sect + .home-sect{margin-top:var(--s-8)}
+  .home-sect .sect-h{margin-bottom:var(--s-5)}
+  .home-sect .sect-h h2{font-size:var(--fs-24)}
+  .news-card,.app-card{min-height:0; padding:var(--s-6)}
+  .news-card__title,.app-card__title{font-size:var(--fs-20)}
+  /* in a phone-width card the illustration joins the reading order */
+  .news-card__art{position:static; align-self:flex-end; width:72%; margin:var(--s-4) 0}
+  .news-card__cta{order:1; margin-top:0}
+  .app-card{min-height:400px}
+  .app-card__qr{display:none} /* a phone cannot scan its own screen */
+  .app-card__phone{top:170px; right:calc(-1 * var(--s-6)); width:200px}
   .ft-grid{grid-template-columns:1fr}
   .dd-btn{padding:7px 10px; font-size:var(--fs-13)}
   .dd.acct{order:3; flex-basis:100%}
   .dd.acct .dd-btn{width:100%; justify-content:flex-start; margin-left:-12px}
-  .hdr-acts{gap:0}
+  .hdr-acts{gap:var(--s-2)}
   .j-acts{flex-direction:column-reverse}
-  /* one snapping rail instead of four rows of tiles above the fold */
-  .cats{
-    display:flex; gap:var(--s-2); overflow-x:auto; scroll-snap-type:x mandatory;
-    margin:0 calc(var(--s-5) * -1) var(--s-2); padding:0 var(--s-5) 4px;
-    mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
-    -webkit-mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
-  }
-  .cat{flex:none; width:96px; scroll-snap-align:start; padding:var(--s-2) 8px; font-size:var(--fs-12); gap:var(--s-2)}
-  .cat span:last-child{max-width:100%}
-  .cat .tile{width:40px; height:40px}
-  .cat .tile svg{width:20px; height:20px}
-  .search input{height:56px; padding:0 64px 0 48px}
-  .search .ic{left:17px; top:28px}
-  .search-btn{top:28px; width:44px; height:44px; padding:0; justify-content:center}
+  .search input{height:56px; padding:0 64px 0 48px; font-size:var(--fs-16)}
+  .search .ic{left:17px; top:28px; width:20px; height:20px}
+  .search-btn{top:28px; right:6px; width:44px; height:44px; padding:0; justify-content:center; border-radius:var(--r-s)}
   .search-btn span{display:none}
   .search-btn svg{display:block}
   .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
@@ -947,7 +1016,8 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .sw .knob{position:relative; width:48px; height:29px}
 }
 @media (hover:none){
-  .cat:active,.frow:active,.app-row:active,.svc-row:active,.moment:active,.s-item:active{background:var(--press)}
+  .cat:active,.frow:active,.app-row:active,.svc-row:active,.s-item:active{background:var(--press)}
+  .moment:active{background:var(--blue-tint-hover)}
   .popular-card:active{background:var(--press)}
   .btn-pri:active{background:var(--blue-press)}
   .btn-sec:active{background:var(--press)}

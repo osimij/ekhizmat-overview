@@ -1,46 +1,61 @@
 import { test, expect } from '@playwright/test';
 
-test('life moments use four wide rectangular cards per desktop row', async ({ page }) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+test('life situations are a paged row of tinted cards with aligned actions', async ({ page }) => {
+  await page.setViewportSize({ width: 1512, height: 982 });
   await page.goto('/citizen/?present=1&theme=light&lang=ru');
 
   await expect(page.locator('.emerg')).toHaveCount(0);
-  await expect(page.locator('#searchInput')).toHaveAttribute('placeholder', 'Ищу…');
-  const cards = page.locator('.moments > .moment');
-  await expect(cards).toHaveCount(4);
+  await expect(page.locator('#searchInput')).toHaveAttribute('placeholder', 'Я хочу получить загранпаспорт');
+  await expect(page.locator('#momH')).toHaveCSS('font-size', '28px');
+  await expect(page.locator('#momH')).toHaveCSS('font-weight', '600');
+  const cards = page.locator('#moments > .moment');
+  await expect(cards).toHaveCount(6);
+  await expect(page.locator('#moments .moment-art')).toHaveCount(2);
 
-  const layout = await cards.evaluateAll((items) => items.map((card) => {
-    const box = card.getBoundingClientRect();
-    const icon = card.querySelector('.mi').getBoundingClientRect();
-    const meta = card.querySelector('.meta').getBoundingClientRect();
-    return {
-      top: box.top,
-      bottom: box.bottom,
-      width: box.width,
-      height: box.height,
-      iconWidth: icon.width,
-      iconHeight: icon.height,
-      metaBottom: meta.bottom,
-    };
-  }));
-
+  const layout = await page.locator('#moments').evaluate((row) => {
+    const box = row.getBoundingClientRect();
+    return [...row.querySelectorAll('.moment')].map((card) => {
+      const c = card.getBoundingClientRect();
+      const cta = card.querySelector('.moment-cta').getBoundingClientRect();
+      return {
+        top: c.top, width: Math.round(c.width), height: c.height,
+        visible: c.left >= box.left - 1 && c.right <= box.right + 1,
+        ctaInset: Math.round(c.bottom - cta.bottom),
+        ctaBottom: Math.round(cta.bottom),
+      };
+    });
+  });
+  // four whole cards per view at the Figma frame width, the rest one page away
+  expect(layout.filter(({ visible }) => visible)).toHaveLength(4);
   expect(new Set(layout.map(({ top }) => top)).size).toBe(1);
-  expect(layout[0].width).toBeGreaterThan(layout[0].height);
-  expect(layout[0].iconWidth).toBe(64);
-  expect(layout[0].iconHeight).toBe(64);
-  expect(layout.slice(0, 4).every(({ bottom, metaBottom }) => bottom - metaBottom === 21)).toBe(true);
+  expect(new Set(layout.map(({ width }) => width)).size).toBe(1);
+  expect(layout.every(({ height }) => height === 212)).toBe(true); // Figma 248 × .85
+  // the action sits on the card's own 12px inset, on one line across the row
+  expect(layout.every(({ ctaInset }) => ctaInset === 12)).toBe(true);
+  expect(new Set(layout.map(({ ctaBottom }) => ctaBottom)).size).toBe(1);
+
+  const [prev, next] = [page.locator('[data-moments="-1"]'), page.locator('[data-moments="1"]')];
+  await expect(prev).toHaveAttribute('aria-disabled', 'true');
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect.poll(() => page.locator('#moments').evaluate((row) => row.scrollWidth - row.clientWidth - row.scrollLeft)).toBeLessThanOrEqual(1);
+  await expect(next).toHaveAttribute('aria-disabled', 'true');
+  await expect(prev).toHaveAttribute('aria-disabled', 'false');
 });
 
-test('life moment cards reflow without horizontal overflow', async ({ page }) => {
+test('life situation row pages fewer cards as the viewport narrows, without page overflow', async ({ page }) => {
   await page.goto('/citizen/?present=1&theme=light&lang=ru');
 
-  for (const [width, expectedColumns] of [[960, 3], [620, 2], [520, 1]]) {
+  for (const [width, perView] of [[1080, 3], [880, 2], [520, 1.15]]) {
     await page.setViewportSize({ width, height: 800 });
-    const columnCount = await page.locator('.moments').evaluate((grid) =>
-      getComputedStyle(grid).gridTemplateColumns.split(' ').length);
+    const measured = await page.locator('#moments').evaluate((row) => {
+      const card = row.querySelector('.moment').getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(row).columnGap);
+      return (row.clientWidth - 2 * parseFloat(getComputedStyle(row).paddingLeft) + gap) / (card + gap);
+    });
     const overflow = await page.evaluate(() =>
       document.documentElement.scrollWidth - document.documentElement.clientWidth);
-    expect(columnCount).toBe(expectedColumns);
+    expect(measured).toBeCloseTo(perView, 1);
     expect(overflow).toBeLessThanOrEqual(1);
   }
 });
