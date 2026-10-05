@@ -1,5 +1,7 @@
 :root {
   --maxw: 1120px;
+  /* the content container's side gutter (.wrap); the citizen portal tightens it on phones */
+  --gutter: var(--s-6);
   /* citizen portal container: 1250px of content inside the --s-6 gutters */
   --maxw-portal: 1298px;
   --w-launcher: 1440px;
@@ -48,7 +50,8 @@
   --z-toast: 80;
   --z-lock: 90;
 }
-/* on a phone the bar wraps to two rows (brand + actions, then the audience) */
+/* on a phone the portal bar keeps one row (the mark alone carries the brand),
+   and the portal's gutter tightens so the bar and the content share one edge */
 @media (max-width:560px) {
-  [data-platform='citizen'] { --h-portalbar: 104px; }
+  [data-platform='citizen'] { --gutter: var(--s-5); }
 }

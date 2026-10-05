@@ -33,7 +33,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     cardTab: 'overview',
     apps: [],
     notifs: [],
-    filters: { svc: '', status: '', sla: 'all', priority: '', io: '', period: '', q: '' },
+    filters: { svc: '', status: '', sla: 'all', priority: '', io: '', period: '', formState: '', q: '' },
     sort: { key: 'sla', dir: 1 },
     sel: {},                            // id → true (выбранные для массовой обработки)
     formDraft: null,
@@ -42,8 +42,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     formFieldOpen: null,
     formPaletteOpen: false,
     formPreviewOpen: false,
-    statIntroPending: false,
-    formsFacet: '',                     // '' | 'draft' | 'review' | 'published'
+    registrySearch: {forms:'', interop:''},
     filterOpen: null,                      // 'svc' | 'status' | null
     modal: null,                        // объект текущей модалки
     pop: null                           // 'notif' | 'user' | null
@@ -54,7 +53,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
      попадает никогда: в ней бывает ФИО заявителя, а приватный контракт рабочего
      места запрещает персональные данные в адресной строке (§7, платформенное
      исключение). Восстанавливаем только по явному списку значений. */
-  var URL_FILTERS = ['svc', 'status', 'sla', 'priority', 'io', 'period'];
+  var URL_FILTERS = ['svc', 'status', 'sla', 'priority', 'io', 'period', 'formState'];
   function filterAllowed(key, value) {
     if (!value) return key !== 'sla';
     if (key === 'svc') return Object.prototype.hasOwnProperty.call(D.SERVICE, value);
@@ -62,6 +61,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     if (key === 'sla') return value === 'all' || value === 'warn' || value === 'breach';
     if (key === 'priority') return value === 'high';
     if (key === 'io') return value === 'pending' || value === 'received';
+    if (key === 'formState') return ['draft','review','published'].indexOf(value) >= 0;
     if (key === 'period') return D.REPORT_PERIODS.some(function (x) { return x.id === value; });
     return false;
   }
@@ -86,6 +86,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     S.filters[key] = value;
     writeFiltersToUrl();
     renderMain();
+    writeArm();
   }
 
   /* Сессия оператора в этой вкладке. F5 оставляет на месте; Cmd+Shift+R /
@@ -176,7 +177,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     return '<span class="status-pill' + (tone ? ' status-pill--' + tone : '') + '">' + esc(statusLabel(key)) + '</span>';
   }
   function appStatusIcon(key) {
-    var tone = ({ draft:'neutral', submitted:'info', awaiting_pay:'warning', processing:'warning', info_requested:'warning', clarify:'warning', decided:'success', done:'success', denied:'danger', withdrawn:'neutral' })[key] || 'neutral';
+    var tone = ({ draft:'neutral', submitted:'info', awaiting_pay:'warning', processing:'info', info_requested:'warning', clarify:'warning', decided:'success', done:'success', denied:'danger', withdrawn:'neutral' })[key] || 'neutral';
     var iconName = ({ draft:'i-edit', submitted:'i-clock', awaiting_pay:'i-clock', processing:'i-clock', info_requested:'i-info', clarify:'i-edit', decided:'i-check', done:'i-check', denied:'i-x', withdrawn:'i-history' })[key];
     return statusIcon(tone, statusLabel(key), iconName);
   }
@@ -191,6 +192,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function agencyName() { return localValue(D.ME.agency); }
   function divisionName() { return localValue(D.ME.division); }
   function roleName() { return localValue(D.ME.role); }
+  function applicantName(a) { return a.applicant.kind === 'guest' ? t('audience_guest') : a.applicant.name; }
   function priorityLabel(value) { return value === 'Высокий' ? t('priority_high') : t('priority_normal'); }
   function payStatusLabel(value) {
     return ({ 'Оплачено':t('pay_paid'), 'Не требуется':t('pay_none'), 'Ожидает оплаты':t('pay_wait'), 'Возвращена':t('pay_ret') })[value] || value;
@@ -287,7 +289,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       if (f.sla !== 'all') { var st = slaState(a); if (f.sla === 'warn' && st === 'ok') return false; if (f.sla === 'breach' && st !== 'breach') return false; }
       if (f.priority === 'high' && a.priority !== 'Высокий') return false;
       if (q) {
-        var hay = (a.number + ' ' + serviceName(svc(a)) + ' ' + a.applicant.name + ' ' + (a.applicant.tin || '')).toLowerCase();
+        var hay = (a.number + ' ' + serviceName(svc(a)) + ' ' + applicantName(a) + ' ' + (a.applicant.tin || '')).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
       }
       return true;
@@ -463,17 +465,18 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
           '<button class="ekh-side-toggle nav-toggle" data-act="nav-toggle" aria-controls="ministry-sidebar" aria-expanded="' + navExpanded + '" aria-label="' + esc(navToggleLabel) + '" title="' + esc(navToggleLabel) + '">' +
             ic('i-chev-l','nav-toggle__desktop-icon') + ic('i-dash','nav-toggle__mobile-icon') + '</button>' +
           '<a class="topbar__brand row g-2" href="#" data-act="nav" data-view="queue">' + ic('i-logo') + '<b>eKhizmat</b></a>' +
-          '<div class="topbar__bind"><b>' + esc(t('app_title')) + '</b><span class="small">' + esc(agencyName()) + '</span></div>' +
-          '<div class="field__wrap field__wrap--search topbar__search">' +
+          '<div class="topbar__context" id="ministry-context"></div>' +
+          '<div class="topbar__search" role="search">' +
             '<span class="field__affix">' + ic('i-search','icon--20') + '</span>' +
-            '<input class="field__input" id="top-search" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q">' +
+            '<input class="field__input" autocomplete="off" id="top-search" placeholder="' + esc(t('search_ph')) + '" aria-label="' + esc(t('search_ph')) + '" value="' + esc(S.filters.q) + '" data-filter="q">' +
+            '<span class="topbar__count" id="queue-result-count" role="status"></span>' +
           '</div>' +
           /* §3 «Top bar»: справа только слот роли. Язык и тема переехали в
              поповер профиля у карточки оператора (§3 «Global preferences»,
              правило 12) — их ставят раз в смену. Колокольчик остаётся: это
              эскалации по срокам (§7Б.3), они глобальны и релевантны на любом
              экране — тот самый тест, который §3 предъявляет постоянной раме. */
-          '<div class="topbar__actions">' +
+          '<div class="topbar__actions"><span class="topbar__role">' + esc(roleName()) + '</span>' +
             '<button class="btn btn--icon iconbtn" data-act="notif-open" aria-label="' + esc(t('notifications')) + '" aria-haspopup="dialog" aria-expanded="false">' + ic('i-bell','icon--20') +
               (unreadNotifs() ? '<span class="badge-dot">' + unreadNotifs() + '</span>' : '') + '</button>' +
           '</div>' +
@@ -491,9 +494,9 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
           '<div class="ekh-side__label">' + esc(t('nav_group3')) + '</div>' +
           navItem('forms', 'i-edit', t('nav_forms'), null, false) +
           '<div class="ekh-side__spacer"></div>' +
-          '<button type="button" class="ekh-side__user" data-act="profile-open" aria-haspopup="dialog" aria-expanded="false" aria-controls="ministryProfilePop" title="' + esc(D.ME.name + ' · ' + roleName()) + '">' +
+          '<button type="button" class="ekh-side__user" data-act="profile-open" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop" title="' + esc(D.ME.name + ' · ' + roleName()) + '">' +
             '<span class="ekh-side__avatar" aria-hidden="true">' + esc(D.ME.initials) + '</span>' +
-            '<span class="ekh-side__identity"><b>' + esc(D.ME.name) + '</b>' +
+            '<span class="ekh-side__identity ministry-identity"><b>' + esc(D.ME.name) + '</b>' +
             '<span>' + esc(divisionName()) + '</span></span>' +
           '</button>' +
         '</nav></aside>' +
@@ -502,10 +505,11 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         '<main class="app__main" id="main" tabindex="-1"></main>' +
       '</div>' +
       '<div id="overlay"></div>' +
-      '<div class="ekh-toast-region ekh-toast-region--top ekh-toast-region--stack" id="toasts" aria-live="polite"></div>';
+      '<div class="ekh-toast-region ekh-toast-region--stack" id="toasts" aria-live="polite"></div>';
     document.documentElement.classList.toggle('side-collapsed', S.sideCollapsed);
     document.getElementById('root').innerHTML = shell;
     renderMain();
+    syncNavToggle();
   }
 
   function unreadNotifs() { return S.notifs.filter(function (n) { return n.unread; }).length; }
@@ -521,6 +525,10 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     button.setAttribute('aria-expanded', String(expanded));
     button.setAttribute('aria-label', label);
     button.setAttribute('title', label);
+    var sidebar = document.getElementById('ministry-sidebar');
+    if (sidebar) sidebar.inert = narrow && !expanded;
+    var search = document.getElementById('top-search');
+    if (search) search.placeholder = t(window.matchMedia('(max-width: 620px)').matches ? 'search_short' : S.view === 'forms' ? 'forms_search' : S.view === 'interop' ? 'interop_search' : 'search_ph');
   }
 
   function toggleNav() {
@@ -548,6 +556,9 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function renderMain() {
     var main = document.getElementById('main');
     if (!main) return;
+    var focused = document.activeElement;
+    var restore = main.contains(focused) && focused.matches('button.stat,[data-act="sort"],[data-act="sel-toggle"],[data-act="sel-all"],[data-act="tab"],[data-act^="form-"],[data-form-field-type],[data-form-field-required],[data-form-audience]')
+      ? ['data-act','data-id','data-key','data-tab','data-val','data-form-field-type','data-form-field-required','data-form-audience'].filter(function (key) { return focused.hasAttribute(key); }).map(function (key) { return '[' + key + '="' + CSS.escape(focused.getAttribute(key)) + '"]'; }).join('') : null;
     var shell = document.getElementById('app');
     if (shell) {
       shell.classList.toggle('is-form-workspace', S.view === 'forms' || S.view === 'form-builder');
@@ -561,11 +572,27 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     else if (S.view === 'interop') html = viewInterop();
     else html = viewQueue();     // queue | all | overdue
     main.innerHTML = html;
-    if (S.statIntroPending) S.statIntroPending = false;
+    var context = document.getElementById('ministry-context');
+    if (context) context.textContent = t(({queue:'nav_queue', all:'nav_all', overdue:'nav_overdue', card:'application', interop:'nav_interop', reports:'nav_reports', forms:'nav_forms', 'form-builder':'nav_forms'})[S.view] || 'app_title');
+    var isQueue = ['queue', 'all', 'overdue'].indexOf(S.view) >= 0;
+    var searchable = isQueue || S.view === 'forms' || S.view === 'interop';
+    if (shell) shell.classList.toggle('is-queue', searchable);
+    var topSearch = document.getElementById('top-search');
+    if (topSearch) { topSearch.value = isQueue ? S.filters.q : (S.registrySearch[S.view] || ''); topSearch.setAttribute('aria-label',t(S.view === 'forms' ? 'forms_search' : S.view === 'interop' ? 'interop_search' : 'search_ph')); topSearch.placeholder = t(innerWidth <= 620 ? 'search_short' : S.view === 'forms' ? 'forms_search' : S.view === 'interop' ? 'interop_search' : 'search_ph'); }
+    var count = document.getElementById('queue-result-count');
+    if (count) count.textContent = isQueue ? applyFilters(currentBase()).length + ' ' + t('applications_short') : searchable ? String(S._registryCount || 0) + (S.view === 'interop' ? ' ' + t('ij_count') : '') : '';
+    var selectAll = main.querySelector('[data-act="sel-all"]');
+    if (selectAll) {
+      var visible = sortList(applyFilters(currentBase()));
+      var selectedCount = selectedIn(visible).length;
+      selectAll.indeterminate = selectedCount > 0 && selectedCount < visible.length;
+    }
+    if (restore) main.querySelector(restore)?.focus({ preventScroll: true });
+    if (S.view === 'form-builder') revealFormStep();
     tick();                       // сразу проставить живые сроки
     // синхронизировать активную навигацию (view мог смениться на 'card')
     document.querySelectorAll('.ekh-side__item').forEach(function (b) {
-      var activeView = S.view === 'form-builder' ? 'forms' : S.view;
+      var activeView = S.view === 'form-builder' ? 'forms' : S.view === 'card' ? (S._cardOrigin || 'queue') : S.view;
       if (b.getAttribute('data-view') === activeView) b.setAttribute('aria-current', 'true');
       else b.removeAttribute('aria-current');
     });
@@ -615,13 +642,15 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var drafts = forms.filter(function (f) { return DRAFT.indexOf(f.status) >= 0; }).length;
     var review = forms.filter(function (f) { return REVIEW.indexOf(f.status) >= 0; }).length;
     var published = forms.filter(function (f) { return f.status === 'published'; }).length;
-    var facet = S.formsFacet;
+    var facet = S.filters.formState;
     var shown = forms.filter(function (f) {
+      if (S.registrySearch.forms && f.name.toLocaleLowerCase().indexOf(S.registrySearch.forms.toLocaleLowerCase().trim()) < 0) return false;
       if (facet === 'draft') return DRAFT.indexOf(f.status) >= 0;
       if (facet === 'review') return REVIEW.indexOf(f.status) >= 0;
       if (facet === 'published') return f.status === 'published';
       return true;
     });
+    S._registryCount = shown.length;
     var commentsN = (state.comments || []).length;
     /* Синий на действии страницы-обзора — вторая главная кнопка (правило 15):
        создание формы остаётся, но тихой пилюлей. */
@@ -634,7 +663,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         statFilter(review, t('forms_review'), review ? 'warn' : '', facet === 'review', 'forms-facet', 'review') +
         statFilter(published, t('forms_published'), 'ok', facet === 'published', 'forms-facet', 'published') +
       '</div>' +
-      '<div class="panel forms-catalog"><div class="forms-catalog__head"><h2 class="h3">' + esc(t('forms_registry')) + '</h2></div>' +
+      '<div class="panel forms-catalog"><div class="forms-catalog__head">' + selectFilter('formState', t('f_all_statuses'), [{v:'draft',l:t('forms_drafts')},{v:'review',l:t('forms_review')},{v:'published',l:t('forms_published')}], facet, t('col_status')) + (facet || S.registrySearch.forms ? '<button class="btn btn--quiet btn--s" data-act="forms-clear">' + esc(t('filters_reset')) + '</button>' : '') + '</div>' +
       '<div class="form-list" aria-live="polite">';
 
     shown.forEach(function (form) {
@@ -643,22 +672,22 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         ? '<span class="form-row__comments">' + ic('i-chat','icon--16') + esc(t('forms_comments_chip').replace('{n}', commentsN)) + '</span>'
         : '';
       h += '<button class="form-row" type="button" data-act="' + openAct + '" data-id="' + esc(form.id) + '">' +
-        '<span class="form-row__icon ' + esc(form.tone) + '">' + ic(form.icon,'') + '</span>' +
         '<span class="form-row__main"><b>' + esc(form.name) + '</b><span>' + esc(form.meta) + '</span>' +
-        '<span class="form-row__audiences">' + formAudienceBadges(form.audience) + comments + '</span></span>' +
+        '<span class="form-row__audiences"><span>' + (form.audience || []).map(function (id) {return esc(t(id === 'person' ? 'form_person' : id === 'business' ? 'form_business' : 'form_guest'));}).join(' · ') + '</span>' + comments + '</span></span>' +
         formVersionStrip(form) +
         ic('i-chev-r','icon--16') + '</button>';
     });
-    h += '</div></div>';
+    h += (shown.length ? '' : '<div class="empty"><div class="empty__title">' + esc(t('empty_title')) + '</div><button class="btn btn--quiet" data-act="forms-clear">' + esc(t('filters_reset')) + '</button></div>') + '</div></div>';
     return h + '</div>';
   }
 
   function makeFormDraft(state) {
-    var fields = state.formFields && state.formFields.length ? state.formFields : [
+    var fields = Array.isArray(state.formFields) ? state.formFields : [
       { id:'field-1', label:{ru:'Название организации',tg:'Номи ташкилот'}, type:'text', required:true }
     ];
     return {
-      serviceName:{ ru:localValue(state.serviceName, t('form_default_name')), tg:state.serviceName && state.serviceName.tg || '' },
+      formConfig:state.formConfig ? structuredClone(state.formConfig) : null,
+      serviceName:{ ru:state.serviceName && state.serviceName.ru || t('form_default_name'), tg:state.serviceName && state.serviceName.tg || '' },
       audience:(state.audience || ['person']).slice(),
       formFields:fields.map(function (field) {
         return { id:field.id, label:{ ru:field.label && field.label.ru || localValue(field.label,''), tg:field.label && field.label.tg || '' }, type:field.type || 'text', required:field.required !== false };
@@ -703,17 +732,13 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       h += '<div class="mfb-pipeline__label">' + esc(group.label) + '</div><div class="mfb-pipeline__group" role="tablist" aria-label="' + esc(group.label) + '">';
       group.items.forEach(function (step) {
         var active = S.formStep === step.id;
-        h += '<button class="mfb-step" type="button" role="tab" data-act="form-step" data-id="' + step.id + '" aria-selected="' + (active ? 'true' : 'false') + '" tabindex="' + (active ? '0' : '-1') + '">' +
+        h += '<button class="mfb-step" type="button" role="tab" aria-controls="form-editor-panel" id="form-step-' + step.id + '" data-act="form-step" data-id="' + step.id + '" aria-selected="' + (active ? 'true' : 'false') + '" tabindex="' + (active ? '0' : '-1') + '">' +
           '<span class="mfb-step__icon">' + ic(step.icon,'icon--16') + '</span><span class="mfb-step__text"><b>' + esc(step.title) + '</b></span>' +
           (step.id === 'fields' ? '<span class="mfb-step__count">' + draft.formFields.length + '</span>' : '') + '</button>';
       });
       h += '</div>';
     });
     return h + '</aside>';
-  }
-
-  function formToggleRow(icon, title, meta, checked, disabled) {
-    return '<label class="mfb-toggle-row"><span class="mfb-toggle-row__icon">' + ic(icon,'icon--16') + '</span><span class="mfb-toggle-row__text"><b>' + esc(title) + '</b><span>' + esc(meta) + '</span></span><span class="sw"><input type="checkbox" ' + (checked ? 'checked ' : '') + (disabled ? 'disabled ' : '') + '><span class="knob"></span></span></label>';
   }
 
   function formFieldPreview(field) {
@@ -723,7 +748,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     if (field.type === 'select') return '<label class="field">' + common + '<select class="input" disabled><option>' + esc(t('form_preview_select')) + '</option></select></label>';
     if (field.type === 'date') return '<label class="field">' + common + '<input class="input" type="date" disabled></label>';
     if (field.type === 'file') return '<div class="mfb-preview-upload">' + ic('i-upload','icon--20') + '<span><b>' + esc(label) + '</b><small>' + esc(t('form_preview_upload')) + '</small></span></div>';
-    if (field.type === 'checkbox') return '<label class="mfb-preview-check"><input type="checkbox" disabled><span>' + esc(label) + '</span></label>';
+    if (field.type === 'checkbox') return '<label class="mfb-preview-check"><input class="ekh-checkbox" type="checkbox" disabled><span>' + esc(label) + '</span></label>';
     return '<label class="field">' + common + '<input class="input" disabled placeholder="' + esc(t('form_preview_placeholder')) + '"></label>';
   }
 
@@ -732,7 +757,9 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
      previews»): настоящая геометрия iPhone 17 Pro Max и никакой поддельной
      строки состояния ОС. Подпись — под устройством. */
   function formPreview(draft, title) {
-    var fields = draft.formFields.map(formFieldPreview).join('');
+    if (S.formStep === 'checks' || S.formStep === 'route') return '<aside id="formPreview" tabindex="0" class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" aria-label="' + esc(t('form_flow_agency')) + '"><div class="mfb-preview__bar"><button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div><div class="mfb-preview__stage"><section class="ministry-process-preview"><h2>' + esc(t('form_step_' + S.formStep)) + '</h2>' + formPreviewContent(draft) + '</section><span class="pv-caption">' + esc(t('form_flow_agency')) + '</span></div></aside>';
+    if (S.formStep === 'issue') return '<aside id="formPreview" tabindex="0" class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" aria-label="' + esc(t('form_preview')) + '"><div class="mfb-preview__bar"><button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div><div class="mfb-preview__stage">' + formCertificate(draft) + '<span class="pv-caption">' + esc(t('form_result_document')) + '</span></div></aside>';
+    var fields = formPreviewContent(draft);
     return '<aside class="mfb-preview ' + (S.formPreviewOpen ? 'is-open' : '') + '" id="formPreview" tabindex="0" aria-label="' + esc(t('form_preview')) + '">' +
       '<div class="mfb-preview__bar">' +
       '<button class="btn btn--icon btn--s mfb-preview__close" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '">' + ic('i-x','icon--16') + '</button></div>' +
@@ -740,8 +767,8 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
        свой таб-стоп: прокручиваемый блок без него недостижим с клавиатуры (§9). */
       '<div class="mfb-preview__stage"><div class="pv-phone"><div class="pv-screen"><span class="pv-island" aria-hidden="true"></span><div class="pv-app" tabindex="0" role="group" aria-label="' + esc(t('form_preview_caption')) + '">' +
       '<div class="mfb-preview-head">' + ic('i-logo','icon--20') + '<b>eKhizmat</b><span>Ф</span></div>' +
-      '<div class="mfb-preview-progress"><i class="is-on"></i><i></i><i></i><i></i></div>' +
-      '<div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_preview_intro')) + '</p>' +
+      '<div class="mfb-preview-progress">' + ['confirm','fields','delivery','review'].map(function (step) { return '<i class="' + (S.formStep === step ? 'is-on' : '') + '"></i>'; }).join('') + '</div>' +
+      '<div class="mfb-preview-body"><div class="mfb-preview-audiences">' + formAudienceBadges(draft.audience) + '</div><h2>' + esc(title) + '</h2><p>' + esc(t('form_step_' + S.formStep)) + '</p>' +
       (fields || '<div class="mfb-preview-empty">' + esc(t('form_no_fields')) + '</div>') +
       '<div class="mfb-preview-actions mobile-preview-actions"><button class="btn btn--secondary" type="button" disabled>' + esc(t('form_preview_back')) + '</button><button class="btn btn--primary" type="button" disabled>' + esc(t('form_preview_continue')) + '</button></div></div>' +
       '</div></div></div>' +
@@ -770,41 +797,79 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     return '<div class="mfb-name-grid"><label class="field"><span class="field__label">' + esc(t('form_name_ru')) + '</span><input class="input" data-form-name="ru" value="' + esc(draft.serviceName.ru || '') + '" ' + (editable ? '' : 'disabled') + '></label><label class="field"><span class="field__label">' + esc(t('form_name_tg')) + '</span><input class="input" data-form-name="tg" value="' + esc(draft.serviceName.tg || '') + '" ' + (editable ? '' : 'disabled') + '></label></div><div class="mfb-field-list">' + (fields || '<div class="mfb-fields-empty">' + ic('i-edit','icon--24') + '<b>' + esc(t('form_no_fields')) + '</b><span>' + esc(t('form_no_fields_hint')) + '</span></div>') + '</div>' + (editable ? '<button class="btn btn--secondary form-add-field" type="button" data-act="form-add-field">' + ic('i-plus','icon--16') + esc(t('form_add_field')) + '</button>' + palette : '');
   }
 
+  // Configuration is part of the shared draft, never operator/citizen storage.
+  function formConfig(draft) {
+    if (!draft.config) draft.config = Object.assign({
+      person:true, org:true, address:false, digital:true, paper:false, cost:'free', amount:'',
+      consent:{ru:D.I18N.ru.form_consent_text,tg:D.I18N.tg.form_consent_text}, sms:false,
+      registry:true, duplicate:true, files:false, unit:'nko', role:'specialist', days:10,
+      escalation:true, wallet:true, resultTitle:{ru:D.I18N.ru.form_result_nko,tg:D.I18N.tg.form_result_nko}
+    }, draft.formConfig || {});
+    return draft.config;
+  }
+  function configToggle(key, title, hint, editable) {
+    return '<label class="mfb-toggle-row"><span class="mfb-toggle-row__text"><b>' + esc(t(title)) + '</b><span>' + esc(t(hint)) + '</span></span><span class="sw"><input type="checkbox" data-form-config="' + key + '" ' + (formConfig(S.formDraft)[key] ? 'checked ' : '') + (editable ? '' : 'disabled ') + '><span class="knob"></span></span></label>';
+  }
+  function configSelect(key, title, options, editable) {
+    return '<label class="field"><span class="field__label">' + esc(t(title)) + '</span><select class="input" data-form-config="' + key + '" ' + (editable ? '' : 'disabled') + '>' + options.map(function (option) {
+      return '<option value="' + option[0] + '" ' + (formConfig(S.formDraft)[key] === option[0] ? 'selected' : '') + '>' + esc(t(option[1])) + '</option>';
+    }).join('') + '</select></label>';
+  }
+  function configText(key, title, editable, multiline) {
+    var value = formConfig(S.formDraft)[key], localized = typeof value === 'object';
+    var attrs = ' class="input" data-form-config="' + key + '"' + (localized ? ' data-config-lang="' + S.lang + '"' : '') + (editable ? '' : ' disabled');
+    return '<label class="field"><span class="field__label">' + esc(t(title)) + '</span>' + (multiline
+      ? '<textarea' + attrs + ' rows="4">' + esc(localized ? localValue(value) : value) + '</textarea>'
+      : '<input' + attrs + ' value="' + esc(localized ? localValue(value) : value) + '">') + '</label>';
+  }
+  function formCertificate(draft) {
+    var c = formConfig(draft);
+    return '<article class="ministry-certificate" aria-label="' + esc(t('form_result_document')) + '"><header>' + ic('i-logo','icon--24') + '<span>' + esc(agencyName()) + '</span></header><div class="ministry-certificate__title">' + esc(localValue(c.resultTitle)) + '</div><p>' + esc(localValue(draft.serviceName, t('form_untitled'))) + '</p><div class="def">' +
+      defRow(t('document_applicant'), esc(t('form_preview_placeholder'))) + defRow(t('document_application'), '№ —') + defRow(t('document_date'), '—') +
+      '</div><footer>' + ic('i-sign','icon--20') + '<span>' + esc(t('document_esigned')) + '</span></footer></article>';
+  }
   function formEditorPane(draft, editable) {
-    var step = S.formStep;
-    var heads = {
-      confirm:[t('form_step_confirm'),t('form_editor_confirm_intro')], fields:[t('form_step_fields'),t('form_editor_fields_intro')], delivery:[t('form_step_delivery'),t('form_editor_delivery_intro')], review:[t('form_step_review'),t('form_editor_review_intro')], checks:[t('form_step_checks'),t('form_editor_checks_intro')], route:[t('form_step_route'),t('form_editor_route_intro')], issue:[t('form_step_issue'),t('form_editor_issue_intro')]
-    };
+    var step = S.formStep, c = formConfig(draft);
+    var toggles = function (items) { return '<div class="mfb-toggle-list">' + items.map(function (item) { return configToggle(item[0],item[1],item[2],editable); }).join('') + '</div>'; };
     var body = '';
     if (step === 'fields') body = formFieldsEditor(draft, editable);
-    else if (step === 'confirm') body = '<div class="mfb-section-label">' + esc(t('form_prefilled_data')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-user',t('form_prefill_person'),t('form_prefill_person_sub'),true,!editable) + formToggleRow('i-building',t('form_prefill_org'),t('form_prefill_org_sub'),true,!editable) + formToggleRow('i-pin',t('form_prefill_address'),t('form_prefill_address_sub'),false,!editable) + '</div>';
-    else if (step === 'delivery') body = '<div class="mfb-section-label">' + esc(t('form_delivery_methods')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-wallet',t('form_delivery_digital'),t('form_delivery_digital_sub'),true,!editable) + formToggleRow('i-doc',t('form_delivery_paper'),t('form_delivery_paper_sub'),false,!editable) + '</div><div class="mfb-section-label">' + esc(t('form_cost')) + '</div><div class="cost-options"><label><input type="radio" name="form-cost" checked ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_free')) + '</span></label><label><input type="radio" name="form-cost" ' + (editable ? '' : 'disabled') + '><span>' + esc(t('form_paid')) + '</span></label></div>';
-    else if (step === 'review') body = '<div class="mfb-section-label">' + esc(t('form_consent')) + '</div><label class="field"><textarea class="input" rows="3" ' + (editable ? '' : 'disabled') + '>' + esc(t('form_consent_text')) + '</textarea></label><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-sign',t('form_esign'),t('form_esign_sub'),true,true) + formToggleRow('i-call',t('form_sms'),t('form_sms_sub'),false,!editable) + '</div>';
-    else if (step === 'checks') body = '<div class="mfb-section-label">' + esc(t('form_active_checks')) + '</div><div class="mfb-toggle-list">' + formToggleRow('i-shield',t('form_check_registry'),t('form_check_registry_sub'),true,!editable) + formToggleRow('i-search',t('form_check_duplicate'),t('form_check_duplicate_sub'),true,!editable) + formToggleRow('i-doc',t('form_check_files'),t('form_check_files_sub'),false,!editable) + '</div>';
-    else if (step === 'route') body = '<div class="form-name-grid"><label class="field"><span class="field__label">' + esc(t('form_responsible_unit')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_unit_nko')) + '</option><option>' + esc(t('form_unit_legal')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_reviewer_role')) + '</span><select class="input" ' + (editable ? '' : 'disabled') + '><option>' + esc(t('form_role_specialist')) + '</option><option>' + esc(t('form_role_lead')) + '</option></select></label><label class="field"><span class="field__label">' + esc(t('form_sla')) + '</span><input class="input" value="' + esc(t('form_sla_value')) + '" ' + (editable ? '' : 'disabled') + '></label></div><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-bell',t('form_escalation'),t('form_escalation_sub'),true,!editable) + '</div>';
-    else body = '<div class="mfb-section-label">' + esc(t('form_result_document')) + '</div><div class="mfb-output-card"><span>' + ic('i-doc','icon--20') + '</span><div><b>' + esc(t('form_result_nko')) + '</b><p>' + esc(t('form_result_nko_sub')) + '</p></div><button class="btn btn--secondary btn--s" type="button" ' + (editable ? '' : 'disabled') + '>' + esc(t('form_template_edit')) + '</button></div><div class="mfb-toggle-list mfb-toggle-list--spaced">' + formToggleRow('i-wallet',t('form_wallet_result'),t('form_wallet_result_sub'),true,!editable) + '</div>';
-
+    else if (step === 'confirm') body = toggles([['person','form_prefill_person','form_prefill_person_sub'],['org','form_prefill_org','form_prefill_org_sub'],['address','form_prefill_address','form_prefill_address_sub']]);
+    else if (step === 'delivery') body = '<h3 class="mfb-section-label">' + esc(t('form_delivery_methods')) + '</h3>' + toggles([['digital','form_delivery_digital','form_delivery_digital_sub'],['paper','form_delivery_paper','form_delivery_paper_sub']]) +
+      '<fieldset class="mfb-cost"><legend class="mfb-section-label">' + esc(t('form_cost')) + '</legend><div class="cost-options">' + ['free','paid'].map(function (cost) { return '<label><input class="ekh-radio" type="radio" name="form-cost" data-form-config="cost" value="' + cost + '" ' + (c.cost === cost ? 'checked ' : '') + (editable ? '' : 'disabled') + '><span>' + esc(t('form_' + cost)) + '</span></label>'; }).join('') + '</div>' +
+      (c.cost === 'paid' ? '<label class="field mt-4"><span class="field__label">' + esc(t('form_fee_amount')) + '</span><input class="input" type="number" min="0" step="0.01" data-form-config="amount" value="' + esc(c.amount) + '" ' + (editable ? '' : 'disabled') + '></label>' : '') + '</fieldset>';
+    else if (step === 'review') body = configText('consent','form_consent',editable,true) + toggles([['sms','form_sms','form_sms_sub']]) + '<div class="def__source mt-4">' + ic('i-sign','icon--16') + esc(t('form_esign_sub')) + '</div>';
+    else if (step === 'checks') body = toggles([['registry','form_check_registry','form_check_registry_sub'],['duplicate','form_check_duplicate','form_check_duplicate_sub'],['files','form_check_files','form_check_files_sub']]);
+    else if (step === 'route') body = '<div class="form-name-grid">' + configSelect('unit','form_responsible_unit',[['nko','form_unit_nko'],['legal','form_unit_legal']],editable) + configSelect('role','form_reviewer_role',[['specialist','form_role_specialist'],['lead','form_role_lead']],editable) +
+      '<label class="field"><span class="field__label">' + esc(t('form_sla_days')) + '</span><input class="input" type="number" min="1" max="365" step="1" data-form-config="days" value="' + esc(c.days) + '" ' + (editable ? '' : 'disabled') + '></label></div>' + toggles([['escalation','form_escalation','form_escalation_sub']]);
+    else body = configText('resultTitle','form_result_document',editable,false) + toggles([['wallet','form_wallet_result','form_wallet_result_sub']]) + '<p class="small mt-4">' + esc(t('form_result_nko_sub')) + '</p>';
     var citizenStep = ['confirm','fields','delivery','review'].indexOf(step);
     var stepContext = citizenStep >= 0 ? t('form_step_label') + ' ' + (citizenStep + 1) + ' · ' + t('form_flow_citizen') : t('form_flow_agency');
-    /* The editor pane is its own scroll region (§5 shell-lock), so it must be
-       reachable from the keyboard — a scrollable box with no tab stop strands
-       anyone not using a mouse (§9). */
-    return '<section class="mfb-editor" role="tabpanel" tabindex="0"><div class="mfb-editor__inner"><header class="mfb-editor__head"><span>' + ic((formStepGroups().reduce(function (all,g) { return all.concat(g.items); },[]).filter(function (item) { return item.id === step; })[0] || {icon:'i-edit'}).icon,'icon--14') + esc(stepContext) + '</span><h1>' + esc(heads[step][0]) + '</h1><p>' + esc(heads[step][1]) + '</p></header>' + body + '</div></section>';
+    return '<section class="mfb-editor" id="form-editor-panel" role="tabpanel" aria-labelledby="form-step-' + step + '" tabindex="0"><div class="mfb-editor__inner"><header class="mfb-editor__head"><span>' + esc(stepContext) + '</span><h2>' + esc(t('form_step_' + step)) + '</h2><p>' + esc(t('form_editor_' + step + '_intro')) + '</p></header>' + body + '</div></section>';
+  }
+  function formPreviewContent(draft) {
+    var c = formConfig(draft), step = S.formStep;
+    if (step === 'fields') return draft.formFields.map(formFieldPreview).join('') || '<p>' + esc(t('form_no_fields')) + '</p>';
+    if (step === 'confirm') return '<div class="def">' + [['person','form_prefill_person'],['org','form_prefill_org'],['address','form_prefill_address']].filter(function (x) {return c[x[0]];}).map(function (x) {return defRow(t(x[1]),esc(t('src_profile')));}).join('') + '</div>';
+    if (step === 'delivery') return '<div class="def">' + (c.digital ? defRow(t('form_delivery_digital'),ic('i-check','icon--16')) : '') + (c.paper ? defRow(t('form_delivery_paper'),ic('i-check','icon--16')) : '') + defRow(t('form_cost'),esc(c.cost === 'free' ? t('form_free') : (c.amount || '—') + ' TJS')) + '</div>';
+    if (step === 'review') return '<p>' + esc(localValue(c.consent)) + '</p><div class="def__source">' + ic('i-sign','icon--20') + esc(t('form_esign')) + '</div>';
+    if (step === 'checks') return '<div class="def">' + [['registry','form_check_registry'],['duplicate','form_check_duplicate'],['files','form_check_files']].filter(function (x) {return c[x[0]];}).map(function (x) {return defRow(t(x[1]),ic('i-check','icon--16'));}).join('') + '</div>';
+    return '<div class="def">' + defRow(t('form_responsible_unit'),esc(t('form_unit_' + c.unit))) + defRow(t('form_reviewer_role'),esc(t('form_role_' + c.role))) + defRow(t('form_sla_days'),esc(c.days)) + '</div>';
   }
 
   function viewFormBuilder() {
     var state = lc();
     if (!S.formDraft) S.formDraft = makeFormDraft(state);
     var draft = S.formDraft, editable = isFormEditable();
+    formConfig(draft);
     var title = localValue(draft.serviceName, t('form_untitled'));
-    var status = S.formReadOnly ? 'published' : state.status;
+    var status = S.formReadOnly ? draft.status : state.status;
     var canSend = editable && draft.formFields.length > 0;
     var sendLabel = state.status === 'changes_requested' ? t('form_resubmit') : t('form_send');
 
     return '<div class="form-builder-view">' +
-      '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><span class="mfb-service-icon">' + ic('i-cat-justice','icon--16') + '</span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
+      '<header class="mfb-top form-builder-head"><a class="back-link" href="#" data-act="form-back">' + ic('i-chev-l','icon--16') + '<span>' + esc(t('forms_title')) + '</span></a><span class="mfb-divider" aria-hidden="true"></span><div class="mfb-title"><h1>' + esc(title) + '</h1><span class="form-status form-status--' + lowCodeStatusTone(status) + '">' + lowCodeStatusIcon(status) + '</span></div><span class="mfb-spacer"></span><button class="btn btn--secondary btn--s mfb-preview-toggle" type="button" data-act="form-preview-toggle" aria-expanded="' + (S.formPreviewOpen ? 'true' : 'false') + '" aria-controls="formPreview">' + ic('i-eye','icon--16') + esc(t('form_preview')) + '</button>' +
       (editable ? '<div class="mfb-actions"><button class="btn btn--secondary btn--s" type="button" data-act="form-save">' + ic('i-check','icon--16') + esc(t('form_save_short')) + '</button><button class="btn btn--primary btn--s" type="button" data-act="form-send" ' + (canSend ? '' : 'disabled') + '>' + ic('i-users','icon--16') + esc(sendLabel) + '</button></div>' : '') + '</header>' +
-      '<div class="mfb-meta"><div class="mfb-meta__main"><span class="mfb-env">Stage</span><span>' + esc(t('form_version')) + ' ' + esc(state.serviceVersion) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><button type="button" class="mfb-meta__comments" data-act="form-comments" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop"' + ((state.comments || []).length ? '' : ' disabled') + '>' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></button></div>' +
+      '<div class="mfb-meta"><div class="mfb-meta__main"><span>' + esc(t('form_version')) + ' ' + esc(draft.version || state.serviceVersion) + '</span></div><div class="mfb-audiences"><b>' + esc(t('form_audiences')) + '</b>' + ['person','business','guest'].map(function (id) { return '<label><input class="ekh-checkbox" type="checkbox" data-form-audience="' + id + '" ' + (draft.audience.indexOf(id) >= 0 ? 'checked' : '') + ' ' + (editable ? '' : 'disabled') + '><span>' + esc(id === 'person' ? t('form_person') : id === 'business' ? t('form_business') : t('form_guest')) + '</span></label>'; }).join('') + '</div><button type="button" class="mfb-meta__comments" data-act="form-comments" aria-haspopup="dialog" aria-expanded="false" aria-controls="pop"' + ((state.comments || []).length ? '' : ' disabled') + '>' + ic('i-chat','icon--14') + '<span>' + esc(t('form_comments')) + '</span><b>' + (state.comments || []).length + '</b></button></div>' +
       (!editable ? '<div class="banner banner--info form-lock-note">' + ic('i-lock','icon--20') + '<span class="banner__text">' + esc(t(S.formReadOnly ? 'form_readonly_sub' : 'form_locked_review')) + '</span></div>' : '') +
       '<div class="form-builder-grid mfb-work">' + formPipeline(draft, editable) + formEditorPane(draft, editable) + formPreview(draft, title) + '</div>' +
       (S.formPreviewOpen ? '<button class="mfb-preview-backdrop" type="button" data-act="form-preview-toggle" aria-label="' + esc(t('form_preview_close')) + '"></button>' : '') +
@@ -815,19 +880,33 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var form = ministryForms().filter(function (item) { return item.id === id; })[0];
     if (!form) return null;
     return {
-      serviceName:{ ru:form.name, tg:form.name },
+      status:form.status, version:form.version,
+      serviceName:structuredClone(D.SERVICE[id] ? D.SERVICE[id].name : {ru:form.name,tg:form.name}),
       audience:form.audience.slice(),
       formFields:[
-        { id:id + '-request', label:{ru:t('form_static_request'),tg:t('form_static_request')}, type:'text', required:true },
-        { id:id + '-contact', label:{ru:t('form_static_contact'),tg:t('form_static_contact')}, type:'text', required:true }
+        { id:id + '-request', label:{ru:D.I18N.ru.form_static_request,tg:D.I18N.tg.form_static_request}, type:'text', required:true },
+        { id:id + '-contact', label:{ru:D.I18N.ru.form_static_contact,tg:D.I18N.tg.form_static_contact}, type:'text', required:true }
       ]
     };
   }
 
+  function validFormConfig() {
+    var c = formConfig(S.formDraft), invalid = !Number.isInteger(Number(c.days)) || Number(c.days) < 1 || Number(c.days) > 365;
+    var feeInvalid = c.cost === 'paid' && (!String(c.amount).trim() || !Number.isFinite(Number(c.amount)) || Number(c.amount) < 0);
+    if (invalid || feeInvalid || (!c.digital && !c.paper)) {
+      S.formStep = invalid ? 'route' : 'delivery'; renderMain();
+      var message = t(!c.digital && !c.paper ? 'form_delivery_required' : 'form_config_invalid');
+      var input = document.querySelector('[data-form-config="' + (invalid ? 'days' : feeInvalid ? 'amount' : 'digital') + '"]');
+      var hint = document.createElement('span'); hint.className = 'field__error'; hint.id = 'form-config-error'; hint.setAttribute('role','alert'); hint.textContent = message;
+      var field = input?.closest('.field'); if (field) field.appendChild(hint); else document.querySelector('.mfb-editor__head').appendChild(hint);
+      input?.setAttribute('aria-invalid','true'); input?.setAttribute('aria-describedby','form-config-error'); input?.focus(); return false;
+    }
+    return true;
+  }
   function persistFormDraft(saveStage) {
     if (!S.formDraft) return;
     S._lowCodeBusy = true;
-    dispatchLowCode('UPDATE_SERVICE', { serviceName:S.formDraft.serviceName, formFields:S.formDraft.formFields });
+    dispatchLowCode('UPDATE_SERVICE', { serviceName:S.formDraft.serviceName, formFields:S.formDraft.formFields, formConfig:formConfig(S.formDraft) });
     var currentAudience = getLowCodeState().audience || [];
     ['person','business','guest'].forEach(function (id) {
       if ((S.formDraft.audience.indexOf(id) >= 0) !== (currentAudience.indexOf(id) >= 0)) {
@@ -850,7 +929,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var title, sub;
     if (scope === 'all') { title = t('nav_all'); sub = t('of_agency') + ' · ' + agencyName(); }
     else if (scope === 'overdue') { title = t('overdue_title'); sub = t('overdue_sub'); }
-    else { title = t('queue_title'); sub = t('queue_sub'); }
+    else { title = t('queue_title'); sub = agencyName(); }
 
     var list = sortList(applyFilters(base));
     var selCount = Object.keys(S.sel).filter(function (id) { return S.sel[id] && list.some(function(a){return a.id===id;}); }).length;
@@ -868,31 +947,32 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     if (scope !== 'all') {
       var mine = mineActive();
       var f = S.filters;
-      var noFilters = !f.svc && !f.status && f.sla === 'all' && !f.priority;
-      h += '<div class="stat-grid' + (S.statIntroPending ? ' stat-grid--intro' : '') + '">' +
+      var noFilters = scope === 'queue' && !f.svc && !f.status && f.sla === 'all' && !f.priority && !f.q;
+      h += '<div class="stat-grid">' +
         statFilter(mine.length, t('nav_queue'), '', noFilters, 'stat-clear') +
-        statFilter(overdue().length, t('rep_breach'), overdue().length ? 'alert' : 'ok', f.sla === 'breach', 'stat-sla') +
+        statFilter(overdue().length, t('rep_breach'), overdue().length ? 'alert' : 'ok', scope === 'overdue' || f.sla === 'breach', 'stat-sla') +
         statFilter(mine.filter(function (a) { return a.status === 'info_requested'; }).length, t('awaiting_reply'), f.status === 'info_requested' ? 'warn' : '', f.status === 'info_requested', 'stat-status') +
-        statFilter(mine.filter(function (a) { return a.priority === 'Высокий'; }).length, t('priority'), '', f.priority === 'high', 'stat-priority') +
+        statFilter(mine.filter(function (a) { return a.priority === 'Высокий'; }).length, t('queue_priority'), '', f.priority === 'high', 'stat-priority') +
         '</div>';
     }
 
     // тулбар фильтров. Поиск — только в топбаре: два поля на одно состояние
     // читаются как два разных поиска (правило 7).
-    h += '<div class="toolbar">' +
-      selectFilter('svc', t('f_all_services'), Object.keys(D.SERVICE).map(function (k) { return { v: k, l: serviceName(D.SERVICE[k]) }; }), S.filters.svc) +
-      selectFilter('status', t('f_all_statuses'), Object.keys(D.STATUS).map(function (k) { return { v: k, l: statusLabel(k) }; }), S.filters.status) +
-      selectFilter('sla', t('sla_all'), [{ v: 'warn', l: t('sla_warn') }, { v: 'breach', l: t('sla_breach') }], S.filters.sla === 'all' ? '' : S.filters.sla, t('deadline')) +
+    h += '<section class="queue-panel" aria-label="' + esc(title) + '"><div class="toolbar queue-toolbar">' +
+      selectFilter('svc', t('f_all_services'), Object.keys(D.SERVICE).map(function (k) { return { v: k, l: serviceName(D.SERVICE[k]) }; }), S.filters.svc, t('rep_col_service')) +
+      selectFilter('status', t('f_all_statuses'), Object.keys(D.STATUS).map(function (k) { return { v: k, l: statusLabel(k) }; }), S.filters.status, t('col_status')) +
+      selectFilter('sla', t('sla_all'), [{ v: 'warn', l: t('sla_warn') }, { v: 'breach', l: t('sla_breach') }], S.filters.sla === 'all' ? '' : S.filters.sla, t('col_sla')) +
       '<div class="toolbar__spacer"></div>' +
-      '<span class="small nowrap" aria-live="polite">' + list.length + ' ' + esc(t('applications_short')) + '</span>' +
+      (list.length && (S.filters.q || S.filters.svc || S.filters.status || S.filters.sla !== 'all' || S.filters.priority) ? '<button class="btn btn--quiet btn--s" data-act="filters-reset">' + esc(t('filters_reset')) + '</button>' : '') +
     '</div>';
 
     if (!list.length) {
       var empty = (scope === 'queue' && !S.filters.q && !S.filters.svc && !S.filters.status && S.filters.sla === 'all' && !S.filters.priority);
-      h += '<div class="panel panel--pad"><div class="empty">' + ic('i-check','icon--48') +
+      h += '<div class="empty" role="status">' + ic(empty ? 'i-check' : 'i-search','icon--48') +
         '<div class="empty__title">' + esc(empty ? t('empty_queue_title') : t('empty_title')) + '</div>' +
-        '<div class="empty__hint">' + esc(empty ? t('empty_queue_hint') : t('empty_hint')) + '</div></div></div>';
-      h += '</div>';
+        '<div class="empty__hint">' + esc(empty ? t('empty_queue_hint') : t('empty_hint')) + '</div>' +
+        (!empty ? '<button class="btn btn--quiet" data-act="filters-reset">' + esc(t('filters_reset')) + '</button>' : '') + '</div>';
+      h += '</section></div>';
       return h;
     }
 
@@ -901,9 +981,8 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       return S.sort.key === key ? base + ' — ' + (S.sort.dir === 1 ? t('sort_ascending') : t('sort_descending')) : t('sort_by') + ': ' + base;
     };
     h += '<div class="queue"><div class="q-head">' +
-      '<span class="q-checkbox"><input type="checkbox" data-act="sel-all" ' + (selCount && selCount === list.length ? 'checked' : '') + ' aria-label="' + esc(t('select_all_page')) + '"></span>' +
-      '<span>' + esc(t('col_num')) + '</span>' +
-      '<span>' + esc(t('col_service')) + '</span>' +
+      '<label class="q-checkbox"><input type="checkbox" class="ekh-checkbox" data-act="sel-all" ' + (selCount && selCount === list.length ? 'checked' : '') + ' aria-label="' + esc(t('select_all_page')) + '"></label>' +
+      '<span>' + esc(t('application')) + '</span>' +
       '<span>' + esc(t('col_applicant')) + '</span>' +
       sortHead('submitted', t('col_submitted'), sortLabel) +
       '<span>' + esc(t('col_status')) + '</span>' +
@@ -911,7 +990,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     '</div><div class="q-list" aria-live="polite">';
 
     list.forEach(function (a) { h += rowQueue(a); });
-    h += '</div>';
+    h += '</div></div></section>';
 
     // полоса массовых операций
     if (selCount > 0) {
@@ -927,7 +1006,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       '</div>';
     }
 
-    h += '</div></div>';
+    h += '</div>';
     return h;
   }
 
@@ -954,8 +1033,8 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         '<span>' + esc(x.l) + '</span>' + (isSelected ? ic('i-check','icon--16') : '') + '</button>';
     });
     return '<div class="filter-select filter-select--' + name + (open ? ' is-open' : '') + '">' +
-      (label ? '<span class="filter-select__label">' + esc(label) + '</span>' : '') +
-      '<button class="filter-select__trigger" type="button" data-act="filter-toggle" data-filter-name="' + name + '" aria-label="' + esc(label ? label + ': ' + selected.l : allLabel) + '" aria-haspopup="listbox" aria-expanded="' + open + '" aria-controls="' + listId + '">' +
+      (label ? '<span class="filter-select__label">' + ic('i-filter','icon--16') + esc(label) + '</span>' : '') +
+      '<button class="filter-select__trigger" type="button" data-act="filter-toggle" data-filter-name="' + name + '" title="' + esc(selected.l) + '" aria-label="' + esc(label ? label + ': ' + selected.l : allLabel) + '" aria-haspopup="listbox" aria-expanded="' + open + '" aria-controls="' + listId + '">' +
         '<span>' + esc(selected.l) + '</span>' + ic('i-chev-d','icon--16') + '</button>' +
       '<div class="filter-select__menu" id="' + listId + '" role="listbox" aria-label="' + esc(allLabel) + '"' + (open ? '' : ' hidden') + '>' + o + '</div></div>';
   }
@@ -970,19 +1049,18 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function rowQueue(a) {
     var s = svc(a), st = slaState(a), sel = !!S.sel[a.id];
     var appTin = a.applicant.tin ? t('tin_abbr') + ' ' + a.applicant.tin : '';
-    var aria = serviceName(s) + ', ' + a.applicant.name + ', ' + statusLabel(a.status) + ', ' + slaWord(st);
-    return '<div class="q-row' + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" tabindex="0" role="button" aria-label="' + esc(aria) + '">' +
-      '<span class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></span>' +
-      '<span class="q-num">' + esc(a.number) + '</span>' +
-      '<span class="q-service"><span class="stack"><span class="q-service__name">' + esc(serviceName(s)) + '</span>' +
-        '<span class="q-service__cat">' + esc(serviceCategory(s)) + (s.critical ? ' · <span class="q-flag">' + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
-      '<span class="q-applicant"><span class="q-applicant__name">' + esc(a.applicant.name) + '</span>' +
+    var aria = a.number + ', ' + serviceName(s) + ', ' + applicantName(a) + ', ' + statusLabel(a.status) + (ACTIVE[a.status] ? ', ' + slaWord(st) : '');
+    return '<div class="q-row' + (sel ? ' is-selected' : '') + '" data-act="open-card" data-id="' + a.id + '" role="group" aria-label="' + esc(aria) + '">' +
+      '<label class="q-checkbox"><input type="checkbox" class="check__input" data-act="sel-toggle" data-id="' + a.id + '" ' + (sel ? 'checked' : '') + ' aria-label="' + esc(t('select_application')) + ' ' + esc(a.number) + '"></label>' +
+      '<span class="q-service"><span class="stack"><button type="button" class="q-service__name" data-act="open-card" data-id="' + a.id + '" title="' + esc(serviceName(s)) + '" aria-label="' + esc(a.number + ', ' + serviceName(s)) + '">' + esc(serviceName(s)) + '</button>' +
+        '<span class="q-service__meta"><span class="q-num">' + esc(a.number) + '</span>' + (s.critical ? '<span class="q-flag" title="' + esc(t('four_eyes')) + '">' + esc(t('four_eyes_short')) + '</span>' : '') + '</span></span></span>' +
+      '<span class="q-applicant"><span class="q-applicant__name" title="' + esc(applicantName(a)) + '">' + esc(applicantName(a)) + '</span>' +
         '<span class="q-applicant__meta">' + esc(appTin) + '</span></span>' +
       '<span class="q-date">' + esc(fmtDate(a.submittedAt)) + '</span>' +
       '<span class="q-status">' + appStatusIcon(a.status) + '</span>' +
-      '<span class="q-sla"><span class="sla sla--' + st + '" data-sla data-due="' + a.dueAt + '" title="' + esc(slaWord(st)) + '" aria-label="' + esc(slaWord(st)) + '"><span class="dot"></span>' +
+      (!ACTIVE[a.status] ? '<span class="q-sla q-sla--closed" title="' + esc(statusLabel(a.status)) + '">—</span>' : '<span class="q-sla"><span class="sla sla--' + st + '" data-sla data-due="' + a.dueAt + '" title="' + esc(slaWord(st)) + '" aria-label="' + esc(slaWord(st)) + '">' +
         '<svg class="icon icon--16 sla__ico" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg>' +
-        '<span class="sla__time">' + fmtDur(a.dueAt - now()) + '</span></span></span>' +
+        '<span class="sla__time">' + fmtDur(a.dueAt - now()) + '</span></span></span>') +
     '</div>';
   }
 
@@ -1006,34 +1084,30 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var s = svc(a), st = slaState(a), rem = a.dueAt - now();
     var decided = (a.status === 'done' || a.status === 'denied');
 
-    // правая колонка: SLA-кольцо (или итог) + реквизиты + действия
-    var slaPanel = decided
-      /* Решённое заявление: знак исхода вместо кольца. Подпись «Статус ·
-         Исполнено» под ним не нужна — статус уже стоит пилюлей в шапке
-         карточки (правило 6); имя знака живёт в aria-label. */
-      ? '<div class="panel panel--pad"><div class="sla-ring-wrap"><div class="hero-mark ' + (a.status === 'denied' ? 'hero-mark--error' : '') + '" role="img" aria-label="' + esc(statusLabel(a.status)) + '" title="' + esc(statusLabel(a.status)) + '">' + ic(a.status === 'denied' ? 'i-x' : 'i-check', '') + '</div>' +
-          '<div class="sla-caption">' + esc(decidedAtLabel(a)) + '</div></div></div>'
-      : '<div class="panel panel--pad"><div class="sla-ring-wrap">' + ringSvg(a) +
-          '<div class="label">' + esc(t('deadline')) + '</div>' +
-          '<div class="sla-caption" data-sla-cap data-due="' + a.dueAt + '">' + slaCaption(a) + '</div></div></div>';
-    var side =
-      slaPanel +
-      '<div class="panel panel--pad">' +
-        '<div class="def">' +
-          (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
-          defRow(t('priority'), esc(priorityLabel(a.priority))) +
-          defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
-          defRow(t('division'), esc(divisionName())) +
-          defRow(t('payment'), payLabel(a)) +
-        '</div>' +
-      '</div>' +
-      (decided ? resultPanel(a) : (a.assignee === 'me' && ACTIVE[a.status] ? actionsPanel(a) : lockedPanel(a)));
+    // A deadline is one fact: remaining time, then its absolute date. The
+    // action follows immediately, so it remains reachable in a short window.
+    var deadline = !ACTIVE[a.status] ? '' : '<div class="panel panel--pad case-deadline">' +
+      '<h2 class="h3 panel__title">' + esc(t('deadline')) + '</h2>' +
+      '<div class="sla sla--' + st + '" data-sla data-due="' + a.dueAt + '">' +
+        ic(st === 'breach' ? 'i-info' : 'i-clock', 'icon--20 sla__ico') +
+        '<span class="sla__time">' + fmtDur(rem) + '</span></div>' +
+      '<div class="case-deadline__date">' + esc(t('until')) + ' ' + esc(fmtDateTime(a.dueAt)) + '</div></div>';
+    var side = deadline +
+      (decided ? resultPanel(a) : (a.assignee === 'me' && ACTIVE[a.status] ? actionsPanel(a) : lockedPanel(a))) +
+      '<div class="panel panel--pad case-facts"><div class="def">' +
+        (decided ? defRow(t('result'), esc(decidedAtLabel(a))) : '') +
+        (a.audience === 'guest' ? defRow(t('applicant'), '<span class="audience-badge audience-badge--guest">' + ic('i-user','icon--16') + esc(t('audience_guest')) + '</span>') : '') +
+        defRow(t('priority'), esc(priorityLabel(a.priority))) +
+        defRow(t('executor'), esc(a.assignee === 'me' ? D.ME.name : (a.assigneeName || '—'))) +
+        defRow(t('division'), esc(divisionName())) +
+        defRow(t('payment'), payLabel(a)) +
+      '</div></div>';
 
     // основная колонка: шапка + вкладки
     var docsN = (a.docs || []).length, interN = (a.interop || []).length;
     var main =
-      '<a class="back-link" href="#" data-act="nav" data-view="queue">' + ic('i-chev-l','icon--16') + esc(t('back')) + '</a>' +
-      '<div class="card-head"><span class="card-head__glyph ' + s.hue + '">' + ic(s.icon,'') + '</span>' +
+      '<a class="back-link" href="#" data-act="nav" data-view="' + (S._cardOrigin || 'queue') + '">' + ic('i-chev-l','icon--16') + esc(t('back')) + '</a>' +
+      '<div class="card-head">' +
         '<div class="card-head__titles"><div class="card-head__num">' + esc(a.number) + '</div>' +
           '<h1 class="h2">' + esc(serviceName(s)) + '</h1>' +
           '<div class="card-head__meta">' + appStatusPill(a.status) + '<span class="small">' + esc(serviceCategory(s)) + '</span>' +
@@ -1068,20 +1142,20 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function tabOverview(a) {
     var ap = a.applicant;
     var appRows =
-      defRow(ap.kind === 'org' ? t('field_org_name') : t('field_full_name'), esc(ap.name)) +
+      defRow(ap.kind === 'org' ? t('field_org_name') : t('field_full_name'), esc(applicantName(a))) +
       (ap.kind === 'org'
-        ? defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow(t('field_reg_num'), esc(ap.reg)) + defRow(t('field_manager'), esc(ap.head))
-        : defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin) + '</span>') + defRow(t('field_dob'), esc(ap.dob))) +
-      defRow(t('field_phone'), '<span class="def__val--tnum">' + esc(ap.phone) + '</span>') +
+        ? defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin || '—') + '</span>') + defRow(t('field_reg_num'), esc(ap.reg)) + defRow(t('field_manager'), esc(ap.head))
+        : defRow(t('tin_abbr'), '<span class="def__val--tnum">' + esc(ap.tin || '—') + '</span>') + defRow(t('field_dob'), esc(ap.dob || '—'))) +
+      defRow(t('field_phone'), '<span class="def__val--tnum">' + esc(ap.phone || '—') + '</span>') +
       (ap.email ? defRow('E-mail', esc(ap.email)) : '') +
-      defRow(t('field_address'), esc(ap.address));
+      defRow(t('field_address'), esc(ap.address || '—'));
 
     var formRows = (a.form || []).map(function (f) {
       var src = f.src === 'реестр' ? '<span class="src src--profile">' + ic('i-shield','icon--16') + esc(t('src_registry')) + '</span>'
               : f.src === 'профиль' ? '<span class="src src--profile">' + esc(t('src_profile')) + '</span>'
               : '<span class="src src--manual">' + esc(t('src_manual')) + '</span>';
       return '<div class="def__row"><span class="def__key">' + esc(dataLabel(f.k)) + '</span>' +
-        '<span class="def__val">' + esc(f.v) + ' &nbsp;' + src + '</span></div>';
+        '<span class="def__val">' + esc(f.v) + '<span class="def__provenance">' + src + '</span>' + '</span></div>';
     }).join('');
 
     return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('applicant')) + '</h3><div class="def">' + appRows + '</div></div>' +
@@ -1091,7 +1165,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function tabDocs(a) {
     if (!(a.docs || []).length) return '<div class="panel panel--pad"><div class="empty">' + ic('i-paperclip','icon--48') +
       '<div class="empty__title">' + esc(t('no_docs')) + '</div></div></div>';
-    var rows = a.docs.map(function (d) {
+    var rows = a.docs.map(function (d, index) {
       /* Заливка за иконкой в плотной повторяющейся строке перевешивает текст
          рядом (§6 «Icon fills»), а «Проверен» стояло и в мета-строке, и в
          значке справа. Остаётся голый глиф слева и один носитель статуса
@@ -1100,9 +1174,16 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         '<span class="doc-row__body"><span class="doc-row__name">' + esc(d.name) + '</span>' +
         '<span class="doc-row__meta">' + d.pages + ' ' + esc(t('pages_short')) + '</span></span>' +
         (d.checked ? statusIcon('success', t('checked'), 'i-check') : statusIcon('warning', t('unchecked'), 'i-clock')) +
-        '<button class="btn btn--ghost btn--s" data-act="noop" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
+        '<button class="btn btn--ghost btn--s" data-act="document-open" data-id="' + index + '" aria-label="' + esc(t('view_document')) + ' ' + esc(d.name) + '">' + ic('i-eye','icon--20') + '</button></div>';
     }).join('');
-    return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
+    return '<div class="panel ministry-record-panel"><h3 class="h3 panel__title">' + esc(t('docs_title')) + '</h3><div class="doc-list">' + rows + '</div></div>';
+  }
+
+  function openDocument(index) {
+    var a = appById(S.cardId), d = a && a.docs[index];
+    if (!d) return;
+    S.modal = {type:'document', appId:a.id};
+    openModal('<h2 class="modal__title" id="modal-title">' + esc(t('document_details')) + '</h2><div class="ministry-document-name">' + ic('i-doc','icon--24') + '<span>' + esc(d.name) + '</span></div><div class="def">' + defRow(t('document_application'),esc(a.number)) + defRow(t('document_applicant'),esc(applicantName(a))) + defRow(t('pages_short'),esc(d.pages)) + defRow(t('col_status'),esc(t(d.checked ? 'checked' : 'unchecked'))) + '</div><div class="banner banner--info mt-4">' + ic('i-info','icon--20') + '<span class="banner__text">' + esc(t('document_source_missing')) + '</span></div><div class="modal__foot"><button class="btn btn--secondary" data-act="modal-cancel">' + esc(t('document_close')) + '</button></div>', 'modal--document');
   }
 
   function tabInterop(a) {
@@ -1116,16 +1197,15 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
            (правило 6). Слева остаётся голый глиф, справа — единственный
            носитель состояния: .status-icon для полученного, .spin для
            ожидающего. */
-        return '<div class="interop-item">' + ic('i-refresh','icon--20 interop-item__glyph') +
+        return '<div class="interop-item">' +
           '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(r.type)) + '</span>' +
-          '<span class="interop-item__meta">' + esc(localValue(r.agency)) + ' · ' + (pend ? esc(t('ij_pending')) : (esc(localValue(r.value)) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
-          (pend ? '<span class="spin" role="img" aria-label="' + esc(t('ij_pending')) + '" title="' + esc(t('ij_pending')) + '"></span>' : statusIcon('success', t('ij_received'), 'i-check')) +
+          '<span class="interop-item__meta">' + esc(localValue(r.agency)) + ' · ' + (pend ? fmtAgo(r.at) : (esc(localValue(r.value)) + ' · ' + fmtAgo(r.at))) + '</span></span>' +
+          (pend ? statusIcon('info', t('ij_pending'), 'i-clock') : statusIcon('success', t('ij_received'), 'i-check')) +
         '</div>';
       }).join('');
     }
     return '<div class="panel panel--pad"><div class="panel__head-row"><div><h3 class="h3">' + esc(t('interop_title')) + '</h3>' +
-      '<div class="small panel__hint">' + esc(t('interop_hint')) + '</div></div>' +
-      '<button class="btn btn--secondary btn--s" data-act="act-request">' + ic('i-plus','icon--20') + esc(t('request_info')) + '</button></div>' +
+      '<div class="small panel__hint">' + esc(t('interop_hint')) + '</div></div></div>' +
       '<div class="mt-4">' + body + '</div></div>';
   }
 
@@ -1163,49 +1243,27 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     return '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('result')) + '</h3>' +
       '<div class="banner banner--ok">' + ic('i-sign','icon--20') + '<span class="banner__text"><b>' + esc(t('result_signed')) + '</b><br>' + esc(t('result_available')) + '</span></div>' +
       resultDoc(a) +
-      '<button class="btn btn--secondary btn-block mt-4" data-act="noop">' + ic('i-download','icon--20') + esc(t('download_result')) + '</button></div>';
+      '<button class="btn btn--secondary btn-block mt-4" data-act="result-open">' + ic('i-eye','icon--20') + esc(t('view_document')) + '</button></div>';
   }
 
   function resultDoc(a) {
     var s = svc(a);
-    return '<div class="mt-4 center"><div class="doc-thumb result-doc" data-act="noop"><div class="doc-page">' +
+    return '<div class="mt-4 center"><div class="doc-thumb result-doc" aria-hidden="true"><div class="doc-page">' +
       '<div class="doc-page__head">' + ic('i-logo','icon--16') + ' ' + esc(agencyName()) + ' · eKhizmat</div>' +
       '<div class="doc-page__title">' + esc(serviceName(s)) + '</div>' +
       '<div class="doc-page__rows">' +
-        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_applicant')) + '</span><span class="doc-page__val">' + esc(a.applicant.name) + '</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_applicant')) + '</span><span class="doc-page__val">' + esc(applicantName(a)) + '</span></div>' +
         '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_application')) + '</span><span class="doc-page__val">' + esc(a.number) + '</span></div>' +
-        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_date')) + '</span><span class="doc-page__val">' + esc(fmtDate(now())) + '</span></div>' +
+        '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_date')) + '</span><span class="doc-page__val">' + esc(decidedAtLabel(a) || '—') + '</span></div>' +
         '<div class="doc-page__row"><span class="doc-page__key">' + esc(t('document_decision')) + '</span><span class="doc-page__val">' + esc(t('document_positive')) + '</span></div>' +
       '</div>' +
       '<div class="doc-page__sign">' + ic('i-sign','icon--16') + ' ' + esc(t('document_esigned')) + ' · ' + esc(a.decision && a.decision.by ? a.decision.by : D.ME.name) + '</div>' +
     '</div></div></div>';
   }
 
-  function ringSvg(a) {
-    var s = svc(a), rem = a.dueAt - now();
-    var frac = Math.max(0, Math.min(1, rem / (s.slaHours * HOUR)));
-    var C = 339.292; var off = C * (1 - frac);
-    var st = slaState(a);
-    var cls = st === 'breach' ? 'ring--danger' : st === 'warn' ? 'ring--warn' : '';
-    return '<div class="ring ' + cls + '" data-ring data-due="' + a.dueAt + '" data-window="' + (s.slaHours * HOUR) + '">' +
-      '<svg class="ring__svg" viewBox="0 0 120 120">' +
-      '<circle class="ring__track" cx="60" cy="60" r="54"></circle>' +
-      '<circle class="ring__bar" cx="60" cy="60" r="54" style="stroke-dasharray:' + C + ';stroke-dashoffset:' + off + '"></circle></svg>' +
-      '<div class="ring__value" data-ring-val>' + fmtDur(rem) + '</div></div>';
-  }
-  /* Подпись под кольцом не повторяет само кольцо (правило 6): остаток времени
-     уже стоит в его центре, поэтому здесь только срок — «до 21.08.2026, 14:00».
-     Просрочка — исключение: «на сколько» это не то же, что «сколько осталось». */
-  /* Под знаком исхода — когда решение принято. «Кто» уже стоит строкой
-     «Исполнитель» рядом, статус — пилюлей в шапке (правило 6). */
   function decidedAtLabel(a) {
     var last = (a.history || []).slice().sort(function (x, y) { return y.at - x.at; })[0];
     return last ? fmtDateTime(last.at) : '';
-  }
-  function slaCaption(a) {
-    var rem = a.dueAt - now();
-    if (rem <= 0) return '<b class="sla-caption__breach">' + esc(t('sla_over')) + ' ' + fmtDur(rem).replace('−','') + '</b>';
-    return esc(t('until')) + ' <b>' + esc(fmtDateTime(a.dueAt)) + '</b>';
   }
   /* Значение строки должно читаться как значение: без суммы у «Не требуется»
      и «Ожидает оплаты» в колонке оставался один значок, то есть пустая ячейка
@@ -1232,17 +1290,19 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var pendingN = rows.filter(function (x) { return x.r.status === 'pending'; }).length;
     var io = S.filters.io;
     var shown = rows.filter(function (x) {
+      var q = S.registrySearch.interop.trim().toLocaleLowerCase();
+      if (q && (localValue(x.r.type) + ' ' + localValue(x.r.agency) + ' ' + x.a.number).toLocaleLowerCase().indexOf(q) < 0) return false;
       if (io === 'pending') return x.r.status === 'pending';
       if (io === 'received') return x.r.status !== 'pending';
       return true;
     });
+    S._registryCount = shown.length;
     var body = shown.map(function (x) {
       var pend = x.r.status === 'pending';
-      return '<div class="interop-item" data-act="open-card" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '">' +
-        ic('i-refresh','icon--20 interop-item__glyph') +
+      return '<div class="interop-item interop-record" data-act="interop-open" data-id="' + x.a.id + '" tabindex="0" role="button" aria-label="' + esc(localValue(x.r.type) + ', ' + x.a.number) + '">' +
         '<span class="interop-item__body"><span class="interop-item__title">' + esc(localValue(x.r.type)) + '</span>' +
-        '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + (pend ? esc(t('ij_pending')) : fmtAgo(x.r.at)) + '</span></span>' +
-        (pend ? '<span class="spin" role="img" aria-label="' + esc(t('ij_pending')) + '" title="' + esc(t('ij_pending')) + '"></span>' : statusIcon('success', t('ij_received'), 'i-check')) + '</div>';
+        '<span class="interop-item__meta">' + esc(localValue(x.r.agency)) + ' · ' + esc(x.a.number) + ' · ' + fmtAgo(x.r.at) + '</span></span>' +
+        (pend ? statusIcon('info', t('ij_pending'), 'i-clock') : statusIcon('success', t('ij_received'), 'i-check')) + '</div>';
     }).join('');
     return '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('ij_title')) + '</h1>' +
       '<div class="view__sub">' + esc(t('ij_sub')) + '</div></div></div>' +
@@ -1251,18 +1311,16 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         statTile('', D.INTEROP_DEMO.receivedToday, t('ij_received_today'), '') +
         statTile('', esc(t('ij_avg_value')), t('ij_avg'), '') +
       '</div>' +
-      '<div class="toolbar">' +
+      '<div class="panel interop-registry"><div class="toolbar queue-toolbar">' +
         selectFilter('io', t('ij_all'), [{ v: 'pending', l: t('ij_state_pending') }, { v: 'received', l: t('ij_state_received') }], io, t('ij_state')) +
         '<div class="toolbar__spacer"></div>' +
-        '<span class="small nowrap" aria-live="polite">' + shown.length + ' ' + esc(t('ij_count')) + '</span>' +
+        (io || S.registrySearch.interop ? '<button class="btn btn--quiet btn--s" data-act="interop-clear">' + esc(t('filters_reset')) + '</button>' : '') +
       '</div>' +
-      '<div class="panel panel--pad" aria-live="polite">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div>';
+      '<div aria-live="polite">' + (body || '<div class="empty">' + ic('i-refresh','icon--48') + '<div class="empty__title">' + esc(t('no_interop')) + '</div></div>') + '</div></div></div>';
   }
 
-  /* ---- отчётность по SLA (§7Б.3 → §14) ----
-     Читается сверху вниз как один вопрос: сводка → по услугам → по
-     специалистам → ритм поступления. Живые числа считаются по S.apps, всё
-     периодическое приходит из именованных демо-констант data.js. */
+  /* All report sections use the same selected-period demo dataset. Summary
+     counts derive from its rows so the figures reconcile when filtering. */
   function reportPeriod() {
     var id = S.filters.period || D.REPORT_PERIODS[0].id;
     return D.REPORT_DEMO[id] ? id : D.REPORT_PERIODS[0].id;
@@ -1271,9 +1329,9 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var rate = total ? Math.round((total - breach) / total * 100) : 0;
     return '<div class="report-row' + (extraClass ? ' ' + extraClass : '') + '">' +
       '<span class="report-row__who">' + name + '</span>' +
-      '<span class="report-row__num">' + total + '</span>' +
-      '<span class="report-row__num' + (breach ? ' report-row__num--breach' : '') + '">' + breach + '</span>' +
-      '<span class="report-row__rate"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
+      '<span class="report-row__num" data-label="' + esc(t('rep_col_total')) + '">' + total + '</span>' +
+      '<span class="report-row__num' + (breach ? ' report-row__num--breach' : '') + '" data-label="' + esc(t('rep_breach')) + '">' + breach + '</span>' +
+      '<span class="report-row__rate" data-label="' + esc(t('rep_ontime')) + '"><span class="meter grow"><span class="meter__fill" style="width:' + rate + '%"></span></span><b class="tnum">' + rate + '%</b></span></div>';
   }
   function reportHead(firstColumn) {
     return '<div class="report-row report-row--head"><span>' + esc(firstColumn) + '</span>' +
@@ -1295,20 +1353,20 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   }
   function viewReports() {
     var periodId = reportPeriod(), demo = D.REPORT_DEMO[periodId];
-    var breachN = S.apps.filter(function (a) { return ACTIVE[a.status] && slaState(a) === 'breach'; }).length;
+    var pairs = Object.values(demo.services), totalN = pairs.reduce(function (n,p) {return n + p[0];},0), breachN = pairs.reduce(function (n,p) {return n + p[1];},0);
     var h = '<div class="view"><div class="view__head"><div class="view__titles"><h1 class="h2">' + esc(t('rep_title')) + '</h1>' +
-      '<div class="view__sub">' + esc(t('rep_sub')) + '</div></div>' +
+      '<div class="view__sub">' + esc(t('rep_demo_note')) + '</div></div>' +
       '<div class="view__actions">' +
-        selectFilter('period', localValue(D.REPORT_PERIODS[0]), D.REPORT_PERIODS.map(function (x) { return { v: x.id, l: localValue(x) }; }), periodId, t('rep_period')) +
+        selectFilter('period', localValue(D.REPORT_PERIODS[0]), D.REPORT_PERIODS.map(function (x) { return { v: x.id, l: localValue(x) }; }), periodId, t('rep_period')) + '<button class="btn btn--quiet" data-act="report-export">' + ic('i-download','icon--16') + esc(t('rep_export')) + '</button>' +
       '</div></div>';
     h += '<div class="stat-grid">' +
-      statTile('', demo.total, t('rep_total'), '') +
-      statTile('', demo.onTimeRate + '%', t('rep_ontime'), 'ok') +
+      statTile('', totalN, t('rep_total'), '') +
+      statTile('', Math.round((totalN - breachN) / totalN * 100) + '%', t('rep_ontime'), 'ok') +
       statTile('', breachN, t('rep_breach'), breachN ? 'alert' : 'ok') +
       statTile('', esc(localValue(demo.avgDays)), t('rep_avg'), '') +
       '</div>';
 
-    h += '<div class="panel panel--pad"><h3 class="h3 panel__title">' + esc(t('rep_by_service')) + '</h3><div class="report-table">' +
+    h += '<div class="panel report-panel"><h2 class="h3 panel__title">' + esc(t('rep_by_service')) + '</h2><div class="report-table">' +
       reportHead(t('rep_col_service'));
     Object.keys(D.SERVICE).forEach(function (key) {
       var pair = demo.services[key]; if (!pair) return;
@@ -1316,14 +1374,15 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     });
     h += '</div></div>';
 
-    h += '<div class="panel panel--pad mt-4"><h3 class="h3 panel__title">' + esc(t('rep_by_specialist')) + '</h3><div class="report-table">' +
+    h += '<div class="report-secondary"><div class="panel report-panel"><h2 class="h3 panel__title">' + esc(t('rep_by_specialist')) + '</h2><div class="report-table">' +
       reportHead(t('rep_spec'));
-    D.REPORT_SPECIALISTS.forEach(function (sp) {
-      h += reportRow('<span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name), sp.total, sp.total - sp.onTime);
+    D.REPORT_SPECIALISTS.forEach(function (sp, index) {
+      var totals = demo.specialists[index];
+      h += reportRow('<span class="avatar">' + esc(sp.initials) + '</span>' + esc(sp.name), totals[0], totals[0] - totals[1]);
     });
     h += '</div></div>';
 
-    h += '<div class="panel panel--pad mt-4"><h3 class="h3 panel__title">' + esc(t('rep_intake')) + '</h3>' + weekChart(demo.week) + '</div>';
+    h += '<div class="panel report-intake"><h2 class="h3 panel__title">' + esc(t('rep_intake')) + '</h2>' + weekChart(demo.week) + '</div></div>';
     return h + '</div>';
   }
 
@@ -1338,20 +1397,10 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       var st = rem <= 0 ? 'breach' : rem <= WARN ? 'warn' : 'ok';
       el.classList.remove('sla--ok', 'sla--warn', 'sla--breach');
       el.classList.add('sla--' + st);
-      var word = slaWord(st); el.title = word; el.setAttribute('aria-label', word);
+      var word = slaWord(st); el.title = word; el.setAttribute('aria-label', word + ': ' + fmtDur(rem));
+      var glyph = el.querySelector('use'); if (glyph) glyph.setAttribute('href', '/design-system/assets/icons.svg#' + (st === 'breach' ? 'i-info' : 'i-clock'));
     });
-    document.querySelectorAll('[data-sla-cap]').forEach(function (el) {
-      var due = +el.getAttribute('data-due'), a = { dueAt: due };
-      el.innerHTML = slaCaption(a);
-    });
-    document.querySelectorAll('[data-ring]').forEach(function (el) {
-      var due = +el.getAttribute('data-due'), win = +el.getAttribute('data-window'), rem = due - r;
-      var frac = Math.max(0, Math.min(1, rem / win)), C = 339.292;
-      var bar = el.querySelector('.ring__bar'); if (bar) bar.style.strokeDashoffset = (C * (1 - frac));
-      el.classList.remove('ring--warn', 'ring--danger');
-      if (rem <= 0) el.classList.add('ring--danger'); else if (rem <= WARN) el.classList.add('ring--warn');
-      var v = el.querySelector('[data-ring-val]'); if (v) v.textContent = fmtDur(rem);
-    });
+
   }
 
   /* ================================================================== */
@@ -1371,13 +1420,18 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var back = overlayEl().querySelector('.overlay');
     var controller = window.EKHDialog?.openExistingDialog(back, {
       initialFocus:'input:not([type=hidden]),select,textarea,button',
-      trigger:S._modalTrigger,
+      trigger:S._modalTrigger, closeOnEscape:false, closeOnBackdrop:false,
       onClosed:function () { back.remove(); }
     }) || null;
     S._modalController = controller;
+    // This markup names the inner card. The legacy adapter also names its
+    // backdrop as a dialog; keep a single dialog in the accessibility tree.
+    back.removeAttribute('role'); back.removeAttribute('aria-modal');
+    var app = document.getElementById('app'); if (app) app.inert = true;
     if (!S._modalController) { var focusable = mod.querySelector('input:not([type=hidden]),select,textarea,button'); (focusable || mod).focus(); }
   }
   function closeModal() {
+    var app = document.getElementById('app'); if (app && !S.locked) app.inert = false;
     S.modal = null;
     var controller = S._modalController;
     var back = overlayEl().querySelector('.overlay');
@@ -1392,7 +1446,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function trapFocus(container, e) {
     var f = [].filter.call(
       container.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'),
-      function (el) { return el.offsetParent !== null; });
+      function (el) { return el.offsetParent !== null && !el.disabled && !el.closest('[inert]'); });
     if (!f.length) return;
     var first = f[0], last = f[f.length - 1], ae = document.activeElement;
     if (f.indexOf(ae) === -1) { e.preventDefault(); first.focus(); }
@@ -1406,7 +1460,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var types = D.INFO_TYPES.map(function (x, index) { return '<option value="' + index + '">' + esc(localValue(x)) + '</option>'; }).join('');
     var ags = D.SOURCE_AGENCIES.map(function (x, index) { return '<option value="' + index + '">' + esc(localValue(x)) + '</option>'; }).join('');
     openModal(
-      '<h3 class="h3 modal__title" id="modal-title">' + esc(t('rm_title')) + '</h3>' +
+      '<h3 class="h3 modal__title" id="modal-title">' + esc(t('rm_title')) + '</h3><div class="modal__body small">' + esc(a.number) + ' · ' + esc(applicantName(a)) + '</div>' +
       '<div class="modal__section">' +
         '<div class="field"><label class="field__label" for="rm-type">' + esc(t('rm_type')) + '</label><div class="field__wrap"><select class="field__input" id="rm-type">' + types + '</select><span class="field__affix">' + ic('i-chev-d','icon--16') + '</span></div></div>' +
         '<div class="field"><label class="field__label" for="rm-agency">' + esc(t('rm_agency')) + '</label><div class="field__wrap"><select class="field__input" id="rm-agency">' + ags + '</select><span class="field__affix">' + ic('i-chev-d','icon--16') + '</span></div></div>' +
@@ -1421,7 +1475,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     S.modal = { type: 'return', appId: a.id };
     openModal(
       '<h3 class="h3 modal__title" id="modal-title">' + esc(t('ret_title')) + '</h3>' +
-      '<div class="modal__body small">' + esc(a.number) + ' · ' + esc(a.applicant.name) + '</div>' +
+      '<div class="modal__body small">' + esc(a.number) + ' · ' + esc(applicantName(a)) + '</div>' +
       '<div class="modal__section mt-4"><div class="field"><label class="field__label" for="ret-reason">' + esc(t('ret_reason')) + '</label>' +
         '<textarea class="field__input" id="ret-reason" placeholder="' + esc(t('ret_reason_ph')) + '" aria-describedby="ret-err"></textarea>' +
         '<div class="field__error" id="ret-err" role="alert" hidden>' + esc(t('ret_required')) + '</div></div></div>' +
@@ -1581,22 +1635,24 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   }
 
   function openNotif() {
+    S._popTrigger = document.querySelector('[data-act="notif-open"]');
     S.pop = 'notif';
     var items = S.notifs.slice().sort(function (x, y) { return y.at - x.at; }).map(function (n) {
       /* §6 «Icon fills»: заливка живёт только в статус-кружках таблиц и на
          плитках каталога. В ленте уведомлений — голый цветной глиф, потолще
          штрихом взамен потерянного кружка (канон строки-алерта). */
-      return '<button class="notif notif--' + n.kind + '" data-act="notif-go" data-id="' + esc(n.appId) + '" data-nid="' + esc(n.id) + '">' +
+      return '<button class="notif notif--' + n.kind + (n.unread ? ' is-unread' : '') + '" data-act="notif-go" data-id="' + esc(n.appId) + '" data-nid="' + esc(n.id) + '">' +
         ic(n.kind === 'breach' ? 'i-clock' : n.kind === 'warn' ? 'i-info' : 'i-check','icon--20 notif__glyph') +
-        '<span class="notif__body"><span class="notif__t"><b>' + esc(localValue(n.title)) + '</b> — ' + esc(localValue(n.text)) + '</span>' +
-        '<span class="notif__time">' + fmtAgo(n.at) + '</span></span></button>';
+        '<span class="notif__body"><span class="notif__t">' + esc(localValue(n.title)) + '</span><span class="notif__description">' + esc(localValue(n.text)) + '</span>' +
+        '<span class="notif__time">' + (n.unread ? esc(t('notification_unread')) + ' · ' : '') + fmtAgo(n.at) + '</span></span></button>';
     }).join('');
     var nt = document.querySelector('[data-act="notif-open"]'); if (nt) nt.setAttribute('aria-expanded', 'true');
     overlayEl().insertAdjacentHTML('beforeend',
       '<div class="popover notif-pop" id="pop" role="dialog" aria-label="' + esc(t('notifications')) + '">' +
-        '<div class="notif-pop__head"><b>' + esc(t('notifications')) + '</b><button class="btn btn--ghost btn--s" data-act="notif-read">' + esc(t('notifications_read_all')) + '</button></div>' +
+        '<div class="notif-pop__head"><b>' + esc(t('notifications')) + '</b><button class="btn btn--ghost btn--s" data-act="notif-read" ' + (unreadNotifs() ? '' : 'disabled') + '>' + esc(t('notifications_read_all')) + '</button></div>' +
         '<div class="notif-list">' + (items || '<div class="empty">' + ic('i-bell','icon--48') + '<div class="empty__title">' + esc(t('notifications_empty')) + '</div></div>') + '</div></div>');
     revealPop();
+    document.querySelector('#pop button')?.focus({ preventScroll: true });
   }
   /* Профиль и настройки — общий компонент `.ekh-profile-pop`
      (design-system/css/components.css, §3 «Global preferences», §6 «Profile
@@ -1637,11 +1693,12 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       ic(icon,'icon--16') + '<span class="ekh-profile-pop__row-label">' + esc(label) + '</span></button>';
   }
   function openProfile(trigger) {
+    S._popTrigger = trigger;
     S.pop = 'user';
     trigger.setAttribute('aria-expanded', 'true');
     var signedIn = S.authed;
     overlayEl().insertAdjacentHTML('beforeend',
-      '<div class="ekh-profile-pop" id="pop" role="dialog" aria-label="' + esc(t(signedIn ? 'profile' : 'preferences')) + '">' +
+      '<div class="ekh-profile-pop ministry-profile" id="pop" role="dialog" aria-label="' + esc(t(signedIn ? 'profile' : 'preferences')) + '">' +
         (signedIn
           ? '<div class="ekh-profile-pop__card">' +
               '<span class="ekh-side__avatar" aria-hidden="true">' + esc(D.ME.initials) + '</span>' +
@@ -1661,6 +1718,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       '</div>');
     positionProfile(trigger);
     revealPop();
+    document.querySelector('#pop button')?.focus({ preventScroll: true });
   }
   /* Поповер растёт из своего триггера (§8). У карточки оператора он всплывает
      над ней по ширине рельса, у шестерёнки входа — из правого верхнего угла. */
@@ -1673,6 +1731,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       var cs = getComputedStyle(side), sideRect = side.getBoundingClientRect();
       var left = sideRect.left + (parseFloat(cs.paddingLeft) || 0);
       var right = sideRect.right - (parseFloat(cs.paddingRight) || 0);
+      pop.classList.toggle('ministry-profile--stacked', right + 208 > innerWidth);
       /* Свёрнутый рельс уже 66px: компактный вариант поповера прячет подписи, а
          у ведомства в нём ещё и три действия — «Заблокировать» одной иконкой
          это загадка, а не контрол. Поэтому под рельсом поповер сохраняет свою
@@ -1699,6 +1758,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
      рабочей областью и отодвигали редактор вниз. Теперь они за своим счётчиком:
      цифра на полосе — вход, поповер — список (§6). */
   function openFormComments(trigger) {
+    S._popTrigger = trigger;
     S.pop = 'comments';
     trigger.setAttribute('aria-expanded', 'true');
     var items = (lc().comments || []).map(function (comment) {
@@ -1715,7 +1775,16 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     revealPop();
   }
   function closePop() {
-    S.pop = null; var p = document.getElementById('pop'); if (p) p.remove();
+    S.pop = null;
+    var p = document.getElementById('pop');
+    if (p) {
+      var returnFocus = p.contains(document.activeElement);
+      p.removeAttribute('id'); p.classList.remove('is-open'); p.inert = true;
+      p.setAttribute('aria-hidden', 'true');
+      var exitMs = motionMs(p, '--t-exit');
+      if (exitMs) setTimeout(function () { p.remove(); }, exitMs); else p.remove();
+      if (returnFocus && S._popTrigger?.isConnected) S._popTrigger.focus({ preventScroll: true });
+    }
     ['notif-open', 'profile-open', 'prefs-open', 'form-comments'].forEach(function (a) {
       document.querySelectorAll('[data-act="' + a + '"]').forEach(function (b) { b.setAttribute('aria-expanded', 'false'); });
     });
@@ -1849,7 +1918,12 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     S.filterOpen = null;
     document.querySelectorAll('.filter-select').forEach(function (el) { el.classList.remove('is-open'); });
     document.querySelectorAll('.filter-select__trigger').forEach(function (el) { el.setAttribute('aria-expanded', 'false'); });
-    document.querySelectorAll('.filter-select__menu').forEach(function (el) { el.hidden = true; });
+    document.querySelectorAll('.filter-select__menu').forEach(function (el) {
+      if (el.hidden) return;
+      el.classList.add('is-closing'); el.inert = true; el.setAttribute('aria-hidden', 'true');
+      var ms = motionMs(el, '--t-exit');
+      if (ms) el._exitTimer = setTimeout(function () { el.hidden = true; }, ms); else el.hidden = true;
+    });
   }
   function setFilterMenu(name, open) {
     closeFilterMenu();
@@ -1859,8 +1933,14 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     if (!root) return;
     root.classList.add('is-open');
     root.querySelector('.filter-select__trigger').setAttribute('aria-expanded', 'true');
-    root.querySelector('.filter-select__menu').hidden = false;
+    var menu = root.querySelector('.filter-select__menu');
+    clearTimeout(menu._exitTimer); menu.classList.remove('is-closing'); menu.inert = false;
+    menu.removeAttribute('aria-hidden'); menu.hidden = false;
   }
+
+  document.addEventListener('focusin', function (e) {
+    if (S.filterOpen && !closest(e.target, '.filter-select--' + S.filterOpen)) closeFilterMenu();
+  });
 
   document.addEventListener('click', function (e) {
     var tgt = closest(e.target, '[data-act]');
@@ -1891,19 +1971,31 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         var optionValue = tgt.getAttribute('data-val');
         S.filterOpen = null;
         setFilter(optionFilter, optionFilter === 'sla' && !optionValue ? 'all' : optionValue);
+        document.querySelector('.filter-select--' + optionFilter + ' .filter-select__trigger')?.focus();
         return;
       }
-      case 'stat-clear': S.filters.svc = ''; S.filters.status = ''; S.filters.priority = ''; setFilter('sla', 'all'); return;
-      case 'stat-sla': setFilter('sla', S.filters.sla === 'breach' ? 'all' : 'breach'); return;
-      case 'stat-status': setFilter('status', S.filters.status === 'info_requested' ? '' : 'info_requested'); return;
-      case 'stat-priority': setFilter('priority', S.filters.priority === 'high' ? '' : 'high'); return;
+      case 'filters-reset': {
+        S.filters.q = ''; S.filters.svc = ''; S.filters.status = ''; S.filters.priority = '';
+        var search = document.getElementById('top-search'); if (search) search.value = '';
+        setFilter('sla', 'all'); search?.focus(); return;
+      }
+      case 'stat-clear': if (S.view === 'overdue') S.view = 'queue'; S.filters.svc = ''; S.filters.status = ''; S.filters.priority = ''; setFilter('sla', 'all'); return;
+      case 'stat-sla': if (S.view === 'overdue') S.view = 'queue'; setFilter('sla', S.filters.sla === 'breach' ? 'all' : 'breach'); return;
+      case 'stat-status': if (S.view === 'overdue') S.view = 'queue'; setFilter('status', S.filters.status === 'info_requested' ? '' : 'info_requested'); return;
+      case 'stat-priority': if (S.view === 'overdue') S.view = 'queue'; setFilter('priority', S.filters.priority === 'high' ? '' : 'high'); return;
       case 'stat-io': setFilter('io', S.filters.io === 'pending' ? '' : 'pending'); return;
       case 'forms-facet': {
         var facet = tgt.getAttribute('data-val');
-        S.formsFacet = S.formsFacet === facet ? '' : facet;
-        renderMain(); return;
+        setFilter('formState', S.filters.formState === facet ? '' : facet); return;
       }
 
+      case 'report-export': {
+        var report = D.REPORT_DEMO[reportPeriod()];
+        var csv = [[t('rep_col_service'),t('rep_col_total'),t('rep_breach'),t('rep_ontime')]].concat(Object.keys(report.services).map(function (key) { var pair = report.services[key]; return [serviceName(D.SERVICE[key]),pair[0],pair[1],Math.round((pair[0]-pair[1])/pair[0]*100) + '%']; })).map(function (row) {return row.map(function (cell) { return '"' + String(cell).replace(/"/g,'""') + '"'; }).join(',');}).join('\r\n');
+        var url = URL.createObjectURL(new Blob(['\uFEFF' + csv],{type:'text/csv;charset=utf-8'}));
+        var link = document.createElement('a'); link.href = url; link.download = 'ministry-' + reportPeriod() + '.csv'; link.click(); setTimeout(function () {URL.revokeObjectURL(url);},1000); return;
+      }
+      case 'forms-clear': S.registrySearch.forms = ''; setFilter('formState', ''); return;
       case 'form-create':
         /* RESET восстанавливает демо-состояние «на рассмотрении» — созданная
            форма тогда открывается уже запертой. NEW_DRAFT кладёт общий процесс
@@ -1911,7 +2003,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         S._lowCodeBusy = true; dispatchLowCode('NEW_DRAFT'); S._lowCodeBusy = false;
         S.formDraft = {
           serviceName:{ru:'',tg:''}, audience:['person'],
-          formFields:[{id:'field-' + Date.now(),label:{ru:t('form_new_field'),tg:t('form_new_field')},type:'text',required:true}]
+          formFields:[{id:'field-' + Date.now(),label:{ru:D.I18N.ru.form_new_field,tg:D.I18N.tg.form_new_field},type:'text',required:true}]
         };
         S.formReadOnly = false; S.formStep = 'fields'; S.formFieldOpen = S.formDraft.formFields[0].id; S.formPaletteOpen = false; go('form-builder'); return;
       case 'form-open': S.formDraft = null; S.formReadOnly = false; S.formStep = 'fields'; S.formFieldOpen = null; S.formPaletteOpen = false; go('form-builder'); return;
@@ -1924,12 +2016,12 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         return;
       }
       case 'form-step': S.formStep = id; S.formPaletteOpen = false; renderMain(); return;
-      case 'form-preview-toggle': S.formPreviewOpen = !S.formPreviewOpen; renderMain(); return;
+      case 'form-preview-toggle': S.formPreviewOpen = !S.formPreviewOpen; renderMain(); syncPreviewLayer(true); return;
       case 'form-add-field':
         S.formPaletteOpen = !S.formPaletteOpen;
         renderMain(); return;
       case 'form-add-field-type': {
-        var newField = {id:'field-' + Date.now(),label:{ru:t('form_new_field'),tg:t('form_new_field')},type:id || 'text',required:true};
+        var newField = {id:'field-' + Date.now(),label:{ru:D.I18N.ru.form_new_field,tg:D.I18N.tg.form_new_field},type:id || 'text',required:true};
         S.formDraft.formFields.push(newField); S.formFieldOpen = newField.id; S.formPaletteOpen = false;
         renderMain(); return;
       }
@@ -1950,17 +2042,23 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         if (S.formFieldOpen === id) S.formFieldOpen = null;
         renderMain(); return;
       case 'form-save':
+        if (!validFormConfig()) return;
         persistFormDraft(true); renderMain(); toast(t('form_saved_toast'), 'success'); return;
       case 'form-send': {
-        var name = localValue(S.formDraft.serviceName,'').trim();
-        if (!name) { toast(t('form_name_required'), 'warn'); document.querySelector('[data-form-name="' + S.lang + '"]')?.focus(); return; }
+        if (!validFormConfig()) return;
+        var missingLanguage = ['ru','tg'].find(function (lang) {return !S.formDraft.serviceName[lang]?.trim();});
+        if (missingLanguage) { S.formStep = 'fields'; renderMain(); toast(t('form_name_required'), 'warn'); document.querySelector('[data-form-name="' + missingLanguage + '"]')?.focus(); return; }
         persistFormDraft(true);
         var submitEvent = getLowCodeState().status === 'changes_requested' ? 'RESUBMIT' : 'SEND_REVIEW';
         S._lowCodeBusy = true; dispatchLowCode(submitEvent); S._lowCodeBusy = false;
         renderMain(); toast(t(submitEvent === 'RESUBMIT' ? 'form_resubmitted_toast' : 'form_sent_toast'), 'success'); return;
       }
 
-      case 'open-card': openCard(id); return;
+      case 'interop-clear': S.registrySearch.interop = ''; setFilter('io',''); return;
+      case 'interop-open': openCard(id); S.cardTab = 'interop'; renderMain(); return;
+      case 'result-open': { S.modal = {type:'result'}; openModal('<h2 class="modal__title" id="modal-title">' + esc(t('result')) + '</h2><div class="ministry-result-preview"><article class="doc-page">' + document.querySelector('.result-doc .doc-page').innerHTML + '</article></div><div class="modal__foot"><button class="btn btn--secondary" data-act="modal-cancel">' + esc(t('document_close')) + '</button></div>', 'modal--document'); return; }
+      case 'document-open': openDocument(Number(id)); return;
+      case 'open-card': if (closest(e.target, '.q-checkbox')) return; openCard(id); return;
       case 'tab': S.cardTab = tgt.getAttribute('data-tab'); renderMain(); return;
 
       case 'sort': {
@@ -2044,11 +2142,35 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
       case 'reset': resetData(); S.sel = {}; S.view = 'queue'; renderApp(); toast(t('reset_done'), 'success'); return;
       case 'logout': S.authed = false; S.loginStep = 1; closeLayers(true); clearArm(); renderLogin(); return;
       case 'unlock': doUnlock(); return;
-      case 'noop': return;
     }
   });
 
+  function revealFormStep() {
+    if (S.view !== 'form-builder' || innerWidth > 880) return;
+    var rail = document.querySelector('.mfb-pipeline'), active = rail?.querySelector('[aria-selected="true"]');
+    if (active) rail.scrollLeft += active.getBoundingClientRect().left - rail.getBoundingClientRect().left - 12;
+  }
+  function syncPreviewLayer(focus) {
+    var preview = document.getElementById('formPreview');
+    if (!preview) return;
+    var open = S.formPreviewOpen && matchMedia('(max-width: 1180px)').matches;
+    document.querySelectorAll('.mfb-top,.mfb-meta,.mfb-pipeline,.mfb-editor,.app__top').forEach(function (el) {el.inert = open;});
+    if (open) {preview.setAttribute('role','dialog');preview.setAttribute('aria-modal','true'); if (focus) preview.querySelector('button')?.focus();}
+    else {preview.removeAttribute('role');preview.removeAttribute('aria-modal'); if (focus) document.querySelector('.mfb-preview-toggle')?.focus();}
+  }
+  function updateFormConfig(target) {
+    var key = target.getAttribute('data-form-config');
+    if (!key || !S.formDraft || !isFormEditable()) return false;
+    target.removeAttribute('aria-invalid'); target.removeAttribute('aria-describedby'); document.getElementById('form-config-error')?.remove();
+    var c = formConfig(S.formDraft), lang = target.getAttribute('data-config-lang');
+    var value = target.type === 'checkbox' ? target.checked : target.value;
+    if (lang) c[key][lang] = value; else c[key] = value;
+    var preview = document.getElementById('formPreview');
+    if (preview) preview.outerHTML = formPreview(S.formDraft, localValue(S.formDraft.serviceName,t('form_untitled')));
+    return true;
+  }
   document.addEventListener('input', function (e) {
+    if (e.target.matches('[data-form-config]') && !e.target.matches('select,[type="checkbox"],[type="radio"]')) { updateFormConfig(e.target); return; }
     var nameLang = e.target.getAttribute && e.target.getAttribute('data-form-name');
     if (nameLang && S.formDraft) {
       S.formDraft.serviceName[nameLang] = e.target.value;
@@ -2114,7 +2236,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     var f = e.target.getAttribute && e.target.getAttribute('data-filter');
     if (!f) return;
     if (f === 'q') {
-      S.filters.q = e.target.value;
+      if (S.view === 'forms' || S.view === 'interop') S.registrySearch[S.view] = e.target.value; else S.filters.q = e.target.value;
       /* Поиск живёт только в топбаре, поэтому синхронизировать нечего —
          достаточно вернуть каретку после перерисовки списка. */
       if (S.view !== 'card') {
@@ -2126,6 +2248,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     }
   });
   document.addEventListener('change', function (e) {
+    if (updateFormConfig(e.target)) { if (e.target.getAttribute('data-form-config') === 'cost') { renderMain(); document.querySelector('[name="form-cost"]:checked')?.focus(); } return; }
     var fieldType = e.target.getAttribute && e.target.getAttribute('data-form-field-type');
     if (fieldType && S.formDraft) {
       var typeField = S.formDraft.formFields.filter(function (field) { return field.id === fieldType; })[0];
@@ -2159,6 +2282,11 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   });
   // Esc закрывает слои; ↑/↓ навигация по очереди опущена ради простоты
   document.addEventListener('keydown', function (e) {
+    if (S.formPreviewOpen && S.view === 'form-builder' && matchMedia('(max-width: 1180px)').matches) {
+      if (e.key === 'Escape') { e.preventDefault(); S.formPreviewOpen = false; renderMain(); syncPreviewLayer(true); }
+      else if (e.key === 'Tab') trapFocus(document.getElementById('formPreview'),e);
+      return;
+    }
     if (S.locked) {
       var lockCard = document.querySelector('#lock-root .s-locked__card');
       if (e.key === 'Escape') { e.preventDefault(); return; }
@@ -2199,7 +2327,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
         document.querySelector('.filter-select--' + openFilterName + ' .filter-select__trigger')?.focus();
       }
       else if (S.modal) closeModal(); else if (S.pop) closePop();
-      else if (document.getElementById('app')) document.getElementById('app').classList.remove('nav-open');
+      else if (document.getElementById('app')) { document.getElementById('app').classList.remove('nav-open'); syncNavToggle(); document.querySelector('[data-act="nav-toggle"]')?.focus(); }
       return;
     }
     // фокус-ловушка внутри модалки
@@ -2257,7 +2385,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     renderMain();
     writeArm();
   }
-  function openCard(id) { S.cardId = id; S.view = 'card'; S.cardTab = 'overview'; closeLayers(false); var m = document.getElementById('main'); if (m) m.scrollTop = 0; renderMain(); }
+  function openCard(id) { if (ARM_VIEWS[S.view]) S._cardOrigin = S.view; S.cardId = id; S.view = 'card'; S.cardTab = 'overview'; closeLayers(false); var m = document.getElementById('main'); if (m) m.scrollTop = 0; renderMain(); }
 
   /* Замок — модалка поверх того экрана, на котором остановились (правило 42,
      §3 «Workstation lock»): шелл остаётся смонтированным и размывается, а
@@ -2271,7 +2399,7 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
   function doLock() {
     closeLayers(true);
     S.locked = true;
-    var app = document.getElementById('app'); if (app) app.classList.add('is-blurred');
+    var app = document.getElementById('app'); if (app) { app.classList.add('is-blurred'); app.inert = true; }
     var lock = document.createElement('div'); lock.id = 'lock-root';
     lock.innerHTML =
       '<div class="s-locked">' +
@@ -2325,20 +2453,21 @@ import { presentAtLoginScale } from '/design-system/js/login-scale.js';
     S.locked = false;
     document.getElementById('lock-root').remove();
     document.getElementById('app').classList.remove('is-blurred');
+    document.getElementById('app').inert = false;
     document.querySelector('.ekh-side__user')?.focus();
   }
 
   /* ================================================================== */
   /* Запуск                                                             */
   /* ================================================================== */
-  function startApp() { S.view = 'queue'; S.statIntroPending = true; renderApp(); writeArm(); }
+  function startApp() { S.view = 'queue'; renderApp(); writeArm(); }
 
   function boot() {
     /* Тему и lang уже поставил preferences.js (и предотрисовочный скрипт в
        <head>); здесь их только читают. */
     loadData();
     document.addEventListener('visibilitychange', syncToastTimers);
-    window.addEventListener('resize', syncNavToggle);
+    window.addEventListener('resize', function () { syncNavToggle(); syncPreviewLayer(false); revealFormStep(); });
     // авто-разрешение изначально «висящего» межвед-запроса (a4) — демонстрация
     setTimeout(function () {
       var a = appById('a4'); if (!a) return;

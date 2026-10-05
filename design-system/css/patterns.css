@@ -611,7 +611,7 @@ body:has(.login) #topbar {
 .s-locked__legend {
   justify-self: center;
   max-width: 48ch;
-  color: var(--ink-faint);
+  color: var(--ink); /* Legible over the lock scrim, not only on a panel. */
   text-align: center;
   font-size: var(--fs-14);
   transform: scale(var(--login-scale));

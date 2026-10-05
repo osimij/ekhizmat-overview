@@ -57,7 +57,8 @@ test('Citizen guest appointment, cabinet categories, child validation and biomet
   await expect(page.locator('#loginOverlay #loginSub')).toContainText('личный кабинет');
   await page.locator('#loginCancel').click();
   await page.locator('.cat').first().click();
-  await page.locator('[data-go="guestService"]').click();
+  // the popular card opens the same appointment; take the catalogue row
+  await page.locator('#cpList [data-go="guestService"]').click();
   await page.locator('#guestCenter').selectOption('sino');
   await page.locator('#guestDate').fill('2026-08-12');
   await page.locator('#guestEmail').fill('guest@example.tj');

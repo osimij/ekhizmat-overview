@@ -363,16 +363,19 @@
   ];
   var REPORT_DEMO = {
     '2026-07': {
+      specialists:[[128,119],[143,140],[96,83],[61,60]],
       total: 428, onTimeRate: 94, avgDays: { ru: '2,4 дн', tg: '2,4 рӯз' },
       week: [64, 71, 58, 82, 77, 39, 12],
       services: { nko: [96, 8], notary: [54, 6], apostille: [83, 2], extract: [61, 1], marriage: [44, 3], rename: [27, 0], legal: [31, 4], accred: [19, 2], consult: [13, 0] }
     },
     '2026-06': {
+      specialists:[[118,108],[130,121],[87,73],[56,53]],
       total: 391, onTimeRate: 91, avgDays: { ru: '2,8 дн', tg: '2,8 рӯз' },
       week: [58, 63, 66, 70, 61, 34, 9],
       services: { nko: [88, 11], notary: [49, 7], apostille: [76, 4], extract: [55, 3], marriage: [39, 2], rename: [24, 1], legal: [28, 5], accred: [21, 3], consult: [11, 0] }
     },
     '2026-q2': {
+      specialists:[[360,335],[395,380],[270,230],[169,160]],
       total: 1164, onTimeRate: 92, avgDays: { ru: '2,6 дн', tg: '2,6 рӯз' },
       week: [61, 68, 62, 76, 70, 37, 11],
       services: { nko: [268, 27], notary: [151, 18], apostille: [232, 9], extract: [168, 7], marriage: [121, 6], rename: [72, 2], legal: [86, 12], accred: [58, 7], consult: [38, 1] }
@@ -387,6 +390,19 @@
   /* ---------- Словарь интерфейса (§6В.2, ru/tg) ---------- */
   var I18N = {
     ru: {
+      document_close: 'Закрыть',
+      forms_search: 'Поиск по названию формы…',
+      interop_search: 'Поиск по запросу, ведомству или номеру…',
+      form_fee_amount: "Размер платы, сомони",
+      form_sla_days: "Срок рассмотрения, рабочих дней",
+      document_source_missing: "В демо доступны сведения о документе. Исходный файл не приложен.",
+      document_details: "Сведения о документе",
+      rep_export: "Скачать CSV",
+      form_config_invalid: "Проверьте срок рассмотрения и размер платы.",
+      form_delivery_required: "Выберите хотя бы один способ получения результата.",
+      rep_demo_note: "Демонстрационные данные за выбранный период",
+      notification_unread: "Не прочитано",
+
       app_title: 'АРМ ведомства',
       nav_group: 'Работа с заявлениями',
       nav_group2: 'Аналитика',
@@ -560,7 +576,8 @@
       form_template_edit: 'Настроить шаблон',
       form_wallet_result: 'Добавить в личный кабинет',
       form_wallet_result_sub: 'документ останется доступен после завершения услуги',
-      search_ph: 'Поиск по № заявления, ФИО, ИНН…',
+      search_ph: 'Номер, имя или ИНН…',
+      search_short: 'Поиск…',
       lock: 'Заблокировать',
       end_shift: 'Завершить смену',
       logout: 'Выйти',
@@ -571,6 +588,9 @@
       lang_ru: 'Русский', lang_tg: 'Тоҷикӣ',
       // queue
       queue_title: 'Мои заявления',
+      filters_reset: 'Сбросить',
+      queue_priority: 'Высокий приоритет',
+      application: 'Заявление',
       queue_sub: 'Заявления, назначенные вам · сортировка по сроку (SLA) и приоритету',
       f_all_services: 'Все услуги',
       audience_guest: 'Гость',
@@ -737,6 +757,19 @@
       close: 'Закрыть'
     },
     tg: {
+      document_close: 'Пӯшидан',
+      forms_search: 'Ҷустуҷӯ аз рӯи номи шакл…',
+      interop_search: 'Ҷустуҷӯ аз рӯи дархост, идора ё рақам…',
+      form_fee_amount: "Маблағи пардохт, сомонӣ",
+      form_sla_days: "Муҳлати баррасӣ, рӯзҳои корӣ",
+      document_source_missing: "Дар намоиш маълумоти ҳуҷҷат дастрас аст. Файли аслӣ замима нашудааст.",
+      document_details: "Маълумоти ҳуҷҷат",
+      rep_export: "Боргирии CSV",
+      form_config_invalid: "Муҳлати баррасӣ ва маблағи пардохтро санҷед.",
+      form_delivery_required: "Ҳадди ақал як роҳи гирифтани натиҷаро интихоб кунед.",
+      rep_demo_note: "Маълумоти намоишӣ барои давраи интихобшуда",
+      notification_unread: "Хонданашуда",
+
       app_title: 'ҶТ-и идора',
       nav_group: 'Кор бо аризаҳо',
       nav_group2: 'Таҳлил',
@@ -910,7 +943,8 @@
       form_template_edit: 'Танзими қолаб',
       form_wallet_result: 'Илова ба кабинети шахсӣ',
       form_wallet_result_sub: 'ҳуҷҷат пас аз анҷоми хизмат дастрас мемонад',
-      search_ph: 'Ҷустуҷӯ аз рӯи №, ному насаб, РМА…',
+      search_ph: 'Рақам, ном ё РМА…',
+      search_short: 'Ҷустуҷӯ…',
       lock: 'Қулф кардан',
       end_shift: 'Анҷоми баст',
       logout: 'Баромадан',
@@ -920,6 +954,9 @@
       theme_system: 'Аз система', theme_light: 'Равшан', theme_dark: 'Торик',
       lang_ru: 'Русский', lang_tg: 'Тоҷикӣ',
       queue_title: 'Аризаҳои ман',
+      filters_reset: 'Тоза кардан',
+      queue_priority: 'Афзалияти баланд',
+      application: 'Ариза',
       queue_sub: 'Аризаҳои ба шумо вогузошташуда · мураттабсозӣ аз рӯи мӯҳлат ва афзалият',
       f_all_services: 'Ҳамаи хизматҳо',
       audience_guest: 'Меҳмон',

@@ -205,6 +205,14 @@ textarea.input{height:auto; min-height:104px; padding:var(--s-3) var(--s-4); lin
 }
 .ekh-checkbox:checked::after, .check__input:checked::after { transform: rotate(45deg) scale(1); }
 
+/* Select-all reflects a partial selection with a dash, using the same state
+   colors and focus treatment as checked inputs. Set input.indeterminate. */
+.ekh-checkbox:indeterminate, .check__input:indeterminate { background: var(--blue); border-color: var(--blue); }
+.ekh-checkbox:indeterminate::after, .check__input:indeterminate::after {
+  width: 8px; height: 0; margin-top: 0;
+  border-width: 0 0 2px; transform: none;
+}
+
 /* Точка радио. */
 .ekh-radio::after, .radio__input::after {
   content: "";
@@ -693,6 +701,50 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 }
 .back:hover{background:var(--hover); color:var(--ink)}
 .back svg{width:16px; height:16px}
+
+/* ============ BREADCRUMBS ============ */
+/* Where a page sits in the catalogue (design-guide §6). Ancestors only — the
+   page's own h1 directly below is the last step, so a long registry title is
+   never repeated or truncated. Each step is drawn like the back link it
+   replaces, and the first label sits on the content edge (§5 casebook 3). */
+.ekh-crumbs{margin:var(--s-5) 0 var(--s-2)}
+.ekh-crumbs ol{display:flex; flex-wrap:wrap; align-items:center; margin:0; padding:0; list-style:none}
+.ekh-crumbs li{display:inline-flex; align-items:center; min-width:0}
+.ekh-crumbs li + li::before{content:"/" / ""; margin:0 2px; color:var(--ink-3); font-size:var(--fs-14)}
+.ekh-crumbs a{
+  display:inline-flex; align-items:center; padding:var(--s-2) 10px; border-radius:var(--r-s);
+  color:var(--ink-3); font-size:var(--fs-14); font-weight:var(--weight-medium);
+  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.ekh-crumbs li:first-child a{margin-left:-10px}
+.ekh-crumbs a:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+@media (hover:hover) and (pointer:fine){ .ekh-crumbs a:hover{background:var(--hover); color:var(--ink)} }
+@media (pointer:coarse){ .ekh-crumbs a{min-height:44px} }
+
+/* ============ DISCLOSURE (accordion) ============ */
+/* Depth that most readers skip: native <details> rows in one bordered panel,
+   hairline-divided, so the page stays short and find-in-page still reaches the
+   hidden text. Rows are records — the hover bleeds edge to edge (§5 casebook 2).
+   Only the chevron moves; the content appears without spatial motion (§8). */
+.ekh-disclosures{background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l); overflow:hidden}
+.ekh-disclosure + .ekh-disclosure{border-top:1px solid var(--line-in)}
+.ekh-disclosure > summary{
+  display:flex; align-items:center; gap:var(--s-3); min-height:56px; padding:var(--s-3) var(--s-5);
+  list-style:none; cursor:pointer; color:var(--ink);
+  font-size:var(--fs-15); font-weight:var(--weight-medium); line-height:1.4;
+  transition:background var(--t-fast) var(--ease);
+}
+.ekh-disclosure > summary::-webkit-details-marker{display:none}
+.ekh-disclosure > summary:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+@media (hover:hover) and (pointer:fine){ .ekh-disclosure > summary:hover{background:var(--hover)} }
+.ekh-disclosure__chev{width:16px; height:16px; margin-left:auto; flex:none; color:var(--ink-3); transition:rotate var(--t-fast) var(--ease)}
+.ekh-disclosure[open] .ekh-disclosure__chev{rotate:180deg}
+/* the body continues the summary's text edge; its last line carries the row's bottom inset */
+.ekh-disclosure__body{padding:0 var(--s-5) var(--s-5); max-width:72ch; color:var(--ink-2); font-size:var(--fs-15); line-height:1.6}
+.ekh-disclosure__body :where(p,ul,ol){margin:0}
+.ekh-disclosure__body > * + *{margin-top:var(--s-3)}
+.ekh-disclosure__body :where(ul,ol){padding-left:1.2em}
+.ekh-disclosure__body li + li{margin-top:var(--s-1)}
 
 /* ============ SCREENS / TRANSITIONS ============ */
 .screen{padding:0 0 var(--s-16)}

@@ -1,6 +1,7 @@
 import '../services-data.js';
 import { I18N } from './i18n.js';
 import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
+import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 
 /* ===================== APP ===================== */
@@ -18,6 +19,7 @@ try { lang = new URLSearchParams(location.search).get("lang") || localStorage.ge
 if (!["tg", "ru", "en"].includes(lang)) lang = "tg";
 let acct = "person";
 let expansion = null;
+let servicePage = null;
 function t(k){
   const d = I18N[lang] || I18N.tg;
   if (d[k] !== undefined) return d[k];
@@ -47,6 +49,8 @@ function applyLang(){
   if (searchPop.classList.contains("open")) renderSearch(searchInput.value);
   renderCats();
   if (currentCat && !$("#scr-category").hidden) renderCategory(currentCat);
+  if (!$("#scr-service").hidden) servicePage?.renderService(currentRoute);
+  if (!$("#scr-help").hidden){ servicePage?.renderHelp(); servicePage?.syncToc(); }
   expansion?.render();
   if (loginOverlay.classList.contains('open') || loginOverlay.classList.contains('is-open')) paintLoginStep();
 }
@@ -116,6 +120,10 @@ $$("[data-acct]").forEach(b => b.addEventListener("click", () => {
     if (findGroup(currentCat)) renderCategory(currentCat);
     else navigate("#/", { replace:true });
   }
+  /* the same service may not exist for the new audience: fall back to its section, then home */
+  if (currentRoute.screen === "service" && !servicePage?.renderService(currentRoute)){
+    navigate(findGroup(currentRoute.cat) ? "#/category/" + encodeURIComponent(currentRoute.cat) : "#/", { replace:true });
+  }
 }));
 
 /* ---------- theme: system / light / dark, chosen in the profile popover (§3) ---------- */
@@ -176,11 +184,20 @@ function applyAuth(){
   if (isIn) heroIn.insertBefore(cats, search);
   else heroIn.insertBefore(search, cats);
   syncProfilePop();
+  /* the service aside tells a signed-out visitor what applying requires; signed in it doesn't */
+  if (servicePage && !$("#scr-service").hidden) servicePage.renderService(currentRoute);
 }
 let loginLastFocus = null;
 let loginDialog = null;
 let pendingAction = null; /* what the user was trying to do when sign-in was required */
 function requireLogin(fn){ pendingAction = fn; openLogin(); }
+/* a help link inside the sign-in card leaves the flow: drop the pending action, then go */
+function leaveLogin(){
+  pendingAction = null;
+  if (loginDialog){ const d = loginDialog; loginDialog = null; return Promise.resolve(d.close()); }
+  closeLogin();
+  return Promise.resolve();
+}
 function setPortalBlur(on){
   $$("header, main").forEach(el => el.classList.toggle("is-blurred", on));
 }
@@ -251,6 +268,7 @@ function paintLoginStep(){
     : (acct === "guest" ? GUEST_LOGIN_HINT[lang] : t("auth.sub"));
   $("#loginGo").textContent = t(otp ? "auth.login" : "btn.next");
   $("#loginCancel").textContent = t(otp ? "btn.back" : "btn.close");
+  $("#loginResent").textContent = "";
   paintLoginOtpLabels();
   fitLoginScale();
 }
@@ -318,6 +336,12 @@ function finishSignIn(){
 }
 loginBtn.addEventListener("click", openLogin);
 $("#guestAvatar").addEventListener("click", openLogin);
+/* a demo resend: confirm in place and hand the citizen back to the first empty cell */
+$("#loginResend").addEventListener("click", () => {
+  $("#loginResent").textContent = t("auth.resent");
+  fitLoginScale();
+  (loginOtpCells.find(cell => !cell.value) || loginOtpCells[0])?.focus();
+});
 $("#loginCancel").addEventListener("click", () => {
   if (loginStep === 1){
     loginStep = 0;
@@ -505,7 +529,8 @@ document.addEventListener("keydown", e => {
    reload and a shared link all land on what the user was looking at (§7).
    go()/navigate() only ever write a URL; applyRoute() paints what it says. */
 const SCREENS = { home:"scr-home", category:"scr-category", journey:"scr-journey",
-                  emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service" };
+                  emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service",
+                  service:"scr-service", help:"scr-help" };
 /* screens that only exist for a signed-in citizen */
 const PERSONAL = ["profile", "notifs", "journey"];
 /* route slug <-> pane id: the URL speaks the user's language, the DOM keeps its ids */
@@ -529,6 +554,9 @@ function parseRoute(hash){
   const parts = raw.split("/").filter(Boolean).map(decodeURIComponent);
   if (!parts.length) return { screen:"home" };
   if (parts[0] === "category") return { screen:"category", cat:parts[1] || null };
+  /* a service is addressed by its section and a short ASCII key of its registry name */
+  if (parts[0] === "service") return { screen:"service", cat:parts[1] || null, key:parts[2] || null };
+  if (parts[0] === "help") return { screen:"help", section:HELP_IDS.includes(parts[1]) ? parts[1] : null };
   if (parts[0] === "emergency"){
     const step = ["documents", "done"].includes(parts[1]) ? parts[1] : "pitch";
     return { screen:"emergency", step };
@@ -542,6 +570,8 @@ function parseRoute(hash){
 }
 function hashFor(route){
   if (route.screen === "category") return "#/category/" + encodeURIComponent(route.cat || "");
+  if (route.screen === "service") return "#/service/" + encodeURIComponent(route.cat || "") + "/" + encodeURIComponent(route.key || "");
+  if (route.screen === "help") return "#/help" + (route.section ? "/" + route.section : "");
   if (route.screen === "profile"){
     const slug = PANE_ROUTE[route.pane] || "data";
     return "#/profile/" + slug + (route.appId ? "/" + encodeURIComponent(route.appId) : "");
@@ -627,6 +657,22 @@ function applyRoute(route, opts){
     if (route.pane === "docs") applyFilter(readParam("own", "me"));
     if (route.pane === "apps") expansion?.openApplication(route.appId);
   }
+  if (route.screen === "service" && !servicePage.renderService(route)){
+    /* a stale or foreign key: land on its section if that exists, else home */
+    navigate(route.cat && findGroup(route.cat) ? "#/category/" + encodeURIComponent(route.cat) : "#/", { replace:true });
+    return;
+  }
+  if (route.screen === "help"){
+    /* moving between sections of the guide keeps the page: only the reading position changes */
+    const reading = currentRoute.screen === "help" && !$("#scr-help").hidden;
+    if (!reading) servicePage.renderHelp();
+    currentRoute = route;
+    if (!reading) showScreen(SCREENS.help, opts);
+    if (route.section) servicePage.focusHelpSection(route.section, { instant:!reading });
+    else servicePage.syncToc();
+    closeSearch();
+    return;
+  }
   currentRoute = route;
   showScreen(SCREENS[route.screen], opts);
   closeSearch();
@@ -711,19 +757,26 @@ function renderCats(){
 }
 /* One row = one service. Cost always occupies the same trailing badge slot;
    showOrg is false when the group already names its shared agency. */
+/* A registry service opens its overview — a real link, so it can be opened in a
+   new tab or shared. Guest-catalogue notes keep their own actions. */
+function svcOpen(it, cls, extra){
+  if (it[5] === "guest-appointment") return ['<button class="' + cls + '" type="button" data-go="guestService"' + (extra || '') + '>', '</button>'];
+  if (it[5]) return ['<button class="' + cls + '" type="button" data-toast="toast.demo"' + (extra || '') + '>', '</button>'];
+  return ['<a class="' + cls + '" href="#/service/' + encodeURIComponent(currentCat) + '/' + svcKey(it) + '" data-route' + (extra || '') + '>', '</a>'];
+}
 function svcRow(it, showOrg){
   const paid = it[2] & 4;
-  const action = it[5] === "guest-appointment" ? ' data-go="guestService"' : ' data-toast="toast.demo"';
+  const [open, close] = svcOpen(it, "svc-row");
   const guestBadge = acct === "guest" ? '<span class="audience-badge audience-badge--guest">' + t("meta.free") + ' · ' + ((COPY_GUEST[lang]) || COPY_GUEST.tg) + '</span>' : '';
   const meta = [];
   if (showOrg) meta.push(esc(svcOrg(it)));
-  return '<button class="svc-row"' + action + '>' +
+  return open +
     '<span class="tt"><b>' + esc(svcName(it)) + '</b>' +
       (meta.length ? '<span class="org">' + meta.join(" · ") + '</span>' : '') + '</span>' +
     guestBadge +
     '<span class="tag ' + (paid ? 'pay' : 'free') + '">' + t(paid ? "meta.paid" : "meta.free") + '</span>' +
     '<svg class="svc-go" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>' +
-  '</button>';
+  close;
 }
 /* The agency belongs above the group rather than repeating on every row. The
    payment filter already exposes cost, so section headings stay focused. */
@@ -765,16 +818,20 @@ function renderCategory(id){
   const g = findGroup(id); if (!g) return false;
   currentCat = id;
   $("#cpTitle").textContent = g.label[lang];
-  /* The shortest names stand in for common everyday services. They remain
-     full catalogue choices rather than compressed filter chips. */
-  const pop = g.subs.flatMap(s => s.items).sort((a, b) => svcName(a).length - svcName(b).length).slice(0, 3);
+  /* The services citizens ask for most lead (service-page.js); the shortest
+     names fill the row where none is known. Each opens its overview directly —
+     a shortcut that only filtered the list cost a second click. */
+  const curated = servicePage ? servicePage.popularFor(id).map(x => x.it) : [];
+  const pop = curated.concat(g.subs.flatMap(s => s.items).filter(it => !curated.includes(it))
+    .sort((a, b) => svcName(a).length - svcName(b).length)).slice(0, 3);
   $("#cpPills").innerHTML = '<span class="popular-services__label">' + t("cp.popular") + '</span>' +
     '<div class="popular-services__grid">' + pop.map((it, index) => {
       const visual = POPULAR_CARD_VISUALS[index];
       const name = esc(svcName(it));
-      return '<button class="popular-card" title="' + name + '">' +
+      const [open, close] = svcOpen(it, "popular-card", ' title="' + name + '"');
+      return open +
         '<span class="popular-card__icon ' + visual.tone + '"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#' + visual.icon + '"/></svg></span>' +
-        '<span>' + name + '</span></button>';
+        '<span>' + name + '</span>' + close;
     }).join("") + '</div>';
   renderCatList();
   return true;
@@ -801,11 +858,6 @@ $("#cpList").addEventListener("click", e => {
   toggle.setAttribute("aria-expanded", String(!open));
   group.classList.toggle("is-collapsed", open);
 });
-$("#cpPills").addEventListener("click", e => {
-  const p = e.target.closest(".popular-card"); if (!p) return;
-  $("#cpSearch").value = p.textContent;
-  renderCatList();
-});
 
 /* ---------- delegated clicks ---------- */
 /* ---------- "for you" feed tabs ---------- */
@@ -830,6 +882,17 @@ $$(".ftabs").forEach(list => list.addEventListener("keydown", e => {
 }));
 
 document.addEventListener("click", e => {
+  /* in-portal links are real <a href="#/…">: a plain click routes, a modified
+     click still opens a new tab */
+  const routeLink = e.target.closest("a[data-route]");
+  if (routeLink){
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    const href = routeLink.getAttribute("href");
+    if (loginOverlay.contains(routeLink)){ leaveLogin().then(() => navigate(href)); return; }
+    navigate(href, { replace:routeLink.hasAttribute("data-replace") });
+    return;
+  }
   const fTab = e.target.closest("[data-ftab]");
   if (fTab){ feedTab(fTab.dataset.ftab); return; }
   const backBtn = e.target.closest("[data-back]");
@@ -839,8 +902,6 @@ document.addEventListener("click", e => {
   const catBtn = e.target.closest("[data-cat]");
   if (catBtn){ openCat(catBtn.dataset.cat); return; }
   if (e.target.closest("[data-services]")){ showServices(); return; }
-  const arrow = e.target.closest("[data-moments]");
-  if (arrow){ pageMoments(Number(arrow.dataset.moments)); return; }
   const tBtn = e.target.closest("[data-toast]");
   if (tBtn){ toast(tBtn.dataset.toast); return; }
   const back = e.target.closest("[data-jback]");
@@ -863,29 +924,6 @@ function showServices(){
   const first = $("#cats .cat");
   if (first) first.focus();
 }
-
-/* ---------- life situations: a paged row (Figma «Web» 130:4138) ----------
-   The arrows page one view at a time and dim at either end; when every card
-   already fits there is nothing to page, so they leave. */
-const momentsRow = $("#moments"), momentsNav = $(".moments-nav");
-function paintMomentArrows(){
-  const max = momentsRow.scrollWidth - momentsRow.clientWidth;
-  momentsNav.hidden = max <= 1;
-  $$("[data-moments]", momentsNav).forEach(b => {
-    const atEnd = Number(b.dataset.moments) < 0 ? momentsRow.scrollLeft <= 1 : momentsRow.scrollLeft >= max - 1;
-    b.setAttribute("aria-disabled", String(atEnd));
-  });
-}
-function pageMoments(dir){
-  const card = $(".moment", momentsRow);
-  if (!card) return;
-  const gap = parseFloat(getComputedStyle(momentsRow).columnGap) || 0;
-  const step = card.getBoundingClientRect().width + gap;
-  const perView = Math.max(1, Math.floor((momentsRow.clientWidth + gap) / step));
-  momentsRow.scrollBy({ left:dir * perView * step, behavior:reduceMotion() ? "instant" : "smooth" });
-}
-momentsRow.addEventListener("scroll", paintMomentArrows, { passive:true });
-new ResizeObserver(paintMomentArrows).observe(momentsRow);
 
 /* ---------- header: part of the hero wash until the page moves under it ---------- */
 const hdr = $(".hdr");
@@ -1169,26 +1207,45 @@ const INTENTS = [
     meta:{ tg:"2 дақиқа", ru:"2 минуты", en:"2 minutes" } }
 ];
 let selIdx = -1, current = [];
+/* one option row: a life-situation intent carries its own glyph, a registry
+   service its section's glyph and the section name as the meta */
+function searchOption(r, i){
+  const glyph = r.type === "intent" ? r.icon : (CAT_ICONS[r.cat] || "i-doc");
+  return '<button class="s-item' + (r.type === "svc" ? ' s-item--svc' : '') + '" id="s-opt-' + i + '" role="option" aria-selected="false" data-idx="' + i + '">' +
+    '<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#' + glyph + '"/></svg>' +
+    '<span class="s-item__label">' + esc(r.label) + '</span>' +
+    '<span class="meta">' + esc(r.meta) + '</span>' +
+  '</button>';
+}
+/* Empty field: the requests citizens ask for most, in their own words (the
+   zero-query state). Typing: life situations first, then registry services
+   matched by everyday words — so «справка о несудимости» finds the
+   registry's «наличии или отсутствии судимости». */
 function renderSearch(q){
-  q = q.trim().toLowerCase();
-  if (q.length < 2){ closeSearch(); return; }
-  const tokens = q.split(/\s+/);
-  current = INTENTS.map(it => {
-    const hay = (it.kw + " " + it.label[lang]).toLowerCase();
-    const score = tokens.reduce((a, tok) => a + (hay.includes(tok) ? 1 : 0), 0);
-    return { it, score };
-  }).filter(r => r.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5)
-    .map(r => r.it);
-  if (!current.length){ closeSearch(); return; }
+  q = q.trim();
+  const copy = servicePage.copy();
+  let groups;
+  if (q.length < 2){
+    groups = [{ items:servicePage.shortcuts().map(s => ({ type:"svc", ...s })) }];
+    $("#searchHint").textContent = copy.searchOften;
+  } else {
+    /* a life situation must match every word — one shared word («регистрация») is not intent */
+    const intents = rankByWords(INTENTS, it => (it.kw + " " + it.label[lang]).toLowerCase(), q)
+      .filter(r => r.all)
+      .slice(0, 2)
+      .map(({ x:it }) => ({ type:"intent", icon:it.icon, label:it.label[lang], meta:it.meta[lang], act:it.act }));
+    const services = servicePage.searchServices(q, 6 - intents.length).map(s => ({ type:"svc", ...s }));
+    groups = [{ items:intents }, { label:intents.length ? copy.searchServices : null, items:services }];
+    /* nothing found is an answer too: say so, and keep the list where the eye already is */
+    $("#searchHint").textContent = t(intents.length || services.length ? "search.hint" : "cp.empty");
+  }
+  current = groups.flatMap(g => g.items);
+  if (!current.length && q.length < 2){ closeSearch(); return; }
   selIdx = -1;
-  searchItems.innerHTML = current.map((it, i) =>
-    '<button class="s-item" id="s-opt-' + i + '" role="option" aria-selected="false" data-idx="' + i + '">' +
-      '<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#' + it.icon + '"/></svg>' +
-      '<span>' + it.label[lang] + '</span>' +
-      '<span class="meta">' + it.meta[lang] + '</span>' +
-    '</button>').join("");
+  let i = 0;
+  searchItems.innerHTML = groups.map(g => !g.items.length ? "" :
+    (g.label ? '<div class="s-group" aria-hidden="true">' + esc(g.label) + '</div>' : '') +
+    g.items.map(r => searchOption(r, i++)).join("")).join("");
   searchPop.classList.add("open");
   searchInput.setAttribute("aria-expanded", "true");
 }
@@ -1208,13 +1265,23 @@ function closeSearch(){
   selIdx = -1;
 }
 function pick(i){
-  const it = current[i]; if (!it) return;
+  const r = current[i]; if (!r) return;
   closeSearch();
   searchInput.value = "";
-  if (it.act.type === "go") go(it.act.target);
+  if (r.type === "svc"){ navigate(r.hash); return; }
+  if (r.act.type === "go") go(r.act.target);
   else toast("toast.demo");
 }
+/* focus that the search gave itself (after Escape) must not reopen the list */
+let quietFocus = false;
 searchInput.addEventListener("input", () => renderSearch(searchInput.value));
+searchInput.addEventListener("focus", () => {
+  if (quietFocus){ quietFocus = false; return; }
+  if (!searchInput.value.trim()) renderSearch("");
+});
+searchInput.addEventListener("click", () => {
+  if (!searchPop.classList.contains("open")) renderSearch(searchInput.value);
+});
 searchInput.addEventListener("keydown", e => {
   const items = $$(".s-item", searchItems);
   if (e.key === "ArrowDown" || e.key === "ArrowUp"){
@@ -1235,14 +1302,14 @@ searchItems.addEventListener("click", e => {
   if (b) pick(Number(b.dataset.idx));
 });
 $("#searchGo").addEventListener("click", () => {
-  if (searchInput.value.trim().length >= 2) renderSearch(searchInput.value);
-  else toast("toast.demo");
+  renderSearch(searchInput.value);
+  quietFocus = true;
   searchInput.focus();
 });
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && qrOverlay.classList.contains("open")){ closeQr(); return; }
   if (e.key === "Escape" && loginOverlay.classList.contains("open")){ closeLogin(); return; }
-  if (e.key === "Escape" && searchPop.classList.contains("open")){ closeSearch(); searchInput.focus(); return; }
+  if (e.key === "Escape" && searchPop.classList.contains("open")){ closeSearch(); quietFocus = document.activeElement !== searchInput; searchInput.focus(); return; }
   if (qrOverlay.classList.contains("open") || loginOverlay.classList.contains("open") || !profilePop.hidden) return; /* shortcuts stay inside the open layer */
   if (e.key === "/" && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)){
     e.preventDefault(); searchInput.focus();
@@ -1263,6 +1330,19 @@ expansion = initCitizenExpansion({
   syncQuery:params => navigate(hashFor(currentRoute), { params, replace:true }),
   openApp:id => navigate("#/profile/apps" + (id ? "/" + encodeURIComponent(id) : "")),
   openReceivedFile:file=>openDocumentDetail(file.id,file)
+});
+servicePage = initServicePage({
+  getLang:() => lang,
+  getAccount:() => acct,
+  catalog:() => CATALOG[acct],
+  signedIn,
+  requireLogin,
+  go,
+  t,
+  esc,
+  toast,
+  reduceMotion,
+  headerHeight:() => $(".hdr")?.offsetHeight || 64
 });
 applyAuth();
 applyLang();

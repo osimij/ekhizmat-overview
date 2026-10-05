@@ -229,7 +229,7 @@ export function dispatchLowCode(event,payload={}){
   }
   if(event==='SET_ROLE'){state={...state,role:payload.role};persist();notify();return state;}
   if(event==='UPDATE_SERVICE'){
-    state={...state,serviceName:{...(state.serviceName||DEFAULT_STATE.serviceName),...(payload.serviceName||{})},formFields:Array.isArray(payload.formFields)?payload.formFields:(state.formFields||DEFAULT_STATE.formFields)};
+    state={...state,formConfig:payload.formConfig ? clone(payload.formConfig) : state.formConfig,serviceName:{...(state.serviceName||DEFAULT_STATE.serviceName),...(payload.serviceName||{})},formFields:Array.isArray(payload.formFields)?payload.formFields:(state.formFields||DEFAULT_STATE.formFields)};
     persist();notify();return state;
   }
   if(event==='SET_AUDIENCE'){

@@ -22,8 +22,12 @@ for (const item of cases) {
       await page.setViewportSize({ width, height });
       await page.goto(`${item.route}?present=1&theme=light&lang=tg`, { waitUntil: 'networkidle' });
       await expect(page.locator('body')).toBeVisible();
-      if (item.name !== 'launcher' && item.name !== 'design system' && item.name !== 'mobile concept') {
-        await expect(page.locator('[data-shared-platform-switcher]')).toBeVisible();
+      const switcher = page.locator('[data-shared-platform-switcher]');
+      if (item.name === 'citizen' && width <= 560) {
+        // the citizen phone bar keeps the prototype switcher off it (§3 citizen portal header)
+        await expect(switcher).toBeHidden();
+      } else if (item.name !== 'launcher' && item.name !== 'design system' && item.name !== 'mobile concept') {
+        await expect(switcher).toBeVisible();
       }
       if (item.noOverflow) {
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

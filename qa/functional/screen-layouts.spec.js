@@ -468,7 +468,7 @@ test('Ministry and Admin form builders share the same desktop layout geometry', 
   expect(ministry.requiredCopyCount).toBe(0);
   expect(ministry.requiredMarkCount).toBeGreaterThan(0);
   expect(ministry.requiredMarkDisplay).toBe('inline');
-  expect(ministry.fieldLabelFont).toBe(12);
+  expect(ministry.fieldLabelFont).toBe(13); // Shared field-label role (§4).
   expect(ministry.phoneRatio).toBeGreaterThanOrEqual(2);
   /* §6 device previews: the shared .pv-phone, no fake OS status content, and
      the caption below the device. */

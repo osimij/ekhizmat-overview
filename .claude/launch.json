@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "ekhizmat-citizen",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--host", "0.0.0.0", "--port", "5175", "--strictPort"],
+      "port": 5175
+    },
+    {
+      "name": "ekhizmat-old",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "/private/tmp/claude-501/-Users-osimij-Desktop-eKhizmat-overview/27a8a9f6-93d6-498b-9f47-7977c1e1e89d/scratchpad/citizen-old", "--port", "5174", "--strictPort"],
+      "port": 5174
     }
   ]
 }

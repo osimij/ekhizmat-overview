@@ -41,17 +41,18 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
   transition:background var(--t-fast) var(--ease);
 }
 .hdr-link:hover{background:var(--hover)}
-/* signed out, preferences open from the current language (§3 citizen portal header) */
+/* signed out, preferences open from the current language (§3 citizen portal
+   header): bare text like the links at rest, a capsule under the pointer or
+   while its popover is open — the same shape as sign-in beside it */
 .lang-btn{
   display:inline-flex; align-items:center; gap:6px;
-  min-height:var(--h-btn-s); padding:0 9px 0 12px; border-radius:var(--r-s);
-  background:var(--panel-hover); box-shadow:inset 0 0 0 1px var(--line-in);
+  min-height:var(--h-btn-s); padding:0 9px 0 12px; border-radius:var(--r-pill);
   color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular);
   transition:background var(--t-fast) var(--ease);
 }
-.lang-btn:hover,.lang-btn[aria-expanded="true"]{background:var(--field)}
+.lang-btn:hover,.lang-btn[aria-expanded="true"]{background:color-mix(in srgb,var(--ink) 7%,transparent)}
 .lang-btn svg{width:12px; height:12px; color:var(--ink-2)}
-.hdr-acts .hdr-login{min-height:var(--h-btn-s); padding:0 var(--s-4); border-radius:var(--r-s); font-size:var(--fs-14)}
+.hdr-acts .hdr-login{min-height:var(--h-btn-s); padding:0 var(--s-6); border-radius:var(--r-pill); font-size:var(--fs-14)}
 .icon-btn{
   width:40px; height:40px; display:grid; place-items:center;
   color:var(--ink-2); border-radius:var(--r-s); position:relative;
@@ -110,22 +111,49 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .dd.acct .dd-menu{box-shadow:var(--shadow-1)}
 
 /* ============ HOME / HERO ============ */
-/* Figma «Web» 152:2932. The wash starts under the transparent header (the band
-   pulls itself up by the bar's height); the painted tower is a cutout sitting
-   on the band's foot at the right edge, so it needs no melt in either theme. */
+/* The band is one flat colour that starts under the transparent header (it
+   pulls itself up by the bar's height). The painting — by day in light, by
+   night in dark — is rendered per screen class with Spatial
+   (scripts/render-hero-art.mjs): its sky and its faded sides are real
+   transparency, so it melts into the band with no seam. */
 .hero{
+  --hero-copy:720px; /* the search + catalogue column */
   position:relative; isolation:isolate; /* keeps the z-index:-1 art above the band bg */
+  z-index:1; /* the search list hangs below the band: it must paint over the clip-path paper section after it */
+  overflow-x:clip; /* the painting may run past the viewport's right edge */
   margin-top:calc(-1 * var(--h-portalbar));
   padding:calc(var(--h-portalbar) + var(--s-8)) 0 var(--s-10);
-  background:linear-gradient(-87deg, var(--hero) 10%, var(--hero-soft) 97%);
+  background:var(--hero-soft);
 }
-.hero-in > .search{max-width:720px}
-/* the art is 573px of a 1512 frame (37.9vw), flush right, its foot 12px above the
-   band's edge; its brushed left edge may tuck under the last tile column */
+.hero-in > .search{max-width:var(--hero-copy)}
+/* Beside the copy the tower stands 80px (--art-shift) right of the midpoint
+   between the catalogue's right edge and the container's — where the header
+   ends; with the content inset equal on both sides that midpoint is always
+   50% + half the copy column. Its crown meets the title's top line, its plaza
+   the band's foot, and its width follows its height. Its trees soften and
+   fade toward the catalogue and are gone before its edge (335px left of the
+   tower at 384px tall), so nothing shows behind or between the tiles; where
+   the column narrows below ~1300px the painting scales down with it to keep
+   that true. They run to the viewport edge; from 1680px, where the painting
+   stops inside the viewport, the wide cut lets them go into the band instead.
+   (The portal hides its scrollbars, so 100vw is the layout width.) */
 .hero-art{
-  position:absolute; z-index:-1; right:0; bottom:var(--s-3);
-  width:min(560px, 37.9vw); aspect-ratio:1000 / 728;
-  background:url("./assets/home-hero-art.webp") right bottom / contain no-repeat;
+  --art-shift:80px;
+  position:absolute; z-index:-1; bottom:0;
+  left:calc(50% + var(--hero-copy) / 2 + var(--art-shift));
+  height:min(100% - var(--h-portalbar) - var(--s-8), (min(100vw, var(--maxw)) - 2 * var(--s-6) - var(--hero-copy) + 2 * var(--art-shift)) * .573);
+  aspect-ratio:1536 / 768;
+  translate:-45.502% 0; /* the tower's axis: 1558 of the painting's 3424 source px */
+  background:image-set(url("./assets/home-hero-desktop.webp") 1x, url("./assets/home-hero-desktop@2x.webp") 2x) 0 0 / 100% 100% no-repeat;
+}
+[data-theme="dark"] .hero-art{
+  background-image:image-set(url("./assets/home-hero-desktop-dark.webp") 1x, url("./assets/home-hero-desktop-dark@2x.webp") 2x);
+}
+@media (min-width:1680px){
+  .hero-art{background-image:image-set(url("./assets/home-hero-desktop-wide.webp") 1x, url("./assets/home-hero-desktop-wide@2x.webp") 2x)}
+  [data-theme="dark"] .hero-art{
+    background-image:image-set(url("./assets/home-hero-desktop-wide-dark.webp") 1x, url("./assets/home-hero-desktop-wide-dark@2x.webp") 2x);
+  }
 }
 .hero h1{font-size:var(--fs-32); line-height:1.2}
 #heroTitle{letter-spacing:-0.02em;}
@@ -186,16 +214,24 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .s-item:hover,.s-item.sel{background:var(--hover)}
 .s-item svg{width:19px; height:19px; color:var(--ink-3); flex:none}
 .s-item .meta{margin-left:auto; font-size:var(--fs-12); color:var(--ink-3); white-space:nowrap; font-weight:500}
+.s-item__label{flex:1; min-width:0}
+/* registry names are long: two lines at most, the glyph on the first (§5 casebook 8),
+   the section name as a quiet tail that yields before the title does */
+.s-item--svc{align-items:flex-start}
+.s-item--svc > svg{margin-top:1px}
+.s-item--svc .s-item__label{line-height:1.4; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2}
+.s-item--svc .meta{flex:0 1 auto; max-width:36%; margin-top:2px; overflow:hidden; text-overflow:ellipsis}
+.s-group{padding:var(--s-3) 14px var(--s-1); font-size:var(--fs-13); color:var(--ink-3)}
 
 /* category tiles — white chips on the wash, hue on the icon well (Figma 152:2932).
    Four equal columns spanning the search field, so the grid's right edge is the
    search's; every group is a tile, three rows of four */
-.cats{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); max-width:720px; gap:var(--s-2)}
+.cats{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); max-width:var(--hero-copy); gap:var(--s-2)}
 .cat{
   display:flex; align-items:center; gap:var(--s-3); min-width:0;
   padding:var(--s-2); border-radius:var(--r-m); /* equal columns leave no hug slack: an even inset keeps «недвижимость» (104px) on one line */
   background:var(--panel); color:var(--ink); text-align:left;
-  font-size:var(--fs-14); font-weight:var(--weight-medium); line-height:1.45;
+  font-size:var(--fs-14); font-weight:var(--weight-regular); line-height:1.3;
   transition:background var(--t-fast) var(--ease);
 }
 .cat .tile{width:40px; height:40px; border-radius:var(--r-s)}
@@ -297,16 +333,28 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .home-sect + .home-sect{margin-top:var(--s-12)}
 .home-sect .sect-h{margin-bottom:var(--s-6)}
 .home-sect .sect-h h2{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
-
-/* ============ LIFE SITUATIONS — a paged row of tinted cards (Figma 130:4141) ============ */
-.moments{
-  --per-view:4;
-  display:grid; grid-auto-flow:column; gap:var(--s-3);
-  grid-auto-columns:calc((100% - (var(--per-view) - 1) * var(--s-3)) / var(--per-view));
-  overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory;
-  /* room for the focus ring, which the scroller would otherwise clip (§9) */
-  padding:var(--s-1); margin:calc(-1 * var(--s-1)); scroll-padding-inline:var(--s-1);
+/* a band on full-bleed paper (the life situations: tinted cards read on white).
+   The shadow paints the paper out to the viewport edges and the clip keeps it
+   to the band's own height; the band closes with the same 48 it opens with,
+   so the next band's title still sits 96 below the cards */
+.home-sect--paper{
+  padding-bottom:var(--s-12); background:var(--panel);
+  box-shadow:0 0 0 100vmax var(--panel); clip-path:inset(0 -100vmax);
 }
+.home-sect--paper + .home-sect{margin-top:0}
+
+/* ============ LIFE SITUATIONS — two rows of tinted cards (Figma 130:4141) ============ */
+/* «see all» is a quiet text link on the heading's own line, flush right,
+   centred on the title (not its baseline) */
+.sect-more{
+  align-self:center;
+  color:var(--blue-ink); font-size:var(--fs-16); font-weight:var(--weight-regular); line-height:1.5;
+  white-space:nowrap; border-radius:var(--r-s);
+}
+.sect-more:hover{text-decoration:underline; text-underline-offset:3px}
+@media (pointer:coarse){ .sect-more{padding-block:10px; margin-block:-10px} } /* 44px target, same line */
+/* every situation is visible at once — no pager: four columns, two rows */
+.moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--s-3)}
 .moment{
   position:relative; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
   min-height:212px; /* Figma 248 × .85; text never needs more */
@@ -315,14 +363,24 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
   transition:background var(--t-fast) var(--ease);
 }
 .moment:hover,.moment:focus-visible{background:var(--blue-tint-hover)}
-.moment-copy{position:relative; z-index:1; display:grid; gap:var(--s-1); max-width:100%}
+/* until the illustration set is complete every card carries a glyph instead —
+   two illustrated cards of eight read as an unfinished row. The glyph stands
+   alone at the top, in a well on the action pill's paper; the copy rides down
+   on the action, so the space between them absorbs any wrapping */
+.moment-ic{
+  display:grid; place-items:center; flex:none; width:48px; height:48px;
+  border-radius:var(--r-m); background:var(--panel); color:var(--blue-ink);
+}
+.moment-ic svg{width:24px; height:24px}
+.moment-copy{position:relative; z-index:1; display:grid; gap:var(--s-1); max-width:100%; margin-top:auto}
 .moment-title{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.4}
 .moment-text{
   color:var(--ink-2); font-size:var(--fs-13); line-height:1.5; overflow:hidden;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
 }
 /* illustrations are full Figma canvases (mostly transparent); each is placed so
-   its object lands where the frame draws it — right edge, above the action */
+   its object lands where the frame draws it — right edge, above the action.
+   Parked while the set is drawn: no card uses .moment--art until all eight can */
 .moment-art{position:absolute; height:auto; pointer-events:none}
 .moment-art--rings{width:263px; top:-8px; right:-7px}
 .moment-art--bouquet{width:207px; top:37px; right:15px}
@@ -330,24 +388,12 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 /* the action pill sits on the card's own inset, below the copy's edge;
    with art it hugs its label, without art it spans the card */
 .moment-cta{
-  position:relative; z-index:1; margin:auto 0 0 calc(var(--s-3) - var(--s-5));
-  display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
+  position:relative; z-index:1; margin:var(--s-3) 0 0 calc(var(--s-3) - var(--s-5));
+  display:inline-flex; align-items:center; justify-content:center;
   padding:var(--s-2) var(--s-3); border-radius:var(--r-pill); background:var(--panel);
   color:var(--blue-ink); font-size:var(--fs-13); line-height:1.5; white-space:nowrap;
 }
 .moment:not(.moment--art) .moment-cta{align-self:stretch; margin-right:calc(var(--s-3) - var(--s-5))}
-.moment-cta svg{width:10px; height:10px; flex:none; transition:translate var(--t-fast) var(--ease)}
-.moment:hover .moment-cta svg,.moment:focus-visible .moment-cta svg{translate:2px 0}
-.moments-nav{display:flex; justify-content:flex-end; gap:var(--s-2); margin-top:var(--s-6)}
-.moments-arrow{
-  display:grid; place-items:center; width:44px; height:32px;
-  border-radius:var(--r-pill); background:var(--field); color:var(--ink-2);
-  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
-}
-.moments-arrow svg{width:14px; height:14px}
-.moments-arrow:hover{background:var(--press); color:var(--ink)}
-.moments-arrow:active{transform:scale(.96)}
-.moments-arrow[aria-disabled="true"]{background:var(--field); color:var(--ink-3); opacity:.45; transform:none}
 
 /* ============ NEWS + APP (Figma 130:4170) ============ */
 .news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--s-4)}
@@ -399,7 +445,7 @@ a.ft-c:hover{color:var(--ink)}
 /* ============ CATEGORY PAGE ============ */
 /* The category screen uses the portal's full content container. Its standard
    gutters align with home, while the registry rows consume the usable width. */
-.catpage{width:min(100%,var(--maxw)); margin-inline:auto; padding-inline:var(--s-6)}
+.catpage,.svc-page{width:min(100%,var(--maxw)); margin-inline:auto; padding-inline:var(--gutter)}
 .cp-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-5);margin:var(--s-2) 0 var(--s-4)}
 .cp-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
 .cp-head #cpFilters{flex:none;gap:var(--s-2)}
@@ -484,6 +530,91 @@ a.ft-c:hover{color:var(--ink)}
   background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
   padding:var(--s-10) var(--s-8); text-align:center; color:var(--ink-3); font-size:var(--fs-14);
 }
+
+/* ============ SERVICE PAGE ============ */
+/* The overview before Apply (§3 «Citizen service page»): where the service
+   lives, what it is and who provides it, four facts, what happens next, then
+   the depth most people skip behind disclosures. The decision — online or at
+   a centre — sits beside the reading column with the help that explains it,
+   and stays in view while the citizen reads. */
+.svc-page{
+  display:grid; grid-template-columns:minmax(0,1fr) var(--w-context); column-gap:var(--s-10); align-items:start;
+  grid-template-areas:"crumbs crumbs" "head aside" "facts aside" "next aside" "more aside" "related aside";
+}
+.svc-page > .ekh-crumbs{grid-area:crumbs}
+.svc-head{grid-area:head; margin:var(--s-2) 0 var(--s-6)}
+.svc-head h1{max-width:30em; font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.25; text-wrap:balance}
+.svc-agency{display:flex; align-items:flex-start; gap:var(--s-2); margin-top:var(--s-3); color:var(--ink-2); font-size:var(--fs-14); line-height:1.45}
+.svc-agency > svg{width:16px; height:16px; flex:none; margin-top:2px; color:var(--ink-3)} /* the glyph belongs to the first line (§5 casebook 8) */
+.svc-lead{max-width:64ch; margin-top:var(--s-4); color:var(--ink-2); font-size:var(--fs-16); line-height:1.55}
+/* four separate facts on the panel surface; label first because each value is
+   prose (a document, a period), not a number to compare */
+.svc-facts{grid-area:facts; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--s-3); margin:0}
+.svc-fact{
+  display:flex; flex-direction:column; gap:var(--s-1); min-width:0;
+  padding:var(--s-4) var(--s-5); background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
+}
+.svc-fact dt{font-size:var(--fs-13); color:var(--ink-3)}
+.svc-fact dd{display:grid; gap:2px; margin:0}
+.svc-fact b,.svc-fact__docs{font-size:var(--fs-15); font-weight:var(--weight-medium); line-height:1.4; color:var(--ink)}
+.svc-fact dd > span{font-size:var(--fs-13); color:var(--ink-3); line-height:1.45}
+.svc-fact__docs{display:grid; gap:2px; margin:0; padding:0; list-style:none}
+.svc-sect{margin-top:var(--s-8)}
+/* the title joins its panel at the panel's own rhythm (§5 casebook 4) */
+.svc-sect > h2{margin-bottom:var(--s-3); font-size:var(--fs-17); font-weight:var(--weight-medium)}
+.svc-next{grid-area:next}
+.svc-more{grid-area:more}
+.svc-related{grid-area:related}
+.svc-steps{margin:0; padding:0; list-style:none; border-radius:var(--r-l)}
+.svc-steps .e-step{padding:var(--s-4) var(--s-5)}
+.svc-aside{grid-area:aside; position:sticky; top:calc(var(--h-portalbar) + var(--s-6)); display:grid; gap:var(--s-5); align-content:start; margin-top:var(--s-2)}
+.svc-apply{padding:var(--s-6); background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l)}
+.svc-apply__meta{margin-top:var(--s-3); color:var(--ink-3); font-size:var(--fs-13); line-height:1.5}
+.svc-apply__alt{display:grid; gap:var(--s-1); margin-top:var(--s-5); padding-top:var(--s-5); border-top:1px solid var(--line-in)}
+.svc-apply__alt b{font-size:var(--fs-14); font-weight:var(--weight-medium)}
+.svc-apply__alt p{color:var(--ink-3); font-size:var(--fs-13); line-height:1.5}
+.svc-apply__alt .btn{margin-top:var(--s-3)}
+/* support beside the decision: quiet links whose labels sit on the card's edge,
+   their hover islands hanging outside it (§5 casebook 3) */
+.svc-help{display:grid; gap:var(--s-1)}
+.svc-help > b{margin-bottom:var(--s-1); font-size:var(--fs-13); font-weight:var(--weight-medium); color:var(--ink-3)}
+.svc-help__link{
+  display:flex; align-items:flex-start; gap:var(--s-3); padding:var(--s-2) 10px; margin:0 -10px; border-radius:var(--r-s);
+  color:var(--blue-ink); font-size:var(--fs-14); font-weight:var(--weight-medium); line-height:1.4;
+  transition:background var(--t-fast) var(--ease);
+}
+.svc-help__link > svg{width:18px; height:18px; flex:none; margin-top:1px; color:var(--ink-3)}
+.svc-help__link small{display:block; color:var(--ink-3); font-size:var(--fs-12); font-weight:var(--weight-regular)}
+.svc-help__link:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
+@media (hover:hover) and (pointer:fine){ .svc-help__link:hover{background:var(--hover)} }
+
+/* ============ HELP GUIDE ============ */
+/* short sections with a contents menu — the profile's side nav, so the
+   citizen learns one way of moving around a long page */
+.help-head{margin:var(--s-2) 0 var(--s-8)}
+.help-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
+.help-lead{max-width:60ch; margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-16); line-height:1.5; text-wrap:pretty}
+.help-toc{top:calc(var(--h-portalbar) + var(--s-6))}
+.help-body{display:grid; gap:var(--s-4); min-width:0}
+.help-sect{
+  scroll-margin-top:calc(var(--h-portalbar) + var(--s-6));
+  padding:var(--s-6); background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
+}
+.help-sect h2{margin-bottom:var(--s-3); font-size:var(--fs-20); font-weight:var(--weight-medium); line-height:1.3}
+.help-sect p{max-width:68ch; color:var(--ink); font-size:var(--fs-15); line-height:1.65}
+.help-sect p + p{margin-top:var(--s-3)}
+.help-contact{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3) var(--s-8); margin-top:var(--s-5)}
+.help-contact .svc-help__link{margin:0}
+
+/* sign-in: one line of field help under the phone and the code — what this
+   method needs and where to get help, without leaving the card. The card is
+   presented at --login-scale, so --fs-15 paints like the error line beside it */
+.login-help{color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:pretty}
+.login-help--done{color:var(--green-ink)}
+.login-help--done:empty{display:none}
+.login-help a,.login-help button{color:var(--blue-ink); font-weight:var(--weight-medium); border-radius:var(--r-s)}
+.login-help a:focus-visible,.login-help button:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+@media (hover:hover) and (pointer:fine){ .login-help a:hover,.login-help button:hover{text-decoration:underline; text-underline-offset:3px} }
 
 /* ============ JOURNEY ============ */
 .j-head{margin:var(--s-2) 0 var(--s-8)}
@@ -657,7 +788,7 @@ a.ft-c:hover{color:var(--ink)}
 .e-done .s-list{margin-bottom:var(--s-6)}
 
 /* ============ PROFILE ============ */
-.prof{max-width:var(--maxw); margin:0 auto; padding:0 var(--s-6)}
+.prof{max-width:var(--maxw); margin:0 auto; padding:0 var(--gutter)}
 .prof-head{display:flex; align-items:center; gap:var(--s-5); margin:var(--s-4) 0 var(--s-8)}
 .prof-ava{
   width:72px; height:72px; border-radius:50%; flex:none;
@@ -878,16 +1009,25 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 
 /* ============ RESPONSIVE ============ */
 @media (max-width:1080px){
-  /* the tower would meet the copy: the art moves below the catalogue, centred
-     on the band's foot */
+  /* the tower would meet the copy: the art moves below the catalogue, a
+     full-bleed strip on the band's foot, centred on the tower, its landscape
+     fading out both ways */
   .hero-art{
-    position:relative; inset:auto; width:auto; aspect-ratio:auto;
+    position:relative; inset:auto; translate:none; width:auto; aspect-ratio:auto;
     height:clamp(220px, 40vw, 360px);
-    margin:var(--s-6) 0 calc(-1 * var(--s-10));
-    background-position:center bottom;
+    margin:var(--s-6) calc(-1 * var(--gutter)) calc(-1 * var(--s-10));
+    background-image:image-set(url("./assets/home-hero-strip.webp") 1x, url("./assets/home-hero-strip@2x.webp") 2x);
+    background-size:auto 100%; background-position:center bottom;
   }
-  .moments{--per-view:3}
+  [data-theme="dark"] .hero-art{
+    background-image:image-set(url("./assets/home-hero-strip-dark.webp") 1x, url("./assets/home-hero-strip-dark@2x.webp") 2x);
+  }
+  .moments{grid-template-columns:repeat(2, minmax(0, 1fr))}
   .news-grid{grid-template-columns:minmax(0,1fr)}
+  /* one column: the decision follows the facts, before the detail — on a
+     phone Apply must not wait below the steps and the disclosures */
+  .svc-page{grid-template-columns:minmax(0,1fr); grid-template-areas:"crumbs" "head" "facts" "aside" "next" "more" "related"}
+  .svc-aside{position:static; margin-top:var(--s-5); grid-template-columns:minmax(0,3fr) minmax(0,2fr); gap:var(--s-8); align-items:start}
 }
 @media (max-width:880px){
   .hdr-nav{display:none} /* the catalogue is the hero itself; help stays in the footer */
@@ -897,13 +1037,12 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
     max-width:none; grid-template-columns:none; grid-template-rows:repeat(2,auto);
     grid-auto-flow:column; grid-auto-columns:176px; /* every tile the same box; fits «недвижимость» */
     overflow-x:auto; scroll-snap-type:x mandatory;
-    margin:0 calc(var(--s-6) * -1); padding:0 var(--s-6) 4px; scroll-padding-inline:var(--s-6);
+    margin:0 calc(var(--gutter) * -1); padding:0 var(--gutter) 4px; scroll-padding-inline:var(--gutter);
     mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
     -webkit-mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 28px),transparent);
   }
   .cat{scroll-snap-align:start}
   .hero-in > .search{max-width:none}
-  .moments{--per-view:2}
   .feed-grid{grid-template-columns:1fr}
   /* the portal's main verb comes first on a phone: search, then the catalogue */
   .hero-in{display:flex; flex-direction:column}
@@ -928,13 +1067,33 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .cp-head #cpFilters{align-self:stretch;justify-content:space-between}
   .cp-search{width:100%}
   /* one card and a peek of the next says "this row scrolls" */
-  .moments{--per-view:1.15}
-  /* two rows: brand + actions, then the audience switch (--h-portalbar grows to match) */
-  .hdr-in{flex-wrap:wrap; align-content:center; row-gap:var(--s-1); gap:var(--s-1) var(--s-2)}
-  .brand b{font-size:var(--fs-17)}
+  /* phones: one swipe row, the next card peeking — touch needs no arrows */
+  .moments{
+    grid-template-columns:none; grid-auto-flow:column;
+    grid-auto-columns:calc((100% - .15 * var(--s-3)) / 1.15);
+    overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory;
+    /* room for the focus ring, which the scroller would otherwise clip (§9) */
+    padding:var(--s-1); margin:calc(-1 * var(--s-1)); scroll-padding-inline:var(--s-1);
+  }
+  /* one row: the mark alone carries the brand (the button keeps its «eKhizmat»
+     name) with the audience beside it; the prototype platform switcher stays
+     off the phone bar */
+  .hdr-in{gap:var(--s-2)}
+  .brand b{display:none}
+  .hdr .ekh-platforms{display:none}
+  /* the audience is the row's one flexible item: at the narrowest widths its
+     label ellipsizes (its menu still lists every name in full) */
+  .hdr .dd.acct{min-width:0}
+  .hdr .dd.acct .dd-btn{max-width:100%; gap:6px; padding-inline:var(--s-2); font-size:var(--fs-14)}
+  .hdr .dd.acct .dd-btn svg{width:12px; height:12px} /* the language trigger's chevron, beside it */
+  #acctCur{min-width:0; overflow:hidden; text-overflow:ellipsis}
+  .hdr-acts{flex:none}
+  .hdr-acts .hdr-login{padding:0 var(--s-3)}
   .hero h1{font-size:var(--fs-28)}
   .home-sect{padding-top:var(--s-10)}
   .home-sect + .home-sect{margin-top:var(--s-8)}
+  .home-sect--paper{padding-bottom:var(--s-10)} /* the paper closes with the 40 it opens with */
+  .home-sect--paper + .home-sect{margin-top:0}
   .home-sect .sect-h{margin-bottom:var(--s-5)}
   .home-sect .sect-h h2{font-size:var(--fs-24)}
   .news-card,.app-card{min-height:0; padding:var(--s-6)}
@@ -947,8 +1106,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .app-card__phone{top:170px; right:calc(-1 * var(--s-6)); width:200px}
   .ft-grid{grid-template-columns:1fr}
   .dd-btn{padding:7px 10px; font-size:var(--fs-13)}
-  .dd.acct{order:3; flex-basis:100%}
-  .dd.acct .dd-btn{width:100%; justify-content:flex-start; margin-left:-12px}
   .hdr-acts{gap:var(--s-2)}
   .j-acts{flex-direction:column-reverse}
   .search input{height:56px; padding:0 64px 0 48px; font-size:var(--fs-16)}
@@ -959,7 +1116,14 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
   .ftab{white-space:nowrap; flex:none}
   .frow{padding:var(--s-4)}
-  .cp-head h1,.e-hero h1,.prof-head h1{font-size:var(--fs-24)}
+  .cp-head h1,.e-hero h1,.prof-head h1,.svc-head h1,.help-head h1{font-size:var(--fs-24)}
+  /* two columns of uneven facts leave hollow cards at phone width: one list, hairline-divided */
+  .svc-facts{grid-template-columns:minmax(0,1fr); gap:0; overflow:hidden; background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l)}
+  .svc-fact{padding:var(--s-3) var(--s-4); border:0; border-radius:0; background:none}
+  .svc-fact + .svc-fact{border-top:1px solid var(--line-in)}
+  .svc-aside{grid-template-columns:minmax(0,1fr); gap:var(--s-5)}
+  .svc-apply,.help-sect{padding:var(--s-5)}
+  .svc-steps .e-step{padding:var(--s-4)}
   .svc{flex-wrap:wrap}
   .svc .tt{flex:1 1 0; min-width:0}
   .svc .meta{flex:1 1 100%; margin-left:36px; text-align:left; white-space:normal; display:flex; align-items:baseline; gap:10px}

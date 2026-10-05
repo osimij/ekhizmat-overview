@@ -1,4 +1,4 @@
-.wrap { width: min(100%, var(--maxw)); margin-inline: auto; padding-inline: var(--s-6); }
+.wrap { width: min(100%, var(--maxw)); margin-inline: auto; padding-inline: var(--gutter); }
 .col { width: min(100%, var(--col)); margin-inline: auto; padding-inline: var(--s-5); }
 .muted, .ink-3 { color: var(--ink-3); }
 .ink-2 { color: var(--ink-2); }

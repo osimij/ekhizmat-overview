@@ -25,14 +25,14 @@ test('the citizen bell previews notifications before opening the full view', asy
   await expect(bell).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('the notification preview dismisses with Escape and category labels are medium', async ({ page }) => {
+test('the notification preview dismisses with Escape and category labels are regular', async ({ page }) => {
   const bell = page.locator('#bellBtn');
   await bell.click();
   await page.keyboard.press('Escape');
 
   await expect(page.locator('#citizenNotifPop')).toBeHidden();
   await expect(bell).toBeFocused();
-  await expect(page.locator('.cat').first()).toHaveCSS('font-weight', '500');
+  await expect(page.locator('.cat').first()).toHaveCSS('font-weight', '400');
 });
 
 test('the notification preview stays inside a phone viewport', async ({ page }) => {
@@ -142,7 +142,7 @@ test('the account menu uses the quiet popover shadow', async ({ page }) => {
 test('life-situation cards group copy, keep two-line descriptions, and hover without a border', async ({ page }) => {
   const cards = page.locator('.moment');
   const first = cards.first();
-  await expect(cards).toHaveCount(6);
+  await expect(cards).toHaveCount(8);
   await expect(first.locator('.moment-copy')).toHaveCount(1);
   await expect(first.locator('.moment-copy > *')).toHaveCount(2);
   await expect(first.locator('.moment-title')).toHaveCSS('font-size', '16px');
@@ -153,6 +153,7 @@ test('life-situation cards group copy, keep two-line descriptions, and hover wit
   }
 
   // illustrated cards hug the action, plain cards span it across the card
+  // (none are illustrated until the set is complete — every card spans it today)
   const ctaWidths = await cards.evaluateAll((items) => items.map((card) => ({
     art: card.classList.contains('moment--art'),
     span: Math.round(card.getBoundingClientRect().width - card.querySelector('.moment-cta').getBoundingClientRect().width),
