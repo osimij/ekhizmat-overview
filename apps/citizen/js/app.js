@@ -52,6 +52,7 @@ function applyLang(){
   if (!$("#scr-service").hidden) servicePage?.renderService(currentRoute);
   if (!$("#scr-help").hidden){ servicePage?.renderHelp(); servicePage?.syncToc(); }
   expansion?.render();
+  syncForYou();
   if (loginOverlay.classList.contains('open') || loginOverlay.classList.contains('is-open')) paintLoginStep();
 }
 /* ---------- header dropdowns (language + account type) ---------- */
@@ -152,8 +153,9 @@ paintTheme();
 themeMq.addEventListener("change", () => { if (themeChoice === "system") paintTheme(); });
 
 /* ---------- mock auth ----------
-   Signed out: pitch + search, no personal feed.
-   Signed in: no pitch, categories above search, feed visible. */
+   Signed out: pitch + search, no personal layer.
+   Signed in: the same hero with a greeting and a summary of what needs the
+   citizen, then the «for you» bento. */
 const AUTH_KEY = "ekh.citizen.auth";
 let authed = false;
 try { authed = localStorage.getItem(AUTH_KEY) === "1"; } catch(e){ /* storage may be blocked */ }
@@ -180,12 +182,26 @@ function applyAuth(){
   $("#heroTitle").hidden = isIn;
   $("#heroHi").hidden = !isIn;
   $("#heroSub").hidden = isIn;
-  const heroIn = $(".hero-in"), cats = $("#cats"), search = $("#searchWrap");
-  if (isIn) heroIn.insertBefore(cats, search);
-  else heroIn.insertBefore(search, cats);
+  $("#heroSummary").hidden = !isIn;
+  syncForYou();
   syncProfilePop();
   /* the service aside tells a signed-out visitor what applying requires; signed in it doesn't */
   if (servicePage && !$("#scr-service").hidden) servicePage.renderService(currentRoute);
+}
+/* the hero's summary is a selector over the «for you» cards: paying the bill
+   takes it off the page and out of the sentence in the same step (rule 49) */
+function plural(key, n){
+  const form = lang === "tg" ? "other" : new Intl.PluralRules(lang).select(n);
+  const d = I18N[lang] || I18N.tg;
+  const v = d[key + "." + form] ?? d[key + ".other"] ?? d[key + ".many"] ?? t(key + ".other");
+  return v.replace("{n}", String(n));
+}
+function syncForYou(){
+  const tasks = $$("#feedSect .fy-task").filter(card => !card.hidden).length;
+  const moving = $$("#feedSect .trk:not(.is-done)").length;
+  const parts = [tasks ? plural("fy.sum.tasks", tasks) : t("fy.sum.none")];
+  if (moving) parts.push(plural("fy.sum.apps", moving));
+  $("#heroSummary").textContent = parts.join(" · ");
 }
 let loginLastFocus = null;
 let loginDialog = null;
@@ -860,27 +876,6 @@ $("#cpList").addEventListener("click", e => {
 });
 
 /* ---------- delegated clicks ---------- */
-/* ---------- "for you" feed tabs ---------- */
-const FPANES = { notif:"fpane-notif", apps:"fpane-apps", pay:"fpane-pay" };
-function feedTab(id){
-  $$(".ftab").forEach(b => {
-    const on = b.dataset.ftab === id;
-    b.setAttribute("aria-selected", String(on));
-    b.tabIndex = on ? 0 : -1; /* roving tabindex per the tabs pattern */
-  });
-  Object.entries(FPANES).forEach(([k, pid]) => { const p = $("#" + pid); if (p) p.hidden = k !== id; });
-}
-/* arrow keys move between feed tabs */
-$$(".ftabs").forEach(list => list.addEventListener("keydown", e => {
-  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-  const tabs = $$(".ftab", list);
-  const cur = tabs.findIndex(b => b.getAttribute("aria-selected") === "true");
-  const next = (cur + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length;
-  e.preventDefault();
-  feedTab(tabs[next].dataset.ftab);
-  tabs[next].focus();
-}));
-
 document.addEventListener("click", e => {
   /* in-portal links are real <a href="#/…">: a plain click routes, a modified
      click still opens a new tab */
@@ -893,8 +888,6 @@ document.addEventListener("click", e => {
     navigate(href, { replace:routeLink.hasAttribute("data-replace") });
     return;
   }
-  const fTab = e.target.closest("[data-ftab]");
-  if (fTab){ feedTab(fTab.dataset.ftab); return; }
   const backBtn = e.target.closest("[data-back]");
   if (backBtn){ goBack(); return; }
   const goBtn = e.target.closest("[data-go]");
@@ -910,6 +903,9 @@ document.addEventListener("click", e => {
   if (qrBtn){ openQr(qrBtn.dataset.qr); return; }
   const docCard = e.target.closest("#docGrid .doc");
   if (docCard){ openDocumentDetail(docCard.dataset.docId); return; }
+  /* a wallet card on the home opens the same viewer the wallet pane does */
+  const homeDoc = e.target.closest("[data-doc-open]");
+  if (homeDoc){ openDocumentDetail(homeDoc.dataset.docOpen); return; }
   const chip = e.target.closest(".filters .chip");
   if (chip){
     applyFilter(chip.dataset.own);
@@ -983,6 +979,12 @@ submitAll.addEventListener("click", () => {
   delete dB.dataset.locked;
   $("#docBirthName").textContent = childFullName();
   expansion?.completeBabyJourney(childFullName());
+  /* the home follows: the task leaves «for you», its result arrives in the wallet */
+  $("#fyBirth").hidden = true;
+  $("#fySlot").hidden = true;
+  $("#fySlotName").textContent = childFullName();
+  $("#fySlotReady").hidden = false;
+  syncForYou();
   jstep(4);
 });
 
@@ -1329,7 +1331,8 @@ expansion = initCitizenExpansion({
   readParam,
   syncQuery:params => navigate(hashFor(currentRoute), { params, replace:true }),
   openApp:id => navigate("#/profile/apps" + (id ? "/" + encodeURIComponent(id) : "")),
-  openReceivedFile:file=>openDocumentDetail(file.id,file)
+  openReceivedFile:file=>openDocumentDetail(file.id,file),
+  syncForYou
 });
 servicePage = initServicePage({
   getLang:() => lang,
@@ -1347,7 +1350,6 @@ servicePage = initServicePage({
 applyAuth();
 applyLang();
 jstep(1);
-feedTab("notif");
 
 /* first paint restores the screen, pane, detail and filters the URL asks for */
 (function boot(){

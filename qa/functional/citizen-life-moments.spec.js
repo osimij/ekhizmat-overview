@@ -37,10 +37,10 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   expect(new Set(layout.map(({ left }) => left)).size).toBe(4);
   expect(new Set(layout.map(({ width }) => width)).size).toBe(1);
   expect(layout.every(({ height }) => height === 212)).toBe(true); // Figma 248 × .85
-  // the glyph stands alone at the top on the card's 20px inset; the copy rides
-  // down on the action, 12px above it, and the space between absorbs any wrap
-  expect(layout.every(({ well }) => well.join() === '20,20,48,48')).toBe(true);
-  expect(layout.every(({ titleLeft }) => titleLeft === 20)).toBe(true);
+  // the glyph stands alone at the top on the home's 24px card inset; the copy
+  // rides down on the action, 12px above it, and the space between absorbs any wrap
+  expect(layout.every(({ well }) => well.join() === '24,24,48,48')).toBe(true);
+  expect(layout.every(({ titleLeft }) => titleLeft === 24)).toBe(true);
   expect(layout.every(({ copyToCta }) => copyToCta === 12)).toBe(true);
   expect(Math.min(...layout.map(({ wellGap }) => wellGap))).toBeGreaterThan(12);
   // the action is its label alone
@@ -66,12 +66,12 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 48, bottom: 48, shadow: true });
 
   // «see all» shares the heading's line, centred on it, flush with the cards' right edge
-  const more = page.locator('.sect-more');
+  const more = page.locator('section[aria-labelledby="momH"] .sect-more');
   await expect(more).toHaveText('Смотреть все');
   await expect(more).toHaveCSS('font-weight', '400');
   const heading = await page.evaluate(() => {
     const title = document.querySelector('#momH').getBoundingClientRect();
-    const link = document.querySelector('.sect-more').getBoundingClientRect();
+    const link = document.querySelector('section[aria-labelledby="momH"] .sect-more').getBoundingClientRect();
     return { titleCenter: title.top + title.height / 2, linkCenter: link.top + link.height / 2, linkRight: Math.round(link.right) };
   });
   expect(Math.abs(heading.titleCenter - heading.linkCenter)).toBeLessThanOrEqual(1);

@@ -76,6 +76,7 @@
         <button class="btn btn-sec btn-sm" id="guestLoginBtn">Ворид шудан</button>
       </div>
       <h1 id="helloH" tabindex="-1"><span id="heroTitle" data-i18n="home.title">Хизматҳои давлатии Ҷумҳурии Тоҷикистон</span><span id="heroHi" data-i18n="home.hi">Хуш омадед, Фируза</span></h1>
+      <p class="sub" id="heroSummary" aria-live="polite"></p>
       <p class="sub" id="heroSub" data-i18n="home.sub">Ҳамаи хизматҳои давлатӣ дар як ҷо бе навбат, бе коғазбозӣ</p>
 
       <div class="search" id="searchWrap">
@@ -100,70 +101,130 @@
   </div>
 
   <div class="wrap">
-    <!-- "for you" hub: latest notifications, applications and payments (signed-in only) -->
-    <section class="feed" id="feedSect" data-i18n-aria="f.aria" aria-label="Барои шумо">
-      <div class="feed-head">
-        <div class="ftabs" role="tablist">
-          <button class="ftab" id="ftab-notif" role="tab" aria-selected="true" aria-controls="fpane-notif" data-ftab="notif"><span data-i18n="f.tab.notif">Огоҳиҳо</span><span class="fbadge hot">3</span></button>
-          <button class="ftab" id="ftab-apps" role="tab" aria-selected="false" aria-controls="fpane-apps" data-ftab="apps"><span data-i18n="f.tab.apps">Аризаҳо</span><span class="fbadge">2</span></button>
-          <button class="ftab" id="ftab-pay" role="tab" aria-selected="false" aria-controls="fpane-pay" data-ftab="pay"><span data-i18n="f.tab.pay">Пардохтҳо</span><span class="fbadge hot">1</span></button>
-        </div>
-        <button class="feed-all" data-go="notifs" data-i18n="f.all">Ҳамаи огоҳиҳо</button>
+    <!-- «For you» (signed in): what needs the citizen first, then what is moving and
+         the documents they carry — one bento on the paper band the life situations
+         share, so the personal layer reads as part of the page, not a strip on top -->
+    <section class="home-sect home-sect--paper fy" id="feedSect" aria-labelledby="fyH">
+      <div class="sect-h">
+        <h2 id="fyH" data-i18n="f.aria">Барои шумо</h2>
+        <button class="sect-more" type="button" data-go="notifs" data-i18n="f.all">Ҳамаи огоҳиҳо</button>
       </div>
 
-      <div class="feed-grid">
-        <div class="feed-col">
-          <div class="fpane" id="fpane-notif" role="tabpanel" aria-labelledby="ftab-notif" tabindex="0">
-            <button class="frow" data-go="journey">
-              <span class="fic g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
-              <span class="ft"><b data-i18n="card.birth.t">Хушхабар аз таваллудхона</b><span data-i18n="card.birth.p">Таваллудхонаи №3 хабар дод: 8 июн духтаратон таваллуд шуд. Ҳамаи ҳуҷҷатҳо аллакай омодаанд - танҳо тасдиқ кунед.</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.n1.d">8 июн</span><span class="btn btn-pri btn-sm" data-i18n="f.n1.cta">Гирифтан</span></span>
-            </button>
-            <button class="frow" data-toast="toast.demo">
-              <span class="fic g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-              <span class="ft"><b data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</b><span data-i18n="card.pass.p">Мӯҳлати шиносномаатон 14 октябр ба охир мерасад. Ҳоло нав кунед, то баъд нагардед.</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.n2.d">то 14 окт</span><span class="btn btn-sec btn-sm" data-i18n="f.n2.cta">Нав кардан</span></span>
-            </button>
-            <button class="frow" data-go="tracking">
-              <span class="fic g-green"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-              <span class="ft"><b data-i18n="f.n3.t">Шаҳодатномаи таваллуд - ба баррасӣ қабул шуд</b><span data-i18n="f.n3.p">САҲШ-и ноҳияи Сино то 13 июн ҷавоб медиҳад.</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.n3.d">10 июн</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
-            </button>
+      <div class="fy-grid">
+        <!-- 1 · the decision with the most at stake: the hospital already registered the birth -->
+        <article class="fy-card fy-card--feature fy-task" id="fyBirth" aria-labelledby="fyBirthH">
+          <div class="fy-copy">
+            <p class="fy-meta"><span class="fy-kind g-rose"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-baby"/></svg><span data-i18n="fy.birth.k">Оила</span></span><span class="fy-when" data-i18n="f.n1.d">8 июн</span></p>
+            <h3 class="fy-title" id="fyBirthH" data-i18n="fy.birth.t">Ҳуҷҷатҳои Зарина омодаанд</h3>
+            <p class="fy-text" data-i18n="fy.birth.p">Таваллудхонаи №3 таваллуди духтаратонро сабт кард. Шаҳодатнома, рақами андоз ва кумакпулӣ омодаанд - танҳо тасдиқ кунед.</p>
+            <div class="fy-acts"><button class="btn btn-pri" type="button" data-go="journey" data-i18n="fy.birth.cta">Тасдиқ кардан - 5 дақиқа</button></div>
           </div>
-
-          <div class="fpane" id="fpane-apps" role="tabpanel" aria-labelledby="ftab-apps" tabindex="0" hidden>
-            <button class="app-row" data-go="tracking">
-              <span class="fic g-steel"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-doc"/></svg></span>
-              <span class="tt"><b data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</b><span data-i18n="apps.i1.s">САҲШ-и ноҳияи Сино - ариза №ТҶ-2026-184302</span></span>
-              <span class="status-icon status-icon--info" role="img" data-i18n-aria="status.review" data-i18n-title="status.review" aria-label="Дар баррасӣ" title="Дар баррасӣ"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-clock"/></svg></span>
-            </button>
-            <button class="app-row" data-go="tracking">
-              <span class="fic g-indigo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
-              <span class="tt"><b data-i18n="apps.i2.t">Сабти соҳибкори инфиродӣ</b><span data-i18n="apps.i2.s">Кумитаи андоз - ариза №ТҶ-2026-179908</span></span>
-              <span class="status-icon status-icon--success" role="img" data-i18n-aria="status.done" data-i18n-title="status.done" aria-label="Иҷро шуд" title="Иҷро шуд"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-check"/></svg></span>
-            </button>
+          <!-- the three documents the confirmation adds to the wallet, fanned like passes;
+               the cards behind carry only the word their strip shows -->
+          <div class="fy-fan" aria-hidden="true">
+            <span class="wcard wcard--benefit">
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="fy.fan.benefit">Кумакпулӣ</span><svg class="wcard__mark"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+            </span>
+            <span class="wcard wcard--tax">
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="fy.fan.tax">РМА</span><svg class="wcard__mark"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+            </span>
+            <span class="wcard wcard--birth">
+              <svg class="wcard__girih"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg>
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="d.birth.k">Шаҳодатномаи таваллуд</span><svg class="wcard__mark"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+              <span class="wcard__foot"><b>Зарина Раҳимова</b><span>СТ 0931184</span></span>
+            </span>
           </div>
+        </article>
 
-          <div class="fpane" id="fpane-pay" role="tabpanel" aria-labelledby="ftab-pay" tabindex="0" hidden>
-            <p class="fempty" id="feedPayEmpty" hidden data-i18n="f.pay.none">Ҳоло ҳисоби пардохтнашуда нест.</p>
-            <button class="frow" id="feedPayRow" data-go="payments">
-              <span class="fic g-red"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg></span>
-              <span class="ft"><b data-i18n="f.p1.t">Андози нақлиёт барои соли 2026</b><span data-i18n="f.p1.p">Кумитаи андоз - ҳисоби №АН-44213</span></span>
-              <span class="fact"><span class="fdate" data-i18n="f.p1.d">то 1 июл</span><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg></span>
-            </button>
-          </div>
-        </div>
+        <!-- 2 · a deadline -->
+        <article class="fy-card fy-task fy-pass" aria-labelledby="fyPassH">
+          <p class="fy-meta"><span class="fy-kind g-blue"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-passport"/></svg><span data-i18n="d.pass.k">Шиноснома</span></span><span class="fy-when" data-i18n="f.n2.d">то 14 окт</span></p>
+          <h3 class="fy-title" id="fyPassH" data-i18n="card.pass.t">Шиноснома ба нав кардан мӯҳтоҷ аст</h3>
+          <p class="fy-text" data-i18n="fy.pass.p">Мӯҳлаташ 14 октябр ба охир мерасад. Онлайн нав кунед - бе навбат.</p>
+          <div class="fy-acts"><button class="btn fy-btn" type="button" data-toast="toast.demo" data-i18n="card.pass.cta">Нав кардан - 8 дақиқа</button></div>
+        </article>
 
-        <aside class="pay-card" id="payCard">
+        <!-- 3 · money owed: the same record the payments pane lists (citizen-expansion.js) -->
+        <article class="fy-card fy-task fy-pay" id="payCard" aria-labelledby="payLabel">
+          <p class="fy-meta"><span class="fy-kind g-amber"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-cat-tax"/></svg><span data-i18n="fy.pay.k">Ба пардохт</span></span><span class="fy-when" data-i18n="f.p1.d">то 1 июл</span></p>
           <div class="pay-summary">
-            <div class="sum" id="paySum">86,40 смн.</div>
-            <div class="pt" id="payLabel" data-i18n="pay.t">Андози нақлиёт барои соли 2026</div>
+            <p class="sum" id="paySum">86,40 смн.</p>
+            <p class="pt" id="payLabel" data-i18n="pay.t">Андози нақлиёт барои соли 2026</p>
           </div>
-          <div class="pay-actions">
-            <button class="btn btn-pri" id="payNow" data-pay-pending data-i18n="pay.cta">Пардохт кардан</button>
-            <button class="btn btn-ghost pay-link" data-go="payments" data-i18n="pay.all">Ҳамаи пардохтҳо</button>
+          <div class="fy-acts pay-actions">
+            <button class="btn btn-pri" id="payNow" type="button" data-pay-pending data-i18n="pay.cta">Пардохт кардан</button>
+            <button class="btn fy-btn pay-link" type="button" data-go="payments" data-i18n="pay.all">Ҳамаи пардохтҳо</button>
           </div>
-        </aside>
+        </article>
+
+        <!-- 4 · what is moving: named steps, the current one in ink (status trackers, NN/g) -->
+        <article class="fy-card fy-card--half" aria-labelledby="fyAppsH">
+          <div class="fy-head">
+            <h3 id="fyAppsH" data-i18n="fy.apps.t">Аризаҳо</h3>
+            <button class="fy-link" type="button" data-go="tracking" data-i18n="fy.apps.all">Ҳамаи аризаҳо</button>
+          </div>
+          <div class="fy-apps">
+            <button class="fy-app" type="button" data-go="tracking">
+              <span class="fy-app__name" data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</span>
+              <span class="fy-app__meta" data-i18n="fy.app1.m">САҲШ-и ноҳияи Сино · ҷавоб то 13 июн</span>
+              <span class="sr-only" data-i18n="status.review">Дар баррасӣ</span>
+              <span class="trk" data-step="2" aria-hidden="true">
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.1">Фиристода</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.2">Баррасӣ</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.3">Қарор</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.4">Омода</span></span>
+              </span>
+            </button>
+            <button class="fy-app" type="button" data-go="tracking">
+              <span class="fy-app__name" data-i18n="apps.i2.t">Сабти соҳибкори инфиродӣ</span>
+              <span class="fy-app__meta" data-i18n="fy.app2.m">Кумитаи андоз · натиҷа дар ҳамён</span>
+              <span class="sr-only" data-i18n="status.done">Иҷро шуд</span>
+              <span class="trk is-done" aria-hidden="true">
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.1">Фиристода</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.2">Баррасӣ</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.3">Қарор</span></span>
+                <span class="trk__step"><i></i><span data-i18n="fy.trk.4">Омода</span></span>
+              </span>
+            </button>
+          </div>
+        </article>
+
+        <!-- 5 · the documents they carry: card art per type, the way a wallet tells them apart -->
+        <article class="fy-card fy-card--half" aria-labelledby="fyDocsH">
+          <div class="fy-head">
+            <h3 id="fyDocsH" data-i18n="nav.wallet">Ҳамёни ҳуҷҷатҳо</h3>
+            <button class="fy-link" type="button" data-go="wallet" data-i18n="fy.docs.all">Ҳамаи ҳуҷҷатҳо</button>
+          </div>
+          <div class="fy-wallet">
+            <button class="wcard wcard--passport" type="button" data-doc-open="passport">
+              <svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg>
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="d.pass.k">Шиноснома</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+              <span class="wcard__foot"><b>Т 4018236</b><span class="wcard__exp is-soon" data-i18n="fy.doc.pass.e">то 14.10.2026</span></span>
+            </button>
+            <button class="wcard wcard--tax" type="button" data-doc-open="tax">
+              <svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg>
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="d.inn.k">Рақами андозсупоранда</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+              <span class="wcard__foot"><b>6404 1893 0021</b><span class="wcard__exp" data-i18n="d.birth.e">бемӯҳлат</span></span>
+            </button>
+            <button class="wcard wcard--license" type="button" data-doc-open="driver">
+              <svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg>
+              <span class="wcard__top"><span class="wcard__kind" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span>
+              <span class="wcard__foot"><b>AB 552901</b><span class="wcard__exp" data-i18n="d.drv.e">то 03.2029</span></span>
+            </button>
+            <!-- where the feature's result lands: a waiting slot until the birth is confirmed, then the
+                 new certificate — a strip under the row on desktop, the row's fourth card below 1080px -->
+            <p class="wslot" id="fySlot">
+              <span class="wslot__thumb" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-plus"/></svg></span>
+              <span class="wslot__text" data-i18n="fy.slot.wait">Шаҳодатномаи Зарина пас аз тасдиқ дар ин ҷо пайдо мешавад</span>
+            </p>
+            <button class="wslot is-ready" id="fySlotReady" type="button" data-doc-open="birth" hidden>
+              <span class="wslot__thumb wcard wcard--birth" aria-hidden="true"></span>
+              <span class="wslot__text"><span data-i18n="d.birth.k">Шаҳодатномаи таваллуд</span> - <span id="fySlotName">Зарина Раҳимова</span></span>
+              <span class="wslot__badge" data-i18n="badge.new">нав</span>
+              <svg class="wslot__chev" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-chev-r"/></svg>
+            </button>
+          </div>
+        </article>
       </div>
     </section>
 

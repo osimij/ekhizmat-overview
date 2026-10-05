@@ -253,11 +253,7 @@ export function initCitizenExpansion(ctx){
     const card=$("#payCard"); if(!card) return;
     const c=text(), pending=pendingItems()[0];
     card.hidden=!pending;
-    const row=$("#feedPayRow"), empty=$("#feedPayEmpty");
-    if(row) row.hidden=!pending;
-    if(empty) empty.hidden=Boolean(pending);
-    const badge=$("#ftab-pay .fbadge");
-    if(badge){ badge.textContent=String(pendingItems().length); badge.hidden=!pending; }
+    ctx.syncForYou?.();
     if(!pending) return;
     $("#paySum").textContent=money(pending.amount);
     $("#payLabel").textContent=pending.service;

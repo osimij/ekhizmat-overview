@@ -9,6 +9,18 @@ html[data-theme="light"] body[data-platform="citizen"]{background:var(--panel-ho
    catalogue, profile — routes through --maxw, widened here to the portal's 1250px */
 body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
 
+/* the home's one rhythm: every band opens and closes with --home-band, every
+   card grid uses --home-gap, every card has the --home-pad inset and --home-r
+   corners — so «for you», the life situations and the news read as one page,
+   not three stacked strips */
+#scr-home{--home-band:var(--s-12); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-xl); --home-pill:var(--panel)}
+/* a quiet action sits a step above its card: paper in light; in dark, paper is
+   darker than any card, so the step is a veil of ink instead — the same
+   lift on the grey «for you» cards and the blue life-situation cards */
+[data-theme="dark"] #scr-home{--home-pill:color-mix(in srgb, var(--ink) 9%, transparent)}
+/* the last band's 48 and the footer's own 48 are the page's end: no screen padding on top */
+#scr-home.screen{padding-bottom:0}
+
 /* ============ HEADER ============ */
 /* Figma «Web» 130:4119: brand + audience on the left, links then language and
    sign-in on the right. On the home hero the bar is part of the wash — no
@@ -167,11 +179,12 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 [data-auth="out"] #feedSect,
 [data-auth="in"] #heroTitle,
 [data-auth="out"] #heroHi,
-[data-auth="in"] #heroSub{display:none}
+[data-auth="in"] #heroSub,
+[data-auth="out"] #heroSummary{display:none}
 
-/* signed in: the pitch gives way to a greeting — categories lead, search below */
-[data-auth="in"] .hero h1{font-size:var(--fs-28); margin-bottom:var(--s-5)}
-[data-auth="in"] .search{margin:var(--s-4) 0 0}
+/* signed in, the hero keeps its composition — title, one line, search,
+   catalogue — and only the words change: a greeting, and a summary of what
+   needs the citizen derived from the «for you» cards below (syncForYou) */
 
 /* hero search — the portal's main verb (Figma 130:4110: a 64px field, blue glyph,
    a 48px button inset 8px so its 12px corners stay concentric with the field's 20) */
@@ -240,28 +253,181 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .cat span:last-child{max-width:7.5em; text-wrap:balance; overflow-wrap:anywhere}
 .cat:hover{background-image:linear-gradient(var(--hover),var(--hover))}
 
-/* ============ FOR-YOU FEED ============ */
-.feed{margin-top:var(--s-10)}
-.feed-head{display:flex; align-items:center; justify-content:space-between; gap:var(--s-4); flex-wrap:wrap; margin-bottom:var(--s-4)}
-.ftabs{display:flex; gap:var(--s-1); flex-wrap:wrap}
-.ftab{
-  display:inline-flex; align-items:center; gap:8px; padding:8px 16px;
-  border-radius:var(--r-pill);
-  font-size:var(--fs-15); font-weight:var(--weight-regular); color:var(--ink-3);
-  transition:color var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+/* ============ FOR YOU (signed in) ============ */
+/* What needs the citizen, then what is moving, then what they carry: a
+   four-column bento on the paper band the life situations share. The feature
+   task spans two columns, the deadline and the bill one each; applications and
+   the wallet split the second row. Cards are borderless on the paper's quiet
+   group surface — neutral, so the citizen's own things never read as portal
+   content (the tinted cards below) — and every one has the same anatomy:
+   coloured kind + when, title, one line of why, the action pinned to the foot
+   (§5 casebook 1). */
+.fy-grid{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--home-gap)}
+.fy-card{
+  display:flex; flex-direction:column; align-items:flex-start; min-width:0;
+  padding:var(--home-pad); border-radius:var(--home-r); background:var(--field-on-panel);
 }
-.ftab:hover{color:var(--ink); background:var(--hover)}
-.ftab[aria-selected="true"]{color:var(--ink); background:var(--panel); font-weight:var(--weight-medium)}
-.fbadge{
-  min-width:20px; height:20px; padding:0 6px; border-radius:10px; display:inline-grid; place-items:center;
-  font-size:var(--fs-12); font-weight:550; font-variant-numeric:tabular-nums; background:var(--field); color:var(--ink-2);
+.fy-card[hidden]{display:none}
+.fy-card--feature,.fy-card--half{grid-column:span 2}
+.fy-card--feature{display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:var(--s-6); align-items:stretch}
+.fy-copy{display:flex; flex-direction:column; align-items:flex-start; min-width:0}
+/* a finished task leaves the row and the rest close ranks, so no hole opens:
+   a paid bill gives its column to the deadline, a confirmed birth gives its
+   two to the deadline and the bill */
+.fy-grid:has(> #payCard[hidden]) > .fy-pass,
+.fy-grid:has(> #fyBirth[hidden]) > .fy-pass,
+.fy-grid:has(> #fyBirth[hidden]) > .fy-pay{grid-column:span 2}
+.fy-grid:has(> #fyBirth[hidden]):has(> #payCard[hidden]) > .fy-pass{grid-column:1 / -1}
+
+.fy-meta{display:flex; align-items:center; justify-content:space-between; gap:var(--s-3); width:100%; font-size:var(--fs-13); line-height:1.4}
+.fy-kind{display:inline-flex; align-items:center; gap:var(--s-2); min-width:0; font-weight:var(--weight-medium)}
+.fy-kind svg{width:18px; height:18px; flex:none}
+.fy-when{color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
+.fy-title{margin-top:var(--s-4); font-size:var(--fs-20); font-weight:var(--weight-semibold); line-height:1.3; text-wrap:balance}
+.fy-text{margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; text-wrap:pretty}
+.fy-acts{display:flex; flex-wrap:wrap; gap:var(--s-2); margin-top:auto; padding-top:var(--s-5)}
+/* in a narrow card the action is the card's own width, the way a widget's
+   button is, and the bill keeps «all payments» as its paper twin under it;
+   once the card is wide (a closed task gave it more columns, or a tablet)
+   the actions hug their labels again */
+.fy-task{container-type:inline-size}
+.fy-pass .fy-acts,.fy-pay .fy-acts{display:grid; width:100%}
+@container (min-width:400px){ .fy-pass .fy-acts,.fy-pay .fy-acts{display:flex; width:auto} }
+/* the quiet action is paper on the grey card, like the life-situation pills */
+.fy-btn{background:var(--home-pill); color:var(--ink)}
+.fy-btn:hover{background:linear-gradient(var(--hover),var(--hover)), var(--home-pill)}
+.fy-btn:active{background:linear-gradient(var(--press),var(--press)), var(--home-pill)}
+
+/* the bill: the amount is the headline, a display numeral (§4) */
+.pay-summary{margin-top:var(--s-4)}
+.fy-pay .sum{font-size:var(--fs-32); font-weight:650; line-height:1.15; font-variant-numeric:tabular-nums}
+.fy-pay .pt{margin-top:var(--s-1); color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; text-wrap:balance}
+
+/* second row: a heading on the card's own edge, the list in the card's rhythm */
+.fy-head{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); width:100%}
+.fy-head h3{font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.3}
+/* a quiet link whose label sits on the content edge (§5 casebook 3) */
+.fy-link{
+  margin:calc(-1 * var(--s-1)) calc(-1 * var(--s-2)); padding:var(--s-1) var(--s-2); border-radius:var(--r-s);
+  color:var(--blue-ink); font-size:var(--fs-14); white-space:nowrap;
 }
-.ftab[aria-selected="true"] .fbadge{background:var(--field-on-panel)}
-.fbadge.hot{background:var(--red-fill); color:var(--pure-white)}
-.ftab[aria-selected="true"] .fbadge.hot{background:var(--red-fill)}
-.feed-all{background:none; border:0; padding:6px 10px; border-radius:var(--r-s); font-size:var(--fs-14); font-weight:var(--weight-medium); color:var(--blue-ink); white-space:nowrap; transition:background var(--t-fast) var(--ease)}
-.feed-all:hover{background:var(--hover)}
-.feed-grid{display:grid; grid-template-columns:minmax(0,1fr) 312px; gap:var(--s-4); align-items:start}
+.fy-link:hover{text-decoration:underline; text-underline-offset:3px}
+
+/* applications: named steps, not a percentage — done steps filled, the current
+   one half-filled with its name in ink, a finished one green end to end. Rows
+   are dashboard rows: text on the heading's edge, the hover island already in
+   the box model (§5 casebook 2) */
+.fy-apps{display:grid; gap:var(--s-1); width:calc(100% + 2 * var(--s-3)); margin:var(--s-2) calc(-1 * var(--s-3)) calc(-1 * var(--s-3))}
+.fy-app{
+  display:grid; gap:2px; min-width:0; padding:var(--s-3); border-radius:var(--r-m);
+  color:var(--ink); text-align:left; transition:background var(--t-fast) var(--ease);
+}
+@media (hover:hover) and (pointer:fine){ .fy-app:hover{background:var(--home-pill)} }
+.fy-app__name{font-size:var(--fs-15); font-weight:var(--weight-medium); line-height:1.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.fy-app__meta{font-size:var(--fs-13); color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.trk{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--s-1); margin-top:var(--s-3)}
+.trk__step{display:grid; gap:var(--s-2); min-width:0; color:var(--ink-3); font-size:var(--fs-12); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.trk__step i{display:block; height:6px; border-radius:var(--r-pill); background:var(--track-off)}
+.trk[data-step="2"] .trk__step:nth-child(-n+1) i,
+.trk[data-step="3"] .trk__step:nth-child(-n+2) i,
+.trk[data-step="4"] .trk__step:nth-child(-n+3) i{background:var(--blue)}
+.trk[data-step="1"] .trk__step:nth-child(1) i,
+.trk[data-step="2"] .trk__step:nth-child(2) i,
+.trk[data-step="3"] .trk__step:nth-child(3) i,
+.trk[data-step="4"] .trk__step:nth-child(4) i{background:linear-gradient(90deg, var(--blue) 50%, var(--track-off) 50%)}
+.trk[data-step="1"] .trk__step:nth-child(1),
+.trk[data-step="2"] .trk__step:nth-child(2),
+.trk[data-step="3"] .trk__step:nth-child(3),
+.trk[data-step="4"] .trk__step:nth-child(4){color:var(--ink); font-weight:var(--weight-medium)}
+.trk.is-done .trk__step i{background:var(--green)}
+.trk.is-done .trk__step:last-child{color:var(--green-ink); font-weight:var(--weight-medium)}
+
+/* ---- wallet cards: the document type is the colour, as in a physical wallet ---- */
+/* credit-card proportions; a soft sheen from the top-right corner and a girih
+   watermark give the paper its depth — all from the --doc-* identity tokens */
+.wcard{
+  --wc:var(--doc-passport);
+  position:relative; isolation:isolate; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:space-between; min-width:0;
+  aspect-ratio:1.586; padding:var(--s-3) var(--s-3) var(--s-3) var(--s-4);
+  border-radius:var(--r-m); color:var(--pure-white); text-align:left;
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--pure-white) 18%, transparent), transparent 60%),
+    linear-gradient(160deg, transparent 45%, color-mix(in srgb, var(--pure-black) 22%, transparent)),
+    var(--wc);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--pure-white) 12%, transparent);
+}
+.wcard--passport{--wc:var(--doc-passport)}
+.wcard--tax{--wc:var(--doc-tax)}
+.wcard--license,.wcard--benefit{--wc:var(--doc-license)}
+.wcard--birth{--wc:var(--doc-birth)}
+.wcard__girih{position:absolute; z-index:-1; right:-18%; bottom:-34%; width:70%; height:auto; aspect-ratio:1; color:var(--pure-white); opacity:.13}
+.wcard__top{display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s-2)}
+.wcard__kind{
+  font-size:var(--fs-12); font-weight:var(--weight-medium); line-height:1.3; opacity:.9;
+  overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
+}
+.wcard__mark{width:18px; height:18px; flex:none; opacity:.9}
+.wcard__mark use{color:var(--pure-white)} /* the issuer mark is printed in the card's ink, not the brand blue */
+.wcard__foot{display:grid; gap:2px; min-width:0}
+.wcard__foot b{font-size:var(--fs-14); font-weight:var(--weight-semibold); line-height:1.3; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.wcard__foot span{font-size:var(--fs-12); line-height:1.3; opacity:.8; font-variant-numeric:tabular-nums; white-space:nowrap}
+.wcard__exp.is-soon{color:var(--preview-peach); opacity:1; font-weight:var(--weight-medium)}
+
+/* the slot takes whatever height the row leaves, so both cards end on one line */
+.fy-wallet{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); grid-template-rows:auto 1fr; flex:1; gap:var(--s-3); width:100%; margin-top:var(--s-4)}
+/* a card lifts toward the hand the way a pass leaves the wallet */
+button.wcard{transition:translate var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), scale var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){
+  button.wcard:hover{
+    translate:0 -3px;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--pure-white) 12%, transparent), 0 10px 22px color-mix(in srgb, var(--wc) 34%, transparent);
+  }
+}
+button.wcard:active{scale:.98}
+button.wcard:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
+
+/* the feature's documents, fanned like passes about to land in the wallet;
+   under the pointer they open a little — the one ornament on the page, and it
+   says what confirming does */
+.fy-fan{position:relative; align-self:center; width:240px; height:100%; min-height:184px}
+.fy-fan .wcard{
+  position:absolute; left:50%; top:50%; width:172px;
+  transform-origin:50% 100%;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--pure-white) 12%, transparent), 0 10px 24px color-mix(in srgb, var(--pure-black) 16%, transparent);
+  transition:rotate var(--t-draw) var(--ease-out), translate var(--t-draw) var(--ease-out);
+}
+/* a wallet stack, barely fanned: each card behind shows its whole top strip —
+   one short word — above the next */
+.fy-fan .wcard:not(.wcard--birth) .wcard__kind{-webkit-line-clamp:1; white-space:nowrap}
+.fy-fan .wcard--benefit{rotate:-5deg; translate:calc(-50% - 18px) calc(-50% - 52px)}
+.fy-fan .wcard--tax{rotate:-2deg; translate:calc(-50% - 6px) calc(-50% - 16px)}
+.fy-fan .wcard--birth{rotate:2deg; translate:calc(-50% + 8px) calc(-50% + 22px)}
+@media (hover:hover) and (pointer:fine){
+  .fy-card--feature:hover .wcard--benefit{rotate:-8deg; translate:calc(-50% - 26px) calc(-50% - 62px)}
+  .fy-card--feature:hover .wcard--tax{rotate:-3deg; translate:calc(-50% - 8px) calc(-50% - 22px)}
+  .fy-card--feature:hover .wcard--birth{rotate:4deg; translate:calc(-50% + 14px) calc(-50% + 26px)}
+}
+
+/* the arrival slot under the wallet row: dashed while the birth waits for the
+   citizen, the new certificate once it is confirmed — one height in both
+   states, so nothing moves when it arrives */
+.wslot{
+  grid-column:1 / -1;
+  display:flex; align-items:center; gap:var(--s-3); width:100%; min-height:56px;
+  padding:var(--s-2) var(--s-3) var(--s-2) var(--s-2); border-radius:var(--r-m);
+  color:var(--ink-3); font-size:var(--fs-13); line-height:1.4; text-align:left;
+  border:1px dashed var(--control-line);
+}
+.wslot[hidden]{display:none}
+.wslot__thumb{display:grid; place-items:center; flex:none; width:60px; height:38px; aspect-ratio:auto; padding:0; border-radius:var(--r-s); border:1px dashed var(--control-line); color:var(--ink-3)}
+.wslot__thumb svg{width:16px; height:16px}
+.wslot__text{flex:1; min-width:0}
+.wslot.is-ready{border-style:solid; border-color:transparent; background:var(--home-pill); color:var(--ink); font-weight:var(--weight-medium); transition:background var(--t-fast) var(--ease)}
+.wslot.is-ready .wslot__thumb{border:0}
+.wslot__badge{flex:none; padding:2px var(--s-2); border-radius:var(--r-pill); background:var(--blue-tint); color:var(--blue-ink); font-size:var(--fs-12); font-weight:550}
+.wslot__chev{flex:none; width:16px; height:16px; color:var(--ink-3)}
+@media (hover:hover) and (pointer:fine){ .wslot.is-ready:hover{background:linear-gradient(var(--hover),var(--hover)), var(--home-pill)} }
 
 /* one bordered panel, hairline-divided rows — the same surface every list uses */
 .fpane{background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l); overflow:hidden}
@@ -285,38 +451,13 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .g-teal{color:var(--h-teal-fg)}
 .g-steel{color:var(--h-steel-fg)}
 .g-indigo{color:var(--h-indigo-fg)}
+.g-amber{color:var(--h-amber-fg)}
 .frow .ft{min-width:0}
 .frow .ft b{display:block; font-size:var(--fs-15); font-weight:var(--weight-medium); line-height:1.4}
 .frow .ft span{margin-top:2px; font-size:var(--fs-13); color:var(--ink-3); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical}
 .frow .fact{justify-self:end; display:grid; justify-items:end; gap:var(--s-2)}
 .frow .fdate{font-size:var(--fs-12); color:var(--ink-3); font-variant-numeric:tabular-nums; white-space:nowrap}
 .frow .fact > svg{width:16px; height:16px; color:var(--ink-3)}
-.fempty{padding:var(--s-6) var(--s-5); font-size:var(--fs-14); color:var(--ink-3)}
-
-/* application rows share the panel */
-.app-row{
-  display:flex; align-items:flex-start; gap:var(--s-4); width:100%; text-align:left;
-  padding:var(--s-4) var(--s-5);
-  transition:background var(--t-fast) var(--ease);
-}
-.app-row:hover{background:var(--hover)}
-.app-row .tt{min-width:0; flex:1}
-.app-row .tt b{display:block; font-size:var(--fs-15); font-weight:var(--weight-semibold)}
-.app-row .tt span{font-size:var(--fs-13); color:var(--ink-3)}
-
-/* payment rail */
-/* value first, then what it is for, then the discount, then the action (§3 KPI canon) */
-.pay-card{
-  background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
-  padding:var(--s-6) var(--s-5); text-align:left;
-  display:flex; flex-direction:column; align-items:stretch;
-}
-.pay-summary{display:grid; gap:0}
-.pay-card .sum{font-size:var(--fs-32); font-weight:680; letter-spacing:0; font-variant-numeric:tabular-nums}
-.pay-card .pt{font-size:var(--fs-14); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none; color:var(--ink-3); text-wrap:balance}
-.pay-actions{display:grid; gap:var(--s-1); margin-top:var(--s-6)}
-.pay-card .btn{width:100%; justify-content:center}
-.pay-card .pay-link{border:1px solid var(--line)}
 
 /* notifications screen groups */
 #scr-notifs .j-head h2{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
@@ -327,21 +468,21 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .sect{margin-top:var(--s-12)}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
 .sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
-/* home sections are the Figma «Body» bands (× .85): 48 above each title, 48
-   between bands (so two bands sit 96 apart), the footer's own 64 after the last */
-.home-sect{margin-top:0; padding-top:var(--s-12)}
-.home-sect + .home-sect{margin-top:var(--s-12)}
+/* home sections are the Figma «Body» bands (× .85): every band opens and
+   closes with --home-band, so any two sit 96 apart whether or not the ground
+   changes between them, and the footer follows the last at the same 48 + 48 */
+.home-sect{margin-top:0; padding-block:var(--home-band)}
 .home-sect .sect-h{margin-bottom:var(--s-6)}
+main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
 .home-sect .sect-h h2{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
-/* a band on full-bleed paper (the life situations: tinted cards read on white).
-   The shadow paints the paper out to the viewport edges and the clip keeps it
-   to the band's own height; the band closes with the same 48 it opens with,
-   so the next band's title still sits 96 below the cards */
+/* a band on full-bleed paper («for you» and the life situations: their cards
+   read on white). The shadow paints the paper out to the viewport edges and
+   the clip keeps it to the band's own height; two paper bands in a row are one
+   surface */
 .home-sect--paper{
-  padding-bottom:var(--s-12); background:var(--panel);
+  background:var(--panel);
   box-shadow:0 0 0 100vmax var(--panel); clip-path:inset(0 -100vmax);
 }
-.home-sect--paper + .home-sect{margin-top:0}
 
 /* ============ LIFE SITUATIONS — two rows of tinted cards (Figma 130:4141) ============ */
 /* «see all» is a quiet text link on the heading's own line, flush right,
@@ -354,12 +495,12 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 .sect-more:hover{text-decoration:underline; text-underline-offset:3px}
 @media (pointer:coarse){ .sect-more{padding-block:10px; margin-block:-10px} } /* 44px target, same line */
 /* every situation is visible at once — no pager: four columns, two rows */
-.moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--s-3)}
+.moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--home-gap)}
 .moment{
   position:relative; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
   min-height:212px; /* Figma 248 × .85; text never needs more */
-  padding:var(--s-5) var(--s-5) var(--s-3); overflow:hidden;
-  background:var(--blue-tint); border-radius:var(--r-l); text-align:left; scroll-snap-align:start;
+  padding:var(--home-pad) var(--home-pad) var(--s-3); overflow:hidden;
+  background:var(--blue-tint); border-radius:var(--home-r); text-align:left; scroll-snap-align:start;
   transition:background var(--t-fast) var(--ease);
 }
 .moment:hover,.moment:focus-visible{background:var(--blue-tint-hover)}
@@ -369,7 +510,7 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
    on the action, so the space between them absorbs any wrapping */
 .moment-ic{
   display:grid; place-items:center; flex:none; width:48px; height:48px;
-  border-radius:var(--r-m); background:var(--panel); color:var(--blue-ink);
+  border-radius:var(--r-m); background:var(--home-pill); color:var(--blue-ink);
 }
 .moment-ic svg{width:24px; height:24px}
 .moment-copy{position:relative; z-index:1; display:grid; gap:var(--s-1); max-width:100%; margin-top:auto}
@@ -388,18 +529,18 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 /* the action pill sits on the card's own inset, below the copy's edge;
    with art it hugs its label, without art it spans the card */
 .moment-cta{
-  position:relative; z-index:1; margin:var(--s-3) 0 0 calc(var(--s-3) - var(--s-5));
+  position:relative; z-index:1; margin:var(--s-3) 0 0 calc(var(--s-3) - var(--home-pad));
   display:inline-flex; align-items:center; justify-content:center;
-  padding:var(--s-2) var(--s-3); border-radius:var(--r-pill); background:var(--panel);
+  padding:var(--s-2) var(--s-3); border-radius:var(--r-pill); background:var(--home-pill);
   color:var(--blue-ink); font-size:var(--fs-13); line-height:1.5; white-space:nowrap;
 }
-.moment:not(.moment--art) .moment-cta{align-self:stretch; margin-right:calc(var(--s-3) - var(--s-5))}
+.moment:not(.moment--art) .moment-cta{align-self:stretch; margin-right:calc(var(--s-3) - var(--home-pad))}
 
 /* ============ NEWS + APP (Figma 130:4170) ============ */
-.news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--s-4)}
+.news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--home-gap)}
 .news-card,.app-card{
-  position:relative; overflow:hidden; min-height:430px; /* Figma 506 × .85 */ padding:var(--s-8);
-  background:var(--blue-tint); border-radius:var(--r-s);
+  position:relative; overflow:hidden; min-height:430px; /* Figma 506 × .85 */ padding:var(--home-pad);
+  background:var(--blue-tint); border-radius:var(--home-r);
 }
 .news-card{display:flex; flex-direction:column; align-items:flex-start}
 .news-card__title,.app-card__title{
@@ -408,14 +549,14 @@ body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
 }
 .news-card__title{max-width:23em; text-wrap:pretty}
 .news-card__date{margin-top:var(--s-3); color:var(--ink-2); font-size:var(--fs-15); font-variant-numeric:tabular-nums}
-.news-card__cta{position:relative; z-index:1; margin-top:auto; border-radius:var(--r-s)}
+.news-card__cta{position:relative; z-index:1; margin-top:auto}
 .news-card__art{position:absolute; right:4.6%; bottom:5.7%; width:39%; height:auto; pointer-events:none}
 .app-card__title{max-width:9em}
 .app-card__stores{position:relative; z-index:1; display:block; width:88px; height:auto; margin-top:var(--s-4)}
-.app-card__qr{position:absolute; left:var(--s-8); bottom:var(--s-8); width:62px; height:auto}
+.app-card__qr{position:absolute; left:var(--home-pad); bottom:var(--home-pad); width:62px; height:auto}
 .app-card__phone{position:absolute; top:72px; right:var(--s-6); width:224px; height:auto; pointer-events:none}
 /* a black QR needs paper under it to scan on a dark card */
-[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); background:var(--pure-white); border-radius:var(--r-s); left:calc(var(--s-8) - var(--s-1)); bottom:calc(var(--s-8) - var(--s-1))}
+[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); background:var(--pure-white); border-radius:var(--r-s); left:calc(var(--home-pad) - var(--s-1)); bottom:calc(var(--home-pad) - var(--s-1))}
 
 /* ============ FOOTER ============ */
 footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
@@ -1024,6 +1165,14 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   }
   .moments{grid-template-columns:repeat(2, minmax(0, 1fr))}
   .news-grid{grid-template-columns:minmax(0,1fr)}
+  /* two columns: the feature across the top, the deadline and the bill under
+     it, then what is moving and the wallet, each the full width */
+  .fy-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  /* the wallet spans the width: four cards, the slot the fourth, a card itself */
+  .fy-wallet{grid-template-columns:repeat(4, minmax(0, 1fr)); grid-template-rows:none}
+  .wslot{grid-column:auto; flex-direction:column; justify-content:center; gap:var(--s-2); aspect-ratio:1.586; padding:var(--s-3); text-align:center}
+  .wslot__text{flex:none}
+  .wslot__chev{display:none}
   /* one column: the decision follows the facts, before the detail — on a
      phone Apply must not wait below the steps and the disclosures */
   .svc-page{grid-template-columns:minmax(0,1fr); grid-template-areas:"crumbs" "head" "facts" "aside" "next" "more" "related"}
@@ -1043,7 +1192,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   }
   .cat{scroll-snap-align:start}
   .hero-in > .search{max-width:none}
-  .feed-grid{grid-template-columns:1fr}
   /* the portal's main verb comes first on a phone: search, then the catalogue */
   .hero-in{display:flex; flex-direction:column}
   .hero-in > .search{order:1}
@@ -1090,13 +1238,25 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .hdr-acts{flex:none}
   .hdr-acts .hdr-login{padding:0 var(--s-3)}
   .hero h1{font-size:var(--fs-28)}
-  .home-sect{padding-top:var(--s-10)}
-  .home-sect + .home-sect{margin-top:var(--s-8)}
-  .home-sect--paper{padding-bottom:var(--s-10)} /* the paper closes with the 40 it opens with */
-  .home-sect--paper + .home-sect{margin-top:0}
+  #scr-home{--home-band:var(--s-10); --home-gap:var(--s-3); --home-pad:var(--s-5)}
+  main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-10)}
   .home-sect .sect-h{margin-bottom:var(--s-5)}
+  /* one column; the fan leads the feature card, the wallet becomes a swipe row */
+  .fy-grid{grid-template-columns:minmax(0, 1fr)}
+  .fy-card--feature,.fy-card--half,.fy-grid:has(> #payCard[hidden]) > .fy-pass{grid-column:auto}
+  .fy-card--feature{grid-template-columns:minmax(0, 1fr); gap:var(--s-2)}
+  .fy-fan{order:-1; width:100%; min-height:150px}
+  .fy-fan .wcard{width:168px}
+  .fy-wallet{
+    grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:calc((100% - var(--s-3)) / 1.3);
+    overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory;
+    width:calc(100% + 2 * var(--home-pad)); margin-inline:calc(-1 * var(--home-pad));
+    padding:var(--s-1) var(--home-pad) var(--s-2); scroll-padding-inline:var(--home-pad);
+  }
+  .fy-wallet > *{scroll-snap-align:start}
+  .fy-app__name,.fy-app__meta{white-space:normal} /* a phone row has room to wrap, not to truncate */
   .home-sect .sect-h h2{font-size:var(--fs-24)}
-  .news-card,.app-card{min-height:0; padding:var(--s-6)}
+  .news-card,.app-card{min-height:0}
   .news-card__title,.app-card__title{font-size:var(--fs-20)}
   /* in a phone-width card the illustration joins the reading order */
   .news-card__art{position:static; align-self:flex-end; width:72%; margin:var(--s-4) 0}
@@ -1113,8 +1273,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .search-btn{top:28px; right:6px; width:44px; height:44px; padding:0; justify-content:center; border-radius:var(--r-s)}
   .search-btn span{display:none}
   .search-btn svg{display:block}
-  .ftabs{flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; margin:0 calc(var(--s-5) * -1); padding:0 var(--s-5)}
-  .ftab{white-space:nowrap; flex:none}
   .frow{padding:var(--s-4)}
   .cp-head h1,.e-hero h1,.prof-head h1,.svc-head h1,.help-head h1{font-size:var(--fs-24)}
   /* two columns of uneven facts leave hollow cards at phone width: one list, hairline-divided */
@@ -1156,14 +1314,16 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   button.btn{min-height:44px}
   button.btn-sm,.dd-btn,.filters .chip,.popular-card,.svc-group__toggle{min-height:44px}
   .dd-menu button{min-height:44px}
-  .back,.feed-all,.ftab,.pn{min-height:44px}
+  .back,.pn,.fy-link{min-height:44px}
+  .fy-link{display:inline-flex; align-items:center; margin-block:-14px}
   .s-item{min-height:48px}
   .icon-btn,.avatar,.guest-avatar{min-width:44px; min-height:44px}
   .sw{min-height:44px; display:flex; align-items:center}
   .sw .knob{position:relative; width:48px; height:29px}
 }
 @media (hover:none){
-  .cat:active,.frow:active,.app-row:active,.svc-row:active,.s-item:active{background:var(--press)}
+  .cat:active,.frow:active,.svc-row:active,.s-item:active{background:var(--press)}
+  .fy-app:active{background:var(--home-pill)}
   .moment:active{background:var(--blue-tint-hover)}
   .popular-card:active{background:var(--press)}
   .btn-pri:active{background:var(--blue-press)}
