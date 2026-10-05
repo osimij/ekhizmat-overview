@@ -10,8 +10,9 @@
    из библиотеки. Если поле выглядит не так — правится components.css, а не
    этот файл.
    ============================================================ */
-import { h, mount, icon } from './ui.js';
+import { h, mount, icon, mmss } from './ui.js';
 import { t } from './i18n.js';
+import { countdown } from './clock.js';
 
 /* ---------- базовое текстовое поле (§5.2) ---------- */
 export function field({ label, value = '', name, type = 'text', help, placeholder, autocomplete = 'off' }) {
@@ -137,6 +138,42 @@ export function maskedField({ label, kind, value = '', help, name }) {
   // Ключ, а не текст: сообщение об ошибке маски оператор читает на своём
   // языке, а MASKS — таблица правил, ей словарь знать незачем.
   api.maskError = t(m.error);
+  return api;
+}
+
+/* ---------- поле поиска профиля (§6/S2) ----------
+   Одно на выбранный способ — телефон или паспорт. Геометрия у обоих одна:
+   поле без рамки внутри залитой обёртки, кольцо фокуса — на обёртке
+   (§6, приём `.cp-search`), поэтому неизменяемый «+992» стоит внутри поля
+   рядом с номером, а не снаружи и не в значении. Видимой подписи нет: поле
+   называет выбранный сегмент над ним, а вторая подпись того же факта была
+   бы повтором (§10.6). Подпись остаётся в доступном имени.
+
+   `read` — общий с «сервером» разбор (mock/data.js, LOOKUP): поле
+   форматирует набранное ровно так, как его поймёт реестр. */
+export function lookupField({ label, placeholder, prefix = '', read, numeric = false }) {
+  const input = h('input', {
+    class: 'field__input', name: 'lookup', type: 'text',
+    autocomplete: 'off', spellcheck: 'false', placeholder,
+    inputmode: numeric ? 'numeric' : 'text',
+    autocapitalize: numeric ? null : 'characters',
+  });
+  const control = h('span', { class: 'field__wrap' },
+    prefix ? h('span', { class: 'field__prefix', 'aria-hidden': 'true' }, prefix) : null,
+    input);
+
+  let parsed = read('');
+  const apply = () => {
+    parsed = read(input.value);
+    if (input.value !== parsed.display) input.value = parsed.display;
+  };
+  input.addEventListener('input', apply);
+
+  const api = wrapField({ label, control, input });
+  api.labelEl.classList.add('sr-only');
+  api.el.classList.add('field--lookup');
+  api.parsed = () => parsed;
+  api.set = v => { input.value = String(v ?? ''); apply(); };
   return api;
 }
 
@@ -329,6 +366,21 @@ export function setLoading(btn, on) {
   // трёх неверных OTP кнопка оставалась кликабельной при живом таймере.
   if (!on && Number(btn.dataset.lockedUntil) > Date.now()) { btn.disabled = true; return; }
   btn.disabled = on;
+}
+
+/* Повтор отправки кода с обратным отсчётом (§6/S2, §6/S2b): кнопка видна
+   сразу, но спит, пока не истечёт пауза, и говорит, сколько осталось. Иначе
+   оператор жмёт «повторно» через секунду после первой отправки, и гражданин
+   получает два кода, из которых работает только второй. Возвращает stop() —
+   его обязан звать teardown экрана. */
+export function resendCooldown(btn, ms, readyKey, waitKey) {
+  btn.disabled = true;
+  return countdown(ms,
+    left => {
+      btn.replaceChildren(icon('refresh', { size: 20 }),
+        left > 0 ? t(waitKey, { t: mmss(left) }) : t(readyKey));
+    },
+    () => { btn.disabled = false; });
 }
 
 /* Ошибка кредов — шейк 2×4px (§6/S0). */

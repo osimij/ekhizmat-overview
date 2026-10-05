@@ -141,6 +141,49 @@ export function citizenSlice(scopes, citizen = CITIZENS[0]) {
    а в реестре лежит «+992 90 123 45 67». */
 export const digits = v => String(v || '').replace(/\D/g, '').replace(/^992/, '');
 
+/* ---------- поиск профиля: телефон или паспорт (§6/S2) ----------
+   Оператор сначала выбирает, ЧЕМ искать, — потом набирает. Поэтому разборов
+   два, по одному на поле, и экран и «сервер» читают ввод одной и той же
+   функцией: иначе поле показывало бы одно, а реестр искал бы другое.
+
+   value — то, что уходит в реестр; display — то, что стоит в поле; complete —
+   можно ли искать. */
+const LATIN = { А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T', У: 'Y', Х: 'X' };
+
+const passportKey = v => {
+  const s = String(v || '').toUpperCase().replace(/[^0-9A-ZА-Я]/g, '');
+  return (LATIN[s[0]] || s[0] || '') + s.slice(1).replace(/\D/g, '');
+};
+
+export const LOOKUP = {
+  /* «+992» стоит в поле отдельно и не редактируется, поэтому здесь — только
+     девять цифр номера. Вставленный целиком «+992 90 123 45 67» тоже
+     понимаем: код страны срезаем, только если цифр больше девяти, — номер
+     «99 234 56 78» сам начинается с 992. */
+  phone(raw) {
+    let d = String(raw || '').trim().replace(/^\+\s*992/, '').replace(/\D/g, '');
+    if (d.length > 9 && d.startsWith('992')) d = d.slice(3);
+    d = d.slice(0, 9);
+    const parts = [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean);
+    return { value: d, display: parts.join(' '), complete: d.length === 9 };
+  },
+
+  /* Серия паспорта РТ — латинская буква и восемь цифр: «A 12 345 678».
+     Кириллица приводится к латинице: на русской раскладке «А» и «В» серии
+     набираются кириллицей, выглядят так же — и не нашлись бы никогда. */
+  passport(raw) {
+    const key = passportKey(raw);
+    const letter = /^[A-Z]$/.test(key[0] || '') ? key[0] : '';
+    const d = (letter ? key.slice(1) : key.replace(/\D/g, '')).slice(0, 8);
+    const parts = [d.slice(0, 2), d.slice(2, 5), d.slice(5, 8)].filter(Boolean);
+    return {
+      value: letter + d,
+      display: [letter, ...parts].filter(Boolean).join(' '),
+      complete: !!letter && d.length === 8,
+    };
+  },
+};
+
 export const REGISTRY = {
   byPhone(phone) {
     const d = digits(phone);
@@ -150,6 +193,15 @@ export const REGISTRY = {
   byInn(inn) {
     const d = digits(inn);
     return CITIZENS.find(c => digits(c.profile?.inn) === d) || null;
+  },
+
+  /* Поиск по паспорту (§6/S2, шаг «найти профиль»). Сравниваем серию и номер
+     без пробелов: в реестре лежит «A 12 345 678», оператор наберёт
+     «a12345678» — это один и тот же документ. */
+  byDoc(no) {
+    const key = passportKey(no);
+    return CITIZENS.find(c => (c.documents?.items || [])
+      .some(d => d.identity && passportKey(d.no) === key)) || null;
   },
 
   add(record) {

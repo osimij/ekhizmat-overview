@@ -538,7 +538,35 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   const identify = page.locator('.s-identify');
   await expect(identify).toBeVisible();
   await expect(identify.locator('.s-gate__lead')).toHaveCount(0);
+  // Reception starts with one question to the registry, not with a method:
+  // the operator picks what to search by; no method or script exists yet.
+  await expect(identify.getByRole('tab', { name: 'Телефон' })).toHaveAttribute('aria-selected', 'true');
+  await expect(identify.getByRole('tab', { name: 'QR-код' })).toHaveCount(0);
   await expect(identify.locator('.s-identify__steps')).toHaveCount(0);
+  const lookup = identify.getByLabel('Номер телефона');
+  await expect(lookup).toBeFocused();
+  await lookup.fill('901234567');
+  await expect(lookup).toHaveValue('90 123 45 67');
+  await expect(identify.locator('.field__prefix')).toHaveText('+992');
+  // The choice, the field and its action are one block: one 16px step, and the
+  // action as tall as the field it submits.
+  const lookupBlock = await identify.evaluate((element) => {
+    const seg = element.querySelector('.s-identify__form .seg').getBoundingClientRect();
+    const field = element.querySelector('.field--lookup .field__wrap').getBoundingClientRect();
+    const button = element.querySelector('.s-identify__form .btn--primary').getBoundingClientRect();
+    return {
+      segToField: field.top - seg.bottom,
+      fieldToButton: button.top - field.bottom,
+      fieldHeight: field.height,
+      buttonHeight: button.height,
+    };
+  });
+  expect(lookupBlock.segToField).toBe(16);
+  expect(lookupBlock.fieldToButton).toBe(16);
+  expect(lookupBlock.fieldHeight).toBe(lookupBlock.buttonHeight);
+  await lookup.press('Enter');
+  await expect(identify.locator('.s-identify__result-title')).toHaveText('Профиль найден');
+
   const identifyLayout = await identify.evaluate((element) => {
     const title = element.querySelector('h1');
     const card = element.querySelector('.s-identify__card');
@@ -557,13 +585,26 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   expect(identifyLayout.bodyDisplay).toBe('flex');
   expect(identifyLayout.nestedPanels).toBe(0);
 
-  await page.getByRole('tab', { name: 'Face ID' }).click();
+  // QR is the first method and needs no button: the code and the script are
+  // the waiting state.
+  await expect(identify.getByRole('tab', { name: 'QR-код' })).toHaveAttribute('aria-selected', 'true');
+  await expect(identify.locator('.qr__code svg')).toBeVisible();
+  await expect(identify.locator('.s-identify__steps li')).toHaveCount(2);
+
+  // 3 switches to SMS — and stays in the workstation. The prototype's platform
+  // shortcut listens to the same digits and used to win the race.
+  await page.keyboard.press('3');
+  await expect(page).toHaveURL(/\/tson\//);
+  await expect(identify.getByRole('tab', { name: 'SMS' })).toHaveAttribute('aria-selected', 'true');
+  await expect(identify.locator('.s-identify__lead')).toContainText('•••• 45 67');
+
+  await identify.getByRole('button', { name: /Нет телефона с собой/ }).click();
   const faceTile = identify.locator('.facescan--embed');
   await expect(faceTile).toBeVisible();
   await expect(faceTile.locator('.facescan__stroke')).toHaveCount(0);
   await expect(faceTile.locator('use')).toHaveAttribute('href', /#i-face$/);
   await expect(faceTile).toHaveClass(/facescan--scanning/, { timeout: 5000 });
-  await expect(identify.locator('.facescan__caption')).toContainText('Наведите камеру');
+  await expect(identify.locator('.facescan__caption')).toContainText('сверяем с профилем');
 
   await page.keyboard.press('Control+l');
   const lock = page.locator('.s-locked');
@@ -940,7 +981,93 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   await expect(page.locator('.sessionbar .audience-badge--guest')).toBeVisible();
 });
 
-test('TSON registration confirmation keeps its attestation above the actions', async ({ page }) => {
+test('TSON identification asks the registry first and branches on the answer', async ({ page }) => {
+  await page.goto('/tson/?lang=ru&theme=light&dev=1');
+  const demo = page.locator('.demo');
+  await expect(demo).toBeAttached();
+  await page.evaluate(() => dispatchEvent(new KeyboardEvent('keydown', { key: '`', bubbles: true })));
+  await demo.getByRole('button', { name: 'MFA пройдена', exact: true }).click();
+  await demo.getByRole('button', { name: 'Привязка ок', exact: true }).click();
+  await demo.getByRole('button', { name: 'Начать приём', exact: true }).click();
+  // The face fault drives the registration's third step into its fallback.
+  await demo.getByRole('button', { name: 'Лицо не совпало', exact: true }).click();
+  await demo.getByRole('button', { name: 'Закрыть', exact: true }).click();
+
+  const identify = page.locator('.s-identify');
+  const lookup = identify.getByLabel('Номер телефона');
+  const passport = identify.getByLabel('Серия и номер паспорта');
+
+  // An incomplete value never reaches the registry.
+  await lookup.fill('90123');
+  await identify.getByRole('button', { name: 'Найти профиль' }).click();
+  await expect(identify.locator('.field__error')).toContainText('9 цифр');
+
+  // Unknown number: the card names the three registration steps before they start
+  // and offers the passport search — the person may be registered on another number.
+  await lookup.fill('905550001');
+  await lookup.press('Enter');
+  await expect(identify.locator('.s-identify__result-title')).toHaveText('Профиля нет');
+  await expect(identify.locator('.s-identify__plan-title')).toHaveText(['Телефон', 'Паспорт', 'Лицо']);
+  const planNumbers = await identify.locator('.s-identify__plan li').evaluateAll((items) =>
+    items.map((item) => getComputedStyle(item, '::before').content));
+  expect(planNumbers).toEqual(['counter(plan)', 'counter(plan)', 'counter(plan)']);
+  await identify.getByRole('button', { name: 'Искать по паспорту' }).click();
+
+  // «Search by passport» lands on the passport field, ready to type. A series
+  // without its letter is refused; typed on a Russian layout it still finds
+  // the profile.
+  await expect(identify.getByRole('tab', { name: 'Паспорт' })).toHaveAttribute('aria-selected', 'true');
+  await expect(passport).toBeFocused();
+  await passport.fill('12345678');
+  await passport.press('Enter');
+  await expect(identify.locator('.field__error')).toContainText('Буква серии');
+  await passport.fill('а12345678');
+  await expect(passport).toHaveValue('A 12 345 678');
+  await passport.press('Enter');
+  await expect(identify.locator('.s-identify__result-title')).toHaveText('Профиль найден');
+  await expect(identify.locator('.s-identify__result-sub')).toHaveText('A 12 345 678');
+  await expect(identify.getByRole('tab')).toHaveText(['QR-код', 'IMZO', 'SMS']);
+
+  // «Изменить» keeps what was typed — one wrong digit must not cost the whole
+  // value — and each search type keeps its own: the phone typed earlier is back.
+  await identify.getByRole('button', { name: 'Изменить' }).click();
+  await expect(passport).toHaveValue('A 12 345 678');
+  await identify.getByRole('tab', { name: 'Телефон' }).click();
+  await expect(lookup).toHaveValue('90 555 00 01');
+  await lookup.press('Enter');
+  await identify.getByRole('button', { name: 'Начать регистрацию' }).click();
+  await expect(page).toHaveURL(/#\/enroll/);
+
+  const gate = page.locator('.s-enroll__gate:not([hidden])');
+  await gate.getByRole('button', { name: 'Отправить код' }).click();
+  const codeCells = gate.locator('.otp__cell');
+  await expect(codeCells.first()).toBeVisible();
+  for (let index = 0; index < 6; index += 1) await codeCells.nth(index).fill(String(index + 2));
+  const pages = page.locator('.s-enroll__page');
+  await pages.nth(0).click();
+  await expect(page.locator('[name="full"]')).not.toHaveValue('');
+  await pages.nth(1).click();
+  await expect(page.locator('[name="address"]')).not.toHaveValue('');
+  await page.locator('.s-enroll__foot .btn--primary').click();
+
+  // Face step: a mismatch offers a retry; only after the second one may the
+  // operator compare the face with the passport photo by eye.
+  const register = gate.getByRole('button', { name: 'Зарегистрировать' });
+  const manual = gate.getByRole('button', { name: 'Сверить вручную' });
+  await expect(gate.locator('.banner--error')).toContainText('Лицо не совпало', { timeout: 5000 });
+  await expect(register).toBeDisabled();
+  await expect(manual).toBeHidden();
+  await gate.getByRole('button', { name: 'Сверить ещё раз' }).click();
+  await expect(manual).toBeVisible({ timeout: 5000 });
+  await manual.click();
+  await expect(register).toBeEnabled();
+  await register.click();
+  const dialog = page.locator('.ekh-dialog-backdrop .ekh-dialog[role="dialog"]');
+  await expect(dialog.locator('label.check')).toContainText('Данные и лицо гражданина сверены');
+  await expect(dialog.locator('.def__row').last()).toContainText('сверено оператором вручную');
+});
+
+test('TSON registration runs phone, passport, face and keeps its attestation above the actions', async ({ page }) => {
   await page.goto('/tson/?lang=ru&theme=light&dev=1');
 
   // The built-in demo panel drives only legal state-machine events and lets
@@ -954,6 +1081,20 @@ test('TSON registration confirmation keeps its attestation above the actions', a
   await demo.getByRole('button', { name: 'Гражданина нет в eKhizmat', exact: true }).click();
   await expect(page).toHaveURL(/#\/enroll/);
   await demo.getByRole('button', { name: 'Закрыть', exact: true }).click();
+
+  // Step 1 · phone. The number the lookup was made with arrives prefilled;
+  // only a confirmed code moves the stepper on.
+  const stepper = page.locator('.s-enroll__stepper');
+  const gate = page.locator('.s-enroll__gate:not([hidden])');
+  await expect(stepper.locator('[aria-current="step"]')).toContainText('Телефон');
+  await expect(page.locator('.s-enroll__foot')).toBeHidden();
+  await expect(gate.getByLabel('Номер телефона')).toHaveValue('+992 90 555 00 01');
+  await gate.getByRole('button', { name: 'Отправить код' }).click();
+  const codeCells = gate.locator('.otp__cell');
+  await expect(codeCells.first()).toBeVisible();
+  for (let index = 0; index < 6; index += 1) await codeCells.nth(index).fill(String(index + 2));
+  await expect(stepper.locator('[aria-current="step"]')).toContainText('Паспорт');
+  await expect(stepper.locator('.step--done')).toHaveCount(1);
 
   const actionBar = page.locator('.s-enroll__foot');
   await expect(actionBar).toBeVisible();
@@ -998,7 +1139,16 @@ test('TSON registration confirmation keeps its attestation above the actions', a
   }));
   expect(warningColors.icon).toBe(warningColors.text);
 
+  // Step 3 · face. The match against the passport photo starts by itself and
+  // is the only way to the registry write.
   await page.locator('.s-enroll__foot .btn--primary').click();
+  await expect(stepper.locator('[aria-current="step"]')).toContainText('Лицо');
+  await expect(page.locator('.s-enroll__foot')).toBeHidden();
+  const register = gate.getByRole('button', { name: 'Зарегистрировать' });
+  await expect(register).toBeDisabled();
+  await expect(gate.locator('.facescan')).toHaveClass(/facescan--success/, { timeout: 5000 });
+  await expect(register).toBeEnabled();
+  await register.click();
 
   const dialog = page.locator('.ekh-dialog-backdrop .ekh-dialog[role="dialog"]');
   await expect(dialog).toBeVisible();

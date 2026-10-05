@@ -3,6 +3,7 @@ import { I18N } from './i18n.js';
 import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
+import { renderQr } from '/design-system/js/qr.js';
 
 /* ===================== APP ===================== */
 (function(){
@@ -1099,39 +1100,6 @@ documentOverlay.addEventListener('click',e=>{if(e.target===documentOverlay)close
 const qrOverlay = $("#qrOverlay"), qrSvg = $("#qrSvg");
 let lastFocus = null;
 let qrDialog = null;
-function seeded(str){
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return function(){ h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) / 4294967296); };
-}
-function renderQr(svg,key){
-  const N = 29, rnd = seeded(key), m = [];
-  for (let y = 0; y < N; y++){ m[y] = []; for (let x = 0; x < N; x++) m[y][x] = 0; }
-  function finder(fx, fy){
-    for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++){
-      const X = fx + x, Y = fy + y;
-      if (X < 0 || Y < 0 || X >= N || Y >= N) continue;
-      const ring = (x >= 0 && x <= 6 && y >= 0 && y <= 6) &&
-                   (x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4));
-      m[Y][X] = ring ? 1 : 0;
-    }
-  }
-  /* mark reserved zones first so noise never enters them */
-  const reserved = (x, y) =>
-    (x <= 7 && y <= 7) || (x >= N - 8 && y <= 7) || (x <= 7 && y >= N - 8);
-  for (let y = 0; y < N; y++)
-    for (let x = 0; x < N; x++)
-      if (!reserved(x, y)){
-        if (x === 6 || y === 6) m[y][x] = (x + y) % 2 === 0 ? 1 : 0;  /* timing */
-        else m[y][x] = rnd() < 0.46 ? 1 : 0;
-      }
-  finder(0, 0); finder(N - 7, 0); finder(0, N - 7);
-  let rects = "";
-  for (let y = 0; y < N; y++)
-    for (let x = 0; x < N; x++)
-      if (m[y][x] === 1) rects += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="currentColor"/>';
-  svg.innerHTML = rects;
-}
 function openQr(key,trigger){
   $("#qrDocName").textContent = t(key);
   renderQr(qrSvg,key);

@@ -702,27 +702,33 @@ button.step:focus-visible {
   border-radius: var(--r-xl);
   width: max-content;
 }
-/* QR всегда на белом — сканеру нужен контраст, тёмная тема его сломает. */
+/* QR всегда на белом — сканеру нужен контраст, тёмная тема его сломает.
+   Модули рисуются currentColor (design-system/js/qr.js), поэтому краска —
+   тоже документная, а не --ink: в тёмной теме --ink светлый. */
 .qr__code {
+  display: grid;
+  place-items: center;
   width: 240px; height: 240px;
   background: var(--qr-paper);
+  color: var(--doc-ink);
+  border: 1px solid var(--line);
   border-radius: var(--r-m);
   padding: var(--s-3);
+  transition: opacity var(--t-fast) var(--ease);
 }
+.qr__code svg { width: 100%; height: 100%; display: block; }
+/* Код перевыпускается сам, раз в две минуты: старый гаснет на время запроса,
+   чтобы его не успели отсканировать в момент замены. Без пульса и обводки —
+   ожидание здесь постоянное состояние экрана, а не событие (§8). */
+.qr__code.is-loading { opacity: 0.35; }
 .qr__caption { font-size: var(--fs-13); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
-/* Истёкший код — блюр + кнопка «Обновить» поверх (§6/S2). */
-.qr--expired .qr__code { filter: blur(6px); }
-
-/* Пульс ожидания сканирования: opacity 0.4→1, 2s, infinite (§8). */
-.qr--waiting .qr__code {
-  animation: pulse 2s var(--ease) infinite;
-  outline: 2px solid var(--blue);
-  outline-offset: 4px;
-}
-@keyframes pulse { 50% { outline-color: color-mix(in srgb, var(--blue) 40%, transparent); } }
-@media (prefers-reduced-motion: reduce) {
-  .qr--waiting .qr__code { animation: none; }
+/* Внутри карточки ворот — без своей панели: рамка в рамке (§5). */
+.qr--embed {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
 }
 
 /* ============================================================
@@ -754,10 +760,21 @@ button.step:focus-visible {
 }
 .facescan__caption { font-size: var(--fs-13); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
-/* В модале захвата (S2b) плитка без своей рамки-панели и чуть меньше: она уже
-   внутри карточки модала, вторая рамка была бы рамкой в рамке. */
-.facescan--modal { padding: 0; background: none; border: none; width: auto; }
-.facescan--modal .facescan__frame { width: 200px; height: 200px; margin-inline: auto; }
+/* Внутри карточки ворот (S2 · сверка без телефона, S2b · шаг «лицо») плитка
+   без своей панели: она уже в карточке, вторая рамка была бы рамкой в рамке. */
+.facescan--embed {
+  width: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+}
+/* 200, а не 240: в карточке ворот рамка делит высоту с итогом, банером и
+   действием, и на 1280×720 «Зарегистрировать» уезжал под сгиб. Тот же размер,
+   что у общего `.facescan--modal`. */
+.facescan--embed .facescan__frame { width: 200px; height: 200px; }
+/* Совпало / не совпало — общие состояния `.facescan--success` и
+   `.facescan--error` из design-system (patterns.css); здесь их не
+   переопределяем (§1, правило 10). */
 
 /* ============================================================
    Управленческие панели (#/dashboard-center, #/dashboard-leadership)
@@ -1994,10 +2011,10 @@ body.is-too-small.is-auth-route .too-small { display: none; }
 /* ============================================================
    S2 · Идентификация (§6/S2)
 
-   Одна карточка --w-gate-wide: метод, затем вопрос, затем действие.
-   Двухколоночная сетка была для QR слева / скрипта справа; QR убран, и
-   боковая колонка оставляла поле телефона в пустоте, а нумерация вкладок
-   спорила со скриптом. Скрипт разговора живёт только в ожидании.
+   Одна карточка --w-gate-wide и две ступени в ней: поиск «телефон или
+   паспорт», затем итог поиска строкой-заголовком и под ней — способы входа
+   (профиль есть) или план регистрации (профиля нет). Карточка не меняет
+   ширину и край между ступенями: меняется содержимое, а не рамка.
    ============================================================ */
 .s-identify {
   gap: var(--s-6);
@@ -2025,22 +2042,95 @@ body.is-too-small.is-auth-route .too-small { display: none; }
 }
 .s-identify__banner:empty { display: none; }
 .s-identify__banner:not(:empty) { width: 100%; }
-.s-identify__new-citizen {
-  align-items: flex-start;
-  background: transparent;
-  border: 1px solid var(--blue);
-  font-weight: var(--weight-regular);
-}
-.s-identify__new-citizen .icon { margin-top: var(--s-1); }
 
+/* Поиск профиля: сегмент «Телефон | Паспорт» и поле выбранного типа.
+   Поле — приём `.cp-search` (§6): ввод без рамки внутри залитой обёртки,
+   кольцо фокуса и ошибки — на обёртке. Так неизменяемый «+992» живёт внутри
+   поля рядом с номером, а у паспорта та же геометрия без него. Высота и
+   кегль — от главного действия карточки, а не от строки формы: это
+   единственное, что оператор здесь набирает, и номер он сверяет на слух. */
+/* Общий `.field` несёт нижний отступ строки формы; здесь поле стоит в
+   стеке формы, и шаг до кнопки задаёт стек. */
+.field--lookup { margin-bottom: 0; }
+.field--lookup .field__wrap {
+  gap: var(--s-2);
+  height: var(--h-btn-l);
+  padding-inline: var(--s-4);
+  border-radius: var(--r-m);
+  background: var(--field-on-panel);
+  transition: box-shadow var(--t-fast) var(--ease);
+}
+.field--lookup .field__wrap:focus-within { box-shadow: inset 0 0 0 2px var(--focus); }
+.field--lookup .field__input,
+.field--lookup .field__input:focus-visible {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  font-size: var(--fs-20);
+  font-variant-numeric: tabular-nums;
+}
+.field--lookup .field__prefix {
+  flex: none;
+  font-size: var(--fs-20);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+.field--lookup.field--error .field__wrap { box-shadow: inset 0 0 0 1.5px var(--red); }
+.field--lookup.field--error .field__wrap:focus-within { box-shadow: inset 0 0 0 2px var(--focus); }
+.field--lookup.field--error .field__input { background: transparent; box-shadow: none; }
+
+/* Итог поиска — заголовок карточки: что нашли и по чему искали. Глиф —
+   у первой строки (§5 casebook 8), «Изменить» — по центру строки, его
+   подпись на правом краю контента (casebook 3). */
+.s-identify__result {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--s-3);
+}
+.s-identify__result-ic { align-self: start; margin-top: 2px; }
+.s-identify__result--found .s-identify__result-ic { color: var(--green-ink); }
+.s-identify__result--missing .s-identify__result-ic { color: var(--blue-ink); }
+.s-identify__result-text { display: flex; flex-direction: column; min-width: 0; }
+.s-identify__result-title {
+  font-size: var(--fs-15);
+  line-height: 1.35;
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+.s-identify__result-sub {
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.s-identify__change { margin-right: calc(-1 * var(--s-4)); }
+
+.s-identify__methods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-width: 0;
+}
 .s-identify__body {
   display: flex;
   flex-direction: column;
   gap: var(--s-4);
   min-width: 0;
 }
+.s-identify__lead {
+  font-size: var(--fs-14);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
 .s-identify__form { width: 100%; }
-.s-identify__form .btn--primary { width: 100%; }
+.s-identify__form .btn--primary,
+.s-identify__body > .btn--primary,
+.s-identify__code .btn--primary,
+.s-identify__enroll > .btn--primary { width: 100%; }
 .s-identify__code { align-items: center; }
 .s-identify__code > .label,
 .s-identify__code > .field__error {
@@ -2087,14 +2177,60 @@ body.is-too-small.is-auth-route .too-small { display: none; }
   color: var(--ink-3);
 }
 
-/* Рамка лица внутри карточки ворот — не вторая панель. */
-.s-identify__card .facescan--embed {
-  width: 100%;
-  padding: 0;
-  background: none;
-  border: none;
+/* Тихие строки карточки — гость и «нет телефона»: подпись кнопки стоит на
+   краю контента, отступ кнопки висит снаружи (§5 casebook 3). */
+.s-identify__alt { display: flex; padding-top: var(--s-4); }
+.s-identify__alt > .btn,
+.guest-identify > .btn,
+.s-identify__back { margin-left: calc(-1 * var(--s-4)); }
+.s-identify__face-head { display: flex; }
+
+/* План регистрации — те же номер-точки, что у степпера S2b: оператор видит
+   здесь ровно ту дорогу, по которой сейчас пойдёт. Одна сетка на весь
+   список, чтобы подсказки стояли в колонку при любой длине названия шага. */
+.s-identify__enroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
 }
-.s-identify__noacc { align-self: flex-start; }
+.s-identify__plan {
+  display: grid;
+  grid-template-columns: 24px max-content minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s-2) var(--s-3);
+  counter-reset: plan;
+  font-size: var(--fs-14);
+  line-height: 1.4;
+}
+/* Счётчик — на ::before, а не на li: у элемента с display:contents нет
+   своей коробки, и Chrome не наращивает на нём счётчик (все пункты были «0»). */
+.s-identify__plan li { display: contents; }
+.s-identify__plan li::before {
+  counter-increment: plan;
+  content: counter(plan);
+  display: grid;
+  place-items: center;
+  width: 24px; height: 24px;
+  border-radius: var(--r-pill);
+  background: var(--field-on-panel);
+  color: var(--ink-2);
+  font-size: var(--fs-12);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.s-identify__plan-title { font-weight: var(--weight-medium); color: var(--ink); }
+.s-identify__plan-hint { color: var(--ink-2); }
+/* Подсказка и её действие — двумя строками в любом языке: в одну строку
+   таджикский текст переносил кнопку, и её подпись съезжала с края текста. */
+.s-identify__hint {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.s-identify__hint > .btn { margin-left: calc(-1 * var(--s-4)); }
 .s-identify__foot { margin-top: 0; }
 
 /* ============================================================
@@ -2117,34 +2253,92 @@ body.is-too-small.is-auth-route .too-small { display: none; }
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
+  /* Общий запас --s-16 под прокручиваемым экраном здесь не нужен: экран не
+     прокручивается, а у шага «паспорт» под панель действий свой отступ.
+     На 1280×720 эти 64px решали, видна ли кнопка «Зарегистрировать». */
+  padding-bottom: 0;
 }
 
 .s-enroll {
   /* Высота панели действий: она fixed, и ровно на неё нужно ужать сетку,
-     чтобы последнее поле не пряталось под кнопкой «Зарегистрировать». */
+     чтобы последнее поле не пряталось под кнопкой «Далее». */
   --enroll-foot: calc(var(--h-btn-m) + var(--s-3) * 2 + 1px);
   display: flex;
   flex-direction: column;
   gap: var(--s-5);
   min-height: 0;
-  padding-bottom: calc(var(--enroll-foot) + var(--s-4));
 }
+/* Панель действий есть только у шага «паспорт» — и место под неё тоже. */
+.s-enroll[data-step="passport"] { padding-bottom: calc(var(--enroll-foot) + var(--s-4)); }
+
+/* Шапка одна на три шага: заголовок и степпер по центру, как у мастера
+   (§3 «Sequential wizard»). Меняется содержимое под ней, а не она сама. */
+.s-enroll__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  text-align: center;
+}
+.s-enroll__stepper { justify-content: center; }
+button.step:not(:disabled):hover .step__label { color: var(--ink); }
+
+.s-enroll__passport {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-height: 0;
+}
+
+/* Шаги «телефон» и «лицо» — карточки ворот той же ширины, что и на S2:
+   один вопрос — одна колонка (§3 «Workstation identity gate»). */
+.s-enroll__gate {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-6);
+  padding-top: var(--s-4);
+}
+.s-enroll__card {
+  width: var(--w-gate-wide);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  padding: var(--s-6);
+  border-radius: var(--r-xl);
+}
+.s-enroll__card form .btn--primary,
+.s-enroll__card > .btn--primary { width: 100%; }
+.s-enroll__note:empty { display: none; }
+.s-enroll__code { align-items: center; }
+.s-enroll__sent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  width: 100%;
+}
+.s-enroll__sent > .btn { margin-right: calc(-1 * var(--s-4)); }
+/* Подвал карточки «лицо»: назад — у левого края, сверка вручную — у правого;
+   подписи обеих на краях контента (§5 casebook 3). */
+.s-enroll__card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+.s-enroll__back { margin-left: calc(-1 * var(--s-4)); }
+.s-enroll__manual { margin-right: calc(-1 * var(--s-4)); }
 
 /* Собственного `.s-enroll__title` здесь больше нет: экран носит общий
-   `.page-title`. Локальное правило существовало ровно потому, что корень
-   документа был прибит к 15px и токен --fs-28 давал 26.25 — долг оплачен в
-   корне, и повторять роль заголовка на одном экране больше незачем.
-
-   Номер телефона живёт ровно здесь: в форме его больше нет (поле, которое
-   нельзя править, форме не принадлежит), а в реестр он уходит из
-   подтверждения. */
-.s-enroll__subject {
-  margin-top: var(--s-1);
-  font-size: var(--fs-13);
-  line-height: 1.4;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-}
+   `.page-title`. Строки «номер подтверждён» под ним тоже: подтверждённый
+   телефон теперь — пройденный первый шаг степпера, а сам номер оператор
+   читает в сводке перед записью в реестр. */
 
 .s-enroll__banner:empty { display: none; }
 .s-enroll__banner { display: flex; flex-direction: column; gap: var(--s-2); }

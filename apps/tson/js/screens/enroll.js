@@ -1,11 +1,23 @@
 /* ============================================================
    S2b · Регистрация гражданина · #/enroll  (§6/S2b)
 
-   Гражданин впервые пришёл в ЦОН, в eKhizmat его нет. Телефон уже подтверждён
-   кодом на S2 — это единственное, что о нём известно. Всё остальное лежит на
-   столе: паспорт.
+   Гражданин впервые пришёл в ЦОН: поиск на S2 не нашёл его профиля.
+   Регистрация — три шага, и порядок у них не случайный:
 
-   Правило экрана: скан слева, поля справа, и они не расстаются. Оператор
+     1. Телефон — код по SMS. Профиль привязывается к номеру, и номер должен
+        быть в руках у того, кто стоит у окна. Если искали по телефону, он уже
+        в поле: набирать его второй раз незачем.
+     2. Паспорт — скан, поля заполняются сами, оператор правит расхождения.
+     3. Лицо — сверка 1:1 с фото в паспорте. Последней, потому что сравнивать
+        не с чем, пока разворот с фото не снят. Это проверка, что паспорт принёс
+        его владелец, а не «снимок на память»: поэтому шаг обязателен, а запись
+        в реестр создаётся одна, после него. Брошенная на середине регистрация
+        не оставляет в реестре ничего.
+
+   Шаги показывает степпер над экраном (§3 «Sequential wizard»): телефон и лицо
+   — карточки ворот, паспорт — мастерская сверки во всю ширину.
+
+   Правило шага «паспорт»: скан слева, поля справа, и они не расстаются. Оператор
    правит не «форму», а РАСХОЖДЕНИЕ между распознанным значением и тем, что
    написано в документе, — а сравнивать можно только то, что видно
    одновременно. Отсюда и раскладка (design-guide §5, «full-workspace
@@ -37,15 +49,25 @@
 import { h, mount, icon, toast, modal, confirmDanger, facescanFrame } from '../ui.js';
 import { t, errText, bindTsonName } from '../i18n.js';
 import { getState, dispatch, trackBlobUrl } from '../store.js';
-import { enroll, docs as fileApi, sim } from '../mock/api.js';
-import { field, selectField, maskedField, setLoading } from '../fields.js';
+import { enroll, identify, docs as fileApi, sim } from '../mock/api.js';
+import { field, selectField, maskedField, otpInput, setLoading, resendCooldown } from '../fields.js';
 import { isExpired } from '../format.js';
 import {
   PASSPORT_FIELDS, PASSPORT_GROUPS, PASSPORT_PAGES, OCR_TRUST, BASE_SCOPES, SCOPES,
 } from '../mock/data.js';
 
+const STEPS = ['phone', 'passport', 'face'];
+
 export function renderEnroll(host) {
   let dead = false;
+  let step = 'phone';
+  let stopStep = () => {};   // таймеры и ожидания текущего шага
+  /* Итог третьего шага: { matched } — камера подтвердила совпадение,
+     { manual } — оператор сверил лицо глазами после отказов камеры. Пока null,
+     регистрировать нельзя: шаг обязателен. */
+  let face = null;
+  let faceFails = 0;
+  let registerBtn = null;   // кнопка шага «лицо»: на ней крутится отправка
   let scans = [];        // снимки разворотов: [{id, page, url, blurry, rot}]
   // Выбран РАЗВОРОТ, а не индекс снимка: страница существует и до того, как её
   // сняли, и «выбрана вторая страница, её ещё нет» — обычное состояние экрана,
@@ -66,7 +88,10 @@ export function renderEnroll(host) {
 
   const F = new Map();   // id поля → { spec, api }
   const st = getState();
-  const phone = st.identify?.phone || '';
+  // Номер из поиска (если искали по телефону). До первого шага — не
+  // подтверждён: подтверждает его код, и только после кода он становится
+  // номером, который уйдёт в реестр.
+  let phone = st.identify?.phone || '';
 
   // Сводка о распознавании — живая область: счётчик полей под проверку убывает
   // по мере работы, и скринридер обязан услышать это изменение (§9).
@@ -101,39 +126,49 @@ export function renderEnroll(host) {
   const manualBtn = h('button', { class: 'btn btn--ghost btn--s', type: 'button', onClick: () => openFields('manual') },
     icon('edit', { size: 20 }), t('enroll.manual'));
 
-  const submitBtn = h('button', { class: 'btn btn--primary', type: 'button', onClick: confirmSubmit },
-    t('enroll.submit'));
+  // «Далее», а не «Зарегистрировать»: после паспорта остаётся сверка лица, и
+  // кнопка не должна обещать запись в реестр, которой этот шаг не делает.
+  const nextBtn = h('button', { class: 'btn btn--primary', type: 'button', onClick: toFace },
+    t('enroll.next'), icon('chev-r', { size: 20 }));
 
-  mount(host,
-    h('div', { class: 'canvas s-enroll' },
-      // Заголовок несёт ровно два факта: что делаем и с кем. Подтверждённый
-      // номер стоит здесь и больше нигде: в форме ему не место (править его
-      // нельзя, а форма — про правку), а в реестр он уходит из подтверждения.
-      h('header', {},
-        h('h1', { class: 'page-title' }, t('enroll.title')),
-        h('p', { class: 's-enroll__subject' }, t('enroll.phoneVerified', { phone: fmtPhone(phone) }))),
+  const stepper = h('nav', { class: 'stepper s-enroll__stepper', 'aria-label': t('enroll.stepsAria') });
+  const phonePane = h('div', { class: 's-enroll__gate' });
+  const facePane = h('div', { class: 's-enroll__gate' });
+  const passportPane = h('div', { class: 's-enroll__passport' },
+    banner,
 
-      banner,
+    h('div', { class: 's-enroll__cols' },
+      h('section', { class: 'panel s-enroll__scanner' },
+        h('h2', { class: 's-enroll__pane-title' }, t('enroll.passport')),
+        pages,
+        stage,
+        fileInput),
 
-      h('div', { class: 's-enroll__cols' },
-        h('section', { class: 'panel s-enroll__scanner' },
-          h('h2', { class: 's-enroll__pane-title' }, t('enroll.passport')),
-          pages,
-          stage,
-          fileInput),
+      h('div', { class: 's-enroll__form' }, groups)),
 
-        h('div', { class: 's-enroll__form' }, groups)),
+    h('div', { class: 's-enroll__foot' },
+      h('button', { class: 'btn btn--ghost', type: 'button', onClick: cancel }, t('common.cancelVisit')),
+      h('span', { class: 'spacer' }),
+      nextBtn));
 
-      h('div', { class: 's-enroll__foot' },
-        h('button', { class: 'btn btn--ghost', type: 'button', onClick: cancel }, t('common.cancelVisit')),
-        h('span', { class: 'spacer' }),
-        submitBtn)));
+  const root = h('div', { class: 'canvas s-enroll' },
+    // Заголовок один на все три шага: меняется содержимое, а не рамка — шапка,
+    // прыгающая между шагами, читалась бы как переход на другой экран.
+    h('header', { class: 's-enroll__head' },
+      h('h1', { class: 'page-title' }, t('enroll.title')),
+      stepper),
+    phonePane,
+    passportPane,
+    facePane);
+
+  mount(host, root);
 
   buildFields();
   drawStage();
   drawPages();
   drawBanner();
   lockFields(true);          // до первого скана править нечего
+  go('phone');
 
   // Сбои переключаются на ходу (§7) — кнопка сканера обязана слушаться
   // тумблера, а не своего состояния на момент отрисовки.
@@ -151,6 +186,7 @@ export function renderEnroll(host) {
 
   return () => {
     dead = true;
+    stopStep();
     unsubSim();
     removeEventListener('keydown', onKey);
     dropScans();             // паспорт не переживает экран
@@ -289,7 +325,7 @@ export function renderEnroll(host) {
   function lockFields(on) {
     for (const [, { api }] of F) api.input.disabled = on;
     groups.classList.toggle('is-waiting', on);
-    submitBtn.disabled = on;
+    nextBtn.disabled = on;
   }
 
   function countFlagged() {
@@ -613,10 +649,259 @@ export function renderEnroll(host) {
   }
 
   /* ============================================================
+     Шаги
+     ============================================================ */
+  function go(next) {
+    stopStep();
+    stopStep = () => {};
+    step = next;
+    phonePane.hidden = next !== 'phone';
+    passportPane.hidden = next !== 'passport';
+    facePane.hidden = next !== 'face';
+    root.dataset.step = next;
+    drawStepper();
+
+    if (next === 'phone') drawPhone();
+    if (next === 'face') drawFace();
+    if (next === 'passport') (read ? firstField() : scanBtn)?.focus();
+  }
+
+  /* Степпер — тот же, что у шагов оформления услуги (§3.2): номер-точка,
+     пройденный зелёный с галочкой, текущий синий. Вернуться можно только к
+     паспорту: подтверждённый телефон не правят — его меняют новой
+     регистрацией, а не кнопкой «назад». */
+  function drawStepper() {
+    const i = STEPS.indexOf(step);
+    mount(stepper, ...STEPS.flatMap((id, k) => {
+      const done = k < i, active = k === i;
+      const back = done && id === 'passport';
+      const node = h(back ? 'button' : 'span', {
+        class: `step ${done ? 'step--done' : active ? 'step--active' : 'step--todo'}`,
+        type: back ? 'button' : null,
+        'aria-current': active ? 'step' : null,
+        onClick: back ? () => go('passport') : null,
+      },
+        h('span', { class: 'step__dot' }, done ? icon('check', { size: 16 }) : String(k + 1)),
+        h('span', { class: 'step__label' }, t(`enroll.step.${id}`)),
+        done ? h('span', { class: 'sr-only' }, t('enroll.stepDone')) : null);
+      return k < STEPS.length - 1 ? [node, h('span', { class: 'step__line' })] : [node];
+    }));
+  }
+
+  function cancelRow() {
+    return h('div', { class: 'row center' },
+      h('button', { class: 'btn btn--ghost', type: 'button', onClick: cancel }, t('common.cancelVisit')));
+  }
+
+  /* ---------- шаг 1 · телефон ----------
+     Код уходит на номер, который гражданин держит в руках, и только этот
+     номер, подтверждённый кодом, уйдёт в реестр. Номер, уже принадлежащий
+     профилю, — не регистрация, а промах поиска: такого человека надо найти,
+     а не завести второй раз. */
+  function drawPhone() {
+    let alive = true;
+    let stopResend = () => {};
+    stopStep = () => { alive = false; stopResend(); };
+
+    const note = h('div', { class: 's-enroll__note' });
+    const contact = maskedField({ label: t('enroll.phoneLabel'), kind: 'phone', value: phone });
+    contact.input.addEventListener('input', () => contact.error(''));
+    const send = h('button', { class: 'btn btn--primary', type: 'submit' }, t('identify.smsSend'));
+    const codeBox = h('div', { class: 'stack g-4 s-enroll__code', hidden: true });
+
+    const form = h('form', {
+      class: 'stack g-4', novalidate: true,
+      onSubmit: async e => {
+        e.preventDefault();
+        note.replaceChildren();
+        if (!contact.valid()) { contact.error(contact.maskError); contact.input.focus(); return; }
+        setLoading(send, true);
+        try {
+          const r = await identify.sms(contact.raw());
+          if (alive) askCode(r);
+        } catch (err) {
+          if (alive) mount(note, errorNote(err));
+        } finally { if (alive) setLoading(send, false); }
+      },
+    }, contact.el, send, codeBox);
+
+    mount(phonePane, h('div', { class: 'panel s-enroll__card' }, note, form), cancelRow());
+    contact.input.focus();
+
+    function askCode(r) {
+      contact.el.hidden = true;
+      send.hidden = true;
+
+      const cells = otpInput(code => confirm(code));
+      const confirmBtn = h('button', {
+        class: 'btn btn--primary', type: 'button', onClick: () => confirm(cells.value()),
+      }, t('identify.otpConfirm'));
+      const err = h('span', { class: 'field__error', role: 'alert', hidden: true });
+
+      const resend = h('button', { class: 'btn btn--ghost btn--s', type: 'button' });
+      const arm = () => {
+        stopResend();
+        stopResend = resendCooldown(resend, 60_000, 'identify.smsResend', 'identify.smsResendIn');
+      };
+      resend.addEventListener('click', async () => {
+        try { await identify.sms(contact.raw()); if (alive) { arm(); cells.clear(); } }
+        catch (e) { if (alive) mount(note, errorNote(e)); }
+      });
+      arm();
+
+      // Номер можно поправить, пока код не введён: гражданин мог продиктовать
+      // старый. Кнопка стоит в той же строке, что и маска номера, — правят
+      // ровно то, что видно.
+      const change = h('button', {
+        class: 'btn btn--ghost btn--s', type: 'button',
+        onClick: () => { stopResend(); codeBox.hidden = true; contact.el.hidden = false; send.hidden = false; contact.input.focus(); },
+      }, t('enroll.changePhone'));
+
+      mount(codeBox,
+        h('div', { class: 's-enroll__sent' },
+          h('span', { class: 'label' }, t('identify.otpSentTo', { to: r.sentTo })),
+          change),
+        cells.el, err, confirmBtn,
+        h('div', { class: 'row center' }, resend));
+      codeBox.hidden = false;
+      cells.focus();
+
+      async function confirm(code) {
+        err.hidden = true;
+        cells.error(false);
+        setLoading(confirmBtn, true);
+        try {
+          const res = await identify.smsConfirm(code);
+          if (!alive) return;
+          if (res.registered) return taken();
+          phone = res.phone;
+          go('passport');
+        } catch (e2) {
+          if (!alive) return;
+          cells.error(true);
+          err.hidden = false;
+          err.textContent = errText(e2);
+          cells.clear();
+        } finally { if (alive) setLoading(confirmBtn, false); }
+      }
+    }
+
+    function taken() {
+      mount(note, h('div', { class: 'banner banner--info' },
+        icon('user'),
+        h('span', { class: 'banner__text' }, t('enroll.phoneTaken')),
+        h('button', {
+          class: 'btn btn--secondary btn--s', type: 'button',
+          // Обратно на S2 — через два легальных перехода (§2.2).
+          onClick: () => { dispatch('CANCEL'); dispatch('START'); },
+        }, t('enroll.findProfile'))));
+    }
+  }
+
+  /* ---------- шаг 2 → 3 ----------
+     Паспорт проверяется целиком ДО камеры: сверять лицо с документом, который
+     ещё не готов уйти в реестр, — тратить время гражданина на шаг, который
+     придётся повторить. */
+  async function toFace() {
+    if (!validate()) return;
+    setLoading(nextBtn, true);
+    try {
+      await enroll.checkInn(F.get('inn').api.raw());
+      if (!dead) go('face');
+    } catch (e) {
+      if (dead) return;
+      if (e.code === 'DUPLICATE_INN') {
+        F.get('inn').api.error(t('enroll.dupInnShort'));
+        return duplicateModal(e);
+      }
+      toast(errText(e), 'error');
+    } finally { if (!dead) setLoading(nextBtn, false); }
+  }
+
+  /* ---------- шаг 3 · лицо ----------
+     Сверка стартует сама: гражданин уже смотрит в камеру, а кнопка «начать»
+     была бы обрядом. Пунктир по периметру — единственный жест активной съёмки
+     (§3 live-scan). Камера дважды не узнала — оператор может сверить лицо с
+     фото глазами: обязательный шаг без запасного пути оставил бы человека
+     без регистрации из-за блика. Такая сверка честно помечается, и шаблона
+     лица в записи тогда нет. */
+  function drawFace() {
+    let alive = true;
+    stopStep = () => { alive = false; };
+    face = null;
+
+    const frame = facescanFrame();
+    const caption = h('span', { class: 'facescan__caption', 'aria-live': 'polite' });
+    const tile = h('div', { class: 'facescan facescan--embed' }, frame, caption);
+    const note = h('div', { class: 's-enroll__note' });
+
+    registerBtn = h('button', {
+      class: 'btn btn--primary', type: 'button', disabled: true, onClick: confirmSubmit,
+    }, t('enroll.submit'));
+
+    // Сверка глазами — редкий путь, поэтому тихая кнопка в подвале карточки,
+    // а не второе действие в банере: банер говорит, что случилось, и
+    // предлагает ровно один следующий шаг — повтор.
+    const manualBtn = h('button', {
+      class: 'btn btn--ghost btn--s s-enroll__manual', type: 'button', hidden: true, onClick: manual,
+    }, t('enroll.faceManual'));
+
+    mount(facePane,
+      h('div', { class: 'panel s-enroll__card' },
+        tile, note, registerBtn,
+        h('div', { class: 's-enroll__card-foot' },
+          h('button', {
+            class: 'btn btn--ghost btn--s s-enroll__back', type: 'button', onClick: () => go('passport'),
+          }, icon('chev-l', { size: 20 }), t('enroll.backToPassport')),
+          manualBtn)),
+      cancelRow());
+
+    match();
+
+    async function match() {
+      note.replaceChildren();
+      tile.classList.remove('facescan--success', 'facescan--error');
+      tile.classList.add('facescan--scanning');
+      caption.textContent = t('enroll.faceMatching');
+      try {
+        await enroll.faceMatch();
+        if (!alive) return;
+        accept({ matched: true }, 'enroll.faceMatched');
+      } catch (e) {
+        if (!alive) return;
+        faceFails += 1;
+        tile.classList.remove('facescan--scanning');
+        tile.classList.add('facescan--error');
+        caption.textContent = t('enroll.faceLook');
+        mount(note, errorNote(e,
+          h('button', { class: 'btn btn--secondary btn--s', type: 'button', onClick: match }, t('enroll.faceRetry'))));
+        manualBtn.hidden = faceFails < 2;
+      }
+    }
+
+    function manual() {
+      manualBtn.hidden = true;
+      accept({ manual: true }, 'enroll.faceManualDone');
+      mount(note, h('div', { class: 'banner banner--info' },
+        icon('info'), h('span', { class: 'banner__text' }, t('enroll.faceManualNote'))));
+    }
+
+    function accept(result, captionKey) {
+      face = result;
+      tile.classList.remove('facescan--scanning', 'facescan--error');
+      tile.classList.toggle('facescan--success', !!result.matched);
+      caption.textContent = t(captionKey);
+      if (result.matched) note.replaceChildren();
+      registerBtn.disabled = false;
+      registerBtn.focus();
+    }
+  }
+
+  /* ============================================================
      Регистрация
      ============================================================ */
   function confirmSubmit() {
-    if (!validate()) return;
+    if (!face) return;
 
     const checked = h('input', { class: 'check__input', type: 'checkbox' });
     let close = () => {};
@@ -646,7 +931,8 @@ export function renderEnroll(host) {
           row(t('enroll.f.inn'), v('inn')),
           row(t('enroll.f.docNo'), v('docNo')),
           row(t('enroll.f.address'), v('address')),
-          row(t('enroll.phone'), fmtPhone(phone))),
+          row(t('enroll.phone'), fmtPhone(phone)),
+          row(t('enroll.f.face'), t(face.matched ? 'enroll.f.faceMatched' : 'enroll.f.faceManual'))),
 
         h('section', { class: 'stack g-3 s-enroll-confirm__consent' },
           h('h3', { class: 's-enroll-confirm__consent-title' }, t('enroll.consentTitle')),
@@ -659,8 +945,10 @@ export function renderEnroll(host) {
 
         // Та же логика, что и у «прочитано вслух» на S7: под записью в
         // государственный реестр подписывается оператор, и он должен сказать
-        // это явно, а не нажатием кнопки «дальше».
-        h('label', { class: 'check' }, checked, h('span', {}, t('enroll.attest')))),
+        // это явно, а не нажатием кнопки «дальше». Сверку лица глазами он
+        // подписывает здесь же — это его подпись, а не камеры.
+        h('label', { class: 'check' }, checked,
+          h('span', {}, t(face.manual ? 'enroll.attestManual' : 'enroll.attest')))),
       actions: [
         h('button', { class: 'btn btn--secondary', type: 'button', onClick: () => close() }, t('common.cancel')),
         ok,
@@ -669,7 +957,7 @@ export function renderEnroll(host) {
   }
 
   async function send() {
-    setLoading(submitBtn, true);
+    setLoading(registerBtn, true);
     try {
       // Вид значения в реестре берётся не из удобства формы, а из того, как
       // это же поле уже лежит у существующих граждан (mock/data.js): даты
@@ -685,6 +973,7 @@ export function renderEnroll(host) {
       const res = await enroll.submit({
         fields,
         phone,
+        face,
         by: t('enroll.by', { tson: bindTsonName(bind) || bind?.tson || '', n: bind?.window ?? '' }),
       });
       if (dead) return;
@@ -692,70 +981,19 @@ export function renderEnroll(host) {
       // Реестр принял — копия паспорта на рабочем месте больше не нужна.
       dropScans();
 
-      // Регистрация не заканчивается записью: сразу снимаем лицо, чтобы в
-      // следующий приход гражданин входил по Face ID (§6/S2). Переход в SESSION
-      // делает шаг захвата (captureBiometric), а не эта строка.
-      captureBiometric(res);
+      dispatch('ENROLLED', { citizen: res.citizen, scopes: res.scopes, maskedName: res.maskedName });
+      toast(t('enroll.done'), 'success');
     } catch (e) {
       if (dead) return;
       if (e.code === 'DUPLICATE_INN') {
+        go('passport');
         F.get('inn').api.error(t('enroll.dupInnShort'));
         return duplicateModal(e);
       }
-      if (e.code === 'FIELDS_REQUIRED') return void validate();
+      if (e.code === 'FIELDS_REQUIRED') { go('passport'); return void validate(); }
       // Ничего не потеряно: заполненное живёт в полях, повтор — той же кнопкой.
       toast(errText(e), 'error');
-    } finally { if (!dead) setLoading(submitBtn, false); }
-  }
-
-  /* Биометрия сразу после записи в реестр (§6/S2b → §6/S2). Запись уже создана,
-     гражданин у окна — снимаем лицо, чтобы в следующий приход он входил по
-     Face ID. Шаблон уходит в реестр (enroll.captureFace), не в store: это
-     учётные данные для входа, а не данные сессии.
-
-     finish() ведёт в SESSION и защищён от повторного вызова. Модал закрывается
-     тремя путями — снимок, «Пропустить», крестик/подложка/Esc — и все обязаны
-     завершить регистрацию РОВНО один раз: второй ENROLLED из SESSION нелегален
-     и уронил бы машину (§2.2). Поэтому finish висит на onClose (его дёргает
-     любой путь закрытия), а кнопки лишь закрывают модал. Пропуск — не отмена:
-     запись в реестре уже есть, дороги назад нет, лицо просто добавят позже. */
-  function captureBiometric(res) {
-    let finished = false;
-    const finish = () => {
-      if (finished || dead) return;
-      finished = true;
-      dispatch('ENROLLED', {
-        citizen: res.citizen, scopes: res.scopes, maskedName: res.maskedName,
-      });
-      toast(t('enroll.done'), 'success');
-    };
-
-    const capture = h('button', { class: 'btn btn--primary', onClick: onCapture },
-      icon('face', { size: 20 }), t('enroll.bioCapture'));
-    const skip = h('button', { class: 'btn btn--ghost', onClick: () => close() }, t('enroll.bioSkip'));
-
-    const close = modal({
-      title: t('enroll.bioTitle'),
-      body: h('div', { class: 'stack g-4' },
-        h('div', { class: 'facescan facescan--modal facescan--scanning' },
-          facescanFrame(),
-          h('span', { class: 'facescan__caption' }, t('enroll.bioScan'))),
-        h('p', { class: 'small ink-2' }, t('enroll.bioBody'))),
-      actions: [skip, capture],
-      onClose: finish,       // снимок / пропуск / крестик — все ведут в SESSION
-    });
-
-    async function onCapture() {
-      setLoading(capture, true);
-      try {
-        await enroll.captureFace();
-        if (dead) return;
-        toast(t('enroll.bioDone'), 'success');
-        close();             // onClose → finish
-      } catch (e) {
-        if (!dead) { setLoading(capture, false); toast(errText(e), 'error'); }
-      }
-    }
+    } finally { if (!dead) setLoading(registerBtn, false); }
   }
 
   function cancel() {
@@ -769,6 +1007,14 @@ export function renderEnroll(host) {
       onConfirm: () => dispatch('CANCEL'),
     });
   }
+}
+
+function errorNote(e, ...actions) {
+  const offline = e.code === 'OFFLINE';
+  return h('div', { class: `banner banner--${offline ? 'warn' : 'error'}` },
+    icon('info'),
+    h('span', { class: 'banner__text' }, errText(e)),
+    ...actions);
 }
 
 function row(k, v) {

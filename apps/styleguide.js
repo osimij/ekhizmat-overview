@@ -1,6 +1,7 @@
 import { getLang, getTheme, setLang, toggleTheme } from '/design-system/js/preferences.js';
 import { openDialog } from '/design-system/js/dialog.js';
 import { toast } from '/design-system/js/toast.js';
+import { renderQr } from '/design-system/js/qr.js';
 
 const theme = document.getElementById('theme');
 const language = document.getElementById('language');
@@ -11,4 +12,5 @@ language.addEventListener('click', () => { setLang(getLang() === 'ru' ? 'tg' : '
 density.addEventListener('click', () => { const compact = document.body.dataset.density === 'compact'; document.body.dataset.density = compact ? 'comfortable' : 'compact'; density.textContent = compact ? 'Compact' : 'Comfortable'; });
 document.getElementById('dialogDemo').addEventListener('click', event => openDialog({ title:'Тасдиқи амал', description:'Маълумот санҷида шуд. Амалро идома медиҳед?', trigger:event.currentTarget, actions:[{label:'Бекор кардан',className:'btn-sec'},{label:'Идома додан',className:'btn-pri',autofocus:true}] }));
 document.getElementById('toastDemo').addEventListener('click', () => toast('Тағйирот бомуваффақият сабт шуд'));
+renderQr(document.getElementById('sgQr'), 'styleguide');
 labels();

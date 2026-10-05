@@ -284,10 +284,10 @@ function reduce(event, p, from, to) {
       break;
 
     case 'START':
-      // Стартовый метод — push (уведомление в приложение): им идентифицируют
-      // возвращающегося гражданина по умолчанию (§6/S2). Face ID и SMS —
-      // соседние вкладки; экран переключает метод сам, это лишь начальное.
-      state.identify = { method: 'push', maskedName: null };
+      // Приём начинается с поиска профиля, а не с метода (§6/S2): способ входа
+      // выбирают после того, как реестр ответил, есть ли у человека профиль.
+      // Поэтому метода здесь ещё нет — его кладёт ID_SENT.
+      state.identify = { method: null, maskedName: null };
       break;
 
     case 'ID_SENT':
@@ -301,10 +301,11 @@ function reduce(event, p, from, to) {
     case 'RETRY':   state.consent = { ...state.consent, status: 'waiting', requestedAt: Date.now() }; break;
 
     case 'NOT_REGISTERED':
-      // Телефон подтверждён кодом, гражданина в eKhizmat нет (§6/S2b).
-      // В памяти по-прежнему нет ничего о человеке, кроме номера, который
-      // оператор и так набрал руками: паспорт ещё не в сканере.
-      state.identify = { ...state.identify, method: 'otp', registered: false, phone: p.phone };
+      // Поиск не нашёл профиля — дальше регистрация (§6/S2b). В памяти нет
+      // ничего о человеке, кроме номера, который оператор сам набрал в поиске
+      // (пусто, если искали по паспорту). Номер ещё НЕ подтверждён: это первый
+      // из трёх шагов регистрации, и делает его экран S2b.
+      state.identify = { ...state.identify, registered: false, phone: p.phone || '' };
       state.consent = null;
       break;
 
