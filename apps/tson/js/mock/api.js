@@ -20,6 +20,7 @@
 import {
   OPERATORS, TSONS, CITIZENS, CATALOG, SERVICE, BASE_SCOPES, citizenSlice,
   REGISTRY, PASSPORT_FIELDS, OCR_TRUST, buildCitizen, digits, LOOKUP,
+  TSON_DASHBOARD, visitsOf,
 } from './data.js';
 
 const LATENCY = [300, 900];
@@ -228,28 +229,41 @@ export const auth = {
   async tsons() { await delay(); return TSONS; },
 };
 
-/* Статистика смены — операторская, без ПД (§6/S1). */
+/* Статистика смены — операторская, без ПД (§6/S1).
+
+   Источник — та же строка окна, которую руководитель видит в таблице
+   «Окна и операторы» (TSON_DASHBOARD.center.windows): у оператора и у
+   руководителя не два набора чисел, а один. Окно без данных (закрыто или
+   номера нет в фикстуре) даёт нули, а не чужую строку. */
 export const shift = {
-  async stats() {
+  async stats(windowNo) {
     await delay();
+    const row = TSON_DASHBOARD.center.windows.find(w => w.no === Number(windowNo));
+    const p = row?.today || { applications: 0, consultations: 0, issued: 0, min: 0 };
     return {
-      served: 47,
-      avgMs: 6 * 60_000 + 12_000,
-      issued: 31,
+      visits: visitsOf(p),
+      applications: p.applications,
+      consultations: p.consultations,
+      issued: p.issued,
+      avgMin: p.min,
       // §6/S1 — «номера заявлений маскировать до последних цифр», без имён.
       // Номер сам по себе ПД не является: он говорит, какая услуга оформлена и
       // какой по счёту, но не кем. Поэтому в списке он показывается целиком.
+      //
+      // Статус — тот же, что в счётчиках выше: большинство заявлений сегодня
+      // только оформлено, выдано — три. Список, где «выдано» стоит у всех
+      // десяти, спорил бы с карточкой «Выдачи: 3» на том же экране.
       recent: [
         { no: appNoFor('fam-cert', 472), status: 'issued' },
-        { no: appNoFor('marriage', 471), status: 'issued' },
-        { no: appNoFor('pension-cert', 468), status: 'issued' },
-        { no: appNoFor('passport-replace', 467), status: 'issued' },
+        { no: appNoFor('marriage', 471), status: 'filed' },
+        { no: appNoFor('pension-cert', 468), status: 'filed' },
+        { no: appNoFor('passport-replace', 467), status: 'filed' },
         { no: appNoFor('no-crime', 465), status: 'issued' },
-        { no: appNoFor('tax-debt', 463), status: 'issued' },
-        { no: appNoFor('birth-reg', 461), status: 'issued' },
-        { no: appNoFor('addr-reg', 459), status: 'issued' },
+        { no: appNoFor('tax-debt', 463), status: 'filed' },
+        { no: appNoFor('birth-reg', 461), status: 'filed' },
+        { no: appNoFor('addr-reg', 459), status: 'filed' },
         { no: appNoFor('ip-reg', 457), status: 'issued' },
-        { no: appNoFor('land-extract', 454), status: 'issued' },
+        { no: appNoFor('land-extract', 454), status: 'filed' },
       ],
     };
   },
@@ -291,6 +305,25 @@ export const identify = {
     target = kind === 'phone' ? REGISTRY.byPhone(q.value) : REGISTRY.byDoc(q.value);
     if (!target) return { found: false, kind };
 
+    return {
+      found: true,
+      kind,
+      sentTo: maskPhone(digits(target.profile.phone)),
+      face: !!target.biometric?.face,
+    };
+  },
+
+  /* Демо-развилка: «считать, что профиль нашёлся». В демо-реестре один
+     гражданин (CITIZENS[0], +992 90 123 45 67), и любой другой набранный
+     номер честно уводит в регистрацию — показать ветку зарегистрированного
+     можно было, только зная этот номер. Здесь поиск привязывается к
+     демо-профилю независимо от набранного: дальше QR, IMZO, SMS и сверка
+     лица идут ровно так же, как после настоящего «найден». Ответ тот же, что
+     у lookup, — экран не отличает одно от другого. */
+  async assumeFound(kind) {
+    await delay(200);
+    net();
+    target = CITIZENS[0];
     return {
       found: true,
       kind,

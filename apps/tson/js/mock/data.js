@@ -647,35 +647,52 @@ export const FREQUENT = ['fam-cert', 'marriage', 'passport-replace'];
 /* Fixed aggregate fixtures for the two demo dashboards. They intentionally
    contain no citizen-level data: dashboards operate on queues, windows and
    service totals only. The six visible center rows add up to 2,486 visits. */
+/* Визиты окна = сумма трёх исходов. Пустой период (окно закрыто) — 0. */
+export const visitsOf = p => (p ? p.applications + p.consultations + p.issued : 0);
+
 export const TSON_DASHBOARD = {
   center: {
     name: 'ЦОН №3, Душанбе', updated: '14:32',
-    /* Подписи и контекст — в словарях (dash.center.kpi.*); тут только числа
-       и тон. См. комментарий у network.kpis ниже. */
-    kpis: [
-      { id:'visits',  value:'47',    tone:'good' },
-      { id:'queue',   value:'12',    tone:'warn' },
-      { id:'wait',    value:'06:12', tone:'good' },
-      { id:'done',    value:'31',    tone:'good' },
-      { id:'windows', value:'8/10',  tone:'warn' },
-    ],
+    /* Ни одного итога здесь нет: визиты центра, заявления, консультации,
+       выдачи и среднее время считаются из строк окон (dashboard-center.js →
+       centerTotals). Итог, записанный рядом со строками, рано или поздно
+       разойдётся с их суммой, и руководитель перестанет верить обоим
+       (правило 49). Подписи и контекст — в словарях (dash.center.kpi.*). */
     queues:[
       { id:'docs', label:'Документы', waiting:6, long:2, wait:'08:40' },
       { id:'registration', label:'Регистрация', waiting:4, long:1, wait:'06:10' },
       { id:'consulting', label:'Консультации', waiting:2, long:0, wait:'03:25' },
     ],
+    queueWait:'06:12',
     hours:[18,31,44,57,63,51,39,28],
+    /* Показатели окна за период. Визит — это всегда один из трёх исходов:
+       заявление, консультация или выдача готового документа, поэтому визиты
+       тоже не хранятся, а складываются (visitsOf). `min` — среднее время
+       обслуживания одного визита в минутах.
+
+       Окно 1 — то самое, за которым сидит оператор демо-входа: его «Главная
+       смены» читает эту же строку (api.shift.stats), и цифры у оператора и у
+       руководителя совпадают, потому что это одни и те же цифры. */
     windows:[
-      { no:1, operator:'Оператор 01', status:'serving', served:7, avg:'05:40' },
-      { no:2, operator:'Оператор 02', status:'serving', served:6, avg:'06:05' },
-      { no:3, operator:'Оператор 03', status:'serving', served:5, avg:'07:12' },
-      { no:4, operator:'Оператор 04', status:'serving', served:5, avg:'05:58' },
-      { no:5, operator:'Оператор 05', status:'serving', served:4, avg:'06:21' },
-      { no:6, operator:'Оператор 06', status:'serving', served:4, avg:'06:44' },
-      { no:7, operator:'Оператор 07', status:'serving', served:0, avg:'—' },
-      { no:8, operator:'Оператор 08', status:'serving', served:0, avg:'—' },
-      { no:9, operator:'Оператор 09', status:'break', served:0, avg:'—' },
-      { no:10, operator:'Не назначен', status:'closed', served:0, avg:'—' },
+      { no:1,  operator:'Оператор 01', status:'serving',
+        today:{ applications:18, consultations:4, issued:3, min:12 }, week:{ applications:92, consultations:21, issued:17, min:12 } },
+      { no:2,  operator:'Оператор 02', status:'serving',
+        today:{ applications:15, consultations:5, issued:2, min:11 }, week:{ applications:80, consultations:24, issued:13, min:11 } },
+      { no:3,  operator:'Оператор 03', status:'serving',
+        today:{ applications:13, consultations:3, issued:3, min:14 }, week:{ applications:71, consultations:17, issued:15, min:14 } },
+      { no:4,  operator:'Оператор 04', status:'serving',
+        today:{ applications:14, consultations:4, issued:3, min:12 }, week:{ applications:77, consultations:20, issued:16, min:12 } },
+      { no:5,  operator:'Оператор 05', status:'serving',
+        today:{ applications:11, consultations:4, issued:2, min:13 }, week:{ applications:63, consultations:19, issued:12, min:13 } },
+      { no:6,  operator:'Оператор 06', status:'serving',
+        today:{ applications:10, consultations:3, issued:3, min:15 }, week:{ applications:58, consultations:16, issued:14, min:15 } },
+      { no:7,  operator:'Оператор 07', status:'serving',
+        today:{ applications:8,  consultations:3, issued:1, min:10 }, week:{ applications:49, consultations:15, issued:8,  min:11 } },
+      { no:8,  operator:'Оператор 08', status:'serving',
+        today:{ applications:6,  consultations:2, issued:1, min:11 }, week:{ applications:41, consultations:12, issued:7,  min:11 } },
+      { no:9,  operator:'Оператор 09', status:'break',
+        today:{ applications:9,  consultations:3, issued:2, min:13 }, week:{ applications:55, consultations:16, issued:11, min:13 } },
+      { no:10, operator:'Не назначен', status:'closed', today:null, week:null },
     ],
   },
   network: {

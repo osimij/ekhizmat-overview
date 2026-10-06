@@ -714,15 +714,25 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
   await expect(page.locator('.s-idle')).toHaveCSS('padding-top', '56px');
+  // Operator's own figures: visits, then their three outcomes, then time.
   const idleKpis = page.locator('.s-idle__kpi');
-  await expect(idleKpis).toHaveCount(3);
-  for (const [index, iconName] of ['calendar', 'clock', 'cat-cert'].entries()) {
+  await expect(idleKpis).toHaveCount(5);
+  await expect(idleKpis.locator('.kpi__label'))
+    .toHaveText(['Визиты', 'Заявления', 'Консультации', 'Выдачи', 'Среднее время']);
+  for (const [index, iconName] of ['users', 'doc', 'chat', 'cat-cert', 'clock'].entries()) {
     await expect(idleKpis.nth(index).locator('.s-idle__kpi-icon use'))
       .toHaveAttribute('href', `/design-system/assets/icons.svg#i-${iconName}`);
   }
   const idleKpiColors = await idleKpis.locator('.s-idle__kpi-icon').evaluateAll((icons) =>
     icons.map(icon => getComputedStyle(icon).color));
-  expect(new Set(idleKpiColors).size).toBe(3);
+  expect(new Set(idleKpiColors).size).toBe(5);
+  const idleFigures = await idleKpis.locator('.kpi__value').allInnerTexts();
+  const [idleVisits, ...idleOutcomes] = idleFigures.slice(0, 4).map(Number);
+  // A visit is always one of the three outcomes.
+  expect(idleOutcomes.reduce((a, b) => a + b, 0)).toBe(idleVisits);
+  // Five KPIs share one row on the 1280px+ workstation.
+  const idleKpiTops = await idleKpis.evaluateAll((cards) => cards.map(card => Math.round(card.getBoundingClientRect().top)));
+  expect(new Set(idleKpiTops).size).toBe(1);
   await expect(idleKpis.locator('.kpi__label').first()).toHaveCSS('font-weight', '400');
   await expect(page.locator('.s-idle__recent')).toHaveCSS('padding-bottom', '0px');
   await expect(page.locator('.s-idle__tools .btn--ghost').first()).toHaveCSS('font-size', '15px');
@@ -737,6 +747,23 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   await page.getByRole('menuitemradio', { name: /Руководитель отделения/ }).click();
   await expect(page).toHaveURL(/#\/dashboard-center/);
   await expect(page.locator('.dashboard-kpis .kpi')).toHaveCount(5);
+  // The head of the center sees the operators' figures, summed: same five
+  // words, and window 1's row is exactly what its operator saw at home.
+  await expect(page.locator('.dashboard-kpis .kpi__label'))
+    .toHaveText(['Визиты', 'Заявления', 'Консультации', 'Выдачи', 'Среднее время']);
+  const windowOne = await page.locator('.window-table tbody tr').first()
+    .locator('td:nth-child(n+4):not(.data-table__go)').allInnerTexts();
+  expect(windowOne.map(text => text.replace(/\s+/g, ' ').trim()))
+    .toEqual([...idleFigures.slice(0, 4), idleFigures[4].replace(/\s+/g, ' ').trim()]);
+  const centerSums = await page.locator('.window-table tbody tr').evaluateAll((rows) => {
+    const sums = [0, 0, 0, 0];
+    for (const row of rows) {
+      const cells = [...row.querySelectorAll('td')].slice(3, 7).map(td => Number(td.innerText.trim()));
+      cells.forEach((value, index) => { if (!Number.isNaN(value)) sums[index] += value; });
+    }
+    return sums.map(String);
+  });
+  expect((await page.locator('.dashboard-kpis .kpi__value').allInnerTexts()).slice(0, 4)).toEqual(centerSums);
   await expect(page.locator('.dashboard')).toHaveCSS('padding-top', '56px');
   await expect(page.getByText(/Демо-данные/)).toHaveCount(0);
   await expect(page.locator('.dashboard-period-filter .ekh-filter__field')).toHaveCSS('width', '140px');
@@ -979,6 +1006,36 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
   await page.getByRole('button', { name: /Продолжить как гость/ }).click();
   await expect(page.locator('.srv-row .audience-badge--guest')).toBeVisible();
   await expect(page.locator('.sessionbar .audience-badge--guest')).toBeVisible();
+});
+
+test('TSON demo: any unknown number can continue down the registered path', async ({ page }) => {
+  await page.goto('/tson/?lang=ru&theme=light&dev=1');
+  const demo = page.locator('.demo');
+  await expect(demo).toBeAttached();
+  await page.evaluate(() => dispatchEvent(new KeyboardEvent('keydown', { key: '`', bubbles: true })));
+  await demo.getByRole('button', { name: 'MFA пройдена', exact: true }).click();
+  await demo.getByRole('button', { name: 'Привязка ок', exact: true }).click();
+  await demo.getByRole('button', { name: 'Начать приём', exact: true }).click();
+  await demo.getByRole('button', { name: 'Закрыть', exact: true }).click();
+
+  const identify = page.locator('.s-identify');
+  const lookup = identify.getByLabel('Номер телефона');
+  await lookup.fill('931112233');
+  await lookup.press('Enter');
+  await expect(identify.locator('.s-identify__result-title')).toHaveText('Профиля нет');
+  // The demo row is labelled as such, sits beside guest, not beside the primary.
+  await expect(identify.locator('.s-identify__demo .demo-data-badge')).toHaveText('Демо');
+  await identify.getByRole('button', { name: 'Продолжить как зарегистрированный' }).click();
+
+  // Same found branch as a real hit — the typed value is kept, every method works.
+  await expect(identify.locator('.s-identify__result-title')).toHaveText('Профиль найден');
+  await expect(identify.locator('.s-identify__result-sub')).toHaveText('+992 93 111 22 33');
+  await expect(identify.getByRole('tab')).toHaveText(['QR-код', 'IMZO', 'SMS']);
+  await identify.getByRole('tab', { name: 'SMS' }).click();
+  await identify.getByRole('button', { name: 'Отправить код' }).click();
+  const cells = identify.locator('.otp__cell');
+  for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 2));
+  await expect(page).toHaveURL(/#\/consent/);
 });
 
 test('TSON identification asks the registry first and branches on the answer', async ({ page }) => {

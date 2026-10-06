@@ -7,13 +7,20 @@
    маскированные до последних цифр (§6/S1).
 
    Раскладка — дом смены, не заставка: заголовок + одно главное действие,
-   карточки KPI, последние заявления. Пустая панель вокруг кнопки убрана
+   ряд KPI, последние заявления. Пустая панель вокруг кнопки убрана
    (design-guide §3 «Workstation idle», правило 28).
+
+   Пять показателей — те же, что руководитель видит по окну в таблице
+   «Окна и операторы» (dashboard-center.js), с теми же подписями: визиты,
+   затем три их исхода (заявления, консультации, выдачи), затем среднее
+   время. Визиты = сумма исходов, поэтому они стоят первыми, а не в общем
+   ряду «на равных».
    ============================================================ */
-import { h, mount, icon, mmss, modal, statusIcon } from '../ui.js';
+import { h, mount, icon, modal, statusIcon } from '../ui.js';
 import { t } from '../i18n.js';
 import { dispatch, getState } from '../store.js';
 import { shift } from '../mock/api.js';
+import { fmtMinutes } from '../format.js';
 
 export function renderIdle(host) {
   const st = getState();
@@ -38,19 +45,24 @@ export function renderIdle(host) {
 
   async function load() {
     // §5.3 — скелетон обязателен на каждом экране с данными.
-    const s = await shift.stats();
+    const s = await shift.stats(st.bind?.window);
+    const avg = fmtMinutes(s.avgMin);
     mount(body, idleMain(
       h('section', { class: 'dashboard-kpis s-idle__kpis', 'aria-label': t('idle.today') },
-        kpi(String(s.served), t('idle.served'), 'calendar', 'blue'),
-        kpi(mmss(s.avgMs), t('idle.avg'), 'clock', 'amber'),
-        kpi(String(s.issued), t('idle.issued'), 'cat-cert', 'green')),
+        kpi(String(s.visits), t('stats.visits'), 'users', 'blue'),
+        kpi(String(s.applications), t('stats.applications'), 'doc', 'violet'),
+        kpi(String(s.consultations), t('stats.consultations'), 'chat', 'teal'),
+        kpi(String(s.issued), t('stats.issued'), 'cat-cert', 'green'),
+        kpi(avg.value, t('stats.avg'), 'clock', 'amber', avg.unit)),
       recentPanel(
         s.recent.length
           ? recentList(s.recent.map(r =>
               h('div', { class: 's-idle__recent-row' },
                 // Только номер — ни ФИО, ни ИНН. Это и есть «без имён граждан!».
                 h('span', { class: 'tnum' }, `№ ${r.no}`),
-                statusIcon('success', t('idle.issuedMark')))))
+                r.status === 'issued'
+                  ? statusIcon('success', t('idle.issuedMark'))
+                  : statusIcon('info', t('idle.filedMark'), { iconName: 'clock' }))))
           : h('p', { class: 'small ink-faint' }, t('idle.noRecent')))));
   }
 }
@@ -58,8 +70,8 @@ export function renderIdle(host) {
 function idleMain(kpis, recent) {
   return h('div', { class: 's-idle__main' },
     kpis,
-    idleTools(),
-    recent);
+    recent,
+    idleTools());
 }
 
 function recentPanel(content) {
@@ -145,10 +157,10 @@ function openHelp() {
   });
 }
 
-function kpi(value, label, iconName, tone) {
+function kpi(value, label, iconName, tone, unit = null) {
   return h('article', { class: 'kpi s-idle__kpi' },
     h('div', { class: 's-idle__kpi-copy' },
-      h('strong', { class: 'kpi__value' }, value),
+      h('strong', { class: 'kpi__value' }, value, unit ? h('span', { class: 'kpi__unit' }, unit) : null),
       h('span', { class: 'kpi__label' }, label)),
     icon(iconName, { cls: `s-idle__kpi-icon s-idle__kpi-icon--${tone}` }));
 }
@@ -156,9 +168,7 @@ function kpi(value, label, iconName, tone) {
 function skeletonStats() {
   return idleMain(
     h('div', { class: 'dashboard-kpis s-idle__kpis' },
-      h('div', { class: 'skel skel--card' }),
-      h('div', { class: 'skel skel--card' }),
-      h('div', { class: 'skel skel--card' })),
+      ...Array.from({ length: 5 }, () => h('div', { class: 'skel skel--card' }))),
     recentPanel(recentList(
       Array.from({ length: 10 }, () =>
         h('div', { class: 's-idle__recent-row' }, h('div', { class: 'skel skel--line' }))))));

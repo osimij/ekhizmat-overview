@@ -768,7 +768,9 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
         && Math.abs(rows[10].right - list.right) < 2
         && Math.abs(rows[0].bottom - rows[5].bottom) < 2
         && Math.abs(rows[5].bottom - rows[10].bottom) < 2,
-      sameHeightAsKpis: kpis && panel ? Math.abs(kpis.height - panel.height) < 2 : false,
+      // KPI row on top, the recent panel under it at the same width.
+      belowKpis: kpis && panel ? panel.top >= kpis.bottom : false,
+      sameWidthAsKpis: kpis && panel ? Math.abs(kpis.width - panel.width) < 2 : false,
       markFill: mark ? getComputedStyle(mark).backgroundColor : null,
       padBottomLtTop: padBottom < padTop,
       padBalancesTop: Math.abs(rowPad + padBottom - padTop) < 1,
@@ -780,7 +782,8 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   expect(recentLayout.secondColumnCloser).toBe(true);
   expect(recentLayout.thirdEmpty).toBe(true);
   expect(recentLayout.continuousRule).toBe(true);
-  expect(recentLayout.sameHeightAsKpis).toBe(true);
+  expect(recentLayout.belowKpis).toBe(true);
+  expect(recentLayout.sameWidthAsKpis).toBe(true);
   expect(recentLayout.markFill).toMatch(/^(transparent|rgba?\(0,\s*0,\s*0,\s*0\))$/);
   expect(recentLayout.padBottomLtTop).toBe(true);
   expect(recentLayout.padBalancesTop).toBe(true);

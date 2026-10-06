@@ -531,8 +531,30 @@ export function renderIdentify(host) {
                 onClick: () => drawFind('passport'),
               }, t('identify.searchPassport')))
           : null),
+      demoFoundRow(),
       guestRow());
     start.focus();
+  }
+
+  /* Демо: в реестре прототипа один гражданин, и любой другой ввод ведёт
+     сюда. Эта строка переводит приём на ветку «профиль найден» с тем же
+     набранным значением — показать вход зарегистрированного можно, не зная
+     демо-номера. Подписана «Демо», чтобы не читаться рабочим действием. */
+  function demoFoundRow() {
+    const btn = h('button', {
+      class: 'btn btn--ghost btn--s', type: 'button',
+      onClick: async () => {
+        setLoading(btn, true);
+        try {
+          const r = await identify.assumeFound(by);
+          if (!dead) drawFound(r);
+        } catch (err) {
+          if (!dead) { setLoading(btn, false); mount(card, summary('missing'), errorBanner(err)); }
+        }
+      },
+    }, t('identify.demoFound'));
+    return h('div', { class: 's-identify__demo' },
+      h('span', { class: 'demo-data-badge' }, t('identify.demoBadge')), btn);
   }
 
   /* ============================================================

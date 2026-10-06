@@ -818,6 +818,8 @@ button.step:focus-visible {
 }
 .kpi__value{font-size:var(--fs-28);line-height:var(--leading-tight);font-weight:620;font-variant-numeric:tabular-nums}
 .dashboard-kpis .kpi__value{margin-bottom:var(--s-2)}
+/* Единица при числе («12 мин») — тише числа: мера, а не значение (§4). */
+.kpi__unit{font-size:var(--fs-17);font-weight:var(--weight-medium);color:var(--ink-2)}
 .kpi__label{font-size:var(--fs-13);font-weight:var(--weight-medium);color:var(--ink-2)}
 .kpi__context{font-size:var(--fs-12);font-weight:var(--weight-regular);color:var(--ink-faint)}
 .kpi--warn .kpi__context{color:var(--amber-ink)}
@@ -1774,8 +1776,9 @@ button.step:focus-visible {
 /* ============================================================
    S1 · Главная смены (§6/S1)
 
-   Дом смены: заголовок + одно главное действие; KPI-колонка слева,
-   «Последние заявления» справа. Каталог и справка — в ряд под KPI (§6/S1).
+   Дом смены: заголовок + одно главное действие; ряд из пяти KPI (тот же
+   `.dashboard-kpis`, что у руководителя — одни данные, одна форма), под ним
+   «Последние заявления», под ними каталог и справка (§6/S1).
    ============================================================ */
 .s-idle {
   display: grid;
@@ -1797,20 +1800,12 @@ button.step:focus-visible {
 .s-idle__body { min-width: 0; }
 .s-idle__main {
   display: grid;
-  grid-template-columns: minmax(0, var(--w-context)) minmax(0, 1fr);
-  grid-template-rows: auto auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--s-4);
-  align-items: stretch;
 }
-.s-idle__kpis {
-  grid-column: 1;
-  grid-row: 1;
-  grid-template-columns: 1fr;
-}
-/* Карточки тянутся до высоты панели заявлений. Иконки — выбранные через
-   Hugeicons по смыслу (приём, время, выданный документ) стоят у правого края;
-   они остаются отдельными цветными штрихами без декоративных плиток, чтобы
-   число лидировало. */
+/* Иконки — выбранные через Hugeicons по смыслу (люди, заявление, разговор,
+   выданный документ, время) стоят у правого края; они остаются отдельными
+   цветными штрихами без декоративных плиток, чтобы число лидировало. */
 .s-idle__kpis .kpi {
   flex-direction: row;
   align-items: center;
@@ -1821,6 +1816,8 @@ button.step:focus-visible {
 .s-idle__kpi-icon--blue { color: var(--blue-ink); }
 .s-idle__kpi-icon--amber { color: var(--amber-ink); }
 .s-idle__kpi-icon--green { color: var(--green-ink); }
+.s-idle__kpi-icon--violet { color: var(--h-violet-fg); }
+.s-idle__kpi-icon--teal { color: var(--h-teal-fg); }
 .s-idle__kpi-copy {
   display: flex;
   flex-direction: column;
@@ -1833,8 +1830,6 @@ button.step:focus-visible {
   font-weight: var(--weight-regular);
 }
 .s-idle__recent {
-  grid-column: 2;
-  grid-row: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -1873,14 +1868,14 @@ button.step:focus-visible {
   background: transparent;
   color: var(--green);
 }
+/* Оформлено, но ещё не выдано — часы синим: «в работе» по карте статусов §3. */
+.s-idle__recent-row .status-icon--info { color: var(--blue-ink); }
 /* Нижняя граница только внутри колонки — 5n совпадает с --s-idle-recent-rows. */
 .s-idle__recent-row:nth-child(5n),
 .s-idle__recent-row:last-child { border-bottom: 0; }
 /* Второстепенные инструменты идут отдельной строкой под всей сводкой: они не
    относятся к KPI-карточкам и получают ширину, достаточную для RU/TJ-подписей. */
 .s-idle__tools {
-  grid-column: 1 / -1;
-  grid-row: 2;
   width: 100%;
   min-width: 0;
   padding-inline: 0;
@@ -1901,10 +1896,6 @@ button.step:focus-visible {
 }
 @media (max-width: 1100px) {
   .s-idle__head { flex-direction: column; align-items: flex-start; }
-  .s-idle__main { grid-template-columns: 1fr; grid-template-rows: auto; }
-  .s-idle__kpis,
-  .s-idle__recent,
-  .s-idle__tools { grid-column: 1; grid-row: auto; }
 }
 
 /* LOCKED (§6/S9c) — общая композиция `.s-locked` живёт в
@@ -2231,6 +2222,19 @@ body.is-too-small.is-auth-route .too-small { display: none; }
   color: var(--ink-2);
 }
 .s-identify__hint > .btn { margin-left: calc(-1 * var(--s-4)); }
+/* Демо-развилка «продолжить как зарегистрированный»: тихая строка с меткой
+   «Демо», той же геометрии, что гостевой вход под ней, — не второе главное
+   действие рядом с «Начать регистрацию». */
+.s-identify__demo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  padding-top: var(--s-4);
+}
+/* Демо и гость — пара запасных путей: между ними только шаг карточки, а не
+   второй отступ над разделом. */
+.s-identify__demo + .guest-identify { padding-top: 0; }
 .s-identify__foot { margin-top: 0; }
 
 /* ============================================================
