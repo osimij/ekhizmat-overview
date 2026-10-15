@@ -466,13 +466,22 @@ export function initServicePage(ctx){
       icon("i-chev-r", "svc-go") + `</a>`;
   }
 
+  /* a registry service as another page lists it (a life situation's step):
+     its overview link and the facts the overview leads with — time, agency, cost */
+  function lookup(cat, re){
+    const row = index().find(r => r.g.id === cat && re.test(r.it[3] || r.it[0]));
+    if (!row) return null;
+    const p = profile(row);
+    return { hash:hashOf(row), org:orgOf(row.it), paid:p.paid || Boolean(p.cost), time:pick(TIMES[p.time]) };
+  }
+
   function asideHtml(p){
     const c = L();
     const meta = (ctx.signedIn() ? c.applyIn : c.applyOut).replace("{m}", p.minutes);
     return `<aside class="svc-aside" aria-labelledby="svcApplyH">` +
       `<div class="svc-apply">` +
         `<h2 class="sr-only" id="svcApplyH">${esc(c.apply)}</h2>` +
-        `<button class="btn btn-pri btn-lg btn-block" type="button" data-svc-apply>${esc(c.apply)}</button>` +
+        `<button class="btn btn-pri btn-block" type="button" data-svc-apply>${esc(c.apply)}</button>` +
         `<p class="svc-apply__meta">${esc(meta)}</p>` +
         `<div class="svc-apply__alt">` +
           `<b>${esc(c.inPersonH)}</b><p>${esc(c.inPersonP)}</p>` +
@@ -557,7 +566,8 @@ export function initServicePage(ctx){
     `</section>`;
     $("#helpRoot").innerHTML =
       `<nav class="ekh-crumbs" aria-label="${esc(c.crumbs)}"><ol><li><a href="#/" data-route>${esc(c.home)}</a></li></ol></nav>` +
-      `<header class="help-head"><h1 id="helpTitle">${esc(c.helpTitle)}</h1><p class="help-lead">${esc(c.helpLead)}</p></header>` +
+      `<header class="help-head"><div><h1 id="helpTitle">${esc(c.helpTitle)}</h1><p class="help-lead">${esc(c.helpLead)}</p></div>` +
+        `<svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-help-support"/></svg></header>` +
       `<div class="prof-grid help-grid">` +
         `<nav class="prof-nav help-toc" aria-label="${esc(c.toc)}">` +
           HELP.map(s => `<a class="pn" href="#/help/${s.id}" data-route data-replace data-help-link="${s.id}">${esc(pick(s.t))}</a>`).join("") +
@@ -594,7 +604,7 @@ export function initServicePage(ctx){
 
   return {
     renderService, renderHelp, focusHelpSection, syncToc,
-    searchServices, shortcuts, popularFor, find,
+    searchServices, shortcuts, popularFor, find, lookup,
     copy:() => L(),
     resetIndex:() => { Object.keys(indexCache).forEach(k => delete indexCache[k]); }
   };

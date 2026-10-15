@@ -187,7 +187,8 @@ function bindHotkeys() {
     // Esc закрывает верхний слой (§9). Приоритет выше всех остальных клавиш.
     if (e.key === 'Escape' && hasLayers()) { e.preventDefault(); closeTopLayer(); return; }
 
-    if (e.key === 'F2' && st.app === ST.IDLE) { e.preventDefault(); dispatch('START'); }
+    // F2 («Начать приём») обрабатывает главная смены: приём начинается по
+    // вызванному талону, и знает его только она (screens/idle.js).
 
     // Esc на воротах = отмена приёма (§6/S2 hotkeys).
     if (e.key === 'Escape' && (st.app === ST.IDENTIFY || st.app === ST.CONSENT_WAIT)) {

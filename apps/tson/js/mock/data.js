@@ -658,12 +658,8 @@ export const TSON_DASHBOARD = {
        centerTotals). Итог, записанный рядом со строками, рано или поздно
        разойдётся с их суммой, и руководитель перестанет верить обоим
        (правило 49). Подписи и контекст — в словарях (dash.center.kpi.*). */
-    queues:[
-      { id:'docs', label:'Документы', waiting:6, long:2, wait:'08:40' },
-      { id:'registration', label:'Регистрация', waiting:4, long:1, wait:'06:10' },
-      { id:'consulting', label:'Консультации', waiting:2, long:0, wait:'03:25' },
-    ],
-    queueWait:'06:12',
+    /* «Очередь по зонам» здесь не хранится: панель считает её из живых
+       талонов (api.queue.zonesNow), с которыми работают окна. */
     hours:[18,31,44,57,63,51,39,28],
     /* Показатели окна за период. Визит — это всегда один из трёх исходов:
        заявление, консультация или выдача готового документа, поэтому визиты
@@ -726,3 +722,59 @@ export const TSON_DASHBOARD = {
     ],
   },
 };
+
+/* ============================================================
+   Электронная очередь центра (#/idle — «Очередь центра» и «Окно»)
+
+   В талоне нет ничего о человеке: номер, зона, услуга, выбранная в
+   терминале, и время выдачи. Паспорт и телефон гражданин показывает уже у
+   окна, после «Начать приём», и живут они только в сессии (§2.3).
+
+   Буква номера — зона зала: A — документы, B — регистрация, C —
+   консультации (те же три зоны, что «Очередь по зонам» руководителя).
+   Латиница намеренно: буквы A, B, C одинаково читаются в обоих языках
+   интерфейса и на табло зала, а номер не превращается в кириллицу, которую
+   роутер ЦОН считает возможными ПД.
+
+   Эти же талоны читает «Очередь по зонам» руководителя (api.queue.zonesNow):
+   на старте демо ждут 6 / 4 / 2, дольше нормы (15 мин) — 2 / 1 / 0, в
+   среднем около 9 / 6 / 3 минут. Возраст талона — в секундах от загрузки
+   демо.
+   ============================================================ */
+export const QUEUE_ZONE_BY_LETTER = { A: 'docs', B: 'registration', C: 'consulting' };
+
+/* Какие зоны ведёт каждое окно. Окно 1 — оператор демо-входа: документы и
+   консультации, поэтому талоны регистрации он видит, но вызвать не может.
+   Консультации кроме него ведёт только окно 9, а оно на перерыве: талон
+   зоны C перевести некуда, и это состояние видно в демо без настроек. */
+export const WINDOW_ZONES = {
+  1: ['docs', 'consulting'], 2: ['docs'], 3: ['docs'], 4: ['docs'],
+  5: ['registration'], 6: ['registration'], 7: ['registration'], 8: ['registration'],
+  9: ['consulting'], 10: [],
+};
+
+export const QUEUE_NORM_MIN = 15;     // ожидание дольше нормы — как «long» у руководителя
+export const QUEUE_RECALLS = 2;       // повторов вызова: всего три объявления на табло
+
+export const QUEUE_TICKETS = [
+  { no: 'B014', service: 'addr-reg',         status: 'called',      window: 6, age: 24 * 60 },
+  { no: 'A027', service: 'fam-cert',         status: 'waiting',     age: 17 * 60 },
+  { no: 'A028', service: 'passport-replace', status: 'transferred', window: 1, from: 3, age: 16 * 60 + 20 },
+  { no: 'B015', service: 'marriage',         status: 'waiting',     age: 15 * 60 + 50 },
+  { no: 'A029', service: 'no-crime',         status: 'transferred', window: 4, from: 2, age: 11 * 60 },
+  { no: 'C009', service: 'pension-cert',     status: 'waiting',     age: 5 * 60 + 30 },
+  { no: 'B016', service: 'birth-reg',        status: 'waiting',     age: 5 * 60 },
+  { no: 'A030', service: 'tax-debt',         status: 'waiting',     age: 4 * 60 + 40 },
+  { no: 'B017', service: 'ip-reg',           status: 'waiting',     age: 3 * 60 },
+  { no: 'A031', service: 'land-extract',     status: 'waiting',     age: 2 * 60 },
+  { no: 'C010', service: 'kindergarten',     status: 'waiting',     age: 80 },
+  { no: 'A032', service: 'fam-cert',         status: 'waiting',     age: 60 },
+  { no: 'B018', service: 'vehicle-reg',      status: 'waiting',     age: 40 },
+];
+
+/* Новые талоны из терминала в демо: по кругу, чтобы зоны чередовались. */
+export const QUEUE_KIOSK = ['fam-cert', 'marriage', 'pension-cert', 'passport-replace', 'addr-reg', 'no-crime'];
+
+/* Результаты приёма — коды для бэкенда; подписи живут в словарях. Порядок —
+   тот, в котором оператор их читает: от самого частого исхода к сбою. */
+export const VISIT_RESULTS = ['consultation', 'accepted', 'refused', 'revisit', 'technical'];

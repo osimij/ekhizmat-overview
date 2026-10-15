@@ -2,6 +2,8 @@ import '../services-data.js';
 import { I18N } from './i18n.js';
 import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
+import { initHomeSupport } from './home-support.js';
+import { initLifePage, LIFE_IDS } from './life-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 import { renderQr } from '/design-system/js/qr.js';
 
@@ -21,6 +23,8 @@ if (!["tg", "ru", "en"].includes(lang)) lang = "tg";
 let acct = "person";
 let expansion = null;
 let servicePage = null;
+let homeSupport = null;
+let lifePage = null;
 function t(k){
   const d = I18N[lang] || I18N.tg;
   if (d[k] !== undefined) return d[k];
@@ -52,6 +56,9 @@ function applyLang(){
   if (currentCat && !$("#scr-category").hidden) renderCategory(currentCat);
   if (!$("#scr-service").hidden) servicePage?.renderService(currentRoute);
   if (!$("#scr-help").hidden){ servicePage?.renderHelp(); servicePage?.syncToc(); }
+  homeSupport?.render();
+  lifePage?.renderHome();
+  if (!$("#scr-life").hidden) lifePage?.renderLife(currentRoute);
   expansion?.render();
   syncForYou();
   if (loginOverlay.classList.contains('open') || loginOverlay.classList.contains('is-open')) paintLoginStep();
@@ -122,6 +129,8 @@ $$("[data-acct]").forEach(b => b.addEventListener("click", () => {
     if (findGroup(currentCat)) renderCategory(currentCat);
     else navigate("#/", { replace:true });
   }
+  /* a life situation lists the services this audience's catalogue carries */
+  if (currentRoute.screen === "life") lifePage?.renderLife(currentRoute);
   /* the same service may not exist for the new audience: fall back to its section, then home */
   if (currentRoute.screen === "service" && !servicePage?.renderService(currentRoute)){
     navigate(findGroup(currentRoute.cat) ? "#/category/" + encodeURIComponent(currentRoute.cat) : "#/", { replace:true });
@@ -186,6 +195,7 @@ function applyAuth(){
   $("#heroSummary").hidden = !isIn;
   syncForYou();
   syncProfilePop();
+  homeSupport?.syncAuth();
   /* the service aside tells a signed-out visitor what applying requires; signed in it doesn't */
   if (servicePage && !$("#scr-service").hidden) servicePage.renderService(currentRoute);
 }
@@ -547,7 +557,7 @@ document.addEventListener("keydown", e => {
    go()/navigate() only ever write a URL; applyRoute() paints what it says. */
 const SCREENS = { home:"scr-home", category:"scr-category", journey:"scr-journey",
                   emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service",
-                  service:"scr-service", help:"scr-help" };
+                  service:"scr-service", help:"scr-help", life:"scr-life" };
 /* screens that only exist for a signed-in citizen */
 const PERSONAL = ["profile", "notifs", "journey"];
 /* route slug <-> pane id: the URL speaks the user's language, the DOM keeps its ids */
@@ -574,6 +584,11 @@ function parseRoute(hash){
   /* a service is addressed by its section and a short ASCII key of its registry name */
   if (parts[0] === "service") return { screen:"service", cat:parts[1] || null, key:parts[2] || null };
   if (parts[0] === "help") return { screen:"help", section:HELP_IDS.includes(parts[1]) ? parts[1] : null };
+  /* «see all» is #/life; a situation is #/life/<id>, a step of it #/life/<id>/s2 */
+  if (parts[0] === "life"){
+    const id = LIFE_IDS.includes(parts[1]) ? parts[1] : null;
+    return { screen:"life", id, section:id && /^(s\d|faq)$/.test(parts[2] || "") ? parts[2] : null };
+  }
   if (parts[0] === "emergency"){
     const step = ["documents", "done"].includes(parts[1]) ? parts[1] : "pitch";
     return { screen:"emergency", step };
@@ -589,6 +604,7 @@ function hashFor(route){
   if (route.screen === "category") return "#/category/" + encodeURIComponent(route.cat || "");
   if (route.screen === "service") return "#/service/" + encodeURIComponent(route.cat || "") + "/" + encodeURIComponent(route.key || "");
   if (route.screen === "help") return "#/help" + (route.section ? "/" + route.section : "");
+  if (route.screen === "life") return "#/life" + (route.id ? "/" + route.id + (route.section ? "/" + route.section : "") : "");
   if (route.screen === "profile"){
     const slug = PANE_ROUTE[route.pane] || "data";
     return "#/profile/" + slug + (route.appId ? "/" + encodeURIComponent(route.appId) : "");
@@ -677,6 +693,19 @@ function applyRoute(route, opts){
   if (route.screen === "service" && !servicePage.renderService(route)){
     /* a stale or foreign key: land on its section if that exists, else home */
     navigate(route.cat && findGroup(route.cat) ? "#/category/" + encodeURIComponent(route.cat) : "#/", { replace:true });
+    return;
+  }
+  if (route.screen === "life"){
+    /* an unknown situation or step lands on its canonical address: the list, or the page's top */
+    if (String(location.hash).split("?")[0] !== hashFor(route)){ navigate(hashFor(route), { replace:true }); return; }
+    /* moving between the steps of one situation keeps the page: only the reading position changes */
+    const reading = currentRoute.screen === "life" && currentRoute.id === route.id && !$("#scr-life").hidden;
+    if (!reading) lifePage.renderLife(route);
+    currentRoute = route;
+    if (!reading) showScreen(SCREENS.life, opts);
+    if (route.section) lifePage.focusSection(route.section, { instant:!reading });
+    else lifePage.syncToc();
+    closeSearch();
     return;
   }
   if (route.screen === "help"){
@@ -1147,22 +1176,10 @@ function toastText(message){
 /* ---------- search with intent recognition ---------- */
 const searchInput = $("#searchInput"), searchPop = $("#searchPop"), searchItems = $("#searchItems");
 const INTENTS = [
-  { icon:"i-baby",   act:{ type:"go", target:"journey" },
-    kw:"таваллуд кудак кӯдак фарзанд шаҳодатнома ребенок ребёнок родился рождение свидетельство малыш baby born birth certificate child",
-    label:{ tg:"Фарзанддор шудам - ҳуҷҷатҳои кӯдак", ru:"Родился ребёнок - документы малыша", en:"I just had a baby - child documents" },
-    meta:{ tg:"5 дақиқа - ройгон", ru:"5 минут - бесплатно", en:"5 minutes - free" } },
   { icon:"i-doc",    act:{ type:"toast" },
     kw:"шиноснома нав кардан паспорт обновить продлить заграничный passport renew id",
     label:{ tg:"Нав кардани шиноснома", ru:"Обновить паспорт", en:"Renew my passport" },
     meta:{ tg:"8 дақиқа", ru:"8 минут", en:"8 minutes" } },
-  { icon:"i-biz",    act:{ type:"toast" },
-    kw:"тиҷорат тичорат соҳибкор сабт бизнес ип ооо регистрация открыть фирма business register company startup sole proprietor",
-    label:{ tg:"Кушодани тиҷорат", ru:"Открыть бизнес", en:"Start a business" },
-    meta:{ tg:"то 20 дақиқа", ru:"до 20 минут", en:"up to 20 minutes" } },
-  { icon:"i-rings",  act:{ type:"toast" },
-    kw:"издивоҷ никоҳ туй брак загс жениться замуж свадьба marriage marry wedding",
-    label:{ tg:"Издивоҷ - ариза ба САҲШ", ru:"Вступить в брак - заявление в ЗАГС", en:"Get married - registry application" },
-    meta:{ tg:"10 дақиқа", ru:"10 минут", en:"10 minutes" } },
   { icon:"i-wallet", act:{ type:"go", target:"wallet" },
     kw:"ҳамён хамён ҳуҷҷат хуччат кошелек кошелёк документы мои wallet documents my papers",
     label:{ tg:"Ҳамёни ҳуҷҷатҳо", ru:"Документы", en:"Document wallet" },
@@ -1200,7 +1217,9 @@ function renderSearch(q){
     $("#searchHint").textContent = copy.searchOften;
   } else {
     /* a life situation must match every word — one shared word («регистрация») is not intent */
-    const intents = rankByWords(INTENTS, it => (it.kw + " " + it.label[lang]).toLowerCase(), q)
+    /* lost documents is the emergency mode itself: its situation page would be a second answer */
+    const lifeIntents = lifePage.intents().filter(it => it.act.hash !== "#/life/lost");
+    const intents = rankByWords([...INTENTS, ...lifeIntents], it => (it.kw + " " + it.label[lang]).toLowerCase(), q)
       .filter(r => r.all)
       .slice(0, 2)
       .map(({ x:it }) => ({ type:"intent", icon:it.icon, label:it.label[lang], meta:it.meta[lang], act:it.act }));
@@ -1240,6 +1259,7 @@ function pick(i){
   searchInput.value = "";
   if (r.type === "svc"){ navigate(r.hash); return; }
   if (r.act.type === "go") go(r.act.target);
+  else if (r.act.type === "nav") navigate(r.act.hash);
   else toast("toast.demo");
 }
 /* focus that the search gave itself (after Escape) must not reopen the list */
@@ -1314,6 +1334,21 @@ servicePage = initServicePage({
   toast,
   reduceMotion,
   headerHeight:() => $(".hdr")?.offsetHeight || 64
+});
+lifePage = initLifePage({
+  getLang:() => lang,
+  t,
+  esc,
+  lookup:(cat, re) => servicePage.lookup(cat, re),
+  reduceMotion,
+  headerHeight:() => $(".hdr")?.offsetHeight || 64
+});
+homeSupport = initHomeSupport({
+  getLang:() => lang,
+  signedIn,
+  t,
+  esc,
+  reduceMotion
 });
 applyAuth();
 applyLang();

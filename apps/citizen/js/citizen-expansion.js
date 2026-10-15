@@ -1,4 +1,6 @@
 const icon = name => `<svg aria-hidden="true"><use href="/design-system/assets/icons.svg#${name}"/></svg>`;
+/* a brand scene for an empty state (design-system/assets/illustrations.svg) */
+const scene = name => `<svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-${name}"/></svg>`;
 
 export const GUEST_CATALOG = [
   { id:"gov", label:{tg:"Марказҳои хизматрасонӣ",ru:"Центры обслуживания",en:"Service centres"}, chip:{tg:"Марказҳо",ru:"Центры",en:"Centres"}, subs:[{ label:null, items:[
@@ -180,7 +182,7 @@ export function initCitizenExpansion(ctx){
     const c=text(), apps=appList();
     const devBtn = isDev ? `<button class="btn btn-ghost btn-sm" data-app-action="empty">${c.devEmpty}</button>` : "";
     if(state.appsEmpty){
-      root.innerHTML=`<div class="empty-state"><span class="empty-state__icon">${icon("i-doc")}</span><h3>${c.emptyApps}</h3><button class="btn btn-sec" data-app-action="restore">${c.restore}</button></div>`;
+      root.innerHTML=`<div class="empty-state">${scene("state-empty")}<h3>${c.emptyApps}</h3><button class="btn btn-sec" data-app-action="restore">${c.restore}</button></div>`;
       return;
     }
     if(state.appView==="detail"){
@@ -219,7 +221,7 @@ export function initCitizenExpansion(ctx){
       (state.status==='all'&&state.agency==='all'?activeStrip(apps,c):"") +
       `<p class="app-results" role="status" aria-live="polite">${c.results.replace('{n}',filtered.length)} · ${c.newest}</p>` +
       (filtered.length?`<div class="application-list">${filtered.map(a=>applicationRow(a,c)).join("")}</div>`
-        :`<div class="empty-state"><span class="empty-state__icon">${icon("i-search")}</span><h3>${c.emptyApps}</h3><button class="btn btn-sec" data-app-action="reset">${c.reset}</button></div>`);
+        :`<div class="empty-state">${scene("state-nothing-found")}<h3>${c.emptyApps}</h3><button class="btn btn-sec" data-app-action="reset">${c.reset}</button></div>`);
   }
 
   /* filter state lives in the URL, merged with the router's hash (§7) */
@@ -286,7 +288,7 @@ export function initCitizenExpansion(ctx){
 
   const downloadStub=(name,lines)=>{const blob=new Blob([lines.join('\n')],{type:'application/pdf'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   function receivedFiles(){const c=text();return state.journeyComplete?[{id:'birth-file',owner:'kids',title:c.birthFile,format:'PDF',meta:'САҲШ · 12.08.2026 · 284 КБ · бемӯҳлат',new:true},{id:'fee-receipt',owner:'me',title:c.receiptFile,format:'PDF',meta:`${ctx.getLang()==='tg'?'Кумитаи андоз':'Налоговый комитет'} · 12.08.2026 · 96 КБ`,new:true}]:[];}
-  function renderFiles(){const root=$("#receivedFilesRoot");if(!root)return;const c=text(),files=receivedFiles().filter(f=>f.owner===state.owner);root.innerHTML=files.length?`<div class="received-file-list">${files.map(f=>`<article class="received-file-row"><span class="format-tile format-tile--${f.format.toLowerCase()}">${f.format}</span><div><h3>${f.title}${f.new?` <span class="badge-new">${c.newBadge}</span>`:''}</h3><p>${f.meta}</p></div><div class="received-file-actions"><button class="btn btn-ghost btn-sm" data-file-open="${f.id}">${c.fileOpen}</button><button class="btn btn-sec btn-sm" data-file-download="${f.id}">${icon('i-download')}${c.fileDownload}</button></div></article>`).join('')}</div>`:`<div class="empty-state received-empty"><span class="empty-state__icon">${icon('i-doc')}</span><p>${c.filesEmpty}</p></div>`;return files.length;}
+  function renderFiles(){const root=$("#receivedFilesRoot");if(!root)return;const c=text(),files=receivedFiles().filter(f=>f.owner===state.owner);root.innerHTML=files.length?`<div class="received-file-list">${files.map(f=>`<article class="received-file-row"><span class="format-tile format-tile--${f.format.toLowerCase()}">${f.format}</span><div><h3>${f.title}${f.new?` <span class="badge-new">${c.newBadge}</span>`:''}</h3><p>${f.meta}</p></div><div class="received-file-actions"><button class="btn btn-ghost btn-sm" data-file-open="${f.id}">${c.fileOpen}</button><button class="btn btn-sec btn-sm" data-file-download="${f.id}">${icon('i-download')}${c.fileDownload}</button></div></article>`).join('')}</div>`:`<div class="empty-state received-empty">${scene('account-my-documents')}<p>${c.filesEmpty}</p></div>`;return files.length;}
 
   function renderChildren(){
     const root=$("#childrenRoot"); if(!root)return; const c=text();

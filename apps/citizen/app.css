@@ -13,11 +13,11 @@ body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
    card grid uses --home-gap, every card has the --home-pad inset and --home-r
    corners — so «for you», the life situations and the news read as one page,
    not three stacked strips */
-#scr-home{--home-band:var(--s-12); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-xl); --home-pill:var(--panel)}
+#scr-home,#scr-life{--home-band:var(--s-12); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-xl); --home-pill:var(--panel)}
 /* a quiet action sits a step above its card: paper in light; in dark, paper is
    darker than any card, so the step is a veil of ink instead — the same
    lift on the grey «for you» cards and the blue life-situation cards */
-[data-theme="dark"] #scr-home{--home-pill:color-mix(in srgb, var(--ink) 9%, transparent)}
+[data-theme="dark"] :is(#scr-home,#scr-life){--home-pill:color-mix(in srgb, var(--ink) 9%, transparent)}
 /* the last band's 48 and the footer's own 48 are the page's end: no screen padding on top */
 #scr-home.screen{padding-bottom:0}
 
@@ -35,7 +35,7 @@ body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
   box-shadow:0 1px 0 var(--line); /* a shadow, not a border: the bar stays exactly --h-portalbar */
   transition:background-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
-body:has(#scr-home:not([hidden])) .hdr:not(.is-scrolled){
+body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled){
   background:transparent; box-shadow:none;
   backdrop-filter:none; -webkit-backdrop-filter:none;
 }
@@ -495,46 +495,41 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
 .sect-more:hover{text-decoration:underline; text-underline-offset:3px}
 @media (pointer:coarse){ .sect-more{padding-block:10px; margin-block:-10px} } /* 44px target, same line */
 /* every situation is visible at once — no pager: four columns, two rows */
-.moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--home-gap)}
+.moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); grid-auto-rows:1fr; gap:var(--home-gap)} /* one box for every card, whichever row a long title is in */
+/* A card is the moment's scene: what it is and what is inside it on top, the
+   brand illustration in its corner, the way forward pinned to the foot. The
+   card is a link to the situation's page, never straight into a service. The
+   drawings keep 18% of their box as margin, so a --art box flush in the corner
+   puts their lines on the card's own inset; the copy paints above the art. */
 .moment{
-  position:relative; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
-  min-height:212px; /* Figma 248 × .85; text never needs more */
-  padding:var(--home-pad) var(--home-pad) var(--s-3); overflow:hidden;
-  background:var(--blue-tint); border-radius:var(--home-r); text-align:left; scroll-snap-align:start;
+  --art:136px;
+  position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
+  min-height:224px; padding:var(--home-pad); overflow:hidden;
+  background:var(--blue-tint); border-radius:var(--home-r); color:var(--ink); text-align:left; scroll-snap-align:start;
   transition:background var(--t-fast) var(--ease);
 }
 .moment:hover,.moment:focus-visible{background:var(--blue-tint-hover)}
-/* until the illustration set is complete every card carries a glyph instead —
-   two illustrated cards of eight read as an unfinished row. The glyph stands
-   alone at the top, in a well on the action pill's paper; the copy rides down
-   on the action, so the space between them absorbs any wrapping */
-.moment-ic{
-  display:grid; place-items:center; flex:none; width:48px; height:48px;
-  border-radius:var(--r-m); background:var(--home-pill); color:var(--blue-ink);
+.moment-copy{
+  display:grid; gap:var(--s-1); max-width:100%;
+  /* room for the scene under the copy: the drawing starts 82% of --art above the
+     card's foot, the way forward and the inset take 40 + --home-pad of that, and
+     --s-2 is the least air between the words and the lines. A title that wraps
+     grows the card instead of running into its scene. */
+  margin-bottom:calc(var(--art) * .82 - 40px - var(--home-pad) + var(--s-2));
 }
-.moment-ic svg{width:24px; height:24px}
-.moment-copy{position:relative; z-index:1; display:grid; gap:var(--s-1); max-width:100%; margin-top:auto}
-.moment-title{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.4}
+.moment-title{font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.35; text-wrap:balance}
 .moment-text{
-  color:var(--ink-2); font-size:var(--fs-13); line-height:1.5; overflow:hidden;
+  color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; text-wrap:pretty; overflow:hidden;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
 }
-/* illustrations are full Figma canvases (mostly transparent); each is placed so
-   its object lands where the frame draws it — right edge, above the action.
-   Parked while the set is drawn: no card uses .moment--art until all eight can */
-.moment-art{position:absolute; height:auto; pointer-events:none}
-.moment-art--rings{width:263px; top:-8px; right:-7px}
-.moment-art--bouquet{width:207px; top:37px; right:15px}
-.moment--art .moment-text{max-width:60%}
-/* the action pill sits on the card's own inset, below the copy's edge;
-   with art it hugs its label, without art it spans the card */
-.moment-cta{
-  position:relative; z-index:1; margin:var(--s-3) 0 0 calc(var(--s-3) - var(--home-pad));
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:var(--s-2) var(--s-3); border-radius:var(--r-pill); background:var(--home-pill);
-  color:var(--blue-ink); font-size:var(--fs-13); line-height:1.5; white-space:nowrap;
+/* the way forward: a round step on the action-pill surface, on the copy's edge (§5 casebook 1) */
+.moment-go{
+  display:grid; place-items:center; flex:none; width:40px; height:40px; margin-top:auto;
+  border-radius:50%; background:var(--home-pill); color:var(--ink);
 }
-.moment:not(.moment--art) .moment-cta{align-self:stretch; margin-right:calc(var(--s-3) - var(--home-pad))}
+.moment-go svg{width:18px; height:18px; transition:translate var(--t-fast) var(--ease)}
+@media (hover:hover) and (pointer:fine){ .moment:hover .moment-go svg{translate:2px 0} }
+.moment-art{position:absolute; z-index:-1; right:0; bottom:0; width:var(--art); height:var(--art); pointer-events:none}
 
 /* ============ NEWS + APP (Figma 130:4170) ============ */
 .news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--home-gap)}
@@ -557,6 +552,125 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
 .app-card__phone{position:absolute; top:72px; right:var(--s-6); width:224px; height:auto; pointer-events:none}
 /* a black QR needs paper under it to scan on a dark card */
 [data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); background:var(--pure-white); border-radius:var(--r-s); left:calc(var(--home-pad) - var(--s-1)); bottom:calc(var(--home-pad) - var(--s-1))}
+
+/* ============ QUESTIONS + SUPPORT ============ */
+/* The page's last band answers before it asks. The common questions are an
+   open list on the ground: text on the content edge, hairlines between, no
+   card, because eight boxed questions would out-shout their own answers.
+   Beside it is one card for anything the list misses: neutral paper with a
+   hairline (on the near-white ground paper needs the line to read), the
+   home's --home-r corners and --home-pad inset, and inside it the shared
+   controls exactly as they ship — fields on --field, the .seg topic choice,
+   quiet buttons as .btn-sec. Blue is left to what can be pressed.
+   Its responsive rules live with it: the card reflows by its own width (a
+   container), not by the viewport's. */
+.faq-sup{
+  display:grid; grid-template-columns:minmax(0, 7fr) minmax(0, 5fr);
+  column-gap:var(--s-12); row-gap:var(--s-10); align-items:start;
+}
+.faq-list{border-top:1px solid var(--line-in)}
+.faq-item{border-bottom:1px solid var(--line-in)}
+.faq-item > summary{
+  display:flex; align-items:center; gap:var(--s-4); min-height:72px; padding-block:var(--s-4);
+  list-style:none; cursor:pointer; color:var(--ink);
+  font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.4;
+}
+.faq-item > summary::-webkit-details-marker{display:none}
+.faq-item > summary:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r-s)}
+.faq-q{min-width:0; text-wrap:pretty}
+/* the row's hover lives in the chevron's round well: a row fill would have
+   to fight the hairlines for an edge. The glyph sits on the column edge and
+   the well hangs past it (§5 casebook 3); only the glyph turns */
+.faq-chev{
+  display:grid; place-items:center; flex:none; width:36px; height:36px;
+  margin:calc(-1 * var(--s-1)) calc((16px - 36px) / 2) calc(-1 * var(--s-1)) auto;
+  border-radius:var(--r-pill); color:var(--ink-3);
+  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.faq-chev svg{width:16px; height:16px; transition:rotate var(--t-fast) var(--ease)}
+.faq-item[open] .faq-chev svg{rotate:180deg}
+.faq-item[open] .faq-chev{color:var(--ink)}
+@media (hover:hover) and (pointer:fine){ .faq-item > summary:hover .faq-chev{background:var(--field); color:var(--ink)} }
+.faq-item > summary:active .faq-chev{background:var(--press)}
+/* the answer continues the question's edge, on a reading measure; it fades
+   in, it does not travel (the disclosure contract, §8) */
+.faq-a{max-width:64ch; padding:0 var(--s-12) var(--s-6) 0; color:var(--ink-2); font-size:var(--fs-15); line-height:1.6}
+.faq-item[open] .faq-a{animation:faqIn var(--t-step) var(--ease-out) both}
+@keyframes faqIn{from{opacity:0}}
+.faq-more{display:inline-block; margin-top:var(--s-2); color:var(--blue-ink); border-radius:var(--r-s)}
+.faq-more:hover{text-decoration:underline; text-underline-offset:3px}
+
+.sup{
+  container-type:inline-size;
+  display:flex; flex-direction:column; min-width:0;
+  padding:var(--home-pad); border:1px solid var(--line-in); border-radius:var(--home-r); background:var(--panel);
+}
+/* the heading carries the help guide's scene (§3 Brand illustrations); the
+   drawing's own 18% margin is the card's inset, so its lines meet the padding
+   edge and it costs the heading no height */
+.sup-head{display:grid; grid-template-columns:minmax(0, 1fr) auto; column-gap:var(--s-4); align-items:start}
+.sup-head > :not(.sup-ill){grid-column:1}
+.sup-ill{grid-column:2; grid-row:1 / span 2; width:88px; height:88px; margin:calc(-.18 * 88px) calc(-.18 * 88px) calc(-.18 * 88px) 0}
+.sup-title{font-size:var(--fs-20); font-weight:var(--weight-semibold); line-height:1.3}
+.sup-title:focus{outline:none}
+.sup-lead{margin-top:var(--s-1); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:balance}
+.sup-form{margin-top:var(--s-5)}
+.sup textarea.input{min-height:128px}
+/* the topic is the shared .seg; the fieldset only gives up its own box */
+.sup-topics{min-width:0; margin:0 0 var(--s-5); border:0}
+.sup-pair{display:grid; grid-template-columns:minmax(0, 1fr); column-gap:var(--s-3)}
+/* a pointer to an answer that may already exist, under what is being typed */
+.sup-match{margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-13); line-height:1.5}
+.sup-match__link{
+  display:inline; padding:0; color:var(--blue-ink); font:inherit; font-weight:var(--weight-medium); text-align:left;
+  text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--blue-ink) 40%, transparent); text-underline-offset:3px;
+  border-radius:var(--r-s);
+}
+.sup-match__link:hover{text-decoration-color:currentColor}
+.sup-send{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3) var(--s-4)}
+.sup-send .btn{flex:none}
+.sup-note{flex:1 1 12em; min-width:0; color:var(--ink-3); font-size:var(--fs-13); line-height:1.45}
+.sup-form[aria-busy="true"] .sup-send .btn{cursor:progress}
+/* the call row closes the card in both states: the question and the hours on
+   the left, the number as a quiet pill to tap */
+.sup-call{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-4);
+  margin-top:auto; padding-top:var(--s-5);
+  border-top:1px solid var(--line-in);
+}
+.sup-body,.sup-done{margin-bottom:var(--s-5)}
+.sup-call__text{display:grid; gap:2px; color:var(--ink); font-size:var(--fs-14); line-height:1.4}
+.sup-call__hours{color:var(--ink-3); font-size:var(--fs-13)}
+.sup-call__tel{flex:none; font-variant-numeric:tabular-nums}
+.sup-call__tel svg{width:16px; height:16px; color:var(--ink-2)}
+/* sent: the same card, the same height, one quiet way back */
+.sup-done{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-block:var(--s-6); text-align:center}
+.sup-done .sup-lead{max-width:34ch; margin-top:var(--s-2)}
+.sup-done__id,.sup-done__to{white-space:nowrap}
+.sup-done__id{color:var(--ink); font-weight:var(--weight-medium); font-variant-numeric:tabular-nums}
+.sup-done .btn{margin-top:var(--s-5)}
+.sup-done__ill{width:128px; height:128px; margin-bottom:var(--s-2)} /* the brand's «sent» scene, as on every sent screen */
+
+/* the card reflows by its own width: two fields abreast once they fit, and a
+   wide card (one column, below 1080px) sets its heading beside the form */
+@container (min-width: 420px){ .sup-pair{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+@container (min-width: 720px){
+  .sup-body{display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 3fr); column-gap:var(--s-10); align-items:start}
+  .sup-form{margin-top:0}
+}
+@container (max-width: 340px){
+  .sup-ill{display:none} /* on a phone the heading keeps the width */
+  .sup-send .btn{flex:1 1 100%}
+  .sup-call__tel{flex:1 1 100%}
+}
+@media (max-width:1080px){
+  .faq-sup{grid-template-columns:minmax(0, 1fr)}
+}
+@media (max-width:560px){
+  .faq-item > summary{min-height:64px; font-size:var(--fs-16)}
+  .faq-a{padding-right:0}
+}
+@media (pointer:coarse){ .sup-topics.seg label{min-height:var(--h-btn-m)} }
 
 /* ============ FOOTER ============ */
 footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
@@ -665,7 +779,7 @@ a.ft-c:hover{color:var(--ink)}
 .svc-row .tt b{display:block; font-weight:var(--weight-regular); font-size:var(--fs-14); line-height:1.45; color:var(--ink)}
 .svc-row .tt .org{display:block; margin-top:4px; font-size:var(--fs-13); color:var(--ink-3)}
 .svc-row .tag{flex:none}
-.svc-row .tag.free{color:var(--green-ink); background:var(--green-tint)}
+.svc-row .tag.free,.life-svc .tag.free{color:var(--green-ink); background:var(--green-tint)}
 .svc-row .svc-go{width:16px; height:16px; flex:none; color:var(--ink-3)}
 .cp-empty{
   background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
@@ -677,10 +791,12 @@ a.ft-c:hover{color:var(--ink)}
    lives, what it is and who provides it, four facts, what happens next, then
    the depth most people skip behind disclosures. The decision — online or at
    a centre — sits beside the reading column with the help that explains it,
-   and stays in view while the citizen reads. */
+   and stays in view while the citizen reads. It starts on the facts' line:
+   the title row stays the title's, and the decision sits beside what it
+   decides on. */
 .svc-page{
   display:grid; grid-template-columns:minmax(0,1fr) var(--w-context); column-gap:var(--s-10); align-items:start;
-  grid-template-areas:"crumbs crumbs" "head aside" "facts aside" "next aside" "more aside" "related aside";
+  grid-template-areas:"crumbs crumbs" "head ." "facts aside" "next aside" "more aside" "related aside";
 }
 .svc-page > .ekh-crumbs{grid-area:crumbs}
 .svc-head{grid-area:head; margin:var(--s-2) 0 var(--s-6)}
@@ -708,7 +824,7 @@ a.ft-c:hover{color:var(--ink)}
 .svc-related{grid-area:related}
 .svc-steps{margin:0; padding:0; list-style:none; border-radius:var(--r-l)}
 .svc-steps .e-step{padding:var(--s-4) var(--s-5)}
-.svc-aside{grid-area:aside; position:sticky; top:calc(var(--h-portalbar) + var(--s-6)); display:grid; gap:var(--s-5); align-content:start; margin-top:var(--s-2)}
+.svc-aside{grid-area:aside; position:sticky; top:calc(var(--h-portalbar) + var(--s-6)); display:grid; gap:var(--s-5); align-content:start}
 .svc-apply{padding:var(--s-6); background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l)}
 .svc-apply__meta{margin-top:var(--s-3); color:var(--ink-3); font-size:var(--fs-13); line-height:1.5}
 .svc-apply__alt{display:grid; gap:var(--s-1); margin-top:var(--s-5); padding-top:var(--s-5); border-top:1px solid var(--line-in)}
@@ -729,10 +845,75 @@ a.ft-c:hover{color:var(--ink)}
 .svc-help__link:focus-visible{outline:2px solid var(--focus); outline-offset:-2px}
 @media (hover:hover) and (pointer:fine){ .svc-help__link:hover{background:var(--hover)} }
 
+/* ============ LIFE SITUATION PAGES (design-guide §3 «Citizen life situations») ============ */
+/* The page opens on the card it came from: the home's wash runs under the bar,
+   the title sits on the content edge and the situation's scene stands beside
+   it. Below, the help guide's anatomy — a contents menu that follows the
+   reading position and one panel per step — so the citizen learns one way of
+   moving through a long page. */
+.life-wrap{width:min(100%, var(--maxw)); margin-inline:auto; padding-inline:var(--gutter)}
+.life-band{margin-top:calc(-1 * var(--h-portalbar)); padding-top:var(--h-portalbar); background:var(--hero-soft)}
+.life-hero{display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:end; column-gap:var(--s-10)}
+.life-hero__copy{min-width:0; padding-bottom:var(--s-10)}
+.life-hero h1{max-width:22em; font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2; text-wrap:balance}
+.life-hero__lead{max-width:62ch; margin-top:var(--s-3); color:var(--ink-2); font-size:var(--fs-15); line-height:1.55; text-wrap:pretty}
+.life-hero__act{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-2) var(--s-4); margin-top:var(--s-6)}
+.life-hero__act > span{color:var(--ink-2); font-size:var(--fs-14)}
+/* the scene stands on the band's foot; its own margin keeps it off the edge */
+.life-hero__art{width:208px; height:208px; margin-right:calc(-1 * var(--s-4))}
+
+/* contents + steps */
+.life-grid{margin-top:var(--s-10)}
+.life-toc{top:calc(var(--h-portalbar) + var(--s-6))}
+.life-toc .pn{align-items:flex-start}
+.life-toc__n{width:18px; flex:none; color:var(--ink-3); font-variant-numeric:tabular-nums; text-align:center}
+.life-toc .pn[aria-current="true"] .life-toc__n{color:inherit}
+.life-body{display:grid; gap:var(--s-4); min-width:0}
+.life-step,.life-faq{scroll-margin-top:calc(var(--h-portalbar) + var(--s-6))}
+.life-step{padding:var(--s-6); background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l)}
+/* the number is sequence, not state: the quiet circle of the step lists (.e-step .n) */
+.life-step__head{display:flex; align-items:flex-start; gap:var(--s-4)}
+.life-step__n{
+  width:32px; height:32px; flex:none; display:grid; place-items:center; border-radius:50%;
+  background:var(--field); color:var(--ink-2); font-size:var(--fs-14); font-weight:var(--weight-semibold); font-variant-numeric:tabular-nums;
+}
+.life-step h2{padding-top:5px; font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.3} /* a panel title (§4), centred on the 32px number */
+/* the body continues the title's text edge, not the number's */
+.life-step__body{margin-top:var(--s-2); padding-left:calc(32px + var(--s-4))}
+.life-step__text{max-width:68ch; color:var(--ink); font-size:var(--fs-15); line-height:1.6}
+.life-need{margin-top:var(--s-4)}
+.life-need b{display:block; margin-bottom:var(--s-1); color:var(--ink-3); font-size:var(--fs-13); font-weight:var(--weight-medium)}
+.life-need ul{margin:0; padding-left:1.2em; font-size:var(--fs-14); line-height:1.6}
+.life-note{align-items:flex-start; max-width:68ch; margin-top:var(--s-4); font-size:var(--fs-14); line-height:1.5}
+.life-note > svg{width:18px; height:18px; margin-top:1px}
+/* each service of the step: a quiet group on the panel, its overview one click away */
+.life-svcs{display:grid; gap:var(--s-2); margin:var(--s-5) 0 0; padding:0; list-style:none}
+.life-svc{
+  display:flex; align-items:center; gap:var(--s-4); padding:var(--s-3) var(--s-4);
+  border-radius:var(--r-m); background:var(--field-on-panel); color:var(--ink);
+  transition:background var(--t-fast) var(--ease);
+}
+@media (hover:hover) and (pointer:fine){ .life-svc:hover{background:linear-gradient(var(--hover), var(--hover)), var(--field-on-panel)} }
+.life-svc__copy{display:grid; gap:2px; flex:1; min-width:0}
+.life-svc__copy b{font-size:var(--fs-14); font-weight:var(--weight-regular); line-height:1.45} /* the catalogue row's own title (.svc-row) */
+/* the agency is long officialese: one line, the full name on the overview */
+.life-svc__copy span{overflow:hidden; color:var(--ink-3); font-size:var(--fs-13); line-height:1.45; white-space:nowrap; text-overflow:ellipsis}
+.life-svc .tag{flex:none}
+.life-svc .tag.pay{background:var(--panel)} /* --field would vanish into the row */
+.life-svc__go{width:16px; height:16px; flex:none; color:var(--ink-3)}
+.life-faq{margin-top:var(--s-4)}
+.life-faq > h2,.life-more > h2{margin-bottom:var(--s-3); font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.3}
+.life-more{margin-top:var(--s-12)}
+.life-more__grid{grid-template-columns:repeat(3, minmax(0, 1fr))}
+/* the full list: the home's cards, on the ground under the wash like the news cards */
+.life-all{padding-top:var(--home-band)}
+.life-hero--index{grid-template-columns:minmax(0, 1fr)}
+
 /* ============ HELP GUIDE ============ */
 /* short sections with a contents menu — the profile's side nav, so the
    citizen learns one way of moving around a long page */
-.help-head{margin:var(--s-2) 0 var(--s-8)}
+.help-head{display:flex; align-items:center; justify-content:space-between; gap:var(--s-8); margin:var(--s-2) 0 var(--s-8)}
+.help-head > .ekh-ill{width:112px; height:112px; margin-block:calc(-1 * var(--s-4))} /* the scene's own margin is the air: it does not grow the header */
 .help-head h1{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
 .help-lead{max-width:60ch; margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-16); line-height:1.5; text-wrap:pretty}
 .help-toc{top:calc(var(--h-portalbar) + var(--s-6))}
@@ -803,9 +984,7 @@ a.ft-c:hover{color:var(--ink)}
 
 /* success */
 .success{text-align:center; padding-top:var(--s-8)}
-.success .ring{width:96px; height:96px; margin:0 auto var(--s-6); color:var(--green)}
-.success .ring circle{stroke-dasharray:289; stroke-dashoffset:289; animation:draw .7s var(--ease) .1s forwards}
-.success .ring path{stroke-dasharray:60; stroke-dashoffset:60; animation:draw .45s var(--ease) .55s forwards}
+.success > .ekh-ill{width:128px; height:128px; margin:0 auto var(--s-4)} /* the application went out: the brand's «sent» scene */
 @keyframes draw{to{stroke-dashoffset:0}}
 .success h2{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
 .success .when{color:var(--ink-3); margin:var(--s-2) 0 var(--s-6)}
@@ -859,10 +1038,14 @@ a.ft-c:hover{color:var(--ink)}
 }
 /* an empty panel holds its ground with deliberate air (§5 casebook 6) */
 .wallet-empty{
+  display:grid; justify-items:center; gap:var(--s-4);
   background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l);
   padding:var(--s-10) var(--s-8); text-align:center; color:var(--ink-3); font-size:var(--fs-14);
 }
 .wallet-empty span{display:block; max-width:46ch; margin:0 auto}
+/* an empty panel's scene: the picture of the state, above its one line (§6 empty states) */
+.wallet-empty > .ekh-ill,.cp-empty > .ekh-ill{width:112px; height:112px; margin-inline:auto}
+.cp-empty > .ekh-ill{margin-bottom:var(--s-3)}
 .received-documents{margin-top:var(--s-8)}
 .received-file-list{display:grid;border:1px solid var(--line-in);border-radius:var(--r-l);overflow:hidden;background:var(--panel)}
 .received-file-row{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:var(--s-4);padding:var(--s-4) var(--s-5)}
@@ -896,6 +1079,9 @@ a.ft-c:hover{color:var(--ink)}
 
 /* ============ EMERGENCY SCREEN ============ */
 .e-hero{margin:var(--s-6) 0 var(--s-8)}
+/* calm first: the documents get locked. The drawing's own 18% margin hangs
+   outside the content edge, so its lines meet the title's edge (§5 casebook 3) */
+.e-hero > .ekh-ill{margin:0 0 var(--s-3) calc(-.18 * 96px)}
 .e-hero h1{font-size:var(--fs-28); font-weight:var(--weight-semibold)}
 .e-hero .lead{color:var(--ink-2); margin-top:var(--s-3)}
 .e-steps{background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-xl); overflow:hidden; margin-bottom:var(--s-8)}
@@ -1142,8 +1328,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 .profile-photo-modal{max-width:440px}.profile-photo-preview{width:140px;height:140px;display:grid;place-items:center;margin:0 auto var(--s-4);border-radius:50%;background:var(--h-blue-bg);color:var(--h-blue-fg);font-size:var(--fs-32);font-weight:var(--weight-semibold)}
 .profile-photo-pick{display:inline-flex;margin-bottom:var(--s-2);cursor:pointer}.profile-photo-pick svg{width:16px;height:16px}.profile-photo-modal .field-help{display:block;margin-bottom:var(--s-3);color:var(--ink-3)}
 .profile-photo-modal .field-error{margin:var(--s-3) 0;text-align:left}
-.empty-state__icon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--field);color:var(--ink-3)}
-.empty-state__icon svg{width:24px;height:24px}
 .biometric-modal{text-align:center}
 .biometric-modal .demo-data-badge{margin:0 auto var(--s-4)}
 .biometric-modal .facescan{margin:var(--s-5) auto}
@@ -1164,6 +1348,9 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
     background-image:image-set(url("./assets/home-hero-strip-dark.webp") 1x, url("./assets/home-hero-strip-dark@2x.webp") 2x);
   }
   .moments{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  /* two columns of «other situations»: the third would sit alone */
+  .life-more__grid > :nth-child(3){display:none}
+  .life-hero__art{width:168px; height:168px}
   .news-grid{grid-template-columns:minmax(0,1fr)}
   /* two columns: the feature across the top, the deadline and the bill under
      it, then what is moving and the wallet, each the full width */
@@ -1238,7 +1425,20 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .hdr-acts{flex:none}
   .hdr-acts .hdr-login{padding:0 var(--s-3)}
   .hero h1{font-size:var(--fs-28)}
-  #scr-home{--home-band:var(--s-10); --home-gap:var(--s-3); --home-pad:var(--s-5)}
+  #scr-home,#scr-life{--home-band:var(--s-10); --home-gap:var(--s-3); --home-pad:var(--s-5)}
+  .moment{--art:120px; min-height:208px}
+  /* a swipe row has room for every «other situation» */
+  .life-more__grid > :nth-child(3){display:flex}
+  /* the copy keeps the width: the scene joins the reading order and stands on
+     the band's foot after it, the way the news card's art does on a phone */
+  .life-hero{grid-template-columns:minmax(0, 1fr)}
+  .life-hero__art{justify-self:end; width:112px; height:112px; margin:calc(-1 * var(--s-4)) calc(-1 * var(--s-3)) 0 0}
+  .life-hero__copy{padding-bottom:0}
+  .life-hero--index .life-hero__copy{padding-bottom:var(--s-8)} /* no scene under it */
+  .life-grid{margin-top:var(--s-6)}
+  .life-step{padding:var(--s-5)}
+  .life-step__body{margin-top:var(--s-3); padding-left:0}
+  .life-more{margin-top:var(--s-10)}
   main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-10)}
   .home-sect .sect-h{margin-bottom:var(--s-5)}
   /* one column; the fan leads the feature card, the wallet becomes a swipe row */
@@ -1274,7 +1474,8 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .search-btn span{display:none}
   .search-btn svg{display:block}
   .frow{padding:var(--s-4)}
-  .cp-head h1,.e-hero h1,.prof-head h1,.svc-head h1,.help-head h1{font-size:var(--fs-24)}
+  .cp-head h1,.e-hero h1,.prof-head h1,.svc-head h1,.help-head h1,.life-hero h1{font-size:var(--fs-24)}
+  .help-head > .ekh-ill{display:none} /* on a phone the title keeps the width */
   /* two columns of uneven facts leave hollow cards at phone width: one list, hairline-divided */
   .svc-facts{grid-template-columns:minmax(0,1fr); gap:0; overflow:hidden; background:var(--panel); border:1px solid var(--line-in); border-radius:var(--r-l)}
   .svc-fact{padding:var(--s-3) var(--s-4); border:0; border-radius:0; background:none}

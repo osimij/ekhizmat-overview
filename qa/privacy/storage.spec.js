@@ -38,7 +38,7 @@ test('TSON wipes citizen data from memory, DOM, storage and URL when a visit end
   await page.locator('[data-act="login-next"]').click();
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
-  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await expect(page.locator('.s-window [data-action="call"]')).toBeVisible();
 
   await page.keyboard.press('`');
   const demo = page.locator('.demo');

@@ -38,4 +38,40 @@ for (const theme of ['light', 'dark']) {
     const serious = results.violations.filter(item => ['serious', 'critical'].includes(item.impact));
     expect(serious, serious.map(item => `${item.id}: ${item.help}`).join('\n')).toEqual([]);
   });
+
+  /* ЦОН electronic queue: the free window with its listbox, a called ticket
+     with disabled-with-reason actions, and both decision dialogs. */
+  test(`TSON queue ${theme} has no serious accessibility violations`, async ({ page }) => {
+    const scan = async () => {
+      await page.waitForTimeout(300);
+      const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+      return results.violations.filter(item => ['serious', 'critical'].includes(item.impact))
+        .map(item => `${item.id}: ${item.help} → ${item.nodes.map(node => node.target.join(' ')).join(', ')}`);
+    };
+    await page.goto(`/tson/?theme=${theme}&lang=ru`, { waitUntil: 'networkidle' });
+    await page.locator('input[type="password"]').fill('demo');
+    await page.locator('[data-act="login-next"]').click();
+    const cells = page.locator('.otp__cell');
+    for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
+    await expect(page.locator('.s-queue [role="option"]').first()).toBeVisible();
+    const found = await scan();
+
+    await page.locator('.s-window [data-action="call"]').click();
+    await expect(page.locator('.s-window [data-action="noShow"]')).toBeVisible();
+    found.push(...await scan());
+
+    await page.locator('.s-window [data-action="transfer"]').click();
+    await expect(page.locator('.s-transfer-dialog .s-transfer__win').first()).toBeVisible();
+    found.push(...await scan());
+    await page.keyboard.press('Escape');
+
+    await page.locator('.s-window [data-action="start"]').click();
+    await expect(page).toHaveURL(/#\/identify/);
+    await page.getByRole('button', { name: 'Отменить приём' }).click();
+    await page.locator('.s-window [data-action="finish"]').click();
+    await expect(page.locator('.s-finish-dialog .s-finish__opt').first()).toBeVisible();
+    found.push(...await scan());
+
+    expect(found).toEqual([]);
+  });
 }

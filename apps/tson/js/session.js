@@ -19,6 +19,8 @@ import { t, errText } from './i18n.js';
 import { getState, subscribe, dispatch, patchSession, ST } from './store.js';
 import { session as api, consent } from './mock/api.js';
 import { stopwatch, countdown } from './clock.js';
+import { openFinish } from './visit.js';
+import { SERVICE } from './mock/data.js';
 
 const TTL_MS = 30 * 60_000;    // §6/S9c — «TTL сессии: 30:00»
 const WARN_MS = 5 * 60_000;    // «При 5:00 — полоса amber»
@@ -29,6 +31,7 @@ let elapsed = 0;
 let threshold = 0;             // 0 норма · 1 amber · 2 red — чтобы не орать дважды
 let extendShown = false;
 let paintTimer = () => {};
+let finished = null;           // {no, result} — чем закрыт талон, для итогового тоста
 
 export function ttlLeft() {
   return getState().app === ST.SESSION ? Math.max(0, TTL_MS - elapsed) : TTL_MS;
@@ -118,7 +121,14 @@ function finish(event) {
 
   if (event === 'REVOKED') return revoked();
   if (event === 'TTL_0') return expired();
-  toast(t('end.note'), 'success', 6000);
+  // Один тост на конец приёма: чем он закончился и что стало с данными.
+  // Два подряд («результат сохранён» и «данные удалены») читались бы как
+  // два разных события.
+  const done = finished;
+  finished = null;
+  toast(done
+    ? t('visit.finish.toast', { no: done.no, result: t(`visit.result.${done.result}.short`) })
+    : t('end.note'), 'success', 6000);
 }
 
 /* §9 — таймер объявляется только на порогах, не каждую секунду. */
@@ -128,9 +138,36 @@ function announce(text) {
   toast(text, 'warn', 6000);
 }
 
-/* ---------- завершение приёма (§6/S9b) ---------- */
+/* ---------- завершение приёма (§6/S9b) ----------
+   Приём закрывается результатом: консультация, заявление принято, отказ,
+   повторный визит или техническая проблема. Результат уходит на сервер
+   очереди вместе с талоном, и только после его ответа машина выходит из
+   сессии — если сервер не ответил, оператор остаётся в приёме с данными,
+   а не теряет их вместе с несохранённым результатом. Диалог общий с главной
+   (visit.js): из шапки, по F9 и для талона, оставшегося «на приёме». */
 export function endVisit() {
-  if (getState().app !== ST.SESSION) return;
+  const st = getState();
+  if (st.app !== ST.SESSION) return;
+  // F9 по уже открытому диалогу не кладёт второй поверх первого.
+  if (document.querySelector('#layers .ekh-dialog-backdrop:not([inert]) .s-finish-dialog')) return;
+  if (!st.ticket) return endWithoutTicket();
+
+  const ticket = st.ticket;
+  openFinish(ticket, Number(st.bind?.window) || 1, {
+    inSession: true,
+    guest: !!st.session?.guest,
+    serviceName: SERVICE[st.session?.service]?.name || null,
+    onDone: result => {
+      if (getState().app !== ST.SESSION) return;
+      finished = { no: ticket.no, result };
+      dispatch('END_CONFIRMED', { result });
+    },
+  });
+}
+
+/* Приём без талона бывает только у демо-панели, запущенной мимо очереди
+   (§11.5). Результат там записать некуда — остаётся прежнее подтверждение. */
+function endWithoutTicket() {
   const name = getState().session?.citizen?.profile?.full;
 
   let close = () => {};

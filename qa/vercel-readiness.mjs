@@ -18,6 +18,7 @@ const requiredRoutes = [
   '/admin/review.html',
   '/design-system/styleguide.html',
   '/design-system/assets/icons.svg',
+  '/design-system/assets/illustrations.svg',
 ];
 
 function outputPath(urlPath) {

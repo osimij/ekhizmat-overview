@@ -133,6 +133,13 @@ function initial() {
     operator: null,          // {name, login} — появляется после MFA_OK
     bind: null,              // {tson, window} — появляется после BIND_OK
 
+    /* Талон, по которому идёт приём: номер, зона, услуга из терминала. Не
+       данные гражданина — в талоне нет ничего о человеке, — поэтому он
+       живёт рядом с сессией, а не в ней, и виден уже на воротах (S2), когда
+       гражданина ещё никто не опознал. Сам талон и его статус хранит сервер
+       очереди (api.queue); здесь — только копия для шапки приёма. */
+    ticket: null,
+
     identify: null,          // {method, maskedName} — маска, НЕ данные гражданина
     consent: null,           // {status, scopes, requestedAt}
     session: null,           // ЕДИНСТВЕННОЕ место данных гражданина (§2.3.1)
@@ -287,7 +294,12 @@ function reduce(event, p, from, to) {
       // Приём начинается с поиска профиля, а не с метода (§6/S2): способ входа
       // выбирают после того, как реестр ответил, есть ли у человека профиль.
       // Поэтому метода здесь ещё нет — его кладёт ID_SENT.
+      //
+      // «Начать приём» относится к конкретному вызванному талону: экран
+      // передаёт талон, который сервер очереди только что перевёл в «на
+      // приёме». Талон живёт до конца приёма и уходит вместе с ним.
       state.identify = { method: null, maskedName: null };
+      state.ticket = p.ticket || null;
       break;
 
     case 'ID_SENT':
@@ -358,7 +370,12 @@ function reduce(event, p, from, to) {
     case 'TTL_0':
     case 'REVOKED':
       // wipe() уже отработал в dispatch до reduce.
+      // Талон с рабочего места уходит вместе с приёмом. На сервере он либо
+      // закрыт результатом (END_CONFIRMED из диалога завершения), либо всё
+      // ещё «на приёме» — тогда главная покажет его в окне и предложит
+      // завершить или начать заново.
       state.step = null;
+      state.ticket = null;
       state.shift = { ...state.shift, served: state.shift.served + (event === 'END_CONFIRMED' ? 1 : 0) };
 
       // Приём кончился, пока рабочее место заперто. Замок не снимаем (см.
@@ -371,6 +388,7 @@ function reduce(event, p, from, to) {
       break;
 
     case 'CANCEL':
+      state.ticket = null;
       state.identify = null;
       state.consent = null;
       state.step = null;

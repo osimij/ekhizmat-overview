@@ -228,79 +228,15 @@
       </div>
     </section>
 
-    <!-- life situations: two rows of tinted cards on a full-bleed paper band, «see all» on the
-         heading's line (Figma «Web» 130:4138); every card carries a glyph until the illustration set is complete -->
+    <!-- life situations: two rows of illustrated tinted cards on a full-bleed paper band, «see all»
+         on the heading's line; each card opens its situation's page (life-page.js renders them
+         from life-data.js — the cards, the list and the pages share one source) -->
     <section class="sect home-sect home-sect--paper" aria-labelledby="momH">
       <div class="sect-h">
         <h2 id="momH" data-i18n="mom.t">Лаҳзаҳои зиндагӣ</h2>
-        <button class="sect-more" type="button" data-toast="toast.demo" data-i18n="mom.all">Ҳамаро дидан</button>
+        <a class="sect-more" href="#/life" data-route data-i18n="mom.all">Ҳамаро дидан</a>
       </div>
-      <div class="moments" id="moments">
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-rings"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.wed.t">Издивоҷ мекунам</span>
-            <span class="moment-text" data-i18n="m.wed.p">Ариза ба САҲШ ва интихоби сана.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-go="journey">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-baby"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.baby.t">Фарзанддор шудам</span>
-            <span class="moment-text" data-i18n="m.baby.p">Шаҳодатнома, рақами андоз ва кумакпулӣ.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-biz"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.biz.t">Тиҷорат мекушоям</span>
-            <span class="moment-text" data-i18n="m.biz.p">Сабт, андоз ва суратҳисоби бонкӣ.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-move"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.move.t">Ба шаҳри нав мекӯчам</span>
-            <span class="moment-text" data-i18n="m.move.p">Қайд, мактаб ва духтури оилавӣ.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-job"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.job.t">Аз кор баромадам</span>
-            <span class="moment-text" data-i18n="m.job.p">Кумак, бозомӯзӣ ва ҷустуҷӯи кор.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-retire"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.ret.t">Ба нафақа мебароям</span>
-            <span class="moment-text" data-i18n="m.ret.p">Ҳисоби собиқа ва таъини нафақа.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-cat-land"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.home.t">Манзил мехарам</span>
-            <span class="moment-text" data-i18n="m.home.p">Бақайдгирии моликият, нотариус ва андози амвол.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-        <button class="moment" type="button" data-toast="toast.demo">
-          <span class="moment-ic" aria-hidden="true"><svg><use href="/design-system/assets/icons.svg#i-cat-transport"/></svg></span>
-          <span class="moment-copy">
-            <span class="moment-title" data-i18n="m.car.t">Автомобил мехарам</span>
-            <span class="moment-text" data-i18n="m.car.p">Бақайдгирӣ, муоинаи техникӣ ва рақами давлатӣ.</span>
-          </span>
-          <span class="moment-cta" data-i18n="mom.cta">Қадами навбатӣ</span>
-        </button>
-      </div>
+      <div class="moments" id="moments"></div>
     </section>
 
     <!-- news + app download (Figma «Web» 130:4170) -->
@@ -320,6 +256,66 @@
           <img class="app-card__stores" src="/apps/citizen/assets/app-stores.svg" width="104" height="66" data-i18n-alt="app.stores" alt="App Store ва Google Play">
           <img class="app-card__qr" src="/apps/citizen/assets/app-qr.svg" width="73" height="72" data-i18n-alt="app.qr" alt="Рамзи QR барои насби барнома">
           <img class="app-card__phone" src="/apps/citizen/assets/app-phone.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
+        </aside>
+      </div>
+    </section>
+
+    <!-- questions + support: the answers first, a message for anything they miss -->
+    <section class="sect home-sect" id="supportSect" aria-labelledby="faqH">
+      <div class="sect-h">
+        <h2 id="faqH" data-i18n="faq.t">Саволҳои маъмул</h2>
+        <a class="sect-more" href="#/help" data-route data-i18n="faq.all">Ҳамаи ҷавобҳо</a>
+      </div>
+      <div class="faq-sup">
+        <div class="faq-list" id="faqList"></div>
+        <aside class="sup" id="supCard" aria-labelledby="supH">
+          <div class="sup-body" id="supBody">
+            <div class="sup-head">
+              <h3 class="sup-title" id="supH" data-i18n="sup.t">Ҷавоб наёфтед?</h3>
+              <p class="sup-lead" data-i18n="sup.p">Ба мо нависед — дар давоми як рӯзи корӣ ҷавоб медиҳем.</p>
+              <svg class="ekh-ill sup-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-help-support"/></svg>
+            </div>
+            <form class="sup-form" id="supForm" novalidate>
+              <fieldset class="seg sup-topics">
+                <legend class="sr-only" data-i18n="sup.topic">Мавзӯи паём</legend>
+                <label><input type="radio" name="supTopic" value="q" checked><span data-i18n="sup.topic.q">Савол</span></label>
+                <label><input type="radio" name="supTopic" value="p"><span data-i18n="sup.topic.p">Мушкил</span></label>
+                <label><input type="radio" name="supTopic" value="f"><span data-i18n="sup.topic.f">Пешниҳод</span></label>
+              </fieldset>
+              <div class="sup-pair">
+                <div class="field">
+                  <label for="supName" data-i18n="sup.name">Ном</label>
+                  <input class="input" id="supName" name="name" type="text" autocomplete="name" aria-describedby="supNameErr">
+                  <p class="err-msg" id="supNameErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+                </div>
+                <div class="field">
+                  <label for="supContact" data-i18n="sup.contact">Телефон ё почта</label>
+                  <input class="input" id="supContact" name="contact" type="text" autocomplete="email" spellcheck="false" aria-describedby="supContactErr">
+                  <p class="err-msg" id="supContactErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+                </div>
+              </div>
+              <div class="field sup-msg">
+                <label for="supMsg" data-i18n="sup.msg">Паём</label>
+                <textarea class="input" id="supMsg" name="message" rows="4" maxlength="2000" aria-describedby="supMsgErr supMatch"></textarea>
+                <p class="err-msg" id="supMsgErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+                <p class="sup-match" id="supMatch" aria-live="polite" hidden><span data-i18n="sup.match">Шояд ҷавоб аллакай ҳаст:</span> <button class="sup-match__link" id="supMatchBtn" type="button"></button></p>
+              </div>
+              <div class="sup-send">
+                <button class="btn btn-pri" id="supSend" type="submit" data-i18n="sup.send">Фиристодан</button>
+                <p class="sup-note" data-i18n="sup.note">Маълумоти шумо танҳо барои ҷавоб истифода мешавад.</p>
+              </div>
+            </form>
+          </div>
+          <div class="sup-done" id="supDone" role="status" hidden>
+            <svg class="ekh-ill sup-done__ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-application-sent"/></svg>
+            <h3 class="sup-title" id="supDoneH" tabindex="-1" data-i18n="sup.ok.t">Паём фиристода шуд</h3>
+            <p class="sup-lead" id="supDoneP"></p>
+            <button class="btn btn-sec" id="supAgain" type="button" data-i18n="sup.ok.again">Боз навиштан</button>
+          </div>
+          <div class="sup-call">
+            <p class="sup-call__text"><span data-i18n="sup.call">Занг задан қулайтар аст?</span><span class="sup-call__hours" data-i18n="sup.hours">душанбе–ҷумъа, 8:00–17:00</span></p>
+            <a class="btn btn-sec sup-call__tel" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
+          </div>
         </aside>
       </div>
     </section>
@@ -356,7 +352,7 @@
     <div class="popular-services" id="cpPills"></div>
     <div class="cp-results" aria-live="polite">
       <div class="svc-list" id="cpList"></div>
-      <p class="cp-empty" id="cpEmpty" hidden data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p>
+      <div class="cp-empty" id="cpEmpty" hidden><svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-nothing-found"/></svg><p data-i18n="cp.empty">Чизе ёфт нашуд. Дигар хел нависед.</p></div>
     </div>
   </div>
 </section>
@@ -364,6 +360,11 @@
 <!-- ============ SERVICE: overview before Apply (rendered by service-page.js) ============ -->
 <section class="screen" id="scr-service" hidden>
   <div class="svc-page" id="svcRoot"></div>
+</section>
+
+<!-- ============ LIFE SITUATIONS: the full list and one page per situation (life-page.js) ============ -->
+<section class="screen" id="scr-life" hidden>
+  <div id="lifeRoot"></div>
 </section>
 
 <!-- ============ HELP: short guidance with a contents menu ============ -->
@@ -484,10 +485,7 @@
     <!-- step 4: success -->
     <div class="j-step" id="jstep-4" hidden>
       <div class="success">
-        <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round">
-          <circle cx="50" cy="50" r="46"/>
-          <path d="M30 52l13 13 27-29"/>
-        </svg>
+        <svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-application-sent"/></svg>
         <h2 data-i18n="j4.h">Қабул шуд</h2>
         <p class="when"><span data-i18n="j4.when">имрӯз, 14:02 - ариза №ТҶ-2026-184302</span></p>
         <div class="s-list">
@@ -509,6 +507,7 @@
   <div class="col">
     <button class="back" data-back><svg><use href="/design-system/assets/icons.svg#i-chev-l"/></svg><span data-i18n="btn.back">Бозгашт</span></button>
     <div class="e-hero">
+      <svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-security"/></svg>
       <h1 data-i18n="e.h">Ором бошед - ҳозир ҳамаашро барқарор мекунем</h1>
       <p class="lead" data-i18n="e.p">Ҳуҷҷатҳои гумшуда фавран бекор карда мешаванд, то каси дигар истифода набарад. Шумо бе ҳуҷҷат намемонед.</p>
     </div>
@@ -638,7 +637,7 @@
       <button class="btn btn-pri btn-lg" id="guestSubmit" type="submit" disabled>Сохтани талон</button>
     </form>
     <div class="guest-success success" id="guestServiceSuccess" hidden aria-live="polite">
-      <svg class="ring" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><circle cx="50" cy="50" r="46"/><path d="M30 52l13 13 27-29"/></svg>
+      <svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-application-sent"/></svg>
       <h2 id="guestSuccessTitle">Демо-заявка сформирована</h2>
       <p id="guestSuccessId">GST-2026-0042</p>
       <p class="lead-s" id="guestSuccessText">Талони намоишӣ омода аст. Барои идора кардани аризаҳои шахсӣ ворид шавед.</p>
@@ -820,10 +819,11 @@
             <div id="receivedFilesRoot"></div>
           </section>
 
-          <p class="wallet-empty" id="walletEmpty" hidden>
-            <span data-i18n="w.empty">Ҳоло ҳуҷҷати падару модар пайваст нашудааст. Онҳоро даъват кунед - ҳуҷҷатҳояшонро бо иҷозаташон идора мекунед.</span><br><br>
+          <div class="wallet-empty" id="walletEmpty" hidden>
+            <svg class="ekh-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-profile"/></svg>
+            <span data-i18n="w.empty">Ҳоло ҳуҷҷати падару модар пайваст нашудааст. Онҳоро даъват кунед - ҳуҷҷатҳояшонро бо иҷозаташон идора мекунед.</span>
             <button class="btn btn-sec" data-toast="toast.demo" data-i18n="w.invite">Даъват кардан</button>
-          </p>
+          </div>
         </section>
 
         <section class="pane" id="pane-apps" hidden data-i18n-aria="nav.apps" aria-label="Аризаҳои ман">

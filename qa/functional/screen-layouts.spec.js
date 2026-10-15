@@ -720,7 +720,7 @@ test('TSON session catalog, citizen data, form, documents, and result remain rea
   await page.locator('[data-act="login-next"]').click();
   const otp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await otp.nth(index).fill(String(index + 1));
-  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await expect(page.locator('.s-window [data-action="call"]')).toBeVisible();
   const idleTools = page.locator('.s-idle__tools');
   await expect(idleTools).toBeVisible();
   await expect(idleTools).toHaveClass(/row/);

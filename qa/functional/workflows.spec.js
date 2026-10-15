@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { completeCitizenLogin } from '../helpers/citizen-auth.js';
 import { completeMinistryLogin } from '../helpers/ministry-auth.js';
+import { startReception } from '../helpers/tson-queue.js';
 
 async function expectSameActionHeight(page, selector, count=2) {
   const group = page.locator(selector);
@@ -493,7 +494,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await expectSameActionHeight(page, '.login__actions');
   const cells = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await cells.nth(index).fill(String(index + 1));
-  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await expect(page.locator('.s-window [data-action="call"]')).toBeVisible();
   await expect(page).toHaveURL(/#\/idle/);
   await expect(page.locator('.topbar__bind')).toHaveText('Окно 1 - ЦОН район Сино');
   await page.goto('/tson/?lang=tg&theme=light');
@@ -534,7 +535,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
   await operatorMenu.click();
   await expect(operatorMenu).toHaveAttribute('aria-expanded', 'false');
 
-  await page.locator('.s-idle__start').click();
+  await startReception(page);
   const identify = page.locator('.s-identify');
   await expect(identify).toBeVisible();
   await expect(identify.locator('.s-gate__lead')).toHaveCount(0);
@@ -680,11 +681,10 @@ test('TSON and Ministry operator session survives a normal reload', async ({ pag
   await page.locator('[data-act="login-next"]').click();
   const tsonOtp = page.locator('.otp__cell');
   for (let index = 0; index < 6; index += 1) await tsonOtp.nth(index).fill(String(index + 1));
-  await expect(page.locator('.s-idle__start')).toBeVisible();
-  await page.locator('.s-idle__start').click();
+  await startReception(page);
   await expect(page.locator('.s-identify')).toBeVisible();
   await page.reload();
-  await expect(page.locator('.s-idle__start')).toBeVisible();
+  await expect(page.locator('.s-window [data-action="call"]')).toBeVisible();
   await expect(page.locator('.login')).toHaveCount(0);
   await expect(page).toHaveURL(/#\/idle/);
 
@@ -693,7 +693,7 @@ test('TSON and Ministry operator session survives a normal reload', async ({ pag
   })));
   await page.reload();
   await expect(page.locator('.login')).toBeVisible();
-  await expect(page.locator('.s-idle__start')).toHaveCount(0);
+  await expect(page.locator('.s-window')).toHaveCount(0);
 
   await page.goto('/ministry/?lang=ru&theme=light');
   await completeMinistryLogin(page);
@@ -1002,7 +1002,7 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
 
   await page.getByRole('button', { name: /меню оператора/i }).click();
   await page.getByRole('menuitemradio', { name: /^Оператор/ }).click();
-  await page.locator('.s-idle__start').click();
+  await startReception(page);
   await page.getByRole('button', { name: /Продолжить как гость/ }).click();
   await expect(page.locator('.srv-row .audience-badge--guest')).toBeVisible();
   await expect(page.locator('.sessionbar .audience-badge--guest')).toBeVisible();

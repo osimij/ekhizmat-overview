@@ -1351,6 +1351,9 @@ button.step:focus-visible {
   font-weight: 550;
   font-family: inherit;
 }
+/* На синей кнопке чип клавиши темнее кнопки, а не светлее: белая подпись
+   12px на синем, разбавленном белым, давала ~3:1 (axe, «Начать приём F2»). */
+.btn--primary .kbd { background: var(--blue-press); }
 .btn--secondary .kbd,
 .btn--ghost .kbd,
 .seg__kbd {
@@ -1741,6 +1744,29 @@ button.step:focus-visible {
 }
 .sessionbar__who { font-weight: 550; }
 .sessionbar__timer { font-size: var(--fs-15); font-weight: 550; }
+/* Талон приёма — первым слева во всех шагах. Номер на ступень весомее
+   подписи; длинная услуга обрезается, целиком она в title и доступном имени. */
+.sessionbar__ticket {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  min-width: 0;
+  max-width: 40%;
+}
+.sessionbar__no { flex: none; white-space: nowrap; }
+.sessionbar__no b { font-weight: var(--weight-semibold); }
+.sessionbar__svc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sessionbar__rule { flex: none; width: 1px; height: 20px; background: var(--line); }
+/* До согласия в полосе только талон: данных гражданина нет, и синего тона
+   сессии тоже нет — он появляется вместе с ними. */
+.sessionbar--pre { background: var(--panel); color: var(--ink); }
+.sessionbar--pre .sessionbar__ticket { max-width: none; }
+.sessionbar--pre .sessionbar__svc { color: var(--ink-2); }
 
 /* Пороги TTL (§3.2): >5:00 обычный; ≤5:00 amber; ≤1:00 red + модал. */
 .sessionbar--warn   { background: var(--amber-tint); color: var(--amber-ink); }
@@ -1776,9 +1802,10 @@ button.step:focus-visible {
 /* ============================================================
    S1 · Главная смены (§6/S1)
 
-   Дом смены: заголовок + одно главное действие; ряд из пяти KPI (тот же
-   `.dashboard-kpis`, что у руководителя — одни данные, одна форма), под ним
-   «Последние заявления», под ними каталог и справка (§6/S1).
+   Дом смены: заголовок, затем работа окна — «Очередь центра» и «Окно N»
+   (ниже, свой блок), затем ряд из пяти KPI (тот же `.dashboard-kpis`, что у
+   руководителя — одни данные, одна форма), «Последние заявления», каталог
+   и справка (§6/S1).
    ============================================================ */
 .s-idle {
   display: grid;
@@ -1790,10 +1817,6 @@ button.step:focus-visible {
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--s-6);
-}
-.s-idle__start {
-  font-size: var(--fs-15);
-  font-weight: var(--weight-regular);
 }
 .s-idle__intro { min-width: 0; }
 .s-idle__intro .page-title { font-weight: var(--weight-medium); }
@@ -1896,6 +1919,253 @@ button.step:focus-visible {
 }
 @media (max-width: 1100px) {
   .s-idle__head { flex-direction: column; align-items: flex-start; }
+}
+
+/* ============================================================
+   S1 · Рабочее место окна: «Очередь центра» + «Окно N»
+   (design-guide §3 «Workstation queue»)
+
+   Очередь слева — то, из чего выбирают; окно справа — решение по
+   выбранному или вызванному талону. Так же, как у страницы услуги
+   гражданина: решение стоит рядом с тем, о чём оно, а не под ним.
+   ============================================================ */
+.s-idle__work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--w-context);
+  gap: var(--s-4);
+  align-items: start;
+}
+
+/* Строки очереди — записи: подсветка от края до края панели (§5 casebook
+   2), поэтому у панели нет боковых полей — их несут шапка и строки. Колонки
+   объявлены один раз и общие для шапки и строк (правило 18): идентичность —
+   номер и услуга — слева, сравниваемые значения по центру (правило 41).
+   Снизу: последняя строка сама оставляет --s-2 под своим содержимым, вместе
+   с полем панели это те же --s-6, что сверху (§5, правило 32). */
+.s-queue {
+  --queue-columns: 56px minmax(0, 1fr) 64px 80px 56px;
+  --queue-pad: var(--s-6);
+  min-width: 0;
+  padding: var(--s-6) 0 calc(var(--s-6) - var(--s-2));
+}
+.s-queue__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-inline: var(--queue-pad);
+  margin-bottom: var(--s-3);
+}
+.s-queue__now { font-variant-numeric: tabular-nums; }
+.s-queue__cols,
+.s-queue__row {
+  display: grid;
+  grid-template-columns: var(--queue-columns);
+  align-items: center;
+  column-gap: var(--s-4);
+  padding-inline: var(--queue-pad);
+}
+.s-queue__cols {
+  padding-block: var(--s-2);
+  border-bottom: 1px solid var(--line-in);
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}
+.s-queue__cols > :nth-child(n + 3),
+.s-queue__cell { justify-self: center; text-align: center; }
+.s-queue__row {
+  min-height: 48px;
+  padding-block: var(--s-2);
+  border-bottom: 1px solid var(--line-in);
+  font-size: var(--fs-14);
+}
+.s-queue__row:last-child { border-bottom: 0; }
+.s-queue__row--skel { display: flex; }
+.s-queue__row--skel .skel { width: 100%; }
+.s-queue__no { font-weight: var(--weight-medium); }
+.s-queue__svc {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Дольше нормы — цветом и весом самого времени: оно и есть факт. */
+.s-queue__wait--long { color: var(--amber-ink); font-weight: 550; }
+
+/* Выбор есть только у свободного окна (listbox). Выбранный талон — тон
+   выбора и вес номера: состояние, а не украшение (§4 «weight expresses
+   state»). Кружок статуса на тоне выбора получает бумагу, иначе синий
+   кружок «вызван» растворялся бы в синей строке. */
+.s-queue__list--pick .s-queue__row {
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.s-queue__row.is-selected { background: var(--blue-tint); }
+.s-queue__row.is-selected .s-queue__no { font-weight: var(--weight-semibold); }
+.s-queue__row.is-selected .status-icon { background: var(--panel); }
+.s-queue__row:focus-visible {
+  outline: var(--focus-ring) solid var(--focus);
+  outline-offset: calc(var(--focus-offset) * -1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .s-queue__list--pick .s-queue__row:hover { background: var(--hover); }
+  .s-queue__list--pick .s-queue__row.is-selected:hover { background: var(--blue-tint-hover); }
+}
+[data-theme='dark'] .s-queue .status-icon--info { background: color-mix(in srgb, var(--blue-tint) 50%, transparent); }
+
+/* Пустая очередь и отказ сервиса: панель держит место (§5 casebook 6) и
+   отвечает на три вопроса — что случилось, плохо ли это, что делать. */
+.s-queue__state {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  padding: var(--s-12) var(--queue-pad);
+  border-top: 1px solid var(--line-in);
+  text-align: center;
+}
+.s-queue__state > .icon { margin-bottom: var(--s-2); color: var(--ink-3); }
+.s-queue__state-title { font-size: var(--fs-15); font-weight: var(--weight-medium); color: var(--ink); }
+.s-queue__state .small { max-width: 44ch; }
+.s-queue__retry { margin-top: var(--s-3); }
+
+/* Окно. Липнет к верху скроллпорта, пока рядом листается длинная очередь,
+   и останавливается на краю рабочей сетки — сводка смены под ней его уже
+   не тянет. */
+.s-window {
+  position: sticky;
+  top: var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  min-width: 0;
+}
+/* Анатомия талона одна во всех состояниях: строка состояния, номер,
+   услуга, зона и ожидание. Номер — витринная цифра (620–680, §4): его
+   оператор сверяет с табло и с бумажкой в руке гражданина. */
+.s-window__ticket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  min-width: 0;
+}
+.s-window__state {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  font-weight: var(--weight-medium);
+  color: var(--ink-2);
+}
+.s-window__state .icon { flex: none; }
+.s-window__ticket--called .s-window__state,
+.s-window__ticket--serving .s-window__state { color: var(--blue-ink); }
+.s-window__no {
+  margin-top: var(--s-1);
+  font-size: var(--fs-36);
+  line-height: var(--leading-tight);
+  font-weight: 650;
+}
+.s-window__svc { font-size: var(--fs-15); line-height: 1.35; font-weight: var(--weight-medium); }
+.s-window__meta { font-size: var(--fs-13); line-height: 1.4; color: var(--ink-2); }
+.s-window__ticket--empty .s-window__svc { font-weight: var(--weight-regular); color: var(--ink-2); }
+.s-window__skel-state { width: 50%; }
+.s-window__skel-no { width: 45%; height: 40px; margin-block: var(--s-1); }
+.s-window__skel-btn { height: var(--h-btn-l); border-radius: var(--r-pill); }
+
+/* Действия талона. Первое из ответа сервера — главное, на всю ширину;
+   остальные — вторичные столбиком: по две в ряд «Повторить вызов» и
+   таджикское «Такроран даъват кардан» в 140px не помещались (§9 — размер
+   под длинный язык). Причины недоступности — под группой, каждая связана
+   со своей кнопкой через aria-describedby. */
+.visit-actions { display: grid; gap: var(--s-2); }
+.visit-actions__more { display: grid; gap: var(--s-2); }
+.visit-actions__btn { width: 100%; min-width: 0; }
+.visit-actions__btn > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.visit-actions__reasons { display: grid; gap: var(--s-2); }
+.visit-actions__reason {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.visit-actions__reason .icon { flex: none; margin-top: 1px; color: var(--ink-3); }
+
+/* Причина у выключенной кнопки диалога — слева в подвале, действия справа. */
+.visit-foot__reason {
+  margin-inline-end: auto;
+  font-size: var(--fs-13);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+/* Перевод: окна центра плиткой 3 × 3, как в зале. Плитка — вариант
+   выбора, поэтому выбранная получает тон и рамку выбора; недоступная
+   остаётся на месте пунктиром с причиной вместо очереди. */
+.s-transfer__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.s-transfer__win {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-width: 0;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+  cursor: pointer;
+  transition: border-color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
+}
+.s-transfer__win .radio__input { flex: none; margin-top: 2px; }
+.s-transfer__win:has(:checked) { border-color: var(--blue); background: var(--blue-tint); }
+.s-transfer__win.is-off { border-style: dashed; cursor: not-allowed; }
+.s-transfer__win.is-off .s-transfer__name { color: var(--ink-3); }
+.s-transfer__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.s-transfer__name { font-size: var(--fs-15); font-weight: var(--weight-medium); color: var(--ink); }
+.s-transfer__meta { font-size: var(--fs-13); line-height: 1.4; color: var(--ink-2); }
+.s-transfer__skel { height: 64px; border-radius: var(--r-m); }
+@media (hover: hover) and (pointer: fine) {
+  .s-transfer__win:not(.is-off):not(:has(:checked)):hover { background: var(--hover); }
+}
+
+/* Результат приёма: пять вариантов одним списком в рамке, строки делит
+   хайрлайн. Выбранный — тон выбора; недоступный — с причиной вместо
+   подсказки. */
+.s-finish__set { min-width: 0; margin: 0; padding: 0; border: 0; }
+.s-finish__set > legend { padding: 0; margin-bottom: var(--s-2); }
+.s-finish__list {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-m);
+}
+.s-finish__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  /* --s-2 по вертикали: с --s-3 пять строк выталкивали подвал диалога за
+     край на 1280 × 720 (диалог ограничен 88vh). */
+  padding: var(--s-2) var(--s-4);
+  border-top: 1px solid var(--line-in);
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+.s-finish__opt:first-child { border-top: 0; }
+.s-finish__opt .radio__input { flex: none; margin-top: 2px; }
+.s-finish__opt:has(:checked) { background: var(--blue-tint); }
+.s-finish__opt.is-off { cursor: not-allowed; }
+.s-finish__opt.is-off .s-finish__name { color: var(--ink-3); }
+.s-finish__copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.s-finish__name { font-size: var(--fs-15); font-weight: var(--weight-medium); color: var(--ink); }
+.s-finish__hint { font-size: var(--fs-13); line-height: 1.4; color: var(--ink-2); }
+.s-finish__skel { height: 56px; border-radius: var(--r-m); }
+@media (hover: hover) and (pointer: fine) {
+  .s-finish__opt:not(.is-off):not(:has(:checked)):hover { background: var(--hover); }
 }
 
 /* LOCKED (§6/S9c) — общая композиция `.s-locked` живёт в

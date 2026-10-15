@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('life situations are two rows of tinted cards with «see all» on the heading line', async ({ page }) => {
+test('life situations are two rows of illustrated cards that open their page, «see all» on the heading line', async ({ page }) => {
   await page.setViewportSize({ width: 1512, height: 982 });
   await page.goto('/citizen/?present=1&theme=light&lang=ru');
 
@@ -10,25 +10,30 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   await expect(page.locator('#momH')).toHaveCSS('font-weight', '600');
   const cards = page.locator('#moments > .moment');
   await expect(cards).toHaveCount(8);
-  // until the illustration set is complete, every card carries a glyph well instead
-  await expect(page.locator('#moments .moment-art')).toHaveCount(0);
-  await expect(page.locator('#moments .moment-ic')).toHaveCount(8);
+  // every card is a link to its situation's page — never straight into a service
+  const hrefs = await cards.evaluateAll((items) => items.map((card) => card.getAttribute('href')));
+  expect(hrefs.every((href) => /^#\/life\/[a-z]+$/.test(href))).toBe(true);
+  // every card carries its brand scene from the illustration sprite; the glyph wells and text pills are gone
+  const scenes = await cards.evaluateAll((items) => items.map((card) => card.querySelector('.moment-art use')?.getAttribute('href')));
+  expect(scenes.every((href) => /^\/design-system\/assets\/illustrations\.svg#ill-[a-z-]+$/.test(href))).toBe(true);
+  expect(new Set(scenes).size).toBe(8);
+  await expect(page.locator('#moments .moment-ic, #moments .moment-cta')).toHaveCount(0);
+  await expect(cards.first().locator('.moment-title')).toHaveText('Планируем свадьбу');
+  await expect(cards.first().locator('.moment-text')).toHaveText('ЗАГС, медицинские услуги и полезные справки');
   // every situation is on screen at once: no pager
   await expect(page.locator('.moments-nav, [data-moments]')).toHaveCount(0);
 
   const layout = await page.locator('#moments').evaluate((row) => [...row.querySelectorAll('.moment')].map((card) => {
     const c = card.getBoundingClientRect();
-    const cta = card.querySelector('.moment-cta').getBoundingClientRect();
-    const well = card.querySelector('.moment-ic').getBoundingClientRect();
+    const go = card.querySelector('.moment-go').getBoundingClientRect();
+    const art = card.querySelector('.moment-art').getBoundingClientRect();
     const title = card.querySelector('.moment-title').getBoundingClientRect();
-    const text = card.querySelector('.moment-text').getBoundingClientRect();
     return {
       top: Math.round(c.top), left: Math.round(c.left), right: Math.round(c.right),
-      width: Math.round(c.width), height: c.height,
-      well: [Math.round(well.left - c.left), Math.round(well.top - c.top), well.width, well.height],
-      titleLeft: Math.round(title.left - c.left), wellGap: Math.round(title.top - well.bottom),
-      copyToCta: Math.round(cta.top - text.bottom),
-      ctaInset: Math.round(c.bottom - cta.bottom), ctaBottom: Math.round(cta.bottom),
+      width: Math.round(c.width), height: Math.round(c.height),
+      title: [Math.round(title.left - c.left), Math.round(title.top - c.top)],
+      go: [Math.round(go.left - c.left), Math.round(c.bottom - go.bottom), go.width, go.height], goBottom: Math.round(go.bottom),
+      art: [Math.round(c.right - art.right), Math.round(c.bottom - art.bottom), art.width, art.height],
     };
   }));
   // four columns, two rows, every card the same box
@@ -36,19 +41,15 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   expect(rows).toHaveLength(2);
   expect(new Set(layout.map(({ left }) => left)).size).toBe(4);
   expect(new Set(layout.map(({ width }) => width)).size).toBe(1);
-  expect(layout.every(({ height }) => height === 212)).toBe(true); // Figma 248 × .85
-  // the glyph stands alone at the top on the home's 24px card inset; the copy
-  // rides down on the action, 12px above it, and the space between absorbs any wrap
-  expect(layout.every(({ well }) => well.join() === '24,24,48,48')).toBe(true);
-  expect(layout.every(({ titleLeft }) => titleLeft === 24)).toBe(true);
-  expect(layout.every(({ copyToCta }) => copyToCta === 12)).toBe(true);
-  expect(Math.min(...layout.map(({ wellGap }) => wellGap))).toBeGreaterThan(12);
-  // the action is its label alone
-  await expect(page.locator('#moments .moment-cta svg')).toHaveCount(0);
-  // the action sits on the card's own 12px inset, on one line across each row
-  expect(layout.every(({ ctaInset }) => ctaInset === 12)).toBe(true);
+  expect(new Set(layout.map(({ height }) => height)).size).toBe(1);
+  expect(layout[0].height).toBeGreaterThanOrEqual(224);
+  // the copy opens on the home's 24px inset; the round way forward sits on the same inset at the foot,
+  // on one line across each row; the scene's box is flush in the corner (its drawing keeps its own margin)
+  expect(layout.every(({ title }) => title.join() === '24,24')).toBe(true);
+  expect(layout.every(({ go }) => go.join() === '24,24,40,40')).toBe(true);
+  expect(layout.every(({ art }) => art.join() === '0,0,136,136')).toBe(true);
   for (const row of rows) {
-    expect(new Set(layout.filter(({ top }) => top === row).map(({ ctaBottom }) => ctaBottom)).size).toBe(1);
+    expect(new Set(layout.filter(({ top }) => top === row).map(({ goBottom }) => goBottom)).size).toBe(1);
   }
 
   // the section is a full-bleed paper band: white edge to edge, 48 above the title and below the cards
@@ -65,9 +66,10 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   });
   expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 48, bottom: 48, shadow: true });
 
-  // «see all» shares the heading's line, centred on it, flush with the cards' right edge
+  // «see all» shares the heading's line, centred on it, flush with the cards' right edge — and is the full list
   const more = page.locator('section[aria-labelledby="momH"] .sect-more');
   await expect(more).toHaveText('Смотреть все');
+  await expect(more).toHaveAttribute('href', '#/life');
   await expect(more).toHaveCSS('font-weight', '400');
   const heading = await page.evaluate(() => {
     const title = document.querySelector('#momH').getBoundingClientRect();
@@ -77,7 +79,12 @@ test('life situations are two rows of tinted cards with «see all» on the headi
   expect(Math.abs(heading.titleCenter - heading.linkCenter)).toBeLessThanOrEqual(1);
   expect(heading.linkRight).toBe(Math.max(...layout.map(({ right }) => right)));
   await more.click();
-  await expect(page.locator('.toast')).toBeVisible();
+  await expect(page).toHaveURL(/#\/life$/);
+  await expect(page.locator('#lifeTitle')).toHaveText('Жизненные ситуации');
+  await expect(page.locator('#lifeAll > .moment')).toHaveCount(12);
+  // the list's cards are the home's cards: same box, same scene
+  const listCard = await page.locator('#lifeAll > .moment').first().evaluate((card) => Math.round(card.getBoundingClientRect().width));
+  expect(listCard).toBe(layout[0].width);
 });
 
 test('life situations reflow to two columns, then a swipe row on phones, without page overflow', async ({ page }) => {
@@ -108,4 +115,117 @@ test('life situations reflow to two columns, then a swipe row on phones, without
       document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(1);
   }
+});
+
+test('a situation page lists its steps in order, each service opening its overview', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/citizen/?theme=light&lang=ru');
+  await page.locator('#moments .moment', { hasText: 'Планируем свадьбу' }).click();
+  await expect(page).toHaveURL(/#\/life\/wedding$/);
+
+  // where am I: ancestors only, the h1 on the same content edge
+  await expect(page.locator('#lifeTitle')).toHaveText('Планируем свадьбу');
+  await expect(page.locator('#lifeTitle')).toHaveCSS('font-size', '28px');
+  await expect(page.locator('#scr-life .ekh-crumbs a')).toHaveText(['Главная', 'Жизненные ситуации']);
+  const edges = await page.evaluate(() => {
+    const crumb = document.createRange();
+    crumb.selectNodeContents(document.querySelector('#scr-life .ekh-crumbs a'));
+    return { crumb: Math.round(crumb.getBoundingClientRect().left), title: Math.round(document.querySelector('#lifeTitle').getBoundingClientRect().left) };
+  });
+  expect(edges.crumb).toBe(edges.title);
+  // the page opens on the card's scene
+  await expect(page.locator('.life-hero__art use')).toHaveAttribute('href', '/design-system/assets/illustrations.svg#ill-service-marriage');
+
+  // numbered steps, a step without an online service says what happens in person
+  const steps = page.locator('.life-step');
+  await expect(steps).toHaveCount(4);
+  await expect(steps.nth(0).locator('h2')).toContainText('Подаёте заявление в ЗАГС');
+  await expect(steps.nth(2).locator('.life-svc')).toHaveCount(0);
+  await expect(steps.nth(0).locator('.life-need li')).toHaveCount(3);
+  // every service names its time and agency and carries the catalogue's fee tag
+  const row = steps.nth(0).locator('.life-svc').first();
+  await expect(row).toHaveAttribute('href', /^#\/service\/family\/[a-z0-9]+$/);
+  await expect(row.locator('b')).toHaveText('Регистрация брака');
+  await expect(row.locator('.life-svc__copy span')).toContainText('рабочих дней');
+  await expect(row.locator('.tag')).toHaveText('платно');
+
+  // the contents menu: every step plus «useful to know», the first one current
+  const toc = page.locator('.life-toc .pn');
+  await expect(toc).toHaveCount(5);
+  await expect(toc.first()).toHaveAttribute('aria-current', 'true');
+  await toc.nth(2).click();
+  await expect(page).toHaveURL(/#\/life\/wedding\/s3$/);
+  await expect(toc.nth(2)).toHaveAttribute('aria-current', 'true');
+  await expect(page.locator('#life-s3-h')).toBeFocused();
+  await expect.poll(() => page.evaluate(() => Math.round(document.querySelector('#life-s3').getBoundingClientRect().top))).toBeLessThan(120);
+
+  // a service opens the same overview the catalogue does; Back returns to the situation
+  await row.click();
+  await expect(page).toHaveURL(/#\/service\/family\//);
+  await expect(page.locator('#svcTitle')).toContainText('регистрация брака');
+  await page.goBack();
+  await expect(page.locator('#lifeTitle')).toHaveText('Планируем свадьбу');
+
+  // other situations close the page with the same cards
+  await expect(page.locator('.life-more .moment')).toHaveCount(3);
+});
+
+test('situation pages deep-link to a step, offer their built flow, and fall back to the list', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/citizen/?theme=light&lang=ru#/life/move/s4');
+  await expect(page.locator('#lifeTitle')).toHaveText('Переезжаю в другой город');
+  await expect.poll(() => page.evaluate(() => Math.round(document.querySelector('#life-s4').getBoundingClientRect().top))).toBeLessThan(120);
+  await expect(page.locator('.life-toc .pn[data-life-link="s4"]')).toHaveAttribute('aria-current', 'true');
+
+  // a situation with a built flow leads with it: the baby journey is one primary action
+  await page.goto('/citizen/?theme=light&lang=ru#/life/baby');
+  await expect(page.locator('.life-hero__act .btn-pri')).toHaveAttribute('href', '#/journey');
+  await expect(page.locator('#scr-life .btn-pri')).toHaveCount(1);
+
+  // an unknown situation lands on the full list
+  await page.goto('/citizen/?theme=light&lang=ru#/life/nope');
+  await expect(page).toHaveURL(/#\/life$/);
+  await expect(page.locator('#lifeAll > .moment')).toHaveCount(12);
+});
+
+test('the search offers a situation in everyday words and opens its page', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/citizen/?theme=light&lang=ru');
+  await page.locator('#searchInput').fill('свадьба');
+  const first = page.locator('#searchItems .s-item').first();
+  await expect(first.locator('.s-item__label')).toHaveText('Планируем свадьбу');
+  await expect(first.locator('.meta')).toHaveText('Жизненная ситуация');
+  await first.click();
+  await expect(page).toHaveURL(/#\/life\/wedding$/);
+});
+
+test('the illustration sprite parses, and dark mode re-colours the same drawings', async ({ page }) => {
+  await page.goto('/citizen/?theme=light&lang=ru');
+  const sprite = await page.evaluate(async () => {
+    const text = await (await fetch('/design-system/assets/illustrations.svg')).text();
+    const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+    return { broken: doc.querySelector('parsererror') !== null, symbols: doc.querySelectorAll('symbol[id^="ill-"]').length };
+  });
+  expect(sprite).toEqual({ broken: false, symbols: 46 });
+  const line = () => page.evaluate(() => getComputedStyle(document.querySelector('.moment-art')).getPropertyValue('--ill-line').trim());
+  expect(await line()).toBe('#1b3b6f');
+  await page.goto('/citizen/?theme=dark&lang=ru');
+  expect(await line()).toBe('#d3e3f8');
+});
+
+test('a situation page holds at phone width: no overflow, steps use the full width', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/citizen/?theme=light&lang=tg#/life/biz');
+  await expect(page.locator('#lifeTitle')).toHaveText('Тиҷорат мекушоям');
+  const metrics = await page.evaluate(() => {
+    const number = document.querySelector('.life-step__n').getBoundingClientRect();
+    const text = document.querySelector('.life-step__text').getBoundingClientRect();
+    return {
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      // on a phone the body drops the desktop indent and starts on the number's edge
+      indent: Math.round(text.left - number.left),
+    };
+  });
+  expect(metrics.overflow).toBeLessThanOrEqual(1);
+  expect(metrics.indent).toBe(0);
 });

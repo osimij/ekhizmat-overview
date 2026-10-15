@@ -21,6 +21,8 @@ import {
   OPERATORS, TSONS, CITIZENS, CATALOG, SERVICE, BASE_SCOPES, citizenSlice,
   REGISTRY, PASSPORT_FIELDS, OCR_TRUST, buildCitizen, digits, LOOKUP,
   TSON_DASHBOARD, visitsOf,
+  QUEUE_TICKETS, QUEUE_ZONE_BY_LETTER, WINDOW_ZONES, QUEUE_NORM_MIN, QUEUE_RECALLS,
+  QUEUE_KIOSK, VISIT_RESULTS,
 } from './data.js';
 
 const LATENCY = [300, 900];
@@ -786,8 +788,10 @@ export const application = {
 
     drafts.delete(serviceId);      // принято — черновика больше нет
     appNo += 1;
+    const no = appNoFor(serviceId, appNo);
+    attachApplication(no);         // результат «Заявление принято» станет доступен
     return {
-      no: appNoFor(serviceId, appNo),
+      no,
       at: Date.now(),
       serviceId,
       instant: !!svc.instant,
@@ -892,6 +896,387 @@ export const session = {
     emit();
     return { ok: true };
   },
+};
+
+/* ============================================================
+   Электронная очередь центра (#/idle — «Очередь центра» и «Окно»)
+
+   Решает здесь «сервер», а не экран: какие талоны окно может вызвать,
+   какие действия доступны вызванному талону, куда его можно перевести и
+   каким результатом закрыть приём. Каждое действие приходит с флагом
+   enabled и, если оно недоступно, с причиной — кодом и параметрами, а
+   подпись к ним АРМ берёт из словаря (queue.reason.*). Экран рисует ровно
+   тот набор кнопок, который прислали, и в том порядке, в котором прислали:
+   первое действие — главное.
+
+   Сервер же перепроверяет действие при вызове. Экран мог показать кнопку
+   секунду назад, а за эту секунду соседнее окно забрало талон, — такой
+   вызов падает с ACTION_UNAVAILABLE и той же причиной, а не проходит молча.
+   ============================================================ */
+const queueListeners = new Set();
+/* kind: 'data' — изменились талоны (перерисовать на месте), 'mode' — демо
+   сменило сценарий (загрузить заново, со скелетоном). */
+const queueEmit = (kind = 'data') => queueListeners.forEach(fn => fn(kind));
+
+let tickets = [];
+let queueSeq = {};
+let kioskTurn = 0;
+let queueMode = 'normal';      // normal · loading · error — сценарии демо-панели
+let queueWaiters = [];         // запросы, которые висят в сценарии «Загрузка»
+let deskWindow = 1;            // окно этого рабочего места — для привязки заявлений
+
+function seedQueue() {
+  const now = Date.now();
+  tickets = QUEUE_TICKETS.map(seed => ({
+    id: `t-${seed.no}`,
+    no: seed.no,
+    zone: QUEUE_ZONE_BY_LETTER[seed.no[0]],
+    service: seed.service,
+    status: seed.status,
+    window: seed.window ?? null,
+    from: seed.from ?? null,
+    issuedAt: now - seed.age * 1000,
+    // Талон, вызванный соседним окном, вызван недавно — гражданин идёт к окну.
+    calledAt: seed.status === 'called' ? now - 40_000 : null,
+    recalls: 0,
+    startedAt: null,
+    apps: [],
+    result: null,
+  }));
+  queueSeq = {};
+  for (const tk of tickets) {
+    const letter = tk.no[0];
+    queueSeq[letter] = Math.max(queueSeq[letter] || 0, Number(tk.no.slice(1)));
+  }
+}
+seedQueue();
+
+const ticketById = id => tickets.find(tk => tk.id === id);
+const isOpenWindow = no => TSON_DASHBOARD.center.windows.find(w => w.no === no)?.status === 'serving';
+const windowsForZone = zone => Object.entries(WINDOW_ZONES)
+  .filter(([no, zones]) => zones.includes(zone) && isOpenWindow(Number(no)))
+  .map(([no]) => Number(no));
+
+/* Талон окна — тот, что вызван к нему или уже на приёме. Одновременно у окна
+   один талон: второй вызов при живом первом — это два человека у одного
+   окна. */
+const currentOf = win => tickets.find(tk =>
+  tk.window === win && (tk.status === 'called' || tk.status === 'serving'));
+
+const inQueue = tk => tk.status === 'waiting' || tk.status === 'transferred' || tk.status === 'called';
+
+const act = (id, reason = null) => ({ id, enabled: !reason, reason });
+
+/* Можно ли этому окну вызвать талон. Причины — в порядке того, что оператор
+   должен узнать первым: талон уже у другого окна важнее того, что окно и так
+   занято своим. */
+function callAction(tk, win) {
+  if (tk.status === 'called' && tk.window !== win) {
+    return act('call', { code: 'CALLED_ELSEWHERE', params: { window: tk.window } });
+  }
+  if (tk.status === 'transferred' && tk.window !== win) {
+    return act('call', { code: 'ASSIGNED_ELSEWHERE', params: { window: tk.window } });
+  }
+  if (!(WINDOW_ZONES[win] || []).includes(tk.zone)) {
+    return act('call', { code: 'OTHER_ZONE', params: { zone: tk.zone, windows: windowsForZone(tk.zone).join(', ') } });
+  }
+  const busy = currentOf(win);
+  if (busy) return act('call', { code: 'WINDOW_BUSY', params: { no: busy.no } });
+  return act('call');
+}
+
+function transferAction(tk, win) {
+  const open = transferTargets(tk, win).some(target => target.enabled);
+  return act('transfer', open ? null : { code: 'NO_TARGET', params: { zone: tk.zone } });
+}
+
+/* Набор действий зависит от состояния талона — это и есть контракт:
+   вызванному — приём, повтор, неявка, перевод; принятому — завершение,
+   новый приём и перевод; чужому — только вызов (или причина, почему нет). */
+function actionsFor(tk, win) {
+  const mine = tk.window === win && (tk.status === 'called' || tk.status === 'serving');
+  if (!mine) return [callAction(tk, win)];
+
+  if (tk.status === 'called') {
+    return [
+      act('start'),
+      act('recall', tk.recalls < QUEUE_RECALLS ? null : { code: 'RECALL_LIMIT', params: { n: QUEUE_RECALLS + 1 } }),
+      // Неявку отмечают после повторного вызова: с первого объявления
+      // гражданин мог его просто не услышать.
+      act('noShow', tk.recalls >= 1 ? null : { code: 'RECALL_FIRST', params: {} }),
+      transferAction(tk, win),
+    ];
+  }
+  return [act('finish'), act('restart'), transferAction(tk, win)];
+}
+
+/* Куда можно перевести талон. Список — все окна центра, кроме своего:
+   оператору важно видеть и то, почему соседнее окно не подходит. */
+function transferTargets(tk, win) {
+  return TSON_DASHBOARD.center.windows
+    .filter(w => w.no !== win)
+    .map(w => {
+      const base = { no: w.no, waiting: tickets.filter(x => x.status === 'transferred' && x.window === w.no).length };
+      if (w.status === 'closed') return { ...base, enabled: false, reason: { code: 'TARGET_CLOSED', params: {} } };
+      if (w.status === 'break') return { ...base, enabled: false, reason: { code: 'TARGET_BREAK', params: {} } };
+      if (!(WINDOW_ZONES[w.no] || []).includes(tk.zone)) {
+        return { ...base, enabled: false, reason: { code: 'TARGET_ZONE', params: { zone: tk.zone } } };
+      }
+      return { ...base, enabled: true, reason: null };
+    });
+}
+
+function resultOptions(tk) {
+  return VISIT_RESULTS.map(id => {
+    if (id === 'accepted') {
+      return tk.apps.length
+        ? { id, enabled: true, reason: null, app: tk.apps[tk.apps.length - 1] }
+        : { id, enabled: false, reason: { code: 'NO_APPLICATION', params: {} } };
+    }
+    return { id, enabled: true, reason: null };
+  });
+}
+
+/* То, что уходит в АРМ: копия без внутренних полей и с услугой по имени. */
+function publicTicket(tk, win) {
+  return {
+    id: tk.id, no: tk.no, zone: tk.zone,
+    service: { id: tk.service, name: SERVICE[tk.service]?.name || tk.service },
+    status: tk.status, window: tk.window, from: tk.from,
+    issuedAt: tk.issuedAt, calledAt: tk.calledAt, startedAt: tk.startedAt,
+    recalls: tk.recalls, maxRecalls: QUEUE_RECALLS,
+    actions: win ? actionsFor(tk, win) : [],
+  };
+}
+
+/* Следующий для окна: сначала талоны, переведённые именно к нему (гражданин
+   уже отстоял очередь у другого окна), потом самый давний из тех, что окно
+   может вызвать. */
+function nextFor(win) {
+  const callable = tickets.filter(tk => inQueue(tk) && callAction(tk, win).enabled);
+  return (callable.find(tk => tk.window === win) || callable[0])?.id ?? null;
+}
+
+async function queueGate() {
+  await delay();
+  net();
+  while (queueMode === 'loading') await new Promise(resolve => queueWaiters.push(resolve));
+  if (queueMode === 'error') throw new ApiError('QUEUE_DOWN', 'Сервис очереди не отвечает');
+}
+
+function mustAllow(tk, win, id) {
+  if (!tk) throw new ApiError('TICKET_GONE', 'Талона уже нет в очереди');
+  const a = actionsFor(tk, win).find(x => x.id === id);
+  if (!a) throw new ApiError('ACTION_UNAVAILABLE', 'Действие недоступно', { reason: { code: 'STATE_CHANGED', params: {} } });
+  if (!a.enabled) throw new ApiError('ACTION_UNAVAILABLE', 'Действие недоступно', { reason: a.reason });
+}
+
+function issueTicket(service) {
+  const zone = zoneForService(service);
+  const letter = Object.keys(QUEUE_ZONE_BY_LETTER).find(l => QUEUE_ZONE_BY_LETTER[l] === zone) || 'A';
+  queueSeq[letter] = (queueSeq[letter] || 0) + 1;
+  const no = `${letter}${String(queueSeq[letter]).padStart(3, '0')}`;
+  const tk = {
+    id: `t-${no}`, no, zone, service, status: 'waiting', window: null, from: null,
+    issuedAt: Date.now(), calledAt: null, recalls: 0, startedAt: null, apps: [], result: null,
+  };
+  tickets.push(tk);
+  return tk;
+}
+
+/* Зона новой услуги — по тем же правилам, что у терминала: регистрация
+   актов и учёта — в зону B, консультационные — в C, остальное — документы. */
+function zoneForService(service) {
+  const seed = QUEUE_TICKETS.find(x => x.service === service);
+  return seed ? QUEUE_ZONE_BY_LETTER[seed.no[0]] : 'docs';
+}
+
+export const queue = {
+  onChange(fn) { queueListeners.add(fn); return () => queueListeners.delete(fn); },
+
+  /* Всё, что нужно главной окна, одним ответом: очередь центра, талон
+     своего окна и тот, кого сервер предлагает вызвать следующим. */
+  async state(win) {
+    deskWindow = win;
+    await queueGate();
+    const current = currentOf(win);
+    return {
+      tickets: tickets
+        .filter(tk => inQueue(tk) && tk !== current)
+        .sort((a, b) => a.issuedAt - b.issuedAt)
+        .map(tk => publicTicket(tk, win)),
+      current: current ? publicTicket(current, win) : null,
+      nextId: nextFor(win),
+      normMin: QUEUE_NORM_MIN,
+    };
+  },
+
+  async call(id, win) {
+    await queueGate();
+    const tk = ticketById(id);
+    if (!tk || !inQueue(tk)) throw new ApiError('TICKET_GONE', 'Талона уже нет в очереди');
+    const a = callAction(tk, win);
+    if (!a.enabled) throw new ApiError('ACTION_UNAVAILABLE', 'Действие недоступно', { reason: a.reason });
+    Object.assign(tk, { status: 'called', window: win, calledAt: Date.now(), recalls: 0 });
+    queueEmit();
+    return publicTicket(tk, win);
+  },
+
+  async recall(id, win) {
+    await queueGate();
+    const tk = ticketById(id);
+    mustAllow(tk, win, 'recall');
+    tk.recalls += 1;
+    tk.calledAt = Date.now();
+    queueEmit();
+    return publicTicket(tk, win);
+  },
+
+  async noShow(id, win) {
+    await queueGate();
+    const tk = ticketById(id);
+    mustAllow(tk, win, 'noShow');
+    Object.assign(tk, { status: 'no_show', result: 'no_show' });
+    queueEmit();
+    return { ok: true };
+  },
+
+  /* «Начать приём» и «Начать приём заново» — один вызов: сервер отмечает,
+     что гражданин у окна, и отдаёт талон, который поедет в шапку приёма. */
+  async start(id, win) {
+    await queueGate();
+    const tk = ticketById(id);
+    if (!tk) throw new ApiError('TICKET_GONE', 'Талона уже нет в очереди');
+    const a = actionsFor(tk, win).find(x => x.id === 'start' || x.id === 'restart');
+    if (!a) throw new ApiError('ACTION_UNAVAILABLE', 'Действие недоступно', { reason: { code: 'STATE_CHANGED', params: {} } });
+    if (tk.status !== 'serving') Object.assign(tk, { status: 'serving', startedAt: Date.now() });
+    queueEmit();
+    return publicTicket(tk, win);
+  },
+
+  async targets(id, win) {
+    await queueGate();
+    const tk = ticketById(id);
+    if (!tk) throw new ApiError('TICKET_GONE', 'Талона уже нет в очереди');
+    return transferTargets(tk, win);
+  },
+
+  async transfer(id, win, to) {
+    await queueGate();
+    const tk = ticketById(id);
+    mustAllow(tk, win, 'transfer');
+    const target = transferTargets(tk, win).find(x => x.no === Number(to));
+    if (!target?.enabled) {
+      throw new ApiError('TRANSFER_UNAVAILABLE', 'Перевод в это окно недоступен', { reason: target?.reason });
+    }
+    Object.assign(tk, {
+      status: 'transferred', from: win, window: target.no,
+      calledAt: null, recalls: 0, startedAt: null,
+    });
+    queueEmit();
+    return { ok: true, window: target.no };
+  },
+
+  async results(id) {
+    await queueGate();
+    const tk = ticketById(id);
+    if (!tk) throw new ApiError('TICKET_GONE', 'Талона уже нет в очереди');
+    return resultOptions(tk);
+  },
+
+  async finish(id, win, result) {
+    await queueGate();
+    const tk = ticketById(id);
+    if (!tk || tk.status !== 'serving' || tk.window !== win) {
+      throw new ApiError('ACTION_UNAVAILABLE', 'Действие недоступно', { reason: { code: 'STATE_CHANGED', params: {} } });
+    }
+    const option = resultOptions(tk).find(x => x.id === result);
+    if (!option?.enabled) throw new ApiError('RESULT_UNAVAILABLE', 'Этот результат недоступен', { reason: option?.reason });
+    Object.assign(tk, { status: 'done', result });
+    queueEmit();
+    return { ok: true };
+  },
+
+  /* Очередь по зонам для панели руководителя (#/dashboard-center) — из тех
+     же талонов, с которыми работает окно оператора, а не из отдельной
+     фикстуры (правило 49): вызвал оператор талон — у руководителя в его
+     зоне стало на одного меньше. Ждут — талоны «ожидает» и «переведён»;
+     вызванный уже идёт к окну и не ждёт. Синхронно: это чтение того же
+     состояния сервера, а свои сценарии загрузки и ошибки у панели — в
+     демо-группе «Дашборд». */
+  zonesNow() {
+    const now = Date.now();
+    const zones = Object.values(QUEUE_ZONE_BY_LETTER).map(id => {
+      const ages = tickets
+        .filter(tk => tk.zone === id && (tk.status === 'waiting' || tk.status === 'transferred'))
+        .map(tk => now - tk.issuedAt);
+      return {
+        id,
+        waiting: ages.length,
+        long: ages.filter(age => age > QUEUE_NORM_MIN * 60_000).length,
+        ageSum: ages.reduce((sum, age) => sum + age, 0),
+      };
+    });
+    const waiting = zones.reduce((sum, z) => sum + z.waiting, 0);
+    const ageSum = zones.reduce((sum, z) => sum + z.ageSum, 0);
+    return {
+      zones: zones.map(({ ageSum: zoneSum, ...z }) => ({ ...z, waitMin: z.waiting ? zoneSum / z.waiting / 60_000 : null })),
+      waiting,
+      // Среднее по центру — взвешенное по людям, а не среднее трёх средних.
+      waitMin: waiting ? ageSum / waiting / 60_000 : null,
+      normMin: QUEUE_NORM_MIN,
+    };
+  },
+
+  /* Только для демо-панели (§11.5): событие START играет машину «в лоб»,
+     минуя экран, но приём всё равно должен идти по талону — иначе шапка
+     приёма показывала бы пустоту, которой в жизни не бывает. Берёт талон
+     своего окна, иначе следующего; пустую очередь пополняет терминалом. */
+  takeForDemo(win = 1) {
+    let tk = currentOf(win) || ticketById(nextFor(win));
+    if (!tk) tk = issueTicket(QUEUE_KIOSK[kioskTurn++ % QUEUE_KIOSK.length]);
+    Object.assign(tk, {
+      status: 'serving', window: win,
+      calledAt: tk.calledAt || Date.now(), startedAt: Date.now(),
+    });
+    queueEmit();
+    return publicTicket(tk, win);
+  },
+};
+
+/* Заявление, принятое в приёме, привязывается к талону окна: по нему сервер
+   разрешает результат «Заявление принято». */
+function attachApplication(no) {
+  const tk = tickets.find(x => x.window === deskWindow && x.status === 'serving');
+  if (tk) tk.apps.push(no);
+}
+
+/* Сценарии очереди для демо-панели. «Пустая» убирает всех, кто ждёт, но
+   талон своего окна оставляет: гражданин у окна никуда не делся. */
+sim.queueMode = () => queueMode;
+sim.setQueueMode = mode => {
+  queueMode = mode === 'loading' || mode === 'error' ? mode : 'normal';
+  const mine = currentOf(deskWindow);
+  if (mode === 'empty') tickets = tickets.filter(tk => tk === mine || !inQueue(tk));
+  // «Обычная» после «Пустой» возвращает очередь фикстуры, не трогая талон окна.
+  if (mode === 'normal' && !tickets.some(tk => tk.status === 'waiting')) {
+    seedQueue();
+    if (mine) tickets = [...tickets.filter(tk => tk.no !== mine.no), mine];
+  }
+  queueWaiters.splice(0).forEach(resolve => resolve());
+  queueEmit('mode');
+  emit();
+};
+sim.resetQueue = () => {
+  queueMode = 'normal';
+  seedQueue();
+  queueWaiters.splice(0).forEach(resolve => resolve());
+  queueEmit('mode');
+  emit();
+};
+sim.issueTicket = () => {
+  issueTicket(QUEUE_KIOSK[kioskTurn++ % QUEUE_KIOSK.length]);
+  queueEmit();
 };
 
 /* ============================================================

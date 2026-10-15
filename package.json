@@ -16,7 +16,8 @@
     "test:contrast": "node qa/contrast.mjs",
     "lint:design-system": "node qa/design-lint.mjs",
     "check:vercel": "npm run build && node qa/vercel-readiness.mjs",
-    "art:hero": "node scripts/render-hero-art.mjs"
+    "art:hero": "node scripts/render-hero-art.mjs",
+    "art:illustrations": "node scripts/build-illustrations.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",

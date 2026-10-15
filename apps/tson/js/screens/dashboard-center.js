@@ -18,6 +18,7 @@ import { t } from '../i18n.js';
 import { TSON_DASHBOARD, visitsOf } from '../mock/data.js';
 import { fmtMinutes } from '../format.js';
 import { getCenterContext } from '../role.js';
+import { queue } from '../mock/api.js';
 
 const statusTone = { serving: 'success', break: 'warning', closed: 'danger' };
 
@@ -61,6 +62,28 @@ function colLabel(key) {
 }
 const statusGlyph = { serving: 'check', break: 'pause', closed: 'x-strong' };
 
+/* Наплыв для сценария «Высокая очередь» (демо-панель): +12 человек в первой
+   зоне, из них 8 ждут дольше нормы. */
+const HIGH_SURGE = { waiting: 12, long: 8 };
+
+/* Ожидание — целыми минутами, как у оператора в очереди и как среднее время
+   обслуживания в KPI: «9 мин», а не «08:40». Секунды на табло «сейчас»
+   менялись бы на каждой перерисовке и читались как время дня. Никто не
+   ждёт — прочерк: среднее по пустой зоне не ноль, а отсутствие. */
+function waitText(min) {
+  if (min === null || min === undefined) return '—';
+  if (min < 1) return t('queue.waitLess');
+  const m = fmtMinutes(min);
+  return m.value + m.unit;
+}
+
+function waitValue(min) {
+  if (min === null || min === undefined) return '—';
+  if (min < 1) return t('queue.waitLess');
+  const m = fmtMinutes(min);
+  return [m.value, h('span', { class: 'kpi__unit' }, m.unit)];
+}
+
 /* Период — не персональные данные, поэтому его можно держать в адресе (§7):
    перезагрузка и ссылка возвращают на то, что человек смотрел. Разрешён
    ровно один параметр и ровно два значения — маршрутизатор ЦОН выселяет всё
@@ -90,9 +113,12 @@ export function renderDashboardCenter(host) {
   const onHash = () => { period = readPeriod(); draw(); };
   window.addEventListener('tson:dash-scenario', onScenario);
   addEventListener('hashchange', onHash);
+  // Очередь живая: терминал выдал талон, окно его вызвало — зоны пересчитываются.
+  const offQueue = queue.onChange(() => draw());
   return () => {
     window.removeEventListener('tson:dash-scenario', onScenario);
     removeEventListener('hashchange', onHash);
+    offQueue();
   };
 
   function onScenario(e) { mode = e.detail || 'normal'; draw(); }
@@ -123,10 +149,23 @@ export function renderDashboardCenter(host) {
       return;
     }
 
+    /* Очередь по зонам — те же талоны, с которыми работают окна (api.queue,
+       правило 49): ни одного числа очереди здесь не хранится. «Высокая
+       очередь» из демо-панели — наплыв поверх живых данных в первой зоне,
+       а не подмена их константой. */
     const high = mode === 'high';
-    const longWait = high ? 11 : 3;
-    const queues = d.queues.map((q, i) => (high && i === 0 ? { ...q, waiting: 18 } : q));
+    const live = queue.zonesNow();
+    const queues = live.zones.map((z, i) => {
+      const surge = high && i === 0;
+      return {
+        ...z,
+        label: t(`queue.zone.${z.id}`),
+        waiting: z.waiting + (surge ? HIGH_SURGE.waiting : 0),
+        long: z.long + (surge ? HIGH_SURGE.long : 0),
+      };
+    });
     const waitingNow = queues.reduce((sum, q) => sum + q.waiting, 0);
+    const longWait = queues.reduce((sum, q) => sum + q.long, 0);
     const totals = centerTotals(d.windows, period);
 
     const nodes = [
@@ -147,7 +186,7 @@ export function renderDashboardCenter(host) {
             h('div', { class: 'dashboard-queue-head' },
               h('h2', { class: 'h3' }, t('dash.center.queue')),
               h('span', { class: `small ${high ? 'red-ink' : 'ink-faint'}` },
-                t('dash.center.queueNow', { n: waitingNow, wait: d.queueWait }))),
+                t('dash.center.queueNow', { n: waitingNow, wait: waitText(live.waitMin) }))),
             h('div', { class: 'queue-grid' }, ...queues.map((q, i) => queueCard(q, high && i === 0)))),
           h('section', { class: 'panel dashboard-section' },
             h('h2', { class: 'h3' }, t('dash.center.load')),
@@ -208,7 +247,7 @@ export function renderDashboardCenter(host) {
       h('span', { class: 'queue-card__metrics' },
         h('strong', {}, String(waiting)),
         h('span', { class: 'small ink-2' }, t('dash.center.waiting')),
-        h('span', { class: 'small ink-faint' }, `${t('dash.center.avg')}: ${q.wait}`)));
+        h('span', { class: 'small ink-faint' }, `${t('dash.center.avg')}: ${waitText(q.waitMin)}`)));
   }
 
   /* Столбики нагрузки. Значение раньше жило только в title — то есть было
@@ -272,7 +311,7 @@ export function renderDashboardCenter(host) {
   function openQueueDrawer(q) {
     drawer(q.label, t('dash.center.queue'), [
       kpiStat(String(q.waiting), t('dash.center.waiting'), `${q.long} ${t('dash.center.long')}`, q.long ? 'warn' : ''),
-      kpiStat(q.wait, t('dash.center.avg'), t('dash.center.sla'), ''),
+      kpiStat(waitValue(q.waitMin), t('dash.center.avg'), t('dash.center.sla'), ''),
     ]);
   }
 

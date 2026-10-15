@@ -67,7 +67,7 @@ async function fetchDict(code) {
 export function getLang() { return lang; }
 export function onLangChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 
-/* t('idle.ready', {n: 4}) → «Окно № 4 готово к приёму»
+/* t('queue.windowN', {n: 4}) → «Окно 4»
    Отсутствующий ключ возвращает сам ключ — в интерфейсе это видно сразу,
    в отличие от пустой строки. */
 export function t(key, vars) {

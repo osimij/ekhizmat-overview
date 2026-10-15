@@ -108,6 +108,15 @@
   --doc-tax: #3a3f45;
   --doc-birth: #79522a;
   --doc-temp: #8a5a13;
+  /* Brand illustrations (design-system/assets/illustrations.svg): one navy
+     outline, white paper, a six-step blue ramp from palest to deepest, gold and
+     sand — the drawn values, so light mode renders exactly as drawn. */
+  --ill-line: #1b3b6f;
+  --ill-paper: #ffffff;
+  --ill-tint-1: #e3eefd; --ill-tint-2: #d9e9fd; --ill-tint-3: #c9e0fb;
+  --ill-tint-4: #bbd9fb; --ill-tint-5: #aacffa; --ill-tint-6: #9cc6f9;
+  --ill-gold: #f8cd7e;
+  --ill-sand: #f3d9b8;
   --alpha-black-20: rgb(0 0 0 / 20%);
   --alpha-black-18: rgb(0 0 0 / 18%);
   --alpha-overlay: rgb(16 15 13 / 40%);
@@ -178,6 +187,14 @@
   --doc-tax: #43484f;
   --doc-birth: #8a5e31;
   --doc-temp: #9a6717;
+  /* the same drawings at night: the outline turns light, paper and the ramp
+     become deep blues a step above the tinted card, gold and sand dim a little */
+  --ill-line: #d3e3f8;
+  --ill-paper: #25415f;
+  --ill-tint-1: #1f3a59; --ill-tint-2: #223f60; --ill-tint-3: #284a70;
+  --ill-tint-4: #2c5079; --ill-tint-5: #335b88; --ill-tint-6: #3b6696;
+  --ill-gold: #e2b45f;
+  --ill-sand: #b8956d;
   --version-note-bg: #191f26;
   --version-note-line: #203a4e;
 }

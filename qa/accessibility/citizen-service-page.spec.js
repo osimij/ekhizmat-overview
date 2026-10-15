@@ -10,7 +10,7 @@ async function seriousViolations(page, includes = []) {
 }
 
 for (const theme of ['light', 'dark']) {
-  test(`service overview, search list and help guide have no serious violations (${theme})`, async ({ page }) => {
+  test(`service overview, search list, help guide and life situations have no serious violations (${theme})`, async ({ page }) => {
     await page.goto(`/citizen/?lang=ru&theme=${theme}#/category/transport`);
     await page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important}' });
     await page.locator('#cpList .svc-row', { hasText: 'Талон (листовка) технического осмотра' }).click();
@@ -26,6 +26,12 @@ for (const theme of ['light', 'dark']) {
 
     await page.goto(`/citizen/?lang=ru&theme=${theme}#/help/track`);
     expect(await seriousViolations(page, ['#scr-help']), 'help').toEqual([]);
+
+    await page.goto(`/citizen/?lang=ru&theme=${theme}#/life/wedding`);
+    await page.locator('#life-q1 summary').click();
+    expect(await seriousViolations(page, ['#scr-life']), 'life situation').toEqual([]);
+    await page.goto(`/citizen/?lang=ru&theme=${theme}#/life`);
+    expect(await seriousViolations(page, ['#scr-life']), 'life situations list').toEqual([]);
   });
 }
 

@@ -29,7 +29,7 @@ import { dispatch, getState, legalEvents, __reset, ST } from './store.js';
 import { resetRole } from './role.js';
 import { audit } from './storage.js';
 import { clock } from './clock.js';
-import { sim, consent } from './mock/api.js';
+import { sim, consent, queue } from './mock/api.js';
 import { CITIZENS, BASE_SCOPES, SCOPES, citizenSlice, REGISTRY } from './mock/data.js';
 
 const HUMAN = {
@@ -46,6 +46,10 @@ const HUMAN = {
    отдавать те же данные, что и настоящий бэкенд, иначе экраны за ней
    разъедутся с реальностью. */
 const PAYLOAD = {
+  // «Начать приём» относится к вызванному талону. Панель играет машину «в
+  // лоб», мимо кнопок окна, поэтому талон берёт у сервера очереди сама:
+  // вызванный к этому окну, иначе следующего (api.queue.takeForDemo).
+  START: () => ({ ticket: queue.takeForDemo(Number(getState().bind?.window) || 1) }),
   ID_SENT: () => ({ method: 'push', maskedName: 'А***в Ф.', scopes: BASE_SCOPES }),
   MFA_OK:  () => ({ operator: { login: 'operator.sino04', name: 'Фируза' } }),
   BIND_OK: () => ({ bind: { tson: 'sino', tsonName: 'район Сино', window: 4 } }),
@@ -99,6 +103,17 @@ const DASH_SCENARIOS = [
   ['error',   'Ошибка'],
 ];
 let dashScenario = 'normal';
+
+/* Состояния очереди на главной оператора: обычная, пустая, загрузка, отказ
+   сервиса очереди. Живут в моке (sim.setQueueMode), а не в экране: экран
+   получает их тем же путём, каким получал бы от настоящего бэкенда. */
+const QUEUE_SCENARIOS = [
+  ['normal',  'Обычная очередь'],
+  ['empty',   'Пустая очередь'],
+  ['loading', 'Очередь грузится'],
+  ['error',   'Очередь недоступна'],
+];
+let queueScenario = 'normal';
 
 export function initDemo() {
   const panel = h('aside', {
@@ -200,6 +215,18 @@ export function initDemo() {
           },
         }, name))),
 
+      h('span', { class: 'label' }, 'Очередь (§11.5)'),
+      h('div', { class: 'demo__grid' },
+        ...QUEUE_SCENARIOS.map(([id, name]) => h('button', {
+          class: `btn btn--${queueScenario === id ? 'primary' : 'secondary'} btn--s`,
+          'aria-pressed': String(queueScenario === id),
+          onClick: () => { queueScenario = id; sim.setQueueMode(id); draw(); },
+        }, name)),
+        h('button', {
+          class: 'btn btn--secondary btn--s',
+          onClick: () => { sim.issueTicket(); draw(); },
+        }, 'Новый талон')),
+
       h('span', { class: 'label' }, 'Приватность (§2.3 · DoD §13)'),
       h('div', { class: 'demo__audit' },
         check('Данные гражданина в памяти', st.session ? 'да — сессия активна' : 'нет',
@@ -218,7 +245,10 @@ export function initDemo() {
       h('div', { class: 'demo__grid' },
         h('button', {
           class: 'btn btn--danger btn--s',
-          onClick: () => { REGISTRY.reset(); resetRole(); __reset(); location.hash = '#/login'; draw(); },
+          onClick: () => {
+            REGISTRY.reset(); sim.resetQueue(); queueScenario = 'normal';
+            resetRole(); __reset(); location.hash = '#/login'; draw();
+          },
         }, 'Сбросить всё')));
   }
 

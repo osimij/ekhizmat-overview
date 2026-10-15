@@ -11,7 +11,7 @@ import { getState, dispatch, __reset, ST, STEP } from './store.js';
 import { endVisit } from './session.js';
 import { getThemeChoice, setTheme } from '/design-system/js/preferences.js';
 import { fmtTime } from './format.js';
-import { SCOPES } from './mock/data.js';
+import { SCOPES, SERVICE } from './mock/data.js';
 import { consent } from './mock/api.js';
 import { ROLE, getRole, roleLabel, setRole, resetRole } from './role.js';
 
@@ -331,21 +331,41 @@ function leave() {
 }
 
 /* ---------- session bar (§3.2) ----------
-   Появляется ТОЛЬКО в сессии. ФИО и ИНН здесь всегда маскированы (§2.3.5) —
-   полные значения живут только в рабочей зоне. */
+   Шапка приёма. Появляется, как только приём начат по талону, — уже на
+   воротах (S2), при регистрации и в ожидании согласия, — и слева всегда
+   несёт талон и услугу: оператор в любой момент видит, кого он обслуживает
+   и зачем человек пришёл. Пока гражданин не опознан, полоса нейтральная и
+   кроме талона в ней ничего нет; с согласием (SESSION) она синеет, и к
+   талону добавляются маскированные ФИО и ИНН (§2.3.5), объём доступа,
+   таймер и «Завершить приём». Полные значения живут только в рабочей зоне. */
+const VISIT_STATES = new Set([ST.IDENTIFY, ST.ENROLL, ST.CONSENT_WAIT, ST.SESSION]);
+
 export function renderSessionBar(host) {
   const st = getState();
+  const inSession = st.app === ST.SESSION && !!st.session;
+  const show = inSession || (VISIT_STATES.has(st.app) && st.app !== ST.SESSION && !!st.ticket);
 
-  if (st.app !== ST.SESSION || !st.session) {
+  if (!show) {
     host.replaceChildren();
     host.hidden = true;
-    host.classList.remove('sessionbar--warn', 'sessionbar--danger');
+    host.classList.remove('sessionbar--warn', 'sessionbar--danger', 'sessionbar--pre');
     return;
   }
   host.hidden = false;
+  host.classList.toggle('sessionbar--pre', !inSession);
+
+  // Услуга — та, что сейчас оформляется; до выбора в каталоге — та, что
+  // гражданин назвал терминалу. Один факт: «по какой услуге идёт приём».
+  const ticket = st.ticket ? ticketTag(st.ticket, SERVICE[st.session?.service]?.name) : null;
+
+  if (!inSession) {
+    mount(host, ticket);
+    return;
+  }
 
   if (st.session.guest) {
     mount(host,
+      ticket, ticket ? h('span', { class: 'sessionbar__rule', 'aria-hidden': 'true' }) : null,
       h('span', { class:'audience-badge audience-badge--guest' }, icon('user', { size:16 }), t('guest.badge')),
       h('span', { class:'small ink-2' }, t('guest.noPersonal')),
       h('span', { class:'spacer' }),
@@ -358,6 +378,9 @@ export function renderSessionBar(host) {
   const n = st.session.scopes.length;
 
   mount(host,
+    ticket,
+    ticket ? h('span', { class: 'sessionbar__rule', 'aria-hidden': 'true' }) : null,
+
     h('span', { class: 'dot green-ink' }),
 
     // §6/S9a — «Клик по имени → S5».
@@ -390,6 +413,22 @@ export function renderSessionBar(host) {
 
     h('button', { class: 'btn btn--danger btn--s', onClick: () => endVisit() },
       t('session.end')));
+}
+
+/* «Талон A027 · Справка о составе семьи». Номер — tabular и на ступень
+   весомее: его оператор сверяет с бумажкой в руке гражданина. Длинное
+   название услуги обрезается, но целиком остаётся в title и в имени для
+   скринридера. */
+function ticketTag(ticket, chosenService) {
+  const service = chosenService || ticket.service?.name || '';
+  return h('span', {
+    class: 'sessionbar__ticket',
+    role: 'group',
+    'aria-label': t('visit.barAria', { no: ticket.no, svc: service }),
+  },
+    h('span', { class: 'sessionbar__no' }, t('visit.ticket'), ' ', h('b', { class: 'tnum' }, ticket.no)),
+    service ? h('span', { class: 'ink-faint', 'aria-hidden': 'true' }, '·') : null,
+    service ? h('span', { class: 'sessionbar__svc', title: service }, service) : null);
 }
 
 /* Таймер обновляет session.js (он один знает, сколько осталось), а рисует

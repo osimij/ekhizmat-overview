@@ -20,6 +20,14 @@
 .icon--48 { width: 48px; height: 48px; }
 .icon--filled { fill: currentColor; stroke: none; }
 
+/* ============ ILLUSTRATIONS ============ */
+/* Brand scenes from design-system/assets/illustrations.svg (--ill-* tokens
+   recolour them for dark mode). They illustrate a moment — a life situation,
+   an empty list, a sent application — and never stand in for a service icon,
+   which stays a glyph from icons.svg. Always decorative (aria-hidden): the
+   words beside the scene carry the meaning. Size by the slot, square. */
+.ekh-ill { display: block; flex: none; width: 96px; height: 96px; }
+
 /* ============ BUTTONS ============ */
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:var(--s-2);
@@ -957,6 +965,9 @@ input.check:disabled,input.radio:disabled{opacity:.5; cursor:not-allowed}
 .empty-state { display:grid; justify-items:center; gap:var(--s-3); padding:var(--s-12) var(--s-5); text-align:center; }
 .empty-state > svg { width:40px; height:40px; color:var(--ink-3); }
 .empty-state p { max-width:44ch; color:var(--ink-3); }
+/* with a brand scene (.ekh-ill) instead of a glyph: the scene is the state's
+   picture, so it gets its own size and a little more air below it */
+.empty-state > svg.ekh-ill { width:112px; height:112px; margin-bottom:var(--s-1); }
 .skeleton { min-height:14px; border-radius:var(--r-pill); background:linear-gradient(90deg,var(--field),var(--hover),var(--field)); background-size:200% 100%; animation:ekhSkeleton 1.2s linear infinite; }
 @keyframes ekhSkeleton { to { background-position:-200% 0; } }
 

@@ -24,20 +24,25 @@ test('a catalogue row opens the service overview, a linkable route with crumbs b
   await expect(page.locator('.svc-fact').first()).toContainText('действует 90 дней');
   await expect(page.locator('.svc-steps .e-step')).toHaveCount(4);
 
-  // title, crumbs and facts share the content edge; the decision lines up with the title
+  // title, crumbs and facts share the content edge; the decision starts on the facts' line,
+  // and Apply is the in-person button's size
   const edges = await page.evaluate(() => {
     const left = s => Math.round(document.querySelector(s).getBoundingClientRect().left);
+    const size = s => { const r = document.querySelector(s).getBoundingClientRect(); return { width: Math.round(r.width), height: Math.round(r.height) }; };
     const crumb = document.createRange();
     crumb.selectNodeContents(document.querySelector('#svcRoot .ekh-crumbs a'));
     return {
       title: left('#svcTitle'), facts: left('.svc-facts'), crumb: Math.round(crumb.getBoundingClientRect().left),
-      titleTop: Math.round(document.querySelector('#svcTitle').getBoundingClientRect().top),
+      factsTop: Math.round(document.querySelector('.svc-facts').getBoundingClientRect().top),
       asideTop: Math.round(document.querySelector('.svc-aside').getBoundingClientRect().top),
+      apply: size('[data-svc-apply]'), visit: size('.svc-apply__alt .btn'),
     };
   });
   expect(edges.crumb).toBe(edges.title);
   expect(edges.facts).toBe(edges.title);
-  expect(edges.asideTop).toBe(edges.titleTop);
+  expect(edges.asideTop).toBe(edges.factsTop);
+  expect(edges.apply.height).toBe(edges.visit.height);
+  expect(edges.apply.width).toBe(edges.visit.width);
 
   // depth waits behind disclosures
   const legal = page.locator('#svc-d-legal');

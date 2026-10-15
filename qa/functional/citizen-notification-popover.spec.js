@@ -215,16 +215,17 @@ test('the home is one rhythm: every band 48 in and out, one card corner, one gap
   const rhythm = await page.evaluate(() => {
     const px = (el, prop) => getComputedStyle(el)[prop];
     const sections = [...document.querySelectorAll('#scr-home .home-sect')].filter((el) => el.offsetParent !== null);
-    const last = sections.at(-1).querySelector('.news-grid').getBoundingClientRect().bottom;
+    /* the questions + support band closes the page */
+    const last = sections.at(-1).querySelector('.faq-sup').getBoundingClientRect().bottom;
     return {
       bands: sections.map((el) => [px(el, 'paddingTop'), px(el, 'paddingBottom')]),
-      corners: [...new Set(['.fy-card', '.moment', '.news-card', '.app-card'].map((sel) => px(document.querySelector(sel), 'borderTopLeftRadius')))],
+      corners: [...new Set(['.fy-card', '.moment', '.news-card', '.app-card', '.sup'].map((sel) => px(document.querySelector(sel), 'borderTopLeftRadius')))],
       gaps: [...new Set(['.fy-grid', '.moments', '.news-grid'].map((sel) => px(document.querySelector(sel), 'columnGap')))],
-      insets: [...new Set(['.fy-card', '.moment', '.news-card'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
+      insets: [...new Set(['.fy-card', '.moment', '.news-card', '.sup'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
       footer: Math.round(document.querySelector('footer').getBoundingClientRect().top - last),
     };
   });
-  expect(rhythm.bands).toEqual([['48px', '48px'], ['48px', '48px'], ['48px', '48px']]);
+  expect(rhythm.bands).toEqual([['48px', '48px'], ['48px', '48px'], ['48px', '48px'], ['48px', '48px']]);
   expect(rhythm.corners).toEqual(['24px']);
   expect(rhythm.gaps).toEqual(['16px']);
   expect(rhythm.insets).toEqual(['24px']);
@@ -245,23 +246,23 @@ test('life-situation cards group copy, keep two-line descriptions, and hover wit
   await expect(cards).toHaveCount(8);
   await expect(first.locator('.moment-copy')).toHaveCount(1);
   await expect(first.locator('.moment-copy > *')).toHaveCount(2);
-  await expect(first.locator('.moment-title')).toHaveCSS('font-size', '16px');
+  await expect(first.locator('.moment-title')).toHaveCSS('font-size', '17px');
   await expect(first.locator('.moment-title')).toHaveCSS('font-weight', '500');
   for (const description of await cards.locator('.moment-text').all()) {
     const lines = await description.evaluate((text) => Math.round(text.getBoundingClientRect().height / parseFloat(getComputedStyle(text).lineHeight)));
     expect(lines).toBeLessThanOrEqual(2);
   }
 
-  // illustrated cards hug the action, plain cards span it across the card
-  // (none are illustrated until the set is complete — every card spans it today)
-  const ctaWidths = await cards.evaluateAll((items) => items.map((card) => ({
-    art: card.classList.contains('moment--art'),
-    span: Math.round(card.getBoundingClientRect().width - card.querySelector('.moment-cta').getBoundingClientRect().width),
-  })));
-  for (const { art, span } of ctaWidths) {
-    if (art) expect(span).toBeGreaterThan(100);
-    else expect(span).toBe(24);
-  }
+  // every card is illustrated now that the set is complete: a scene in the corner, the round way forward at the foot
+  await expect(cards.locator('.moment-art')).toHaveCount(8);
+  await expect(cards.locator('.moment-go')).toHaveCount(8);
+  // the copy never runs into its scene
+  const clear = await cards.evaluateAll((items) => items.every((card) => {
+    const text = card.querySelector('.moment-copy').getBoundingClientRect();
+    const art = card.querySelector('.moment-art').getBoundingClientRect();
+    return text.bottom <= art.top + art.height * .18; // the drawing keeps 18% of its box as margin
+  }));
+  expect(clear).toBe(true);
 
   await expect(first).toHaveCSS('border-top-width', '0px');
   const restBackground = await first.evaluate((card) => getComputedStyle(card).backgroundColor);
