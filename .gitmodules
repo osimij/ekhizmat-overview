@@ -1,3 +1,4 @@
 [submodule "spatial"]
 	path = spatial
 	url = https://github.com/osimij/spatial.git
+	ignore = all
