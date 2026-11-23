@@ -602,7 +602,9 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
    blue is left to what can be pressed — and the app download, the portal's
    own tinted card, stretched to the same height. The support card reflows by
    its own width (its container rules, below), not by the viewport's. */
-.sup-app{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--home-gap)}
+/* the form takes the narrow column of the news and questions' 5fr : 8fr line,
+   under the questions' title; the app card the wide one, under the list */
+.sup-app{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12)}
 .app-card{
   position:relative; overflow:hidden; min-height:430px; padding:var(--home-pad);
   background:var(--blue-tint); border-radius:var(--home-r);
@@ -674,11 +676,10 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 .sup-title{font-size:var(--fs-20); font-weight:var(--weight-semibold); line-height:1.3}
 .sup-title:focus{outline:none}
 .sup-lead{margin-top:var(--s-1); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:balance}
-.sup-form{margin-top:var(--s-3)}
+.sup-form{margin-top:var(--s-4)}
 .sup .field{margin-bottom:var(--s-3)}
-.sup-msg.field{margin-bottom:var(--s-4)}
 .sup .field label{margin-bottom:var(--s-1)}
-.sup textarea.input{height:88px; min-height:72px} /* three lines, not the four rows="4" asks for */
+.sup textarea.input{min-height:88px}
 .sup-pair{display:grid; grid-template-columns:minmax(0, 1fr); column-gap:var(--s-3)}
 /* a pointer to an answer that may already exist, under what is being typed */
 .sup-match{margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-13); line-height:1.5}
@@ -693,11 +694,12 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 .sup-form[aria-busy="true"] .sup-send .btn{cursor:progress}
 /* the call row closes the card in both states: the question and the hours on
    the left, the number as bare text to tap; no rule above it, and it
-   follows Send directly instead of sinking to the app card's foot */
+   closes the form on the app card's foot */
 .sup-call{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-4);
+  margin-top:auto;
 }
-.sup-body,.sup-done{margin-bottom:var(--s-3)}
+.sup-body,.sup-done{margin-bottom:var(--s-4)}
 .sup-call__text{display:grid; gap:2px; color:var(--ink); font-size:var(--fs-14); line-height:1.4}
 .sup-call__hours{color:var(--ink-3); font-size:var(--fs-13)}
 /* the number is bare text with its glyph at rest, at the question's size; the
@@ -720,7 +722,9 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 
 /* the card reflows by its own width: two fields abreast once they fit, and a
    wide card (one column, below 1080px) sets its heading beside the form */
-@container (min-width: 420px){ .sup-pair{grid-template-columns:repeat(2, minmax(0, 1fr))} }
+/* two fields abreast only where the contact example fits a half (in the
+   narrow column they stack) */
+@container (min-width: 520px){ .sup-pair{grid-template-columns:repeat(2, minmax(0, 1fr))} }
 @container (min-width: 720px){
   .sup-body{display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 3fr); column-gap:var(--s-10); align-items:start}
   .sup-form{margin-top:0}
@@ -731,7 +735,8 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
   .sup-call__tel{margin-inline:calc(-1 * var(--s-3)) 0} /* wrapped under the hours, it hangs past the left edge instead */
 }
 @media (max-width:1080px){
-  .sup-app{grid-template-columns:minmax(0, 1fr)}
+  .sup-app{grid-template-columns:minmax(0, 1fr); row-gap:var(--home-gap)}
+  .sup{max-width:560px} /* one column: the form keeps a form's width, not the page's */
 }
 @media (max-width:1080px){ .faq{column-gap:var(--s-8)} }
 @media (max-width:760px){

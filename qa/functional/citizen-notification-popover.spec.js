@@ -220,7 +220,7 @@ test('the home is one rhythm: every band 64 in and out, one card corner, one gap
     return {
       bands: sections.map((el) => [px(el, 'paddingTop'), px(el, 'paddingBottom')]),
       corners: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(getComputedStyle(document.querySelector(sel)).borderTopLeftRadius) /* the designed radius (§5 Corners) */))],
-      gaps: [...new Set(['.fy-grid', '.moments', '.sup-app'].map((sel) => px(document.querySelector(sel), 'columnGap')))],
+      gaps: [...new Set(['.fy-grid', '.moments'] /* card grids; news, questions and support + app share the 5fr : 8fr line instead */.map((sel) => px(document.querySelector(sel), 'columnGap')))],
       insets: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
       footer: Math.round(document.querySelector('footer').getBoundingClientRect().top - last),
     };
