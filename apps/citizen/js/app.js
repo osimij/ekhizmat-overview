@@ -4,6 +4,7 @@ import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
 import { initHomeSupport } from './home-support.js';
 import { initHomeNews } from './home-news.js';
+import { initHomeStart } from './home-start.js';
 import { initLifePage, LIFE_IDS } from './life-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 import { renderQr } from '/design-system/js/qr.js';
@@ -365,6 +366,7 @@ function finishSignIn(){
   else focusScreenHeading();
 }
 loginBtn.addEventListener("click", openLogin);
+$("#startLogin").addEventListener("click", openLogin); /* the «three steps» band, signed out */
 $("#guestAvatar").addEventListener("click", openLogin);
 /* a demo resend: confirm in place and hand the citizen back to the first empty cell */
 $("#loginResend").addEventListener("click", () => {
@@ -1353,6 +1355,7 @@ homeSupport = initHomeSupport({
   esc,
   reduceMotion
 });
+initHomeStart({ reduceMotion });
 homeNews = initHomeNews({
   getLang:() => lang,
   t,

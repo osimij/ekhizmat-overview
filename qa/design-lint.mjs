@@ -48,6 +48,21 @@ for (const file of activeCss) {
   if (uppercaseTextTransform.test(source)) errors.push(`${file}: uppercase text transforms are forbidden`);
   if (/transition\s*:\s*all\b/i.test(source)) errors.push(`${file}: transition: all is forbidden`);
   if (/cubic-bezier\s*\(/i.test(source)) errors.push(`${file}: raw cubic-bezier is forbidden; use a motion token`);
+  /* corners are smoothed everywhere (tokens/shape.css): a pill or a circle
+     must say corner-shape:round, and a raw radius must scale with
+     --corner-k like the tokens do (unless it is drawn round) */
+  for (const [, selector, body] of source.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const radius = body.match(/border-radius\s*:\s*([^;]+)/)?.[1].trim();
+    if (!radius) continue;
+    const where = `${file}: ${selector.trim().replace(/\s+/g, ' ').slice(0, 80)}`;
+    if (/var\(--r-pill\)|999px|(^|\s)50%/.test(radius) && !/corner-shape\s*:\s*round/.test(body)) {
+      errors.push(`${where}: a pill or circle radius needs corner-shape:round`);
+    }
+    const raw = radius.replace(/calc\([^;]*var\(--corner-k\)[^;]*\)/g, '').replace(/(^|\s)50%|999px/g, '');
+    if (/(^|[\s(/])(?!0(px|%)?\b)\d*\.?\d+(px|%)/.test(raw) && !/var\(--(r-|home-r)/.test(raw) && !/corner-shape\s*:\s*round/.test(body)) {
+      errors.push(`${where}: a raw radius (${radius}) must scale: calc(N * var(--corner-k))`);
+    }
+  }
 }
 
 const patternsCss = await readFile(loginWordmarkFile, 'utf8');

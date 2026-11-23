@@ -144,7 +144,7 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
 .spin {
   width: 16px; height: 16px;
   flex: none;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   border: 2px solid color-mix(in srgb, currentColor 25%, transparent);
   border-top-color: currentColor;
   animation: ministry-spin 700ms linear infinite;
@@ -296,7 +296,7 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
   position: absolute; top: 6px; right: 6px;
   min-width: 16px; height: 16px; padding: 0 4px;
   display: grid; place-items: center;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   background: var(--red-fill); color: var(--on-blue);
   font-size: var(--fs-10); font-weight: 600; line-height: 1;
   border: 2px solid var(--panel);
@@ -306,7 +306,7 @@ body[data-platform="ministry"] .ekh-platforms__menu small { font-size: var(--fs-
 .avatar {
   width: 32px; height: 32px; flex: none;
   display: grid; place-items: center;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   background: var(--h-indigo-bg); color: var(--h-indigo-fg);
   font-size: var(--fs-14); font-weight: var(--weight-semibold);
 }
@@ -542,7 +542,7 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
 .tab-badge {
   min-width: 18px; height: 18px; padding: 0 5px;
   display: inline-grid; place-items: center;
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   background: var(--field); color: var(--ink-2);
   font-size: var(--fs-11); font-weight: var(--weight-semibold);
 }
@@ -621,7 +621,7 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
   padding-bottom: var(--s-4);
 }
 .trail__rail { display: flex; flex-direction: column; align-items: center; }
-.trail__dot { width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--blue); flex: none; margin-top: 4px; }
+.trail__dot { width: 12px; height: 12px; border-radius: var(--r-pill); corner-shape:round; background: var(--blue); flex: none; margin-top: 4px; }
 .trail__item--muted .trail__dot { background: var(--track-off); }
 .trail__line { flex: 1 1 auto; width: 2px; background: var(--line); margin-top: 2px; }
 .trail__item:last-child .trail__line { display: none; }
@@ -658,8 +658,8 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
 .report-row__num { font-variant-numeric: tabular-nums; font-weight: 550; }
 .report-row__num--breach { color: var(--red-ink); }
 .report-row__rate { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-width: 0; }
-.meter { display: block; height: 8px; border-radius: var(--r-pill); background: var(--field); overflow: hidden; }
-.meter__fill { display: block; height: 100%; border-radius: var(--r-pill); background: var(--ink); }
+.meter { display: block; height: 8px; border-radius: var(--r-pill); corner-shape:round; background: var(--field); overflow: hidden; }
+.meter__fill { display: block; height: 100%; border-radius: var(--r-pill); corner-shape:round; background: var(--ink); }
 
 /* ============================================================
    Модальные раскладки (решение, запрос сведений, возврат)
@@ -750,7 +750,7 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
 }
 .form-role,.form-audience,.form-status {
   display: inline-flex; align-items: center; gap: 6px; width: max-content;
-  border-radius: var(--r-pill); font-size: var(--fs-12); font-weight: 550; line-height: 1;
+  border-radius: var(--r-pill); corner-shape:round; font-size: var(--fs-12); font-weight: 550; line-height: 1;
 }
 .form-role { padding: 7px 10px; color: var(--blue-ink); background: var(--blue-tint); white-space: nowrap; }
 .form-list { display: grid; }
@@ -775,7 +775,7 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
    баннером в подвале страницы (§6: ошибки живут у решения, которого касаются). */
 .form-row__comments {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 5px 8px; border-radius: var(--r-pill);
+  padding: 5px 8px; border-radius: var(--r-pill); corner-shape:round;
   background: var(--amber-tint); color: var(--amber-ink);
   font-size: var(--fs-12); font-weight: 550; line-height: 1;
 }
@@ -863,7 +863,7 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
 }
 .mfb-meta__comments b {
   min-width: 20px; height: 20px; display: grid; place-items: center;
-  border-radius: var(--r-pill); background: var(--field); color: var(--ink-2);
+  border-radius: var(--r-pill); corner-shape:round; background: var(--field); color: var(--ink-2);
 }
 .form-lock-note { flex: none; margin: var(--s-3) var(--s-5) 0; }
 
@@ -996,9 +996,9 @@ button.stat[data-act="stat-clear"][aria-pressed="true"] { border-color: var(--li
 .mfb-preview-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line-in); }
 .mfb-preview-head > .icon { color: var(--blue); }
 .mfb-preview-head b { flex: 1; font-size: var(--fs-13); }
-.mfb-preview-head span { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; background: var(--h-rose-bg); color: var(--h-rose-fg); font-size: var(--fs-11); font-weight: 600; }
+.mfb-preview-head span { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; corner-shape:round; background: var(--h-rose-bg); color: var(--h-rose-fg); font-size: var(--fs-11); font-weight: 600; }
 .mfb-preview-progress { display: flex; gap: 5px; padding: var(--s-4) var(--s-4) 0; }
-.mfb-preview-progress i { flex: 1; height: 3px; border-radius: var(--r-pill); background: var(--line); }
+.mfb-preview-progress i { flex: 1; height: 3px; border-radius: var(--r-pill); corner-shape:round; background: var(--line); }
 .mfb-preview-progress i.is-on { background: var(--blue); }
 .mfb-preview-body { display: grid; gap: var(--s-3); padding: var(--s-4); }
 .mfb-preview-audiences { min-width: 0; display: flex; align-items: center; gap: var(--s-1); flex-wrap: nowrap; overflow: hidden; }

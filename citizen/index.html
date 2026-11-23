@@ -239,6 +239,97 @@
       <div class="moments" id="moments"></div>
     </section>
 
+    <!-- getting started (signed out): the three steps as folder tabs. The steps are tabs on the
+         left; the chosen one joins the folder on the right, which holds that step's words and a
+         cropped piece of the real interface. On first sight the folder turns through the steps once
+         (home-start.js), then waits for the citizen. Gone once signed in -->
+    <section class="home-sect home-sect--paper" id="startSect" aria-labelledby="startH">
+      <div class="start" id="start">
+        <div class="start-side">
+          <h2 class="start-title" id="startH" data-i18n="start.t">Се қадам то хизматҳои давлатии онлайн</h2>
+          <p class="start-lead" data-i18n="start.p">Онҳоро як бор гузаред, ва хизматҳо, аризаҳо ва ҳуҷҷатҳо ҳамеша дар даст мешаванд: бе навбат ва бе рафтуомад ба идораҳо.</p>
+          <div class="start-tabs" role="tablist" aria-orientation="vertical" aria-labelledby="startH">
+            <button class="start-tab" id="startTab1" type="button" role="tab" aria-selected="true" aria-controls="startPanel1" tabindex="0">
+              <span class="start-n" aria-hidden="true">1</span>
+              <span class="start-tab__t" data-i18n="start.1.tab">Вуруд бо телефон</span>
+              <span class="start-tab__k" data-i18n="start.1.k">Онлайн · 1 дақиқа</span>
+              <span class="start-tab__bar" aria-hidden="true"></span>
+            </button>
+            <button class="start-tab" id="startTab2" type="button" role="tab" aria-selected="false" aria-controls="startPanel2" tabindex="-1">
+              <span class="start-n" aria-hidden="true">2</span>
+              <span class="start-tab__t" data-i18n="start.2.tab">Тасдиқи шахсият</span>
+              <span class="start-tab__k" data-i18n="start.2.k">Як бор · 15 дақиқа</span>
+              <span class="start-tab__bar" aria-hidden="true"></span>
+            </button>
+            <button class="start-tab" id="startTab3" type="button" role="tab" aria-selected="false" aria-controls="startPanel3" tabindex="-1">
+              <span class="start-n" aria-hidden="true">3</span>
+              <span class="start-tab__t" data-i18n="start.3.tab">Кабинети шахсӣ</span>
+              <span class="start-tab__k" data-i18n="start.3.k">Минбаъд онлайн</span>
+              <span class="start-tab__bar" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+        <div class="start-folder">
+          <div class="start-panel" id="startPanel1" role="tabpanel" aria-labelledby="startTab1">
+            <div class="start-copy">
+              <h3 class="start-t" data-i18n="start.1.t">Бо рақами телефон ворид шавед</h3>
+              <p class="start-p" data-i18n="start.1.p">Рақам ва рамзи SMS-ро ворид кунед. Бори аввал ҳисоб худкор сохта мешавад, бақайдгирии алоҳида лозим нест.</p>
+              <div class="start-acts">
+                <button class="btn btn-pri" id="startLogin" type="button" aria-haspopup="dialog" data-i18n="auth.login">Вуруд</button>
+                <a class="start-how" href="#/help/sign-in" data-route data-i18n="start.how">Муфассал дар бораи вуруд</a>
+              </div>
+            </div>
+            <!-- a picture of the product, not a control: the sign-in dialog with a code being typed -->
+            <div class="start-ui" aria-hidden="true">
+              <p class="start-ui__t" data-i18n="auth.h">Вуруд ба eKhizmat</p>
+              <p class="start-ui__sub" data-i18n="start.ui.code">Рамз ба +992 90 ••• •• 67 меояд</p>
+              <p class="start-ui__phone"><span>+992</span>90 123 45 67</p>
+              <p class="start-ui__code"><i>4</i><i>8</i><i>1</i><i class="is-caret"></i><i></i><i></i></p>
+            </div>
+          </div>
+          <div class="start-panel" id="startPanel2" role="tabpanel" aria-labelledby="startTab2" hidden>
+            <div class="start-copy">
+              <h3 class="start-t" data-i18n="start.2.t">Шахсияти худро тасдиқ кунед</h3>
+              <p class="start-p" data-i18n="start.2.p">Бо шиноснома дар ҳар маркази хизматрасонӣ ё онлайн бо ID‑корт. Баъд портал медонад, ки ин шумоед, ва аризаҳоро худаш пур мекунад.</p>
+              <div class="start-acts"><a class="start-how" href="#/help/sign-in" data-route data-i18n="start.2.how">Шахсиятро дар куҷо тасдиқ кардан</a></div>
+            </div>
+            <!-- the profile once the identity is confirmed -->
+            <div class="start-ui" aria-hidden="true">
+              <p class="start-ui__who"><span class="start-ui__av">Ф</span><span><b data-i18n="start.ui.name">Фируза Раҳимова</b><small>+992 90 ••• •• 67</small></span></p>
+              <p class="start-ui__ok"><svg><use href="/design-system/assets/icons.svg#i-check"/></svg><span><b data-i18n="start.ui.ok">Шахсият тасдиқ шуд</b><small data-i18n="start.ui.how">бо ID‑корт · 12 январи 2025</small></span></p>
+              <dl class="start-ui__rows">
+                <div><dt data-i18n="d.pass.k">Шиноснома</dt><dd>Т 4018236</dd></div>
+                <div><dt data-i18n="d.inn.k">Рақами андозсупоранда</dt><dd>6404 1893 0021</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="start-panel" id="startPanel3" role="tabpanel" aria-labelledby="startTab3" tabindex="0" hidden>
+            <div class="start-copy">
+              <h3 class="start-t" data-i18n="start.3.t">Ҳама чиз дар як кабинет</h3>
+              <p class="start-p" data-i18n="start.3.p">Ҳуҷҷатҳо дар ҳамён, аризаҳо бо қадамҳои фаҳмо, пардохтҳо ва ҷавобҳои идораҳо, аз телефон ё компютер.</p>
+            </div>
+            <!-- the cabinet: the wallet's document cards and an application on its named steps -->
+            <div class="start-ui" aria-hidden="true">
+              <div class="start-ui__wallet">
+                <span class="wcard wcard--passport"><svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg><span class="wcard__top"><span class="wcard__kind" data-i18n="d.pass.k">Шиноснома</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span><span class="wcard__foot"><b>Т 4018236</b><span class="wcard__exp" data-i18n="fy.doc.pass.e">то 14.10.2026</span></span></span>
+                <span class="wcard wcard--tax"><svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg><span class="wcard__top"><span class="wcard__kind" data-i18n="d.inn.k">Рақами андозсупоранда</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span><span class="wcard__foot"><b>6404 1893 0021</b><span class="wcard__exp" data-i18n="d.birth.e">бемӯҳлат</span></span></span>
+                <span class="wcard wcard--license"><svg class="wcard__girih" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-girih-tile" x="-14%" y="-14%" width="128%" height="128%"/></svg><span class="wcard__top"><span class="wcard__kind" data-i18n="d.drv.k">Шаҳодатномаи ронандагӣ</span><svg class="wcard__mark" aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg></span><span class="wcard__foot"><b>AB 552901</b><span class="wcard__exp" data-i18n="d.drv.e">то 03.2029</span></span></span>
+              </div>
+              <div class="start-ui__app">
+                <b data-i18n="apps.i1.t">Шаҳодатномаи таваллуд - Зарина</b>
+                <small data-i18n="fy.app1.m">САҲШ-и ноҳияи Сино · ҷавоб то 13 июн</small>
+                <span class="trk" data-step="2">
+                  <span class="trk__step"><i></i><span data-i18n="fy.trk.1">Фиристода</span></span>
+                  <span class="trk__step"><i></i><span data-i18n="fy.trk.2">Баррасӣ</span></span>
+                  <span class="trk__step"><i></i><span data-i18n="fy.trk.3">Қарор</span></span>
+                  <span class="trk__step"><i></i><span data-i18n="fy.trk.4">Омода</span></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- news: a paged preview — one story's words and pager on the left, its photo on the right (home-news.js) -->
     <section class="sect home-sect home-sect--paper" id="newsSect" aria-labelledby="newsH">
@@ -259,62 +350,29 @@
         </div>
         <div class="faq-main">
           <div class="faq-list" id="faqList"></div>
-          <p class="faq-foot"><span data-i18n="faq.foot">Саволҳо боқӣ монданд? Ҳамаи ҷавобҳо дар бахши</span> <a class="faq-foot__link" href="#/help" data-route data-i18n="faq.all">«Кумак»</a></p>
+        </div>
+        <!-- the one way on when the list misses: the help guide, or a message to us (it opens the support sheet) -->
+        <div class="faq-out">
+          <h3 class="faq-out__t" data-i18n="faq.out.t">Ҷавоб наёфтед?</h3>
+          <p class="faq-out__p" data-i18n="faq.out.p">Бахши «Кумак»-ро бинед ё ба мо нависед: дар давоми як рӯзи корӣ ҷавоб медиҳем.</p>
+          <div class="faq-out__acts">
+            <a class="btn btn-sec" href="#/help" data-route data-i18n="faq.out.help">Бахши «Кумак»</a>
+            <button class="btn btn-sec" id="supOpen" type="button" aria-haspopup="dialog" aria-controls="supOverlay" data-i18n="faq.out.write">Ба мо нависед</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- support + app: for whatever the questions miss, write to us, or take the portal along — the page's last band -->
-    <section class="sect home-sect home-sect--paper" id="contactSect" aria-labelledby="supH">
-      <div class="sup-app">
-        <aside class="sup" id="supCard" aria-labelledby="supH">
-          <div class="sup-body" id="supBody">
-            <div class="sup-head">
-              <svg class="ekh-ill sup-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-help-support"/></svg>
-              <h2 class="sup-title" id="supH" data-i18n="sup.t">Ҷавоб наёфтед?</h2>
-              <p class="sup-lead" data-i18n="sup.p">Ба мо нависед. Дар давоми як рӯзи корӣ ҷавоб медиҳем.</p>
-            </div>
-            <form class="sup-form" id="supForm" novalidate>
-              <div class="sup-pair">
-                <div class="field">
-                  <label for="supName" data-i18n="sup.name">Ном</label>
-                  <input class="input" id="supName" name="name" type="text" data-i18n-ph="sup.name.ph" placeholder="Масалан: Алишер Каримов" autocomplete="name" aria-describedby="supNameErr">
-                  <p class="err-msg" id="supNameErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
-                </div>
-                <div class="field">
-                  <label for="supContact" data-i18n="sup.contact">Телефон ё почта</label>
-                  <input class="input" id="supContact" name="contact" type="text" data-i18n-ph="sup.contact.ph" placeholder="+992 90 123 45 67 ё name@mail.tj" autocomplete="email" spellcheck="false" aria-describedby="supContactErr">
-                  <p class="err-msg" id="supContactErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
-                </div>
-              </div>
-              <div class="field sup-msg">
-                <label for="supMsg" data-i18n="sup.msg">Паём</label>
-                <textarea class="input" id="supMsg" name="message" rows="4" data-i18n-ph="sup.ph" placeholder="Масалан: барои шиносномаи хориҷӣ кадом ҳуҷҷатҳо лозиманд?" maxlength="2000" aria-describedby="supMsgErr supMatch"></textarea>
-                <p class="err-msg" id="supMsgErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
-                <p class="sup-match" id="supMatch" aria-live="polite" hidden><span data-i18n="sup.match">Шояд ҷавоб аллакай ҳаст:</span> <button class="sup-match__link" id="supMatchBtn" type="button"></button></p>
-              </div>
-              <div class="sup-send">
-                <button class="btn btn-pri" id="supSend" type="submit" data-i18n="sup.send">Фиристодан</button>
-              </div>
-            </form>
-          </div>
-          <div class="sup-done" id="supDone" role="status" hidden>
-            <svg class="ekh-ill sup-done__ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-application-sent"/></svg>
-            <h3 class="sup-title" id="supDoneH" tabindex="-1" data-i18n="sup.ok.t">Паём фиристода шуд</h3>
-            <p class="sup-lead" id="supDoneP"></p>
-            <button class="btn btn-sec" id="supAgain" type="button" data-i18n="sup.ok.again">Боз навиштан</button>
-          </div>
-          <div class="sup-call">
-            <p class="sup-call__text"><span data-i18n="sup.call">Занг задан қулайтар аст?</span><span class="sup-call__hours" data-i18n="sup.hours">душанбе–ҷумъа, 8:00–17:00</span></p>
-            <a class="btn btn-sec sup-call__tel" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
-          </div>
-        </aside>
-        <div class="app-card">
-          <h2 class="app-card__title" id="appH" data-i18n="app.t">Барномаи мобилиро насб кунед</h2>
-          <img class="app-card__stores" src="/apps/citizen/assets/app-stores.svg" width="104" height="66" data-i18n-alt="app.stores" alt="App Store ва Google Play">
-          <img class="app-card__qr" src="/apps/citizen/assets/app-qr.svg" width="73" height="72" data-i18n-alt="app.qr" alt="Рамзи QR барои насби барнома">
-          <img class="app-card__phone" src="/apps/citizen/assets/app-phone.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
-        </div>
+    <!-- ARCHIVED 2026-11-24: the app download band, off the page for now. Its
+         markup and styles (apps/citizen/app.css «.app-card») stay; remove
+         `hidden` to bring it back as the page's last band. -->
+    <section class="sect home-sect home-sect--paper" id="contactSect" aria-labelledby="appH" hidden>
+      <div class="app-card">
+        <h2 class="app-card__title" id="appH" data-i18n="app.t">Барномаи мобилиро насб кунед</h2>
+        <img class="app-card__stores" src="/apps/citizen/assets/app-stores.svg" width="104" height="66" data-i18n-alt="app.stores" alt="App Store ва Google Play">
+        <img class="app-card__qr" src="/apps/citizen/assets/app-qr.svg" width="73" height="72" data-i18n-alt="app.qr" alt="Рамзи QR барои насби барнома">
+        <img class="app-card__phone app-card__phone--light" src="/apps/citizen/assets/app-phone.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
+        <img class="app-card__phone app-card__phone--dark" src="/apps/citizen/assets/app-phone-dark.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
       </div>
     </section>
 
@@ -990,8 +1048,9 @@
     <div class="ft-grid">
       <div class="ft-brand">
         <div class="ft-logo"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-logo"/></svg><b>eKhizmat</b></div>
-        <p data-i18n="ft.note">eKhizmat - консепсияи портали ягонаи хизматҳои давлатӣ. Прототип; маълумот намунавӣ аст.</p>
+        <p class="ft-tag" data-i18n="ft.tag">Портали ягонаи хизматҳои давлатии Ҷумҳурии Тоҷикистон.</p>
       </div>
+      <div class="ft-cols">
       <nav class="ft-col" aria-labelledby="ftH1">
         <h3 id="ftH1" data-i18n="ft.h.portal">Портал</h3>
         <a href="#" data-toast="toast.demo" data-i18n="ft.cab">Кабинети шахсӣ</a>
@@ -1007,11 +1066,14 @@
         <a href="#/help/apply" data-route data-i18n="ft.guide">Дастурамал</a>
         <a href="#/help/centres" data-route data-i18n="ft.off">Харитаи марказҳои хизматрасонӣ</a>
       </nav>
-      <div class="ft-col">
+      <div class="ft-col ft-contact">
         <h3 data-i18n="ft.h.contact">Тамос</h3>
-        <a class="ft-c" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
-        <a class="ft-c" href="mailto:khizmat.ehukumat@cpd.tj"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-mail"/></svg>khizmat.ehukumat@cpd.tj</a>
-        <span class="ft-c"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-pin"/></svg><span data-i18n="ft.city">ш. Душанбе</span></span>
+        <!-- the call centre is the footer's most-used fact: the number leads, its hours under it -->
+        <a class="ft-tel" href="tel:+992446607177">+992 44 660-71-77</a>
+        <span class="ft-hours" data-i18n="sup.hours">душанбе–ҷумъа, 8:00–17:00</span>
+        <a class="ft-mail" href="mailto:khizmat.ehukumat@cpd.tj">khizmat.ehukumat@cpd.tj</a>
+        <span class="ft-city" data-i18n="ft.city">ш. Душанбе</span>
+      </div>
       </div>
     </div>
     <div class="ft-bottom">
@@ -1024,6 +1086,57 @@
     </div>
   </div>
 </footer>
+
+<!-- support: «write to us» from the questions opens this full-viewport sheet, one task on a plain page -->
+<div class="overlay sup-overlay" id="supOverlay" role="dialog" aria-modal="true" aria-labelledby="supH">
+  <div class="sup-sheet" role="document">
+    <div class="sup-col">
+      <button class="icon-btn sup-close" id="supClose" type="button" data-i18n-aria="btn.close" aria-label="Пӯшидан"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-x"/></svg></button>
+      <div class="sup" id="supCard">
+        <div class="sup-body" id="supBody">
+          <div class="sup-head">
+            <svg class="ekh-ill sup-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-help-support"/></svg>
+            <h2 class="sup-title" id="supH" data-i18n="sup.t">Ба мо нависед</h2>
+            <p class="sup-lead" data-i18n="sup.p">Дар давоми як рӯзи корӣ ба телефон ё почтае, ки нишон медиҳед, ҷавоб медиҳем.</p>
+          </div>
+          <form class="sup-form" id="supForm" novalidate>
+            <div class="sup-pair">
+              <div class="field">
+                <label for="supName" data-i18n="sup.name">Ном</label>
+                <input class="input" id="supName" name="name" type="text" data-i18n-ph="sup.name.ph" placeholder="Масалан: Алишер Каримов" autocomplete="name" aria-describedby="supNameErr">
+                <p class="err-msg" id="supNameErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+              </div>
+              <div class="field">
+                <label for="supContact" data-i18n="sup.contact">Телефон ё почта</label>
+                <input class="input" id="supContact" name="contact" type="text" data-i18n-ph="sup.contact.ph" placeholder="+992 90 123 45 67 ё name@mail.tj" autocomplete="email" spellcheck="false" aria-describedby="supContactErr">
+                <p class="err-msg" id="supContactErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+              </div>
+            </div>
+            <div class="field sup-msg">
+              <label for="supMsg" data-i18n="sup.msg">Паём</label>
+              <textarea class="input" id="supMsg" name="message" rows="4" data-i18n-ph="sup.ph" placeholder="Масалан: барои шиносномаи хориҷӣ кадом ҳуҷҷатҳо лозиманд?" maxlength="2000" aria-describedby="supMsgErr supMatch"></textarea>
+              <p class="err-msg" id="supMsgErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
+              <p class="sup-match" id="supMatch" aria-live="polite" hidden><span data-i18n="sup.match">Шояд ҷавоб аллакай ҳаст:</span> <button class="sup-match__link" id="supMatchBtn" type="button"></button></p>
+            </div>
+            <div class="sup-send">
+              <button class="btn btn-pri" id="supSend" type="submit" data-i18n="sup.send">Фиристодан</button>
+            </div>
+          </form>
+        </div>
+        <div class="sup-done" id="supDone" role="status" hidden>
+          <svg class="ekh-ill sup-done__ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-application-sent"/></svg>
+          <h3 class="sup-title" id="supDoneH" tabindex="-1" data-i18n="sup.ok.t">Паём фиристода шуд</h3>
+          <p class="sup-lead" id="supDoneP"></p>
+          <button class="btn btn-sec" id="supAgain" type="button" data-i18n="sup.ok.again">Боз навиштан</button>
+        </div>
+        <div class="sup-call">
+          <p class="sup-call__text"><span data-i18n="sup.call">Занг задан қулайтар аст?</span><span class="sup-call__hours" data-i18n="sup.hours">душанбе–ҷумъа, 8:00–17:00</span></p>
+          <a class="btn btn-sec sup-call__tel" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- document / received-file preview -->
 <div class="overlay" id="documentDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="documentDetailH">

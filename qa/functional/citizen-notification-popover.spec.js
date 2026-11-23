@@ -80,7 +80,7 @@ test('«for you» is a bento of borderless cards on the paper band the life situ
   });
   expect(layout.background).toBe('rgb(255, 255, 255)');
   expect(layout.nextIsPaper).toBe(true);
-  expect([layout.top, layout.bottom]).toEqual([64, 64]);
+  expect([layout.top, layout.bottom]).toEqual([80, 80]);
   // every card: no border, the home's 18px corners and 24px inset
   for (const card of layout.cards) expect([card.border, card.radius, card.pad]).toEqual(['0px', '18px', '24px']);
   // row one: the feature across two columns, the deadline and the bill one each; row two halves
@@ -210,26 +210,31 @@ test('notification rows keep their glyph on the first line and compact actions',
   await expect(action).toHaveCSS('min-height', '36px');
 });
 
-test('the home is one rhythm: every band 64 in and out, one card corner, one gap, 128 to the footer', async ({ page }) => {
+test('the home is one rhythm: every band 80 in and out, one card corner, one gap, 160 to the footer', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   const rhythm = await page.evaluate(() => {
     const px = (el, prop) => getComputedStyle(el)[prop];
     const sections = [...document.querySelectorAll('#scr-home .home-sect')].filter((el) => el.offsetParent !== null);
-    /* support + app close the page */
-    const last = sections.at(-1).querySelector('.sup-app').getBoundingClientRect().bottom;
+    /* the questions close the page (the app band is archived) */
+    const last = sections.at(-1).lastElementChild.getBoundingClientRect().bottom;
     return {
       bands: sections.map((el) => [px(el, 'paddingTop'), px(el, 'paddingBottom')]),
-      corners: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(getComputedStyle(document.querySelector(sel)).borderTopLeftRadius) /* the designed radius (§5 Corners) */))],
-      gaps: [...new Set(['.fy-grid', '.moments'] /* card grids; news, questions and support + app share the 5fr : 8fr line instead */.map((sel) => px(document.querySelector(sel), 'columnGap')))],
-      insets: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
-      footer: Math.round(document.querySelector('footer').getBoundingClientRect().top - last),
+      corners: [...new Set(['.fy-card', '.moment'].map((sel) => ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(getComputedStyle(document.querySelector(sel)).borderTopLeftRadius) /* the designed radius (§5 Corners) */))],
+      gaps: [...new Set(['.fy-grid', '.moments'] /* card grids; news and questions share the 5fr : 8fr line instead */.map((sel) => px(document.querySelector(sel), 'columnGap')))],
+      insets: [...new Set(['.fy-card'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
+      compactInset: px(document.querySelector('.moment'), 'paddingLeft') /* the compact life-situation card: a step tighter */,
+      /* the footer's floor meets the last band edge to edge; its first line sits the same 64 + 64 below */
+      footerEdge: Math.round(document.querySelector('footer').getBoundingClientRect().top - sections.at(-1).getBoundingClientRect().bottom),
+      footer: Math.round(document.querySelector('.ft-grid').getBoundingClientRect().top - last),
     };
   });
-  expect(rhythm.bands).toEqual([['64px', '64px'], ['64px', '64px'], ['64px', '64px'], ['64px', '64px'], ['64px', '64px']]);
+  expect(rhythm.bands).toEqual([['80px', '80px'], ['80px', '80px'], ['80px', '80px'], ['80px', '80px']]);
   expect(rhythm.corners).toEqual(['18px']);
   expect(rhythm.gaps).toEqual(['16px']);
   expect(rhythm.insets).toEqual(['24px']);
-  expect(rhythm.footer).toBe(128);
+  expect(rhythm.compactInset).toBe('20px');
+  expect(rhythm.footerEdge).toBe(0);
+  expect(rhythm.footer).toBe(160);
 });
 
 test('the account menu uses the quiet popover shadow', async ({ page }) => {
@@ -253,14 +258,15 @@ test('life-situation cards group copy, keep two-line descriptions, and hover wit
     expect(lines).toBeLessThanOrEqual(2);
   }
 
-  // every card is illustrated now that the set is complete: a scene in the corner, the round way forward at the foot
+  // every card is illustrated: a small scene in the corner, and the whole card is the link (no «go» control)
   await expect(cards.locator('.moment-art')).toHaveCount(8);
-  await expect(cards.locator('.moment-go')).toHaveCount(8);
-  // the copy never runs into its scene
+  await expect(cards.locator('.moment-go')).toHaveCount(0);
+  // the description never runs into its scene
   const clear = await cards.evaluateAll((items) => items.every((card) => {
-    const text = card.querySelector('.moment-copy').getBoundingClientRect();
+    const text = card.querySelector('.moment-text').getBoundingClientRect();
     const art = card.querySelector('.moment-art').getBoundingClientRect();
-    return text.bottom <= art.top + art.height * .18; // the drawing keeps 18% of its box as margin
+    const textEnd = text.right - Number.parseFloat(getComputedStyle(card.querySelector('.moment-text')).paddingRight); // the padding is the room kept for the scene
+    return textEnd <= art.left + art.width * .18; // the drawing keeps 18% of its box as margin
   }));
   expect(clear).toBe(true);
 

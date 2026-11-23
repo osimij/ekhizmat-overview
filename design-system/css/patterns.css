@@ -81,7 +81,7 @@ body.has-ekh-modal { overflow: hidden; padding-right: var(--ekh-scrollbar, 0); }
 .ekh-dialog__head { display: flex; gap: var(--s-3); align-items: flex-start; }
 .ekh-dialog__head > div { flex: 1; }
 .ekh-dialog__head p { margin-top: var(--s-2); color: var(--ink-3); }
-.ekh-dialog__close { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; }
+.ekh-dialog__close { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; corner-shape:round; }
 .ekh-dialog__close:hover { background: var(--hover); }
 .ekh-dialog__close svg { width: 20px; height: 20px; }
 .ekh-dialog__body { margin-top: var(--s-5); }
@@ -213,7 +213,7 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
   gap:6px;
   min-height:26px;
   padding:0 10px;
-  border-radius:var(--r-pill);
+  border-radius:var(--r-pill); corner-shape:round;
   background:var(--field);
   color:var(--ink-2);
   font-size:var(--fs-12);
@@ -264,7 +264,7 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
   height:18px;
   margin:0;
   border:1px solid var(--control-line);
-  border-radius:5px;
+  border-radius:calc(5px * var(--corner-k));
   background:var(--panel);
   cursor:pointer;
   transition:background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
@@ -368,7 +368,7 @@ html[data-mode='present'] [data-prototype], html[data-mode='present'] [data-dev-
   border-radius:var(--r-m);
   background:var(--panel);
 }
-.comment__avatar { display:grid; place-items:center; width:36px; height:36px; border-radius:50%; background:var(--h-slate-bg); color:var(--h-slate-fg); font-size:var(--fs-12); font-weight:700; }
+.comment__avatar { display:grid; place-items:center; width:36px; height:36px; border-radius:50%; corner-shape:round; background:var(--h-slate-bg); color:var(--h-slate-fg); font-size:var(--fs-12); font-weight:700; }
 .comment__head { display:flex; flex-wrap:wrap; gap:var(--s-2); align-items:baseline; }
 .comment__head time,.comment__anchor { color:var(--ink-3); font-size:var(--fs-12); }
 .comment__body { margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; }
@@ -513,7 +513,7 @@ body:has(.login) #topbar {
   border: 0;
   outline: 0;
   font-size: var(--fs-20);
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   background: var(--panel);
   color: var(--ink);
   box-shadow: inset 0 0 0 1px var(--line);

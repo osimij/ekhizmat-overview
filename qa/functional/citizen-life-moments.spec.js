@@ -25,14 +25,12 @@ test('life situations are two rows of illustrated cards that open their page, «
 
   const layout = await page.locator('#moments').evaluate((row) => [...row.querySelectorAll('.moment')].map((card) => {
     const c = card.getBoundingClientRect();
-    const go = card.querySelector('.moment-go').getBoundingClientRect();
     const art = card.querySelector('.moment-art').getBoundingClientRect();
     const title = card.querySelector('.moment-title').getBoundingClientRect();
     return {
       top: Math.round(c.top), left: Math.round(c.left), right: Math.round(c.right),
       width: Math.round(c.width), height: Math.round(c.height),
       title: [Math.round(title.left - c.left), Math.round(title.top - c.top)],
-      go: [Math.round(go.left - c.left), Math.round(c.bottom - go.bottom), go.width, go.height], goBottom: Math.round(go.bottom),
       art: [Math.round(c.right - art.right), Math.round(c.bottom - art.bottom), art.width, art.height],
     };
   }));
@@ -42,15 +40,13 @@ test('life situations are two rows of illustrated cards that open their page, «
   expect(new Set(layout.map(({ left }) => left)).size).toBe(4);
   expect(new Set(layout.map(({ width }) => width)).size).toBe(1);
   expect(new Set(layout.map(({ height }) => height)).size).toBe(1);
-  expect(layout[0].height).toBeGreaterThanOrEqual(224);
-  // the copy opens on the home's 24px inset; the round way forward sits on the same inset at the foot,
-  // on one line across each row; the scene's box is flush in the corner (its drawing keeps its own margin)
-  expect(layout.every(({ title }) => title.join() === '24,24')).toBe(true);
-  expect(layout.every(({ go }) => go.join() === '24,24,40,40')).toBe(true);
-  expect(layout.every(({ art }) => art.join() === '0,0,136,136')).toBe(true);
-  for (const row of rows) {
-    expect(new Set(layout.filter(({ top }) => top === row).map(({ goBottom }) => goBottom)).size).toBe(1);
-  }
+  // compact (2026-11-23): about half the old 224px card
+  expect(layout[0].height).toBeLessThanOrEqual(130);
+  // the copy opens on the compact card's 20px inset; the small scene's box is flush in the corner
+  // (its drawing keeps its own margin); there is no separate «go» control, the card is the link
+  expect(layout.every(({ title }) => title.join() === '20,20')).toBe(true);
+  expect(layout.every(({ art }) => art.join() === '0,0,80,80')).toBe(true);
+  await expect(page.locator('#moments .moment-go')).toHaveCount(0);
 
   // the section is a full-bleed paper band: white edge to edge, 64 above the title and below the cards
   const band = await page.locator('#moments').evaluate((row) => {
@@ -64,7 +60,7 @@ test('life situations are two rows of illustrated cards that open their page, «
       shadow: getComputedStyle(section).boxShadow.includes('rgb(255, 255, 255)'),
     };
   });
-  expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 64, bottom: 64, shadow: true });
+  expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 80, bottom: 80, shadow: true });
 
   // «see all» shares the heading's line, centred on it, flush with the cards' right edge — and is the full list
   const more = page.locator('section[aria-labelledby="momH"] .sect-more');

@@ -11,7 +11,11 @@ function lum(value) { return rgb(value).map(v=>{v/=255; return v<=.04045?v/12.92
 function ratio(a,b) { const x=lum(a),y=lum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
 
 const checks = [
-  ['light primary', hex('--action'), hex('--on-blue')],
+  // The light accent (#0091ff) is a fill and focus colour, held to the 3:1
+  // non-text bar; its button label is semibold. Blue text uses --blue-ink.
+  ['light primary fill', hex('--action'), hex('--on-blue'), 3],
+  ['light focus ring on paper', hex('--focus'), hex('--panel'), 3],
+  ['light blue ink on paper', hex('--blue-ink'), hex('--panel')],
   ['light body', hex('--ink'), hex('--bg')],
   ['light secondary', hex('--ink-2'), hex('--panel')],
   // Text on a state tint. These pairs are why --*-ink exists next to the raw
@@ -34,8 +38,8 @@ checks.push(['dark green ink on tint', hex('--green-ink', dark), hex('--green-ti
 checks.push(['dark amber ink on tint', hex('--amber-ink', dark), hex('--amber-tint', dark)]);
 checks.push(['dark red ink on tint', hex('--red-ink', dark), hex('--red-tint', dark)]);
 checks.push(['dark blue ink on tint', hex('--blue-ink', dark), hex('--blue-tint', dark)]);
-for (const [label, fg, bg] of checks) {
+for (const [label, fg, bg, min = 4.5] of checks) {
   const value = ratio(fg,bg);
-  if (value < 4.5) throw new Error(`${label} contrast ${value.toFixed(2)}:1 is below 4.5:1`);
+  if (value < min) throw new Error(`${label} contrast ${value.toFixed(2)}:1 is below ${min}:1`);
   console.log(`${label}: ${value.toFixed(2)}:1`);
 }

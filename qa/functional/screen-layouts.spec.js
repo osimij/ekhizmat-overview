@@ -282,7 +282,8 @@ test('Authentication gates follow the responsive Figma composition across platfo
   await expect(page.locator('#loginOverlay .modal')).toBeVisible();
   await expect(page.locator('#loginOverlay .s-locked__brand')).toBeVisible();
   await expect(page.locator('#loginOverlay .login-field--floating')).toBeVisible();
-  await expect(page.locator('#loginOverlay .modal')).toHaveCSS('border-radius', '32px');
+  /* the designed radius: Chrome scales every radius by --corner-k (§5 Corners) */
+  expect(await page.locator('#loginOverlay .modal').evaluate((modal) => ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(getComputedStyle(modal).borderRadius))).toBe('32px');
   const citizenLogin = await page.evaluate(() => {
     const brand = document.querySelector('#loginOverlay .s-locked__brand');
     return {
@@ -562,9 +563,9 @@ test('Admin selected pipeline step uses a solid blue icon tile', async ({ page }
       unselectedBg: getComputedStyle(unselected).backgroundColor,
     };
   });
-  expect(tiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(tiles.selectedBg).toBe('rgb(0, 145, 255)');
   expect(tiles.selectedColor).toBe('rgb(255, 255, 255)');
-  expect(tiles.unselectedBg).not.toBe('rgb(0, 114, 214)');
+  expect(tiles.unselectedBg).not.toBe('rgb(0, 145, 255)');
 });
 
 test('Admin builder centers the phone above its quiet preview caption', async ({ page }) => {

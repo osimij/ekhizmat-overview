@@ -1,19 +1,46 @@
+/* Corners are Apple's continuous corners (Figma corner smoothing 60%, «iOS»).
+   A radius token is the designed radius — the value in Figma — and the
+   browser draws it smoothed: the curve starts earlier and eases into the
+   edge, with no visible seam where arc meets line. CSS draws that as a
+   superellipse corner reaching --corner-k times the radius along each edge;
+   superellipse(1.86) at 1.64× sits within 1% of the radius of Figma's 60%
+   curve (fitted numerically, 2026-11-23). Where corner-shape is not
+   supported (Safari, Firefox in 2026) --corner-k stays 1 and the corners are
+   the plain circular radius, exactly as designed.
+   Raw radii in app CSS scale with it too: calc(6px * var(--corner-k)).
+   Pills and circles are not corners: every rule that sets var(--r-pill),
+   999px or 50% also sets corner-shape:round (design lint), so a capsule
+   stays a capsule and an avatar a circle. A child with border-radius:inherit
+   takes corner-shape:inherit with it, and a rule that turns a shared pill
+   back into a rounded rect sets corner-shape:var(--corner). */
 :root {
-  --r-s: 10px;
-  --r-m: 14px;
-  --r-l: 18px;
-  --r-xl: 24px;
-  --r-dialog: 40px;
+  --corner-k: 1;
+  --r-s: calc(10px * var(--corner-k));
+  --r-m: calc(14px * var(--corner-k));
+  --r-l: calc(18px * var(--corner-k));
+  --r-xl: calc(24px * var(--corner-k));
+  --r-dialog: calc(40px * var(--corner-k));
   /* Launcher destination row and its category tile (Figma FH2J… node 26:226:
      a 78px well inside a 102px row — both corners are a quarter of the box). */
-  --r-launch-card: 26px;
-  --r-launch-tile: 20px;
+  --r-launch-card: calc(26px * var(--corner-k));
+  --r-launch-tile: calc(20px * var(--corner-k));
   /* Lock modal. Figma frame 2880×1864 is @2× of 1440 — 64px there is 32px here. */
-  --r-lock: 32px;
+  --r-lock: calc(32px * var(--corner-k));
+  /* Buttons are rounded rectangles, not capsules (2026-11-24): the corner is
+     about a quarter of the height (the citizen search button's 12 on 48), so
+     every size keeps a flat side — 12 for 44–52px, 9 for 34–36px, 7 for 30px. */
+  --r-btn: calc(12px * var(--corner-k));
+  --r-btn-s: calc(9px * var(--corner-k));
+  --r-btn-xs: calc(7px * var(--corner-k));
   --r-pill: 999px;
   --shadow-1: 0 2px 8px rgb(0 0 0 / 6%), 0 1px 2px rgb(0 0 0 / 4%);
   --shadow-layer: 0 12px 36px rgb(0 0 0 / 12%), 0 2px 8px rgb(0 0 0 / 6%);
   --veil: var(--shadow-layer);
+}
+
+@supports (corner-shape: superellipse(2)) {
+  :root { --corner-k: 1.64; --corner: superellipse(1.86); }
+  *, ::before, ::after { corner-shape: var(--corner); }
 }
 
 [data-theme='dark'] {

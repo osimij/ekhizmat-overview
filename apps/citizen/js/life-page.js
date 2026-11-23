@@ -40,7 +40,6 @@ export function initLifePage(ctx){
   function cardHtml(l){
     return `<a class="moment" href="#/life/${l.id}" data-route>` +
       `<span class="moment-copy"><span class="moment-title">${say(l.t)}</span><span class="moment-text">${say(l.p)}</span></span>` +
-      `<span class="moment-go" aria-hidden="true">${icon("i-chev-r")}</span>` +
       art(l.art, "moment-art") +
     `</a>`;
   }

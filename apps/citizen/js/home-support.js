@@ -1,9 +1,10 @@
 /* ============================================================
-   Home «questions» and support card — the page's last two bands: the
-   questions first, then the card beside the app download, closing the page.
-   The common questions answer first, as one open list; the message card
-   beside it is for anything they miss, and it reads the list while the
-   citizen types, so an answer that already exists is one click away.
+   Home «questions» and the support sheet. The common questions answer
+   first, as one open list; under the band's title one way on for whatever
+   they miss — the help guide, or «write to us», which opens the message
+   form as a full-viewport sheet (one task on a plain page). The form reads
+   the list while the citizen types, so an answer that already exists is one
+   click away: it closes the sheet and opens that answer.
    The answers say what the help guide says (service-page.js HELP), in
    fewer words, and link into it for the rest.
    ============================================================ */
@@ -87,12 +88,13 @@ export function initHomeSupport(ctx){
   const form = $("#supForm");
   if (!list || !form) return null;
   const card = $("#supCard"), body = $("#supBody"), done = $("#supDone");
+  const overlay = $("#supOverlay"), opener = $("#supOpen");
   const name = $("#supName"), contact = $("#supContact"), msg = $("#supMsg");
   const send = $("#supSend"), match = $("#supMatch"), matchBtn = $("#supMatchBtn");
   const fields = [name, contact, msg];
   const lang = () => ctx.getLang();
   const pick = o => o[lang()] || o.ru;
-  let sending = false, matchTimer = 0, prefilled = null, ticket = "", replyTo = "";
+  let sending = false, matchTimer = 0, prefilled = null, ticket = "", replyTo = "", sheet = null;
 
   /* ---------- the questions ---------- */
   function renderFaq(){
@@ -135,7 +137,37 @@ export function initHomeSupport(ctx){
     matchBtn.dataset.faq = f.id;
     matchBtn.textContent = pick(f.q);
   }
-  matchBtn.addEventListener("click", () => openFaq(matchBtn.dataset.faq));
+  /* the answer lives in the list behind the sheet: close it, then open that one */
+  matchBtn.addEventListener("click", async () => {
+    const id = matchBtn.dataset.faq;
+    await closeSheet();
+    openFaq(id);
+  });
+
+  /* ---------- the sheet ---------- */
+  function openSheet(){
+    if (sheet) return;
+    /* the first field still to fill takes focus: signed in, that is the message */
+    const first = fields.find(input => !input.value.trim()) || msg;
+    sheet = window.EKHDialog?.openExistingDialog(overlay, {
+      initialFocus:"#" + first.id, trigger:opener, closeOnBackdrop:false,
+      onClosed:() => { if (!done.hidden) reset(); }
+    }) || null;
+    if (!sheet){ overlay.classList.add("open"); first.focus(); }
+  }
+  function closeSheet(){
+    const current = sheet;
+    sheet = null;
+    if (current) return current.close();
+    overlay.classList.remove("open");
+    if (!done.hidden) reset();
+    opener.focus();
+    return Promise.resolve();
+  }
+  opener.addEventListener("click", openSheet);
+  $("#supClose").addEventListener("click", closeSheet);
+  /* Esc closes through the shared dialog; keep our handle in step with it */
+  overlay.addEventListener("keydown", e => { if (e.key === "Escape") sheet = null; });
 
   /* ---------- validation: said once, on send; cleared as soon as it's right ---------- */
   function problem(input){
@@ -196,14 +228,15 @@ export function initHomeSupport(ctx){
       return span;
     }));
   }
-  $("#supAgain").addEventListener("click", () => {
+  /* a sent message clears for the next one; who is writing stays */
+  function reset(){
     msg.value = "";
     match.hidden = true;
     done.hidden = true;
     body.hidden = false;
     card.style.minHeight = "";
-    msg.focus();
-  });
+  }
+  $("#supAgain").addEventListener("click", () => { reset(); msg.focus(); });
 
   /* ---------- signed in: who is writing is already known ---------- */
   function identity(){

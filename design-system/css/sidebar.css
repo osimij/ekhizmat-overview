@@ -88,7 +88,7 @@
 
 .ekh-side__count{
   flex:none; margin-left:auto; min-width:22px; height:20px; padding:0 6px;
-  display:inline-grid; place-items:center; border-radius:var(--r-pill);
+  display:inline-grid; place-items:center; border-radius:var(--r-pill); corner-shape:round;
   background:var(--field); color:var(--ink-2);
   font-size:var(--fs-12); font-weight:550; font-variant-numeric:tabular-nums;
 }
@@ -104,7 +104,7 @@
 }
 a.ekh-side__user:hover{background:var(--hover)}
 .ekh-side__avatar{
-  width:36px; height:36px; border-radius:50%; flex:none;
+  width:36px; height:36px; border-radius:50%; corner-shape:round; flex:none;
   display:grid; place-items:center; font-size:var(--fs-14); font-weight:600;
   background:var(--h-indigo-bg); color:var(--h-indigo-fg);
   transition:translate var(--t-layer) var(--ease-out);

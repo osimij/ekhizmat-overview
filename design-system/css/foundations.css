@@ -37,7 +37,7 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--action); }
 :focus-visible {
   outline: var(--focus-ring) solid var(--focus);
   outline-offset: var(--focus-offset);
-  border-radius: 6px;
+  border-radius: calc(6px * var(--corner-k));
 }
 [tabindex='-1']:focus-visible { outline: none; }
 ::selection { background: var(--blue-tint); }
@@ -50,7 +50,7 @@ input[type='checkbox'], input[type='radio'] { accent-color: var(--action); }
 *::-webkit-scrollbar { width: 6px; height: 6px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  border-radius: var(--r-pill);
+  border-radius: var(--r-pill); corner-shape:round;
   background: color-mix(in srgb, var(--ink) 12%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {

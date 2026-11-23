@@ -310,7 +310,7 @@ test('Ministry MFA, queue, detail tabs and decision dialogs flow', async ({ page
     return {
       overlay: getComputedStyle(element).backgroundColor,
       cardBackground: cardStyle.backgroundColor,
-      cardRadius: cardStyle.borderRadius,
+      cardRadius: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(cardStyle.borderRadius), // the designed radius (§5 Corners)
       padTop: cardStyle.paddingTop,
       padLeft: cardStyle.paddingLeft,
       titleSize: getComputedStyle(title).fontSize,
@@ -522,7 +522,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
       systemIcon: [style(systemIcon).width, style(systemIcon).height],
       shortcut: {
         padding: [style(shortcut).paddingTop, style(shortcut).paddingRight],
-        radius: style(shortcut).borderRadius,
+        radius: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(style(shortcut).borderRadius), // the designed radius (§5 Corners)
         fontSize: style(shortcut).fontSize,
       },
       dividerMargins: [...element.querySelectorAll(':scope > .rule')]
@@ -630,7 +630,7 @@ test('TSON MFA reaches the shift dashboard and exposes operational start', async
     return {
       overlay: getComputedStyle(element).backgroundColor,
       cardBackground: cardStyle.backgroundColor,
-      cardRadius: cardStyle.borderRadius,
+      cardRadius: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(cardStyle.borderRadius), // the designed radius (§5 Corners)
       padTop: cardStyle.paddingTop,
       padRight: cardStyle.paddingRight,
       padBottom: cardStyle.paddingBottom,
@@ -975,8 +975,8 @@ test('TSON demo roles expose both dashboards, drill-down and guest reception', a
       titleToValue: value.getBoundingClientRect().top - title.getBoundingClientRect().bottom,
       plotMinHeight: getComputedStyle(section.querySelector('.audience-bars')).minHeight,
       radius: {
-        top: fillStyle.borderTopLeftRadius,
-        bottom: fillStyle.borderBottomLeftRadius,
+        top: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(fillStyle.borderTopLeftRadius), // the designed radius (§5 Corners)
+        bottom: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(fillStyle.borderBottomLeftRadius),
       },
       fills,
     };

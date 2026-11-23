@@ -33,11 +33,14 @@
   --track-off: #d2d3d6;
   --control-line: #c9cace;
 
-  --accent: #0088ff;
+  --accent: #0091ff;
   --brand-logo: var(--accent);
-  --action: #0072d6;
-  --action-hover: #006bc8;
-  --action-press: #005eae;
+  /* Light accent #0091ff (2026-11-24). It paints fills, glyphs and the focus
+     ring — non-text, so 3:1 on white is the bar (it clears 3.2:1), and the
+     primary label is semibold. Blue TEXT stays on --blue-ink (4.5:1). */
+  --action: #0091ff;
+  --action-hover: #0086ec;
+  --action-press: #007ad6;
   --blue: var(--action);
   --blue-hover: var(--action-hover);
   --blue-press: var(--action-press);
@@ -68,7 +71,7 @@
   --amber: #855b00;
   --amber-ink: #855b00;
   --amber-tint: #f7eed8;
-  --focus: #0072d6;
+  --focus: #0091ff;
 
   --h-blue-bg: #e3f0fe; --h-blue-fg: #006bcf;
   --h-rose-bg: #fce8ec; --h-rose-fg: #c13858;

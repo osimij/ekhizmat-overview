@@ -13,11 +13,16 @@ body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
    card grid uses --home-gap, every card has the --home-pad inset and --home-r
    corners — so «for you», the life situations and the news read as one page,
    not three stacked strips */
-#scr-home,#scr-life{--home-band:var(--s-16); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-l); --home-pill:var(--panel)}
+#scr-home,#scr-life{--home-band:var(--s-20); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-l); --home-pill:var(--panel);
+  --home-tint:var(--blue-tint); --home-tint-hover:var(--blue-tint-hover)}
 /* a quiet action sits a step above its card: paper in light; in dark, paper is
    darker than any card, so the step is a veil of ink instead — the same
    lift on the grey «for you» cards and the blue life-situation cards */
-[data-theme="dark"] :is(#scr-home,#scr-life){--home-pill:color-mix(in srgb, var(--ink) 9%, transparent)}
+[data-theme="dark"] :is(#scr-home,#scr-life){--home-pill:color-mix(in srgb, var(--ink) 9%, transparent);
+  /* the home's tinted cards (life situations, the getting-started folder, the
+     app card) are plain dark cards in dark, not navy: the neutral raised
+     surface, and the hover a step lighter */
+  --home-tint:var(--field-on-panel); --home-tint-hover:color-mix(in srgb, var(--ink) 6%, var(--field-on-panel))}
 /* the last band's 64 and the footer's own 64 are the page's end: no screen padding on top */
 #scr-home.screen{padding-bottom:0}
 
@@ -43,28 +48,32 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 .brand{display:flex; align-items:center; gap:var(--s-2); padding:var(--s-1) 0; color:var(--ink)}
 .brand .mark{width:30px; height:30px; color:var(--blue); flex:none}
 .brand b{font-size:var(--fs-18); font-weight:var(--weight-medium); letter-spacing:0}
-.hdr .dd.acct .dd-btn{gap:var(--s-2); color:var(--ink); font-size:var(--fs-15); font-weight:var(--weight-regular)}
-.hdr-acts{display:flex; align-items:center; gap:var(--s-2); margin-left:auto}
-/* text gap between the two links is 20 (Figma 24 × .85): 8 + the links' own 2×6 padding */
-.hdr-nav{display:flex; align-items:center; gap:var(--s-2); margin-right:var(--s-5)}
-.hdr-link{
-  padding:6px; border-radius:var(--r-s);
+/* One header control (2026-11-24): the audience switch, the links, the
+   language trigger, the bell and sign-in are one box — --h-btn-s tall,
+   --s-3 sides, the small button corner, one hover veil — and sit --s-1
+   apart, so every word in the bar is the same distance from the next
+   (4 + 12 + 12 = 28px) and every hover is the same shape. */
+.hdr{--hdr-ctl-pad:var(--s-3); --hdr-ctl-hover:color-mix(in srgb, var(--ink) 7%, transparent)}
+/* signed out, preferences open from the current language (§3 citizen portal
+   header): bare text like the links at rest, the same box as they are under
+   the pointer or while its popover is open */
+.hdr .dd.acct .dd-btn,.hdr-link,.lang-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:var(--h-btn-s); padding:0 var(--hdr-ctl-pad); border-radius:var(--r-btn-s);
   color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular); white-space:nowrap;
   transition:background var(--t-fast) var(--ease);
 }
-.hdr-link:hover{background:var(--hover)}
-/* signed out, preferences open from the current language (§3 citizen portal
-   header): bare text like the links at rest, a capsule under the pointer or
-   while its popover is open — the same shape as sign-in beside it */
-.lang-btn{
-  display:inline-flex; align-items:center; gap:6px;
-  min-height:var(--h-btn-s); padding:0 9px 0 12px; border-radius:var(--r-pill);
-  color:var(--ink); font-size:var(--fs-14); font-weight:var(--weight-regular);
-  transition:background var(--t-fast) var(--ease);
-}
-.lang-btn:hover,.lang-btn[aria-expanded="true"]{background:color-mix(in srgb,var(--ink) 7%,transparent)}
-.lang-btn svg{width:12px; height:12px; color:var(--ink-2)}
-.hdr-acts .hdr-login{min-height:var(--h-btn-s); padding:0 var(--s-6); border-radius:var(--r-pill); font-size:var(--fs-14)}
+.hdr .dd.acct .dd-btn{font-size:var(--fs-15)} /* it sits beside the wordmark */
+.hdr .dd.acct .dd-btn:hover,.hdr .dd.acct.open .dd-btn,
+.hdr-link:hover,
+.lang-btn:hover,.lang-btn[aria-expanded="true"],
+.hdr .icon-btn:hover{background:var(--hdr-ctl-hover)}
+.hdr .dd.acct .dd-btn svg,.lang-btn svg{width:12px; height:12px; color:var(--ink-2)}
+.hdr-acts{display:flex; align-items:center; gap:var(--s-1); margin-left:auto}
+.hdr-nav{display:flex; align-items:center; gap:var(--s-1)}
+.hdr .icon-btn{width:var(--h-btn-s); height:var(--h-btn-s); border-radius:var(--r-btn-s)}
+.hdr .icon-btn .dot{top:7px; right:8px}
+.hdr-acts .hdr-login{min-height:var(--h-btn-s); padding:0 var(--hdr-ctl-pad); border-radius:var(--r-btn-s); font-size:var(--fs-14)}
 .icon-btn{
   width:40px; height:40px; display:grid; place-items:center;
   color:var(--ink-2); border-radius:var(--r-s); position:relative;
@@ -72,11 +81,11 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 }
 .icon-btn:hover{background:var(--hover); color:var(--ink)}
 .icon-btn svg{width:19px; height:19px}
-.icon-btn .dot{position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; background:var(--red); border:2px solid var(--bg)}
+.icon-btn .dot{position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; corner-shape:round; background:var(--red); border:2px solid var(--bg)}
 .notif-pop{
   position:fixed; z-index:var(--z-popover); box-sizing:border-box;
   width:min(380px,calc(100vw - var(--s-4))); padding:var(--s-2);
-  border-radius:calc(var(--r-l) + 2px); background:var(--raised); box-shadow:var(--shadow-1);
+  border-radius:calc(var(--r-l) + 2px * var(--corner-k)); background:var(--raised); box-shadow:var(--shadow-1);
   opacity:0; scale:.98;
   transition:opacity var(--t-popover) var(--ease-out), scale var(--t-popover) var(--ease-out);
 }
@@ -108,7 +117,7 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 .notif-pop__all:hover{background:var(--hover)}
 .notif-pop__all svg{width:14px; height:14px}
 .avatar{
-  width:36px; height:36px; border-radius:50%; margin-left:var(--s-2);
+  width:36px; height:36px; border-radius:50%; corner-shape:round; margin-left:var(--s-2);
   background:var(--h-blue-bg); color:var(--h-blue-fg);
   font-weight:var(--weight-semibold); font-size:var(--fs-14); display:grid; place-items:center;
   transition:background var(--t-fast) var(--ease);
@@ -177,6 +186,7 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 [data-auth="out"] #bellBtn,
 [data-auth="out"] .avatar,
 [data-auth="out"] #feedSect,
+[data-auth="in"] #startSect,
 [data-auth="in"] #heroTitle,
 [data-auth="out"] #heroHi,
 [data-auth="in"] #heroSub,
@@ -188,9 +198,10 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 
 /* hero search — the portal's main verb (Figma 130:4110: a 64px field, blue glyph,
    a 48px button inset 8px so its 12px corners stay concentric with the field's 20) */
-.search{position:relative; margin:var(--s-3) 0 var(--s-4); z-index:5; text-align:left}
+/* one 24px step between the title and its line, the search and the catalogue */
+.search{position:relative; margin:var(--s-6) 0; z-index:5; text-align:left}
 .search input{
-  width:100%; height:64px; border:1px solid var(--line); border-radius:20px;
+  width:100%; height:64px; border:1px solid var(--line); border-radius:calc(20px * var(--corner-k));
   background:var(--panel); color:var(--ink); padding:0 148px 0 56px; font-size:var(--fs-17);
   transition:border-color var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease);
 }
@@ -200,8 +211,8 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 .search-btn{
   position:absolute; right:8px; top:32px; translate:0 -50%;
   display:inline-flex; align-items:center; gap:var(--s-2);
-  border-radius:12px;
-  height:48px; padding:0 var(--s-6); background:var(--blue); color:var(--on-blue);
+  border-radius:var(--r-btn);
+  height:48px; padding:0 var(--s-5); background:var(--blue); color:var(--on-blue);
   font-weight:var(--weight-semibold); font-size:var(--fs-15);
   transition:background var(--t-fast) var(--ease);
 }
@@ -327,7 +338,7 @@ body:has(#scr-home:not([hidden]), #scr-life:not([hidden])) .hdr:not(.is-scrolled
 .fy-app__meta{font-size:var(--fs-13); color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .trk{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:var(--s-1); margin-top:var(--s-3)}
 .trk__step{display:grid; gap:var(--s-2); min-width:0; color:var(--ink-3); font-size:var(--fs-12); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-.trk__step i{display:block; height:6px; border-radius:var(--r-pill); background:var(--track-off)}
+.trk__step i{display:block; height:6px; border-radius:var(--r-pill); corner-shape:round; background:var(--track-off)}
 .trk[data-step="2"] .trk__step:nth-child(-n+1) i,
 .trk[data-step="3"] .trk__step:nth-child(-n+2) i,
 .trk[data-step="4"] .trk__step:nth-child(-n+3) i{background:var(--blue)}
@@ -425,7 +436,7 @@ button.wcard:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
 .wslot__text{flex:1; min-width:0}
 .wslot.is-ready{border-style:solid; border-color:transparent; background:var(--home-pill); color:var(--ink); font-weight:var(--weight-medium); transition:background var(--t-fast) var(--ease)}
 .wslot.is-ready .wslot__thumb{border:0}
-.wslot__badge{flex:none; padding:2px var(--s-2); border-radius:var(--r-pill); background:var(--blue-tint); color:var(--blue-ink); font-size:var(--fs-12); font-weight:550}
+.wslot__badge{flex:none; padding:2px var(--s-2); border-radius:var(--r-pill); corner-shape:round; background:var(--blue-tint); color:var(--blue-ink); font-size:var(--fs-12); font-weight:550}
 .wslot__chev{flex:none; width:16px; height:16px; color:var(--ink-3)}
 @media (hover:hover) and (pointer:fine){ .wslot.is-ready:hover{background:linear-gradient(var(--hover),var(--hover)), var(--home-pill)} }
 
@@ -468,13 +479,16 @@ button.wcard:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
 .sect{margin-top:var(--s-12)}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
 .sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
-/* home sections are the Figma «Body» bands (× .85): every band opens and
-   closes with --home-band, so any two sit 128 apart (64 + 64; 96 on phones)
-   whether or not the ground changes between them, and the footer follows the
-   last at the same 64 + 64 */
+/* home sections are the Figma «Body» bands: every band opens and closes with
+   --home-band, so any two sit 160 apart (80 + 80, 2026-11-24: 64 + 64 left
+   the first bands stacked; 128 on phones) whether or not the ground changes
+   between them, and the footer follows the last at the same 80 + 80 */
 .home-sect{margin-top:0; padding-block:var(--home-band)}
 .home-sect .sect-h{margin-bottom:var(--s-6)}
-main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
+/* on the home the footer meets the last band edge to edge, the rule between
+   them, and opens with the band's own 80: its first line sits 160 below the
+   band's content, the same step as between two bands */
+main:has(> #scr-home:not([hidden])) + footer{margin-top:0; padding-top:calc(var(--s-20) - 1px)}
 .home-sect .sect-h h2,.faq-title{font-size:var(--fs-24); font-weight:var(--weight-semibold); line-height:1.2} /* one size at every width */
 /* a band on full-bleed paper («for you» and the life situations: their cards
    read on white). The shadow paints the paper out to the viewport edges and
@@ -484,6 +498,111 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
   background:var(--panel);
   box-shadow:0 0 0 100vmax var(--panel); clip-path:inset(0 -100vmax);
 }
+
+/* ============ THREE STEPS — getting started (signed out) ============ */
+/* Folder tabs (home-start.js): the title, one line and the three steps as a
+   vertical tablist on the left (4fr); the chosen step is a tab that grows into
+   the folder on the right (8fr), concave corners where it meets it, the way a
+   folder's tab is one piece with the folder. The folder holds the step's words
+   and a cropped piece of the real interface rising from its foot: the sign-in
+   dialog, the profile once confirmed, the wallet and a tracker. Every panel
+   sits in one grid cell, so the folder keeps the tallest one's height and
+   nothing below moves when a tab changes. The chosen number is the selected
+   well of the canon (§3 Selected icon tile): solid --blue, --on-blue digit. */
+.start{display:grid; grid-template-columns:minmax(0, 4fr) minmax(0, 8fr); align-items:stretch}
+.start-side{display:flex; flex-direction:column; min-width:0; padding-right:var(--s-10)}
+.start-title{font-size:var(--fs-24); font-weight:var(--weight-semibold); line-height:1.2; text-wrap:balance}
+.start-lead{margin:var(--s-4) 0 var(--s-10); color:var(--ink-2); font-size:var(--fs-16); line-height:1.55; text-wrap:pretty}
+/* the tabs reach the folder: the side's padding is the gap they bridge */
+.start-tabs{display:grid; gap:var(--s-2); margin-right:calc(-1 * var(--s-10))}
+/* only the chosen tab reaches the folder; the others (and their hover) stop
+   --start-reach short of it. The chosen one takes that back as padding, so
+   the words keep one width and nothing reflows when the choice moves. */
+.start-tab{
+  --start-reach:var(--s-5);
+  position:relative; display:grid; grid-template-columns:auto minmax(0, 1fr); column-gap:var(--s-4); align-items:center;
+  margin-right:var(--start-reach); padding:var(--s-5) var(--s-6); border-radius:var(--r-l); color:var(--ink); text-align:left;
+  transition:background var(--t-fast) var(--ease);
+}
+.start-n{
+  grid-row:span 2; display:grid; place-items:center; width:28px; height:28px; border-radius:50%; corner-shape:round;
+  background:color-mix(in srgb, var(--ink) 7%, transparent); color:var(--ink-2); font-size:var(--fs-13); font-weight:var(--weight-semibold); font-variant-numeric:tabular-nums;
+  transition:background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+}
+.start-tab__t{font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.35}
+.start-tab__k{color:var(--ink-2); font-size:var(--fs-14); line-height:1.45; font-variant-numeric:tabular-nums}
+@media (hover:hover) and (pointer:fine){ .start-tab[aria-selected="false"]:hover{background:var(--hover)} }
+.start-tab[aria-selected="true"]{margin-right:0; padding-right:calc(var(--s-6) + var(--start-reach)); border-radius:var(--r-l) 0 0 var(--r-l); background:var(--home-tint)}
+.start-tab[aria-selected="true"] .start-n{background:var(--blue); color:var(--on-blue)}
+/* the concave corners where the tab meets the folder */
+.start-tab[aria-selected="true"]::before,.start-tab[aria-selected="true"]::after{content:""; position:absolute; right:0; width:var(--s-5); height:var(--s-5); pointer-events:none}
+.start-tab[aria-selected="true"]::before{bottom:100%; background:radial-gradient(circle at 0 0, transparent calc(var(--s-5) - .5px), var(--home-tint) var(--s-5))}
+.start-tab[aria-selected="true"]::after{top:100%; background:radial-gradient(circle at 0 100%, transparent calc(var(--s-5) - .5px), var(--home-tint) var(--s-5))}
+/* the first look (home-start.js): a line fills under the chosen step, then
+   the next one opens; once round, then it is the citizen's. It holds still
+   while keyboard focus is inside and while the band is out of view (not
+   under a resting pointer: a mouse left over the band while scrolling would
+   freeze it, and a click ends it anyway) */
+.start-tab__bar{
+  display:none; position:absolute; left:calc(var(--s-6) + 28px + var(--s-4)); right:calc(var(--s-6) + var(--start-reach)); bottom:var(--s-3); height:2px;
+  border-radius:var(--r-pill); corner-shape:round; background:color-mix(in srgb, var(--blue) 18%, transparent); overflow:hidden;
+}
+.start-tab__bar::after{content:""; position:absolute; inset:0; background:var(--blue); transform-origin:left; animation:startDwell var(--start-dwell, 4.5s) linear both}
+.start.is-touring .start-tab[aria-selected="true"] .start-tab__bar{display:block}
+.start.is-paused .start-tab__bar::after,
+.start:has(:focus-visible) .start-tab__bar::after{animation-play-state:paused}
+@keyframes startDwell{from{scale:0 1} to{scale:1 1}}
+.start-folder{display:grid; min-width:0; min-height:520px; overflow:hidden; border-radius:var(--r-xl); background:var(--home-tint)}
+.start-panel{grid-area:1 / 1; display:grid; grid-template-rows:auto 1fr; gap:var(--s-8); min-width:0; padding:var(--s-12) var(--s-12) 0}
+.start-panel[hidden]{display:grid; visibility:hidden} /* keeps its height in the stack, out of reach */
+.start-panel:focus-visible{outline:2px solid var(--blue); outline-offset:-4px}
+.start-t{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2; text-wrap:balance}
+.start-p{max-width:30em; margin:var(--s-4) 0 0; color:var(--ink-2); font-size:var(--fs-16); line-height:1.55; text-wrap:pretty}
+.start-acts{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3) var(--s-6); margin-top:var(--s-6)}
+.start-how{color:var(--blue-ink); font-size:var(--fs-15); line-height:1.5; border-radius:var(--r-s); text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--blue-ink) 40%, transparent); text-underline-offset:3px}
+.start-how:hover{text-decoration-color:currentColor}
+@media (pointer:coarse){ .start-how{padding-block:10px; margin-block:-10px} } /* 44px target, same line */
+/* a step opening: the words settle, the product rises from the folder's foot */
+.start-panel:not([hidden]) .start-copy{animation:startCopy var(--t-draw) var(--ease-out) both}
+.start-panel:not([hidden]) .start-ui{animation:startRise var(--t-draw) var(--ease-out) both}
+@keyframes startCopy{from{opacity:0; translate:0 8px}}
+@keyframes startRise{from{opacity:0; translate:0 24px}}
+
+/* the piece of the product: a sheet of the real interface, cropped by the folder's foot */
+.start-ui{
+  align-self:end; min-width:0; padding:var(--s-8); background:var(--panel); border-radius:var(--r-xl) var(--r-xl) 0 0;
+  box-shadow:var(--shadow-1);
+}
+.start-ui p{margin:0}
+.start-ui__t{font-size:var(--fs-20); font-weight:var(--weight-semibold)}
+.start-ui__sub{margin-top:var(--s-1) !important; color:var(--ink-2); font-size:var(--fs-14)}
+.start-ui__phone{
+  display:flex; align-items:center; gap:var(--s-3); max-width:420px; height:56px; margin-top:var(--s-6) !important; padding:0 var(--s-5);
+  border:1.5px solid var(--blue); border-radius:var(--r-pill); corner-shape:round; font-size:var(--fs-18); font-variant-numeric:tabular-nums;
+}
+.start-ui__phone span{color:var(--ink-2)}
+.start-ui__code{display:grid; grid-template-columns:repeat(6, minmax(0, 52px)); gap:var(--s-2); margin-top:var(--s-4) !important}
+.start-ui__code i{display:grid; place-items:center; height:52px; border-radius:var(--r-m); background:var(--field-on-panel); font-style:normal; font-size:var(--fs-20); font-weight:var(--weight-medium); font-variant-numeric:tabular-nums}
+.start-ui__code i.is-caret{box-shadow:inset 0 0 0 1.5px var(--blue)}
+.start-ui__who{display:flex; align-items:center; gap:var(--s-4)}
+.start-ui__av{display:grid; place-items:center; flex:none; width:52px; height:52px; border-radius:50%; corner-shape:round; background:var(--blue-tint); color:var(--blue-ink); font-size:var(--fs-20); font-weight:var(--weight-semibold)}
+.start-ui__who b{display:block; font-size:var(--fs-18); font-weight:var(--weight-semibold)}
+.start-ui__who small,.start-ui__ok small{display:block; color:var(--ink-2); font-size:var(--fs-14)}
+.start-ui__ok{
+  display:flex; align-items:center; gap:var(--s-3); margin-top:var(--s-6) !important; padding:var(--s-4) var(--s-5);
+  border-radius:var(--r-m); background:var(--green-tint);
+}
+.start-ui__ok svg{flex:none; width:22px; height:22px; color:var(--green)}
+.start-ui__ok b{font-size:var(--fs-15); font-weight:var(--weight-medium)}
+.start-ui__rows{margin:var(--s-4) 0 0}
+.start-ui__rows div{display:flex; justify-content:space-between; gap:var(--s-4); padding:var(--s-3) 0; border-top:1px solid var(--line-in); font-size:var(--fs-14)}
+.start-ui__rows dt{color:var(--ink-2)}
+.start-ui__rows dd{margin:0; font-weight:var(--weight-medium); font-variant-numeric:tabular-nums}
+.start-ui__wallet{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--s-2)}
+.start-ui__wallet .wcard{min-width:0}
+.start-ui__app{margin-top:var(--s-5); padding:var(--s-4) var(--s-5); border-radius:var(--r-m); background:var(--field-on-panel)}
+.start-ui__app b{display:block; font-size:var(--fs-15); font-weight:var(--weight-medium)}
+.start-ui__app small{color:var(--ink-2); font-size:var(--fs-13)}
 
 /* ============ LIFE SITUATIONS — two rows of tinted cards (Figma 130:4141) ============ */
 /* «see all» is a quiet text link on the heading's own line, flush right,
@@ -497,39 +616,32 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 @media (pointer:coarse){ .sect-more{padding-block:10px; margin-block:-10px} } /* 44px target, same line */
 /* every situation is visible at once — no pager: four columns, two rows */
 .moments{display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); grid-auto-rows:1fr; gap:var(--home-gap)} /* one box for every card, whichever row a long title is in */
-/* A card is the moment's scene: what it is and what is inside it on top, the
-   brand illustration in its corner, the way forward pinned to the foot. The
-   card is a link to the situation's page, never straight into a service. The
-   drawings keep 18% of their box as margin, so a --art box flush in the corner
-   puts their lines on the card's own inset; the copy paints above the art. */
+/* A compact card (2026-11-23; the 224px cards made the row the tallest band on
+   the page): the moment's name across the card's full width on one line, the
+   two-line «what is inside» under it, and the moment's scene, small, flush in
+   the bottom-right corner, where the drawing's own 18% margin is the card's
+   inset. The description keeps clear of the scene; the title runs over its
+   top margin. The whole tinted card is the link to the situation's page (never
+   straight into a service): the tint and its hover say so, so there is no
+   separate «go» control. Its inset is a step tighter than the bento's
+   --home-pad (a compact card), and the hover only deepens the tint: nothing
+   moves or lifts. */
 .moment{
-  --art:136px;
-  position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:flex-start; min-width:0;
-  min-height:224px; padding:var(--home-pad); overflow:hidden;
-  background:var(--blue-tint); border-radius:var(--home-r); color:var(--ink); text-align:left; scroll-snap-align:start;
+  --art:80px; --pad:var(--s-5);
+  position:relative; isolation:isolate; display:flex; flex-direction:column; align-items:flex-start; gap:var(--s-1); min-width:0;
+  padding:var(--pad); overflow:hidden;
+  background:var(--home-tint); border-radius:var(--home-r); color:var(--ink); text-align:left; scroll-snap-align:start;
   transition:background var(--t-fast) var(--ease);
 }
-.moment:hover,.moment:focus-visible{background:var(--blue-tint-hover)}
-.moment-copy{
-  display:grid; gap:var(--s-1); max-width:100%;
-  /* room for the scene under the copy: the drawing starts 82% of --art above the
-     card's foot, the way forward and the inset take 40 + --home-pad of that, and
-     --s-2 is the least air between the words and the lines. A title that wraps
-     grows the card instead of running into its scene. */
-  margin-bottom:calc(var(--art) * .82 - 40px - var(--home-pad) + var(--s-2));
-}
+.moment:hover,.moment:focus-visible{background:var(--home-tint-hover)}
+.moment-copy{display:grid; gap:var(--s-1); width:100%}
 .moment-title{font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.35; text-wrap:balance}
+/* clear of the scene: its lines start 82% of --art in from the card's right edge, the inset is part of that */
 .moment-text{
+  padding-right:calc(var(--art) * .82 - var(--pad) + var(--s-3));
   color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; text-wrap:pretty; overflow:hidden;
   display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
 }
-/* the way forward: a round step on the action-pill surface, on the copy's edge (§5 casebook 1) */
-.moment-go{
-  display:grid; place-items:center; flex:none; width:40px; height:40px; margin-top:auto;
-  border-radius:50%; background:var(--home-pill); color:var(--ink);
-}
-.moment-go svg{width:18px; height:18px; transition:translate var(--t-fast) var(--ease)}
-@media (hover:hover) and (pointer:fine){ .moment:hover .moment-go svg{translate:2px 0} }
 .moment-art{position:absolute; z-index:-1; right:0; bottom:0; width:var(--art); height:var(--art); pointer-events:none}
 
 /* ============ NEWS ============ */
@@ -570,7 +682,7 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
    with the column when a long story makes the words taller than that */
 .news-media{
   grid-column:2; grid-row:1 / span 2;
-  position:relative; display:block; overflow:hidden; background:var(--field); border-radius:4px;
+  position:relative; display:block; overflow:hidden; background:var(--field); border-radius:calc(4px * var(--corner-k));
 }
 .news-media::before{content:""; display:block; padding-top:56.25%}
 .news-media img{position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover}
@@ -592,40 +704,46 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
   .news-title{font-size:var(--fs-20); -webkit-line-clamp:6} /* a phone has room to wrap, not to truncate */
 }
 
-/* ============ QUESTIONS, THEN SUPPORT + APP ============ */
+/* ============ QUESTIONS, THE SUPPORT SHEET, THE APP ============ */
 /* Two bands close the page. First the common questions, on the white paper:
    the band's scene and title on the left, the questions as filled rows on the
-   right, a left-aligned line into the help guide under them.
-   Then, for whatever the questions miss, two ways to stay in touch side by
-   side — the page's last band: the support form — open on the band's white,
-   no outline, corners or inset, compact, the shared controls as they ship;
-   blue is left to what can be pressed — and the app download, the portal's
-   own tinted card, stretched to the same height. The support card reflows by
-   its own width (its container rules, below), not by the viewport's. */
-/* the form takes the narrow column of the news and questions' 5fr : 8fr line,
-   on the left edge under the questions' title; the app card is a poster's
-   width, not the column's, pinned to the right edge under the list's end, and
-   the space opens between them */
-.sup-app{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12)}
-.sup-app > .app-card{justify-self:end}
+   right, and under the title one way on for whatever they miss — the help
+   guide, or «write to us», which opens the support form as a full-viewport
+   sheet (2026-11-24: the form left the page). Then the app download, the
+   portal's own tinted card, alone in the page's last band, the content's
+   width. */
 .app-card{
-  position:relative; overflow:hidden; width:100%; max-width:560px; min-height:430px; padding:var(--home-pad);
-  background:var(--blue-tint); border-radius:var(--home-r);
+  position:relative; overflow:hidden; min-height:430px; padding:var(--home-pad);
+  background:var(--home-tint); border-radius:var(--home-r);
 }
 .app-card__title{position:relative; z-index:1; max-width:9em; font-size:var(--fs-24); font-weight:var(--weight-medium); line-height:1.25}
 .app-card__stores{position:relative; z-index:1; display:block; width:88px; height:auto; margin-top:var(--s-4)}
 .app-card__qr{position:absolute; left:var(--home-pad); bottom:var(--home-pad); width:62px; height:auto}
 .app-card__phone{position:absolute; top:72px; right:var(--s-6); width:224px; height:auto; pointer-events:none}
+/* in dark the phone has a dark screen (the light one lazy-loads only in
+   light, the dark one only in dark) */
+.app-card__phone--dark,
+[data-theme="dark"] .app-card__phone--light{display:none}
+[data-theme="dark"] .app-card__phone--dark{display:block}
 /* a black QR needs paper under it to scan on a dark card; the paper grows
-   outwards (negative margin), so the code stays where the layout put it */
-[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); margin:calc(-1 * var(--s-1)); background:var(--pure-white); border-radius:var(--r-s)}
+   outwards (negative margin), so the code stays where the layout put it. The
+   paper's corner equals its padding, so the code inside is clipped by a zero
+   radius and keeps square corners; its pale-blue light modules (drawn for the
+   light card's tint) go pure white on the paper */
+[data-theme="dark"] .app-card__qr{--qr-paper:6px; box-sizing:content-box; padding:var(--qr-paper); margin:calc(-1 * var(--qr-paper)); background:var(--pure-white); border-radius:var(--qr-paper); filter:grayscale(1) contrast(1.2)}
 
 /* the questions: the band's scene and title in the left column, the list in
    the right — the news grid's 5 : 8 columns and gap, so the two bands share
    one vertical line. Each question is a filled row on the paper (--field-on-
-   panel, --r-m), its answer opening inside the same row; a line under the
-   list points into the help guide for the rest */
-.faq{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12); align-items:start}
+   panel, --r-m), its answer opening inside the same row. Under the title, on
+   the list's last line, the one way on: the help guide or a message to us */
+.faq{
+  display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); grid-template-rows:auto 1fr;
+  grid-template-areas:"head main" "out main"; column-gap:var(--s-12); align-items:start;
+}
+.faq-head{grid-area:head}
+.faq-main{grid-area:main}
+.faq-out{grid-area:out; align-self:end; padding-top:var(--s-8)}
 .faq-head{--ill:104px}
 .faq-ill{display:block; width:var(--ill); height:var(--ill); margin:calc(-.18 * var(--ill)) 0 calc(-.18 * var(--ill) + var(--s-6)) calc(-.18 * var(--ill))}
 .faq-title{width:min-content} /* one word per line, in every language: the column is as wide as the longest word */
@@ -651,19 +769,37 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 @keyframes faqIn{from{opacity:0}}
 .faq-more{display:inline-block; margin-top:var(--s-2); color:var(--blue-ink); border-radius:var(--r-s)}
 .faq-more:hover{text-decoration:underline; text-underline-offset:3px}
-.faq-foot{margin-top:var(--s-6); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5}
-.faq-foot__link{color:var(--blue-ink); border-radius:var(--r-s); text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--blue-ink) 40%, transparent); text-underline-offset:3px}
-.faq-foot__link:hover{text-decoration-color:currentColor}
+/* the way on: a question, one line, two equal choices — neither is the page's
+   decision, so both are secondary */
+.faq-out__t{font-size:var(--fs-17); font-weight:var(--weight-semibold); line-height:1.3}
+.faq-out__p{max-width:36ch; margin-top:var(--s-1); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:pretty}
+.faq-out__acts{display:flex; flex-wrap:wrap; gap:var(--s-2); margin-top:var(--s-4)}
+
+/* ---- the support sheet: full viewport, the page's paper, one column ----
+   A focused mode, not a floating card: the shared dialog shell (Esc, focus
+   trap, focus back to «write to us») with its scrim, border and corners
+   taken off, so the form owns the whole screen. */
+.sup-overlay.ekh-dialog-backdrop{padding:0; background:var(--panel); backdrop-filter:none; place-items:stretch}
+.sup-overlay .sup-sheet.ekh-dialog{
+  position:relative; display:grid; place-items:center; width:100%; max-width:none; height:auto; min-height:100%; max-height:none;
+  overflow:visible; padding:calc(var(--h-portalbar) + var(--s-4)) var(--gutter) var(--s-16);
+  border:0; border-radius:0; background:var(--panel); box-shadow:none;
+}
+/* one column, 512px (under the 520px pair rule, so the fields stack and every
+   example fits). The close belongs to it, not to the screen's corner, where a
+   wide screen put it out of sight: top right of the column, level with the
+   scene, its edge on the fields' edge, on a quiet fill so it reads as a button */
+.sup-col{position:relative; width:min(100%, 512px)}
+.sup-close{position:absolute; top:0; right:0; z-index:1; width:var(--h-btn-s); height:var(--h-btn-s); border-radius:var(--r-btn-s); background:var(--field-on-panel); color:var(--ink)}
+.sup-close:hover{background:linear-gradient(var(--hover), var(--hover)), var(--field-on-panel); color:var(--ink)}
 
 .sup{
   container-type:inline-size;
   display:flex; flex-direction:column; min-width:0;
 }
-/* no box at all (2026-11-23): the form sits open on the band's white, its
-   text on the content edge, beside the tinted app card — no outline, no
-   corners, no inset; it is compact, so it does not out-weigh the app card */
-/* on the band's white the shared --field reads heavy: the card's fields take
-   the on-paper fill and a step quieter corner */
+/* no box at all: the form sits open on the sheet's paper — no outline, no
+   corners, no inset. On paper the shared --field reads heavy: its fields
+   take the on-paper fill and a step quieter corner */
 .sup .input{background:var(--field-on-panel); border-radius:var(--r-s)}
 /* one-line fields at the control height (44, the 52 shared field read bulky
    in a side card); each carries an example of what to type */
@@ -695,14 +831,13 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 .sup-send{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3) var(--s-4)}
 .sup-send .btn{flex:none}
 .sup-form[aria-busy="true"] .sup-send .btn{cursor:progress}
-/* the call row closes the card in both states: the question and the hours on
-   the left, the number as bare text to tap; no rule above it, and it
-   closes the form on the app card's foot */
+/* the call row closes the form in both states: the question and the hours on
+   the left, the number as bare text to tap */
 .sup-call{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-4);
   margin-top:auto;
 }
-.sup-body,.sup-done{margin-bottom:var(--s-4)}
+.sup-body,.sup-done{margin-bottom:var(--s-8)}
 .sup-call__text{display:grid; gap:2px; color:var(--ink); font-size:var(--fs-14); line-height:1.4}
 .sup-call__hours{color:var(--ink-3); font-size:var(--fs-13)}
 /* the number is bare text with its glyph at rest, at the question's size; the
@@ -737,15 +872,31 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
   .sup-send .btn{flex:1 1 100%}
   .sup-call__tel{margin-inline:calc(-1 * var(--s-3)) 0} /* wrapped under the hours, it hangs past the left edge instead */
 }
-@media (max-width:1080px){
-  .sup-app{grid-template-columns:minmax(0, 1fr); row-gap:var(--home-gap)}
-  .sup{max-width:560px} /* one column: the form keeps a form's width, not the page's */
-  .sup-app > .app-card{justify-self:start} /* stacked, both keep the left edge */
-}
 @media (max-width:1080px){ .faq{column-gap:var(--s-8)} }
+@media (max-width:880px){
+  /* one column: the steps over the folder; a tab no longer reaches across, so
+     the chosen one is a tinted row and the folder follows the list */
+  .start{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-5)}
+  .start-side{padding-right:0}
+  .start-lead{margin-bottom:var(--s-6)}
+  .start-tabs{margin-right:0}
+  .start-tab{--start-reach:0px}
+  .start-tab[aria-selected="true"]{border-radius:var(--r-l)}
+  .start-tab[aria-selected="true"]::before,.start-tab[aria-selected="true"]::after{display:none}
+  .start-folder{min-height:0}
+}
+@media (max-width:560px){
+  .start-panel{gap:var(--s-6); padding:var(--s-6) var(--s-5) 0}
+  .start-t{font-size:var(--fs-24)}
+  .start-ui{padding:var(--s-5)}
+  .start-ui__wallet{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  .start-ui__wallet .wcard:nth-child(3){display:none} /* two cards say «wallet» on a phone */
+  .start-ui__app{padding:var(--s-4)}
+}
 @media (max-width:760px){
-  /* one column: the scene and title over the list */
-  .faq{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-6)}
+  /* one column: the scene and title, the list, then the way on */
+  .faq{grid-template-columns:minmax(0, 1fr); grid-template-rows:none; grid-template-areas:"head" "main" "out"; row-gap:var(--s-6)}
+  .faq-out{padding-top:0}
   .faq-head{--ill:88px}
 }
 @media (max-width:560px){
@@ -754,29 +905,49 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 }
 
 /* ============ FOOTER ============ */
-footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
-.ft-grid{display:grid; grid-template-columns:1.6fr 1fr 1fr 1.2fr; gap:var(--s-8); padding:var(--s-10) 0}
-.ft-logo{display:flex; align-items:center; gap:10px; margin-bottom:var(--s-3)}
-.ft-logo svg{width:24px; height:24px; color:var(--blue)}
-.ft-logo b{font-size:var(--fs-16); font-weight:var(--weight-semibold); letter-spacing:0}
-.ft-brand p{color:var(--ink-3); font-size:var(--fs-13); max-width:34ch}
-footer h3{
-  font-size:var(--fs-13); font-weight:var(--weight-medium); letter-spacing:0; text-transform:none;
-  color:var(--ink-3); margin-bottom:var(--s-2);
+/* The footer (2026-11-24, after Mobbin footers: Miro/Airtable's columns over
+   one legal row, Contractbook's call centre with its hours) is white paper
+   (--panel) under one thin light-grey rule (--line) across the full width.
+   It opens like a band (--s-16 in, --s-12 on phones) and keeps the home's
+   5fr : 8fr line: the brand under the questions' title, the link columns from
+   the list's edge. Language and theme stay in the header's preferences layer
+   (§3 Citizen portal header), not here. */
+footer{
+  --ft-band:var(--s-16);
+  margin-top:var(--s-16); padding-top:calc(var(--ft-band) - 1px); /* the rule's 1px is part of the band */
+  background:var(--panel); border-top:1px solid var(--line); font-size:var(--fs-14);
 }
-.ft-col{display:flex; flex-direction:column; align-items:flex-start; gap:var(--s-2)}
-.ft-col a{color:var(--ink-2); text-decoration:none}
+.ft-grid{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12); row-gap:var(--s-10)}
+.ft-logo{display:flex; align-items:center; gap:10px}
+.ft-logo svg{width:24px; height:24px; color:var(--brand-logo)}
+.ft-logo b{font-size:var(--fs-17); font-weight:var(--weight-semibold); letter-spacing:0}
+.ft-tag{max-width:32ch; margin-top:var(--s-4); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:balance}
+.ft-cols{display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--s-8) var(--s-6)}
+/* the heading sits on the list's own rhythm (casebook 4): its gap is the links' gap */
+footer h3{
+  margin-bottom:var(--s-1); color:var(--ink-3);
+  font-size:var(--fs-13); font-weight:var(--weight-medium); line-height:1.4; letter-spacing:0; text-transform:none;
+}
+.ft-col{display:flex; flex-direction:column; align-items:flex-start; gap:var(--s-3); min-width:0}
+.ft-col a{color:var(--ink-2); line-height:1.4; text-decoration:none; border-radius:var(--r-s); transition:color var(--t-fast) var(--ease)}
 .ft-col a:hover{color:var(--ink)}
-.ft-c{display:inline-flex; align-items:center; gap:8px; color:var(--ink-2)}
-.ft-c svg{width:16px; height:16px; color:var(--ink-3); flex:none}
-a.ft-c:hover{color:var(--ink)}
+/* one heavier thing: the number a citizen came to the footer for, with its hours under it */
+.ft-col .ft-tel{color:var(--ink); font-size:var(--fs-17); font-weight:var(--weight-semibold); font-variant-numeric:tabular-nums; white-space:nowrap}
+.ft-col .ft-tel:hover{color:var(--blue-ink)}
+.ft-hours{margin-top:calc(-1 * var(--s-2)); color:var(--ink-3); font-size:var(--fs-13); line-height:1.4}
+.ft-mail{overflow-wrap:anywhere}
+.ft-city{color:var(--ink-3); line-height:1.4}
+/* the legal row: a hairline on the floor, © on the brand's edge, the links on the right */
 .ft-bottom{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-6);
-  border-top:1px solid var(--line); padding:var(--s-5) 0; font-size:var(--fs-13); color:var(--ink-3);
+  margin-top:var(--ft-band); padding-block:var(--s-6) var(--s-8);
+  border-top:1px solid var(--line-in); color:var(--ink-3); font-size:var(--fs-13);
 }
-.ft-legal{display:flex; flex-wrap:wrap; gap:var(--s-5)}
-.ft-bottom a{color:var(--ink-3); text-decoration:none}
+.ft-legal{display:flex; flex-wrap:wrap; gap:var(--s-2) var(--s-6)}
+.ft-bottom a{color:var(--ink-3); text-decoration:none; border-radius:var(--r-s); transition:color var(--t-fast) var(--ease)}
 .ft-bottom a:hover{color:var(--ink)}
+/* one column under 1080px, like the home's 5 : 8 bands: the brand over the columns */
+@media (max-width:1080px){ .ft-grid{grid-template-columns:minmax(0, 1fr)} }
 
 /* ============ CATEGORY PAGE ============ */
 /* The category screen uses the portal's full content container. Its standard
@@ -790,7 +961,7 @@ a.ft-c:hover{color:var(--ink)}
 }
 .cp-count{flex:none;padding-right:var(--s-4);color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-regular);letter-spacing:0;margin:0;white-space:nowrap}
 .cp-controls{display:block;min-width:0}
-#cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill);}
+#cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill); corner-shape:round}
 .cp-results{display:block}
 .cp-search{position:relative;display:flex;align-items:center;width:100%;height:var(--h-btn-l);min-width:0;border:1px solid var(--control-line);border-radius:var(--r-m);background:var(--field);transition:border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 .cp-search .ic{position:absolute; left:var(--s-4); top:50%; translate:0 -50%; width:20px; height:20px; color:var(--ink-2); pointer-events:none}
@@ -955,7 +1126,7 @@ a.ft-c:hover{color:var(--ink)}
 /* the number is sequence, not state: the quiet circle of the step lists (.e-step .n) */
 .life-step__head{display:flex; align-items:flex-start; gap:var(--s-4)}
 .life-step__n{
-  width:32px; height:32px; flex:none; display:grid; place-items:center; border-radius:50%;
+  width:32px; height:32px; flex:none; display:grid; place-items:center; border-radius:50%; corner-shape:round;
   background:var(--field); color:var(--ink-2); font-size:var(--fs-14); font-weight:var(--weight-semibold); font-variant-numeric:tabular-nums;
 }
 .life-step h2{padding-top:5px; font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.3} /* a panel title (§4), centred on the 32px number */
@@ -1103,11 +1274,11 @@ a.ft-c:hover{color:var(--ink)}
 .doc .exp{font-size:var(--fs-13); opacity:.85}
 .doc .exp.warn{color:var(--preview-peach); opacity:1; font-weight:600}
 .doc :focus-visible{outline-color:var(--pure-white)}
-.doc-qr{position:absolute;z-index:2;top:var(--s-4);right:var(--s-4);width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--alpha-white-22);color:var(--pure-white);transition:background var(--t-fast) var(--ease)}
+.doc-qr{position:absolute;z-index:2;top:var(--s-4);right:var(--s-4);width:40px;height:40px;display:grid;place-items:center;border-radius:50%; corner-shape:round;background:var(--alpha-white-22);color:var(--pure-white);transition:background var(--t-fast) var(--ease)}
 .doc-qr:hover{background:var(--alpha-white-34)}
 .doc-qr svg{width:18px;height:18px}
 .doc .badge-new{right:64px}
-.doc-open{position:absolute;z-index:1;inset:0;border-radius:inherit;}
+.doc-open{position:absolute;z-index:1;inset:0;border-radius:inherit; corner-shape:inherit}
 .doc-open:focus-visible{outline:3px solid var(--focus);outline-offset:-4px}
 .doc>.kind,.doc>h3,.doc>.num,.doc>.foot{position:relative;z-index:1;pointer-events:none}
 /* the badge is pinned to the card corner: this selector must not be beaten
@@ -1115,7 +1286,7 @@ a.ft-c:hover{color:var(--ink)}
 .doc>.badge-new{position:absolute;z-index:1;pointer-events:none}
 .badge-new{
   position:absolute; top:var(--s-4); right:var(--s-4); background:var(--pure-white); color:var(--doc-ink);
-  font-size:var(--fs-12); font-weight:550; border-radius:var(--r-pill); padding:3px 10px;
+  font-size:var(--fs-12); font-weight:550; border-radius:var(--r-pill); corner-shape:round; padding:3px 10px;
 }
 /* an empty panel holds its ground with deliberate air (§5 casebook 6) */
 .wallet-empty{
@@ -1172,7 +1343,7 @@ a.ft-c:hover{color:var(--ink)}
 .e-step .n{
   width:32px; height:32px; flex:none; display:grid; place-items:center;
   font-weight:var(--weight-semibold); font-size:var(--fs-14); font-variant-numeric:tabular-nums;
-  color:var(--ink-2); background:var(--field); border-radius:50%;
+  color:var(--ink-2); background:var(--field); border-radius:50%; corner-shape:round;
 }
 .e-step b{display:block; margin-bottom:2px}
 .e-step p{font-size:var(--fs-14); color:var(--ink-2)}
@@ -1199,7 +1370,7 @@ a.ft-c:hover{color:var(--ink)}
 .prof{max-width:var(--maxw); margin:0 auto; padding:0 var(--gutter)}
 .prof-head{display:flex; align-items:center; gap:var(--s-5); margin:var(--s-4) 0 var(--s-8)}
 .prof-ava{
-  width:72px; height:72px; border-radius:50%; flex:none;
+  width:72px; height:72px; border-radius:50%; corner-shape:round; flex:none;
   background:var(--h-blue-bg); color:var(--h-blue-fg);
   font-size:var(--fs-28); font-weight:var(--weight-semibold); display:grid; place-items:center;
 }
@@ -1207,7 +1378,7 @@ a.ft-c:hover{color:var(--ink)}
 .prof-head h1{display:flex; align-items:center; flex-wrap:wrap; gap:10px; font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.15}
 .prof-verified{
   position:relative; width:28px; height:28px; flex:none; display:inline-grid; place-items:center;
-  border-radius:50%; background:var(--green-tint); color:var(--green);
+  border-radius:50%; corner-shape:round; background:var(--green-tint); color:var(--green);
   box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--green) 18%,transparent);
 }
 .prof-verified:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -1262,7 +1433,7 @@ a.ft-c:hover{color:var(--ink)}
 .pr .src-tag{margin-top:5px}
 .pr .when{margin-left:auto; flex:none; font-size:var(--fs-13); color:var(--ink-3); white-space:nowrap}
 .pr .act{margin-left:auto; flex:none}
-.pav{width:44px; height:44px; border-radius:32%; flex:none; display:grid; place-items:center; font-weight:var(--weight-semibold); background:var(--h-steel-bg); color:var(--h-steel-fg)}
+.pav{width:44px; height:44px; border-radius:calc(32% * var(--corner-k)); flex:none; display:grid; place-items:center; font-weight:var(--weight-semibold); background:var(--h-steel-bg); color:var(--h-steel-fg)}
 .pav.earth{background:var(--h-rose-bg); color:var(--h-rose-fg)}
 /* an outlined aside, not a solid tint block competing with the data (rule 40) */
 .note-warn{
@@ -1281,7 +1452,7 @@ a.ft-c:hover{color:var(--ink)}
 .link-danger:hover{text-decoration:underline}
 
 /* ============ CABINET DEMO EXPANSION ============ */
-.guest-avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--field);color:var(--ink-2);margin-left:var(--s-2);transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
+.guest-avatar{width:36px;height:36px;border-radius:50%; corner-shape:round;display:grid;place-items:center;background:var(--field);color:var(--ink-2);margin-left:var(--s-2);transition:background var(--t-fast) var(--ease),color var(--t-fast) var(--ease)}
 .guest-avatar:hover{background:var(--hover);color:var(--ink)}
 .guest-avatar svg{width:18px;height:18px}
 .guest-strip{display:flex;align-items:center;gap:var(--s-3);max-width:760px;margin-bottom:var(--s-6);padding:var(--s-3) var(--s-4);border:1px solid var(--line);border-radius:var(--r-m);background:color-mix(in srgb,var(--panel) 88%,transparent);font-size:var(--fs-14)}
@@ -1302,7 +1473,7 @@ a.ft-c:hover{color:var(--ink)}
 .field-error{color:var(--red-ink);font-size:var(--fs-14);margin:0 0 var(--s-4)}
 .guest-consent{margin-bottom:var(--s-5)}
 .guest-success{padding:var(--s-10) var(--s-6);background:var(--panel);border:1px solid var(--line-in);border-radius:var(--r-l)}
-.guest-success #guestSuccessId{display:inline-flex;margin:var(--s-2) 0 var(--s-4);padding:8px 12px;border-radius:var(--r-pill);background:var(--field);font-weight:var(--weight-semibold);font-variant-numeric:tabular-nums;letter-spacing:0}
+.guest-success #guestSuccessId{display:inline-flex;margin:var(--s-2) 0 var(--s-4);padding:8px 12px;border-radius:var(--r-pill); corner-shape:round;background:var(--field);font-weight:var(--weight-semibold);font-variant-numeric:tabular-nums;letter-spacing:0}
 .pane-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-4);margin-bottom:var(--s-5)}
 .pane-heading h2{font-size:var(--fs-24)}
 #paymentsRoot .pane-heading .lead-s{margin-bottom:0}
@@ -1368,7 +1539,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 .application-detail__head .muted{color:var(--ink-3);font-size:var(--fs-13);font-variant-numeric:tabular-nums}
 .application-history{display:grid;gap:var(--s-3);margin-top:var(--s-4)}
 .application-history li{display:flex;gap:var(--s-3);align-items:flex-start}
-.application-history li > span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--field);color:var(--ink-3)}
+.application-history li > span{width:30px;height:30px;border-radius:50%; corner-shape:round;display:grid;place-items:center;background:var(--field);color:var(--ink-3)}
 .application-history li.done > span{background:var(--green-tint);color:var(--green)}
 .application-history li.current > span{background:var(--blue-tint);color:var(--blue-ink)}
 .application-history svg{width:15px;height:15px}
@@ -1378,7 +1549,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 .application-filter-panel{display:flex;flex-wrap:wrap;gap:var(--s-4);margin-bottom:var(--s-5)}
 .application-filter-panel .ekh-filter__field{width:200px}
 .application-path{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-4);margin-bottom:var(--s-5);border:1px solid var(--line-in);border-radius:var(--r-m);background:var(--field)}
-.application-path>span{width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--blue-tint);color:var(--blue-ink)}
+.application-path>span{width:40px;height:40px;display:grid;place-items:center;border-radius:50%; corner-shape:round;background:var(--blue-tint);color:var(--blue-ink)}
 .application-path svg{width:20px;height:20px}.application-path>div{display:grid;gap:2px}.application-path small{color:var(--ink-3)}
 
 /* Payments and receipts */
@@ -1406,7 +1577,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 .profile-photo-trigger{position:relative;padding:0}
 .profile-photo-trigger__edit{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--ink) 24%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);color:var(--pure-white);opacity:0;transition:opacity var(--t-fast) var(--ease)}
 .profile-photo-trigger__edit svg{width:20px;height:20px}.profile-photo-trigger:hover .profile-photo-trigger__edit,.profile-photo-trigger:focus-visible .profile-photo-trigger__edit{opacity:1}
-.profile-photo-modal{max-width:440px}.profile-photo-preview{width:140px;height:140px;display:grid;place-items:center;margin:0 auto var(--s-4);border-radius:50%;background:var(--h-blue-bg);color:var(--h-blue-fg);font-size:var(--fs-32);font-weight:var(--weight-semibold)}
+.profile-photo-modal{max-width:440px}.profile-photo-preview{width:140px;height:140px;display:grid;place-items:center;margin:0 auto var(--s-4);border-radius:50%; corner-shape:round;background:var(--h-blue-bg);color:var(--h-blue-fg);font-size:var(--fs-32);font-weight:var(--weight-semibold)}
 .profile-photo-pick{display:inline-flex;margin-bottom:var(--s-2);cursor:pointer}.profile-photo-pick svg{width:16px;height:16px}.profile-photo-modal .field-help{display:block;margin-bottom:var(--s-3);color:var(--ink-3)}
 .profile-photo-modal .field-error{margin:var(--s-3) 0;text-align:left}
 .biometric-modal{text-align:center}
@@ -1472,10 +1643,11 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
     mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 36px),transparent);
     -webkit-mask-image:linear-gradient(90deg,var(--pure-black) calc(100% - 36px),transparent);
   }
-  .pn{white-space:nowrap; flex:none; background:var(--panel); border-radius:var(--r-pill); padding:9px 16px}
+  .pn{white-space:nowrap; flex:none; background:var(--panel); border-radius:var(--r-pill); corner-shape:round; padding:9px 16px}
   .pn[aria-current="true"]{background:var(--blue-tint)}
   .pn-out{margin-top:0; margin-left:var(--s-2)} /* the nav is a row here */
-  .ft-grid{grid-template-columns:1fr 1fr}
+  .ft-cols{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  .ft-contact{grid-column:1 / -1} /* the number gets the full row under the two link lists */
 }
 @media (max-width:560px){
   .cp-head{align-items:flex-start;flex-direction:column;gap:var(--s-3)}
@@ -1503,10 +1675,11 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .hdr .dd.acct .dd-btn svg{width:12px; height:12px} /* the language trigger's chevron, beside it */
   #acctCur{min-width:0; overflow:hidden; text-overflow:ellipsis}
   .hdr-acts{flex:none}
-  .hdr-acts .hdr-login{padding:0 var(--s-3)}
   .hero h1{font-size:var(--fs-28)}
-  #scr-home,#scr-life{--home-band:var(--s-12); --home-gap:var(--s-3); --home-pad:var(--s-5)}
-  .moment{--art:120px; min-height:208px}
+  #scr-home,#scr-life{--home-band:var(--s-16); --home-gap:var(--s-3); --home-pad:var(--s-5)}
+  .moment{--art:72px; --pad:var(--s-4)}
+  /* the home's row: two cards stacked per column, the next column peeking */
+  #moments{grid-template-rows:repeat(2, minmax(0, 1fr)); grid-auto-rows:auto}
   /* a swipe row has room for every «other situation» */
   .life-more__grid > :nth-child(3){display:flex}
   /* the copy keeps the width: the scene joins the reading order and stands on
@@ -1519,7 +1692,8 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .life-step{padding:var(--s-5)}
   .life-step__body{margin-top:var(--s-3); padding-left:0}
   .life-more{margin-top:var(--s-10)}
-  main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
+  footer{--ft-band:var(--s-12); margin-top:var(--s-12)} /* the phone band */
+  main:has(> #scr-home:not([hidden])) + footer{margin-top:0; padding-top:calc(var(--s-16) - 1px)}
   .home-sect .sect-h{margin-bottom:var(--s-5)}
   /* one column; the fan leads the feature card, the wallet becomes a swipe row */
   .fy-grid{grid-template-columns:minmax(0, 1fr)}
@@ -1539,9 +1713,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .app-card{min-height:400px}
   .app-card__qr{display:none} /* a phone cannot scan its own screen */
   .app-card__phone{top:170px; right:calc(-1 * var(--s-6)); width:200px}
-  .ft-grid{grid-template-columns:1fr}
   .dd-btn{padding:7px 10px; font-size:var(--fs-13)}
-  .hdr-acts{gap:var(--s-2)}
   .j-acts{flex-direction:column-reverse}
   .search input{height:56px; padding:0 64px 0 48px; font-size:var(--fs-16)}
   .search .ic{left:17px; top:28px; width:20px; height:20px}
@@ -1600,7 +1772,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
 @media (hover:none){
   .cat:active,.frow:active,.svc-row:active,.s-item:active{background:var(--press)}
   .fy-app:active{background:var(--home-pill)}
-  .moment:active{background:var(--blue-tint-hover)}
+  .moment:active{background:var(--home-tint-hover)}
   .popular-card:active{background:var(--press)}
   .btn-pri:active{background:var(--blue-press)}
   .btn-sec:active{background:var(--press)}

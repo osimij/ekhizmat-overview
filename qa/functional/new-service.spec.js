@@ -152,14 +152,14 @@ test('Admin selected choices turn the icon tile solid blue', async ({ page }) =>
       idleBg: getComputedStyle(idle).backgroundColor,
     };
   });
-  expect(methodTiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(methodTiles.selectedBg).toBe('rgb(0, 145, 255)');
   expect(methodTiles.selectedColor).toBe('rgb(255, 255, 255)');
-  expect(methodTiles.idleBg).not.toBe('rgb(0, 114, 214)');
+  expect(methodTiles.idleBg).not.toBe('rgb(0, 145, 255)');
 
   await page.locator('[name="method"][value="copy"]').check();
   await page.locator('.copy-service input[value="SVC-FAM-01"]').check();
   const copyTile = page.locator('.copy-service:has(input:checked) .tile');
-  await expect.poll(async () => copyTile.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(0, 114, 214)');
+  await expect.poll(async () => copyTile.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgb(0, 145, 255)');
   await expect.poll(async () => copyTile.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(255, 255, 255)');
 
   await page.locator('#methodNext').click();
@@ -173,7 +173,7 @@ test('Admin selected choices turn the icon tile solid blue', async ({ page }) =>
       idleBg: getComputedStyle(idle).backgroundColor,
     };
   });
-  expect(categoryTiles.selectedBg).toBe('rgb(0, 114, 214)');
+  expect(categoryTiles.selectedBg).toBe('rgb(0, 145, 255)');
   expect(categoryTiles.selectedColor).toBe('rgb(255, 255, 255)');
-  expect(categoryTiles.idleBg).not.toBe('rgb(0, 114, 214)');
+  expect(categoryTiles.idleBg).not.toBe('rgb(0, 145, 255)');
 });

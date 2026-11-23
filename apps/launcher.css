@@ -179,7 +179,7 @@ body {
   gap: calc(var(--s-2) * var(--launch-scale));
   min-height: calc(var(--h-btn-l) * var(--launch-scale));
   padding-inline: calc(var(--s-4) * var(--launch-scale));
-  border-radius: var(--r-pill);
+  border-radius: var(--r-btn);
   color: var(--ink-2);
   font-size: calc(var(--fs-20) * var(--launch-scale));
 }
