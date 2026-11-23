@@ -30,9 +30,12 @@ test('the questions come first, then support and the app share the last band on 
   const [h2, list, card, app, news] = await Promise.all([box('#faqH'), box('#faqList'), box('#supCard'), box('.app-card'), box('.news-media')]);
   /* the questions: title on the content edge, the list in the news grid's right column */
   expect(Math.abs(card.left - h2.left)).toBeLessThan(1);
-  expect(Math.abs(app.right - list.right)).toBeLessThan(1);
   expect(Math.abs(list.left - news.left)).toBeLessThan(1);
   expect(list.left).toBeGreaterThan(h2.right);
+  /* the form holds the left edge, the app card (a poster's width) the right */
+  expect(Math.abs(app.right - list.right)).toBeLessThan(1);
+  expect(app.width).toBeLessThanOrEqual(560);
+  expect(app.left - card.right).toBeGreaterThan(48);
   /* side by side, one height, and both before the questions */
   expect(app.left).toBeGreaterThan(card.right);
   expect(Math.abs(app.height - card.height)).toBeLessThan(1);

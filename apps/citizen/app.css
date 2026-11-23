@@ -603,10 +603,13 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
    own tinted card, stretched to the same height. The support card reflows by
    its own width (its container rules, below), not by the viewport's. */
 /* the form takes the narrow column of the news and questions' 5fr : 8fr line,
-   under the questions' title; the app card the wide one, under the list */
+   on the left edge under the questions' title; the app card is a poster's
+   width, not the column's, pinned to the right edge under the list's end, and
+   the space opens between them */
 .sup-app{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12)}
+.sup-app > .app-card{justify-self:end}
 .app-card{
-  position:relative; overflow:hidden; min-height:430px; padding:var(--home-pad);
+  position:relative; overflow:hidden; width:100%; max-width:560px; min-height:430px; padding:var(--home-pad);
   background:var(--blue-tint); border-radius:var(--home-r);
 }
 .app-card__title{position:relative; z-index:1; max-width:9em; font-size:var(--fs-24); font-weight:var(--weight-medium); line-height:1.25}
@@ -737,6 +740,7 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
 @media (max-width:1080px){
   .sup-app{grid-template-columns:minmax(0, 1fr); row-gap:var(--home-gap)}
   .sup{max-width:560px} /* one column: the form keeps a form's width, not the page's */
+  .sup-app > .app-card{justify-self:start} /* stacked, both keep the left edge */
 }
 @media (max-width:1080px){ .faq{column-gap:var(--s-8)} }
 @media (max-width:760px){
