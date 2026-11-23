@@ -1,5 +1,6 @@
 /* ============================================================
-   Home «questions + support» band — the page's last word.
+   Home «questions» and support card — the page's last two bands: the
+   questions first, then the card beside the app download, closing the page.
    The common questions answer first, as one open list; the message card
    beside it is for anything they miss, and it reads the list while the
    citizen types, so an answer that already exists is one click away.
@@ -14,14 +15,14 @@ const FAQ = [
     q:{ tg:"Оё дар портал бақайдгирӣ лозим аст?",
         ru:"Нужно ли регистрироваться на портале?",
         en:"Do I need to register on the portal?" },
-    a:{ tg:"Бақайдгирии алоҳида лозим нест: бо рақами телефон ва рамзи SMS ворид шавед — ҳисоб худкор сохта мешавад. Барои дидани ҳуҷҷатҳо ва аризаҳо шахсияти худро як бор тасдиқ мекунед — дар маркази хизматрасонӣ ё бо ID-корт.",
-        ru:"Отдельной регистрации нет: войдите по номеру телефона и коду из SMS — аккаунт создастся сам. Чтобы видеть документы и заявления, один раз подтвердите личность — в центре обслуживания или по ID-карте.",
-        en:"There's no separate sign-up: sign in with your phone number and the SMS code, and your account is created automatically. To see documents and applications, confirm your identity once — at a service centre or with your ID card." },
+    a:{ tg:"Бақайдгирии алоҳида лозим нест: бо рақами телефон ва рамзи SMS ворид шавед ва ҳисоб худкор сохта мешавад. Барои дидани ҳуҷҷатҳо ва аризаҳо шахсияти худро як бор дар маркази хизматрасонӣ ё бо ID-корт тасдиқ мекунед.",
+        ru:"Отдельной регистрации нет: войдите по номеру телефона и коду из SMS, и аккаунт создастся сам. Чтобы видеть документы и заявления, один раз подтвердите личность в центре обслуживания или по ID-карте.",
+        en:"There's no separate sign-up: sign in with your phone number and the SMS code, and your account is created automatically. To see documents and applications, confirm your identity once, at a service centre or with your ID card." },
     k:{ tg:["бақайд","ҳисоб","вуруд","ворид"], ru:["регистр","аккаунт","учетн","учётн","войти","вход","логин"], en:["regist","sign","account","login","log in"] } },
   { id:"sms", help:"sign-in",
-    q:{ tg:"Рамзи SMS намеояд — чӣ кор кунам?",
-        ru:"Не приходит код из SMS — что делать?",
-        en:"The SMS code doesn't arrive — what do I do?" },
+    q:{ tg:"Рамзи SMS намеояд. Чӣ кор кунам?",
+        ru:"Не приходит код из SMS. Что делать?",
+        en:"The SMS code doesn't arrive. What do I do?" },
     a:{ tg:"Як дақиқа интизор шавед ва дар зери майдони рамз «Аз нав фиристодан»-ро пахш кунед. Санҷед, ки рақам дуруст ворид шудааст. Агар рақами телефон иваз шуда бошад, ба хатти дастгирӣ занг занед.",
         ru:"Подождите минуту и нажмите «Отправить ещё раз» под полем кода. Проверьте, что номер введён без ошибок. Если номер телефона сменился, позвоните на линию поддержки.",
         en:"Wait a minute, then press “Send again” under the code field. Check the number is typed correctly. If your phone number has changed, call the support line." },
@@ -30,9 +31,9 @@ const FAQ = [
     q:{ tg:"Хизматҳо чанд пул меистанд ва чӣ тавр пардохт кунам?",
         ru:"Сколько стоят услуги и как их оплатить?",
         en:"How much do services cost, and how do I pay?" },
-    a:{ tg:"Арзиш дар саҳифаи ҳар хизмат пеш аз ариза нишон дода мешавад; бисёр хизматҳо ройгонанд. Боҷро бо корти бонкӣ ё бонки мобилӣ пардохт мекунед — квитансияи электронӣ худкор ба идора мерасад.",
-        ru:"Стоимость видна на странице каждой услуги ещё до подачи; многие услуги бесплатны. Пошлину можно оплатить картой или через мобильный банк — электронный чек сам уйдёт в ведомство.",
-        en:"Each service page shows the cost before you apply; many services are free. Pay the fee by bank card or mobile banking — the e-receipt reaches the agency automatically." },
+    a:{ tg:"Арзиш дар саҳифаи ҳар хизмат пеш аз ариза нишон дода мешавад; бисёр хизматҳо ройгонанд. Боҷро бо корти бонкӣ ё бонки мобилӣ пардохт мекунед ва квитансияи электронӣ худкор ба идора мерасад.",
+        ru:"Стоимость видна на странице каждой услуги ещё до подачи; многие услуги бесплатны. Пошлину можно оплатить картой или через мобильный банк, и электронный чек сам уйдёт в ведомство.",
+        en:"Each service page shows the cost before you apply; many services are free. Pay the fee by bank card or mobile banking, and the e-receipt reaches the agency automatically." },
     k:{ tg:["арзиш","пардохт","пул","боҷ","корт","нарх"], ru:["стоим","цен","оплат","плат","пошлин","деньг","карт"], en:["cost","price","pay","fee","card","money"] } },
   { id:"track", help:"track",
     q:{ tg:"Чӣ тавр бифаҳмам, ки аризаам дар кадом марҳила аст?",
@@ -46,32 +47,32 @@ const FAQ = [
     q:{ tg:"Аризаро барои ислоҳ баргардонданд. Чӣ кор кунам?",
         ru:"Заявление вернули на исправление. Что делать?",
         en:"My application was sent back for changes. What now?" },
-    a:{ tg:"Ҳолати «Ислоҳ лозим» маънои онро дорад, ки идора чизеро пурсидааст. Сабабро дар ариза хонед, ислоҳ кунед ва аз нав фиристед — навбати шумо гум намешавад.",
-        ru:"Статус «Нужно исправить» значит, что ведомство что-то уточняет. Прочитайте причину в заявлении, исправьте и отправьте снова — очередь при этом не теряется.",
-        en:"“Needs fixing” means the agency is asking for something. Read the reason in the application, fix it and send it again — you keep your place in the queue." },
+    a:{ tg:"Ҳолати «Ислоҳ лозим» маънои онро дорад, ки идора чизеро пурсидааст. Сабабро дар ариза хонед, ислоҳ кунед ва аз нав фиристед. Навбати шумо гум намешавад.",
+        ru:"Статус «Нужно исправить» значит, что ведомство что-то уточняет. Прочитайте причину в заявлении, исправьте и отправьте снова. Очередь при этом не теряется.",
+        en:"“Needs fixing” means the agency is asking for something. Read the reason in the application, fix it and send it again. You keep your place in the queue." },
     k:{ tg:["ислоҳ","баргардон","рад","хато"], ru:["исправ","вернул","отказ","отклон","ошибк"], en:["fix","sent back","reject","refus","error","mistake"] } },
   { id:"docs", help:"result",
     q:{ tg:"Оё ҳуҷҷатҳои электронӣ мисли коғазӣ эътибор доранд?",
         ru:"Электронные документы действуют так же, как бумажные?",
         en:"Are electronic documents as valid as paper ones?" },
-    a:{ tg:"Бале. Ҳуҷҷатҳои «Ҳамёни ҳуҷҷатҳо» мӯҳри электронӣ доранд ва эътибори аслиро доранд. Барои нишон додани ҳуҷҷат QR-ро кушоед — ҳавола 10 дақиқа эътибор дорад ва танҳо ҳамон ҳуҷҷатро мекушояд.",
-        ru:"Да. Документы из «Кошелька документов» заверены электронной печатью и имеют силу оригинала. Чтобы показать документ, откройте его QR — ссылка действует 10 минут и открывает только этот документ.",
-        en:"Yes. Documents in your Document wallet carry an e-seal and count as originals. To show one, open its QR — the link works for 10 minutes and opens only that document." },
+    a:{ tg:"Бале. Ҳуҷҷатҳои «Ҳамёни ҳуҷҷатҳо» мӯҳри электронӣ доранд ва эътибори аслиро доранд. Барои нишон додани ҳуҷҷат QR-ро кушоед: ҳавола 10 дақиқа эътибор дорад ва танҳо ҳамон ҳуҷҷатро мекушояд.",
+        ru:"Да. Документы из «Кошелька документов» заверены электронной печатью и имеют силу оригинала. Чтобы показать документ, откройте его QR: ссылка действует 10 минут и открывает только этот документ.",
+        en:"Yes. Documents in your Document wallet carry an e-seal and count as originals. To show one, open its QR: the link works for 10 minutes and opens only that document." },
     k:{ tg:["электрон","коғаз","ҳамён","мӯҳр","эътибор","qr"], ru:["электрон","бумаж","оригинал","кошел","печат","действ","qr"], en:["electronic","paper","original","wallet","seal","valid","qr"] } },
   { id:"data", help:null,
     q:{ tg:"Маълумоти шахсии маро кӣ мебинад?",
         ru:"Кто видит мои личные данные?",
         en:"Who can see my personal data?" },
     a:{ tg:"Танҳо идораҳое, ки хизмати шуморо мерасонанд, ва танҳо он чизе, ки барои он лозим аст. Агар бонк ё ташкилоти дигар дастрасӣ пурсад, огоҳӣ мегиред ва худатон иҷозат медиҳед ё рад мекунед.",
-        ru:"Только ведомства, которые оказывают вашу услугу, и только то, что для неё нужно. Если банк или другая организация запросит доступ, придёт уведомление — и вы сами решите, разрешить или отказать.",
+        ru:"Только ведомства, которые оказывают вашу услугу, и только то, что для неё нужно. Если банк или другая организация запросит доступ, придёт уведомление, и вы сами решите, разрешить или отказать.",
         en:"Only the agencies providing your service, and only what that service needs. If a bank or another organisation asks for access, you get a notification and decide yourself whether to allow it." },
     k:{ tg:["маълумот","махфи","бехатар","дастрас"], ru:["данн","личн","безопас","конфиденц","доступ","защищ"], en:["data","privacy","personal","secur","access"] } },
   { id:"offline", help:"centres",
     q:{ tg:"Агар смартфон ё интернет надошта бошам, чӣ кор кунам?",
         ru:"Что если у меня нет смартфона или интернета?",
         en:"What if I don't have a smartphone or internet?" },
-    a:{ tg:"Ба маркази хизматрасонӣ биёед: корманд дар пур кардани ариза кумак мекунад. Вақтро пешакӣ гиред — бе навбат қабул мешавед.",
-        ru:"Приходите в центр обслуживания: сотрудник поможет заполнить заявление. Запишитесь заранее — примут без очереди.",
+    a:{ tg:"Ба маркази хизматрасонӣ биёед: корманд дар пур кардани ариза кумак мекунад. Вақтро пешакӣ гиред, то бе навбат қабул шавед.",
+        ru:"Приходите в центр обслуживания: сотрудник поможет заполнить заявление. Запишитесь заранее, и вас примут без очереди.",
         en:"Come to a service centre: staff will help you fill in the application. Book a time and you'll be seen without queuing." },
     k:{ tg:["интернет","смартфон","компютер","марказ","шахсан"], ru:["интернет","смартфон","компьютер","центр","лично","офис"], en:["internet","smartphone","computer","centre","center","in person","office"] } }
 ];
@@ -91,7 +92,6 @@ export function initHomeSupport(ctx){
   const fields = [name, contact, msg];
   const lang = () => ctx.getLang();
   const pick = o => o[lang()] || o.ru;
-  const topic = () => form.elements.supTopic.value || "q";
   let sending = false, matchTimer = 0, prefilled = null, ticket = "", replyTo = "";
 
   /* ---------- the questions ---------- */
@@ -161,10 +161,6 @@ export function initHomeSupport(ctx){
     if (input === msg){ clearTimeout(matchTimer); matchTimer = setTimeout(syncMatch, 250); }
   }));
 
-  /* ---------- the topic shapes the prompt ---------- */
-  function syncTopic(){ msg.placeholder = ctx.t("sup.ph." + topic()); }
-  form.addEventListener("change", e => { if (e.target.name === "supTopic") syncTopic(); });
-
   /* ---------- send ---------- */
   form.addEventListener("submit", e => {
     e.preventDefault();
@@ -202,8 +198,6 @@ export function initHomeSupport(ctx){
   }
   $("#supAgain").addEventListener("click", () => {
     msg.value = "";
-    form.elements.supTopic.value = "q";
-    syncTopic();
     match.hidden = true;
     done.hidden = true;
     body.hidden = false;
@@ -232,12 +226,12 @@ export function initHomeSupport(ctx){
 
   function render(){
     renderFaq();
-    syncTopic();
     if (!match.hidden) syncMatch();
     fields.forEach(input => { if (input.dataset.err) paintError(input, input.dataset.err); });
     if (!done.hidden) paintDone();
     if (sending) send.textContent = ctx.t("sup.sending");
   }
+
 
   return { render, syncAuth };
 }

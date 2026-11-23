@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-/* The home's last band: common questions, and a support message for anything
-   they miss (apps/citizen/js/home-support.js, design guide §3 Citizen home). */
+/* The home's last two bands: the common questions, then a support message
+   beside the app download (apps/citizen/js/home-support.js, design guide §3 Citizen home). */
 
 async function openHome(page, query = '') {
   await page.goto(`/citizen/?lang=ru&theme=light${query}`);
@@ -17,19 +17,26 @@ test('questions open one at a time and link into the help guide', async ({ page 
   await items.nth(2).locator('summary').click();
   await expect(items.nth(2)).toHaveAttribute('open', '');
   await expect(items.nth(1)).not.toHaveAttribute('open', '');
+  await expect(page.locator('.faq-foot__link')).toHaveAttribute('href', '#/help');
   await items.nth(2).locator('.faq-more').click();
   await expect(page).toHaveURL(/#\/help\/pay$/);
   await expect(page.locator('#scr-help')).toBeVisible();
 });
 
-test('the band sits on the home content edge and its card ends with the heading line', async ({ page }) => {
+test('the questions come first, then support and the app share the last band on the content edges', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openHome(page);
   const box = sel => page.locator(sel).first().evaluate(el => el.getBoundingClientRect().toJSON());
-  const [h2, q, more, card] = await Promise.all([box('#faqH'), box('.faq-q'), box('#supportSect .sect-more'), box('#supCard')]);
-  expect(Math.abs(q.left - h2.left)).toBeLessThan(1);
-  expect(Math.abs(card.right - more.right)).toBeLessThan(1);
-  expect(card.left).toBeGreaterThan(q.right);
+  const [h2, list, card, app, news] = await Promise.all([box('#faqH'), box('#faqList'), box('#supCard'), box('.app-card'), box('.news-media')]);
+  /* the questions: title on the content edge, the list in the news grid's right column */
+  expect(Math.abs(card.left - h2.left)).toBeLessThan(1);
+  expect(Math.abs(app.right - list.right)).toBeLessThan(1);
+  expect(Math.abs(list.left - news.left)).toBeLessThan(1);
+  expect(list.left).toBeGreaterThan(h2.right);
+  /* side by side, one height, and both before the questions */
+  expect(app.left).toBeGreaterThan(card.right);
+  expect(Math.abs(app.height - card.height)).toBeLessThan(1);
+  expect(list.bottom).toBeLessThan(card.top);
 });
 
 test('sending says what is missing, once, and focuses the first field', async ({ page }) => {
@@ -52,7 +59,7 @@ test('a message that the questions already answer points at the answer', async (
   await openHome(page);
   await page.locator('#supMsg').fill('Не приходит смс с кодом для входа');
   await expect(page.locator('#supMatch')).toBeVisible();
-  await expect(page.locator('#supMatchBtn')).toHaveText('Не приходит код из SMS — что делать?');
+  await expect(page.locator('#supMatchBtn')).toHaveText('Не приходит код из SMS. Что делать?');
   await page.locator('#supMatchBtn').click();
   await expect(page.locator('#faq-sms')).toHaveAttribute('open', '');
   await expect(page.locator('#faq-sms summary')).toBeFocused();
@@ -60,8 +67,7 @@ test('a message that the questions already answer points at the answer', async (
 
 test('a sent message keeps the card in place and can be followed by another', async ({ page }) => {
   await openHome(page);
-  await page.locator('label:has(input[name="supTopic"][value="f"])').click();
-  await expect(page.locator('#supMsg')).toHaveAttribute('placeholder', 'Что понравилось или что стоит улучшить?');
+  await expect(page.locator('#supMsg')).toHaveAttribute('placeholder', 'Например: какие документы нужны для загранпаспорта?');
   await page.locator('#supName').fill('Алишер');
   await page.locator('#supContact').fill('+992 90 123 45 67');
   await page.locator('#supMsg').fill('Удобный поиск, спасибо');
@@ -98,7 +104,7 @@ test('the form follows the language, errors included', async ({ page }) => {
   await expect(page.locator('#supNameErr')).toHaveText('Укажите имя');
   /* the language option lives in the preferences flyout; dispatching skips opening it */
   await page.locator('[data-lang="en"][role="option"]').first().dispatchEvent('click');
-  await expect(page.locator('#faqH')).toHaveText('Common questions');
+  await expect(page.locator('#faqH')).toHaveText('Frequently asked questions');
   await expect(page.locator('#supNameErr')).toHaveText('Enter your name');
   await expect(page.locator('#supMsg')).toHaveAttribute('placeholder', /^For example/);
   await expect(page.locator('#faq-cost')).toHaveAttribute('open', '');

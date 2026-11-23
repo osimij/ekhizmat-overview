@@ -6,7 +6,7 @@ test('life situations are two rows of illustrated cards that open their page, «
 
   await expect(page.locator('.emerg')).toHaveCount(0);
   await expect(page.locator('#searchInput')).toHaveAttribute('placeholder', 'Я хочу получить загранпаспорт');
-  await expect(page.locator('#momH')).toHaveCSS('font-size', '28px');
+  await expect(page.locator('#momH')).toHaveCSS('font-size', '24px');
   await expect(page.locator('#momH')).toHaveCSS('font-weight', '600');
   const cards = page.locator('#moments > .moment');
   await expect(cards).toHaveCount(8);
@@ -52,7 +52,7 @@ test('life situations are two rows of illustrated cards that open their page, «
     expect(new Set(layout.filter(({ top }) => top === row).map(({ goBottom }) => goBottom)).size).toBe(1);
   }
 
-  // the section is a full-bleed paper band: white edge to edge, 48 above the title and below the cards
+  // the section is a full-bleed paper band: white edge to edge, 64 above the title and below the cards
   const band = await page.locator('#moments').evaluate((row) => {
     const section = row.closest('section');
     const box = section.getBoundingClientRect();
@@ -64,7 +64,7 @@ test('life situations are two rows of illustrated cards that open their page, «
       shadow: getComputedStyle(section).boxShadow.includes('rgb(255, 255, 255)'),
     };
   });
-  expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 48, bottom: 48, shadow: true });
+  expect(band).toEqual({ background: 'rgb(255, 255, 255)', top: 64, bottom: 64, shadow: true });
 
   // «see all» shares the heading's line, centred on it, flush with the cards' right edge — and is the full list
   const more = page.locator('section[aria-labelledby="momH"] .sect-more');

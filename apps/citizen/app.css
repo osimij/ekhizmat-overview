@@ -13,12 +13,12 @@ body[data-platform="citizen"]{--maxw:var(--maxw-portal)}
    card grid uses --home-gap, every card has the --home-pad inset and --home-r
    corners — so «for you», the life situations and the news read as one page,
    not three stacked strips */
-#scr-home,#scr-life{--home-band:var(--s-12); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-xl); --home-pill:var(--panel)}
+#scr-home,#scr-life{--home-band:var(--s-16); --home-gap:var(--s-4); --home-pad:var(--s-6); --home-r:var(--r-l); --home-pill:var(--panel)}
 /* a quiet action sits a step above its card: paper in light; in dark, paper is
    darker than any card, so the step is a veil of ink instead — the same
    lift on the grey «for you» cards and the blue life-situation cards */
 [data-theme="dark"] :is(#scr-home,#scr-life){--home-pill:color-mix(in srgb, var(--ink) 9%, transparent)}
-/* the last band's 48 and the footer's own 48 are the page's end: no screen padding on top */
+/* the last band's 64 and the footer's own 64 are the page's end: no screen padding on top */
 #scr-home.screen{padding-bottom:0}
 
 /* ============ HEADER ============ */
@@ -469,12 +469,13 @@ button.wcard:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
 .sect-h{display:flex; align-items:baseline; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-5)}
 .sect-h h2{font-size:var(--fs-20); font-weight:var(--weight-medium)}
 /* home sections are the Figma «Body» bands (× .85): every band opens and
-   closes with --home-band, so any two sit 96 apart whether or not the ground
-   changes between them, and the footer follows the last at the same 48 + 48 */
+   closes with --home-band, so any two sit 128 apart (64 + 64; 96 on phones)
+   whether or not the ground changes between them, and the footer follows the
+   last at the same 64 + 64 */
 .home-sect{margin-top:0; padding-block:var(--home-band)}
 .home-sect .sect-h{margin-bottom:var(--s-6)}
-main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
-.home-sect .sect-h h2{font-size:var(--fs-28); font-weight:var(--weight-semibold); line-height:1.2}
+main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-16)}
+.home-sect .sect-h h2,.faq-title{font-size:var(--fs-24); font-weight:var(--weight-semibold); line-height:1.2} /* one size at every width */
 /* a band on full-bleed paper («for you» and the life situations: their cards
    read on white). The shadow paints the paper out to the viewport edges and
    the clip keeps it to the band's own height; two paper bands in a row are one
@@ -531,93 +532,153 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
 @media (hover:hover) and (pointer:fine){ .moment:hover .moment-go svg{translate:2px 0} }
 .moment-art{position:absolute; z-index:-1; right:0; bottom:0; width:var(--art); height:var(--art); pointer-events:none}
 
-/* ============ NEWS + APP (Figma 130:4170) ============ */
-.news-grid{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--home-gap)}
-.news-card,.app-card{
-  position:relative; overflow:hidden; min-height:430px; /* Figma 506 × .85 */ padding:var(--home-pad);
+/* ============ NEWS ============ */
+/* A preview of the latest stories, one at a time (home-news.js): the words on
+   the left — topic, title, then the date opening the summary («11 сентября
+   2026 | …») — with «read more» and the pager
+   in one row on the column's foot, and the story's photo on the right, the
+   larger half. The band's heading stands a step further from this open
+   composition than from a card grid (--s-10). A
+   photo is whatever the newsroom sends, a banner with lettering as often as
+   a picture, so it is cropped to a fixed frame and no text is laid over it;
+   it is not a card, so its corners are all but square (4px, under every
+   radius token: the hairlines make the band editorial, and print has no
+   rounded photos).
+   The foot row stands on the photo's foot whatever the story's length.
+   The band shares the white paper with its neighbours, so hairlines set it
+   apart instead of a fill: one across the container above the heading, and
+   one over the words' column that the photo's top edge continues. */
+#newsSect .sect-h{margin-bottom:var(--s-6); padding-top:var(--s-5); border-top:1px solid var(--line-in)}
+.news-grid{
+  display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); grid-template-rows:minmax(0, 1fr) auto;
+  column-gap:var(--s-12); row-gap:var(--s-6);
+}
+.news-copy{display:flex; flex-direction:column; align-items:flex-start; min-width:0; padding-top:var(--s-5); border-top:1px solid var(--line-in)}
+.news-meta{margin:0; color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; font-variant-numeric:tabular-nums}
+.news-title,.news-sum{text-wrap:pretty; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4}
+.news-title{margin-top:var(--s-3); font-size:var(--fs-24); font-weight:var(--weight-semibold); line-height:1.25}
+.news-sum{max-width:28em; margin:var(--s-4) 0 0; color:var(--ink-2); font-size:var(--fs-16); line-height:1.55}
+.news-date{white-space:nowrap} /* the summary's own colour, weight and figures; only the bar sets it off */
+.news-bar{margin-inline:var(--s-2); color:var(--ink-3)}
+/* the column's foot is one row: «read more» on the left, the pager on the right */
+.news-foot{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-4); padding-bottom:var(--s-4)}
+.news-more{flex:none; white-space:nowrap}
+.news-more svg{width:16px; height:16px; margin-right:calc(-1 * var(--s-1))}
+.news-pager{display:flex; align-items:center; gap:var(--s-2)}
+.news-count{min-width:4em; color:var(--ink-2); font-size:var(--fs-14); text-align:center; font-variant-numeric:tabular-nums}
+/* the frame is 16:9 at the least (the ::before holds the ratio) and grows
+   with the column when a long story makes the words taller than that */
+.news-media{
+  grid-column:2; grid-row:1 / span 2;
+  position:relative; display:block; overflow:hidden; background:var(--field); border-radius:4px;
+}
+.news-media::before{content:""; display:block; padding-top:56.25%}
+.news-media img{position:absolute; inset:0; display:block; width:100%; height:100%; object-fit:cover}
+/* a turn fades the new story in; it does not travel (§8) */
+.news-copy > *,.news-media img{animation:faqIn var(--t-step) var(--ease-out) both}
+@media (max-width:1080px){
+  .news-grid{column-gap:var(--s-8)}
+  .news-foot{padding-bottom:0}
+}
+@media (max-width:760px){
+  /* one column: the photo leads, the words follow, the pager closes */
+  .news-grid{grid-template-columns:minmax(0, 1fr); grid-template-rows:none; row-gap:var(--s-5)}
+  .news-media{grid-column:auto; grid-row:auto; order:-1}
+  .news-copy{padding-top:0; border-top:0} /* under the photo the column rule would cut the story off its picture */
+  /* the foot stays one row on a 360px phone (tighter button sides, a count as wide as its digits); narrower, the pager wraps under the button */
+  .news-foot{gap:var(--s-2)}
+  .news-more{padding-inline:var(--s-4)}
+  .news-count{min-width:0; padding-inline:var(--s-1); white-space:nowrap}
+  .news-title{font-size:var(--fs-20); -webkit-line-clamp:6} /* a phone has room to wrap, not to truncate */
+}
+
+/* ============ QUESTIONS, THEN SUPPORT + APP ============ */
+/* Two bands close the page. First the common questions, on the white paper:
+   the band's scene and title on the left, the questions as filled rows on the
+   right, a left-aligned line into the help guide under them.
+   Then, for whatever the questions miss, two ways to stay in touch side by
+   side — the page's last band: the support form — open on the band's white,
+   no outline, corners or inset, compact, the shared controls as they ship;
+   blue is left to what can be pressed — and the app download, the portal's
+   own tinted card, stretched to the same height. The support card reflows by
+   its own width (its container rules, below), not by the viewport's. */
+.sup-app{display:grid; grid-template-columns:minmax(0, 761fr) minmax(0, 556fr); gap:var(--home-gap)}
+.app-card{
+  position:relative; overflow:hidden; min-height:430px; padding:var(--home-pad);
   background:var(--blue-tint); border-radius:var(--home-r);
 }
-.news-card{display:flex; flex-direction:column; align-items:flex-start}
-.news-card__title,.app-card__title{
-  position:relative; z-index:1;
-  font-size:var(--fs-24); font-weight:var(--weight-medium); line-height:1.25;
-}
-.news-card__title{max-width:23em; text-wrap:pretty}
-.news-card__date{margin-top:var(--s-3); color:var(--ink-2); font-size:var(--fs-15); font-variant-numeric:tabular-nums}
-.news-card__cta{position:relative; z-index:1; margin-top:auto}
-.news-card__art{position:absolute; right:4.6%; bottom:5.7%; width:39%; height:auto; pointer-events:none}
-.app-card__title{max-width:9em}
+.app-card__title{position:relative; z-index:1; max-width:9em; font-size:var(--fs-24); font-weight:var(--weight-medium); line-height:1.25}
 .app-card__stores{position:relative; z-index:1; display:block; width:88px; height:auto; margin-top:var(--s-4)}
 .app-card__qr{position:absolute; left:var(--home-pad); bottom:var(--home-pad); width:62px; height:auto}
 .app-card__phone{position:absolute; top:72px; right:var(--s-6); width:224px; height:auto; pointer-events:none}
-/* a black QR needs paper under it to scan on a dark card */
-[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); background:var(--pure-white); border-radius:var(--r-s); left:calc(var(--home-pad) - var(--s-1)); bottom:calc(var(--home-pad) - var(--s-1))}
+/* a black QR needs paper under it to scan on a dark card; the paper grows
+   outwards (negative margin), so the code stays where the layout put it */
+[data-theme="dark"] .app-card__qr{box-sizing:content-box; padding:var(--s-1); margin:calc(-1 * var(--s-1)); background:var(--pure-white); border-radius:var(--r-s)}
 
-/* ============ QUESTIONS + SUPPORT ============ */
-/* The page's last band answers before it asks. The common questions are an
-   open list on the ground: text on the content edge, hairlines between, no
-   card, because eight boxed questions would out-shout their own answers.
-   Beside it is one card for anything the list misses: neutral paper with a
-   hairline (on the near-white ground paper needs the line to read), the
-   home's --home-r corners and --home-pad inset, and inside it the shared
-   controls exactly as they ship — fields on --field, the .seg topic choice,
-   quiet buttons as .btn-sec. Blue is left to what can be pressed.
-   Its responsive rules live with it: the card reflows by its own width (a
-   container), not by the viewport's. */
-.faq-sup{
-  display:grid; grid-template-columns:minmax(0, 7fr) minmax(0, 5fr);
-  column-gap:var(--s-12); row-gap:var(--s-10); align-items:start;
-}
-.faq-list{border-top:1px solid var(--line-in)}
-.faq-item{border-bottom:1px solid var(--line-in)}
+/* the questions: the band's scene and title in the left column, the list in
+   the right — the news grid's 5 : 8 columns and gap, so the two bands share
+   one vertical line. Each question is a filled row on the paper (--field-on-
+   panel, --r-m), its answer opening inside the same row; a line under the
+   list points into the help guide for the rest */
+.faq{display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 8fr); column-gap:var(--s-12); align-items:start}
+.faq-head{--ill:104px}
+.faq-ill{display:block; width:var(--ill); height:var(--ill); margin:calc(-.18 * var(--ill)) 0 calc(-.18 * var(--ill) + var(--s-6)) calc(-.18 * var(--ill))}
+.faq-title{width:min-content} /* one word per line, in every language: the column is as wide as the longest word */
+.faq-list{display:grid; gap:var(--s-3)}
+.faq-item{border-radius:var(--r-m); background:var(--field-on-panel); transition:background-color var(--t-fast) var(--ease)}
 .faq-item > summary{
-  display:flex; align-items:center; gap:var(--s-4); min-height:72px; padding-block:var(--s-4);
-  list-style:none; cursor:pointer; color:var(--ink);
-  font-size:var(--fs-17); font-weight:var(--weight-medium); line-height:1.4;
+  display:flex; align-items:center; gap:var(--s-4); min-height:64px; padding:var(--s-4) var(--s-6);
+  list-style:none; cursor:pointer; color:var(--ink); border-radius:var(--r-m);
+  font-size:var(--fs-16); font-weight:var(--weight-medium); line-height:1.4;
 }
 .faq-item > summary::-webkit-details-marker{display:none}
-.faq-item > summary:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:var(--r-s)}
+.faq-item > summary:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+@media (hover:hover) and (pointer:fine){ .faq-item:not([open]):hover{background:linear-gradient(var(--hover), var(--hover)), var(--field-on-panel)} }
+.faq-item:not([open]) > summary:active{background:var(--press)}
 .faq-q{min-width:0; text-wrap:pretty}
-/* the row's hover lives in the chevron's round well: a row fill would have
-   to fight the hairlines for an edge. The glyph sits on the column edge and
-   the well hangs past it (§5 casebook 3); only the glyph turns */
-.faq-chev{
-  display:grid; place-items:center; flex:none; width:36px; height:36px;
-  margin:calc(-1 * var(--s-1)) calc((16px - 36px) / 2) calc(-1 * var(--s-1)) auto;
-  border-radius:var(--r-pill); color:var(--ink-3);
-  transition:background-color var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
-}
-.faq-chev svg{width:16px; height:16px; transition:rotate var(--t-fast) var(--ease)}
+.faq-chev{display:grid; place-items:center; flex:none; margin-left:auto; color:var(--ink)}
+.faq-chev svg{width:18px; height:18px; transition:rotate var(--t-fast) var(--ease)}
 .faq-item[open] .faq-chev svg{rotate:180deg}
-.faq-item[open] .faq-chev{color:var(--ink)}
-@media (hover:hover) and (pointer:fine){ .faq-item > summary:hover .faq-chev{background:var(--field); color:var(--ink)} }
-.faq-item > summary:active .faq-chev{background:var(--press)}
-/* the answer continues the question's edge, on a reading measure; it fades
-   in, it does not travel (the disclosure contract, §8) */
-.faq-a{max-width:64ch; padding:0 var(--s-12) var(--s-6) 0; color:var(--ink-2); font-size:var(--fs-15); line-height:1.6}
+/* the answer continues the question's edge inside the row, on a reading
+   measure; it fades in, it does not travel (the disclosure contract, §8) */
+.faq-a{max-width:64ch; margin-top:calc(-1 * var(--s-2)); padding:0 var(--s-6) var(--s-5); color:var(--ink-2); font-size:var(--fs-15); line-height:1.6}
 .faq-item[open] .faq-a{animation:faqIn var(--t-step) var(--ease-out) both}
 @keyframes faqIn{from{opacity:0}}
 .faq-more{display:inline-block; margin-top:var(--s-2); color:var(--blue-ink); border-radius:var(--r-s)}
 .faq-more:hover{text-decoration:underline; text-underline-offset:3px}
+.faq-foot{margin-top:var(--s-6); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5}
+.faq-foot__link{color:var(--blue-ink); border-radius:var(--r-s); text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--blue-ink) 40%, transparent); text-underline-offset:3px}
+.faq-foot__link:hover{text-decoration-color:currentColor}
 
 .sup{
   container-type:inline-size;
   display:flex; flex-direction:column; min-width:0;
-  padding:var(--home-pad); border:1px solid var(--line-in); border-radius:var(--home-r); background:var(--panel);
 }
-/* the heading carries the help guide's scene (§3 Brand illustrations); the
-   drawing's own 18% margin is the card's inset, so its lines meet the padding
-   edge and it costs the heading no height */
-.sup-head{display:grid; grid-template-columns:minmax(0, 1fr) auto; column-gap:var(--s-4); align-items:start}
-.sup-head > :not(.sup-ill){grid-column:1}
-.sup-ill{grid-column:2; grid-row:1 / span 2; width:88px; height:88px; margin:calc(-.18 * 88px) calc(-.18 * 88px) calc(-.18 * 88px) 0}
+/* no box at all (2026-11-23): the form sits open on the band's white, its
+   text on the content edge, beside the tinted app card — no outline, no
+   corners, no inset; it is compact, so it does not out-weigh the app card */
+/* on the band's white the shared --field reads heavy: the card's fields take
+   the on-paper fill and a step quieter corner */
+.sup .input{background:var(--field-on-panel); border-radius:var(--r-s)}
+/* one-line fields at the control height (44, the 52 shared field read bulky
+   in a side card); each carries an example of what to type */
+.sup input.input{height:var(--h-btn-m)}
+/* the examples are quieter than what is typed: 14 for the hint, the typed
+   text keeps the shared 16 (it also keeps iOS from zooming the field) */
+.sup .input::placeholder{font-size:var(--fs-14)}
+/* the heading leads with the help guide's scene (§3 Brand illustrations),
+   above the title on the copy's edge; the drawing's own 18% margin is pulled
+   out on the top and left, so its lines meet the content edge */
+.sup-head{--ill:72px}
+.sup-ill{display:block; width:var(--ill); height:var(--ill); margin:calc(-.18 * var(--ill)) 0 calc(-.18 * var(--ill) + var(--s-3)) calc(-.18 * var(--ill))}
 .sup-title{font-size:var(--fs-20); font-weight:var(--weight-semibold); line-height:1.3}
 .sup-title:focus{outline:none}
 .sup-lead{margin-top:var(--s-1); color:var(--ink-2); font-size:var(--fs-15); line-height:1.5; text-wrap:balance}
-.sup-form{margin-top:var(--s-5)}
-.sup textarea.input{min-height:128px}
-/* the topic is the shared .seg; the fieldset only gives up its own box */
-.sup-topics{min-width:0; margin:0 0 var(--s-5); border:0}
+.sup-form{margin-top:var(--s-3)}
+.sup .field{margin-bottom:var(--s-3)}
+.sup-msg.field{margin-bottom:var(--s-4)}
+.sup .field label{margin-bottom:var(--s-1)}
+.sup textarea.input{height:88px; min-height:72px} /* three lines, not the four rows="4" asks for */
 .sup-pair{display:grid; grid-template-columns:minmax(0, 1fr); column-gap:var(--s-3)}
 /* a pointer to an answer that may already exist, under what is being typed */
 .sup-match{margin-top:var(--s-2); color:var(--ink-2); font-size:var(--fs-13); line-height:1.5}
@@ -629,19 +690,25 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
 .sup-match__link:hover{text-decoration-color:currentColor}
 .sup-send{display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-3) var(--s-4)}
 .sup-send .btn{flex:none}
-.sup-note{flex:1 1 12em; min-width:0; color:var(--ink-3); font-size:var(--fs-13); line-height:1.45}
 .sup-form[aria-busy="true"] .sup-send .btn{cursor:progress}
 /* the call row closes the card in both states: the question and the hours on
-   the left, the number as a quiet pill to tap */
+   the left, the number as bare text to tap; no rule above it, and it
+   follows Send directly instead of sinking to the app card's foot */
 .sup-call{
   display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--s-3) var(--s-4);
-  margin-top:auto; padding-top:var(--s-5);
-  border-top:1px solid var(--line-in);
 }
-.sup-body,.sup-done{margin-bottom:var(--s-5)}
+.sup-body,.sup-done{margin-bottom:var(--s-3)}
 .sup-call__text{display:grid; gap:2px; color:var(--ink); font-size:var(--fs-14); line-height:1.4}
 .sup-call__hours{color:var(--ink-3); font-size:var(--fs-13)}
-.sup-call__tel{flex:none; font-variant-numeric:tabular-nums}
+/* the number is bare text with its glyph at rest, at the question's size; the
+   pressable well shows only under the pointer and hangs past the content edge
+   (casebook 3), so the digits end on the same line as the card's other content */
+.sup-call__tel{
+  flex:none; padding-inline:var(--s-3); margin-right:calc(-1 * var(--s-3));
+  background:transparent; font-size:var(--fs-14); font-variant-numeric:tabular-nums;
+}
+@media (hover:hover) and (pointer:fine){ .sup-call__tel:hover{background:var(--field)} }
+.sup-call__tel:active{background:var(--press)}
 .sup-call__tel svg{width:16px; height:16px; color:var(--ink-2)}
 /* sent: the same card, the same height, one quiet way back */
 .sup-done{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding-block:var(--s-6); text-align:center}
@@ -659,18 +726,23 @@ main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
   .sup-form{margin-top:0}
 }
 @container (max-width: 340px){
-  .sup-ill{display:none} /* on a phone the heading keeps the width */
+  .sup-head{--ill:64px}
   .sup-send .btn{flex:1 1 100%}
-  .sup-call__tel{flex:1 1 100%}
+  .sup-call__tel{margin-inline:calc(-1 * var(--s-3)) 0} /* wrapped under the hours, it hangs past the left edge instead */
 }
 @media (max-width:1080px){
-  .faq-sup{grid-template-columns:minmax(0, 1fr)}
+  .sup-app{grid-template-columns:minmax(0, 1fr)}
+}
+@media (max-width:1080px){ .faq{column-gap:var(--s-8)} }
+@media (max-width:760px){
+  /* one column: the scene and title over the list */
+  .faq{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-6)}
+  .faq-head{--ill:88px}
 }
 @media (max-width:560px){
-  .faq-item > summary{min-height:64px; font-size:var(--fs-16)}
-  .faq-a{padding-right:0}
+  .faq-item > summary{padding-inline:var(--s-5)}
+  .faq-a{padding-inline:var(--s-5)}
 }
-@media (pointer:coarse){ .sup-topics.seg label{min-height:var(--h-btn-m)} }
 
 /* ============ FOOTER ============ */
 footer{margin-top:var(--s-16); border-top:1px solid var(--line); font-size:var(--fs-14)}
@@ -709,7 +781,7 @@ a.ft-c:hover{color:var(--ink)}
 }
 .cp-count{flex:none;padding-right:var(--s-4);color:var(--ink-2);font-size:var(--fs-13);font-weight:var(--weight-regular);letter-spacing:0;margin:0;white-space:nowrap}
 .cp-controls{display:block;min-width:0}
-#cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill)}
+#cpFilters .ekh-filter__field{width:140px; border-radius:var(--r-pill);}
 .cp-results{display:block}
 .cp-search{position:relative;display:flex;align-items:center;width:100%;height:var(--h-btn-l);min-width:0;border:1px solid var(--control-line);border-radius:var(--r-m);background:var(--field);transition:border-color var(--t-fast) var(--ease),box-shadow var(--t-fast) var(--ease)}
 .cp-search .ic{position:absolute; left:var(--s-4); top:50%; translate:0 -50%; width:20px; height:20px; color:var(--ink-2); pointer-events:none}
@@ -1026,7 +1098,7 @@ a.ft-c:hover{color:var(--ink)}
 .doc-qr:hover{background:var(--alpha-white-34)}
 .doc-qr svg{width:18px;height:18px}
 .doc .badge-new{right:64px}
-.doc-open{position:absolute;z-index:1;inset:0;border-radius:inherit}
+.doc-open{position:absolute;z-index:1;inset:0;border-radius:inherit;}
 .doc-open:focus-visible{outline:3px solid var(--focus);outline-offset:-4px}
 .doc>.kind,.doc>h3,.doc>.num,.doc>.foot{position:relative;z-index:1;pointer-events:none}
 /* the badge is pinned to the card corner: this selector must not be beaten
@@ -1351,7 +1423,6 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   /* two columns of «other situations»: the third would sit alone */
   .life-more__grid > :nth-child(3){display:none}
   .life-hero__art{width:168px; height:168px}
-  .news-grid{grid-template-columns:minmax(0,1fr)}
   /* two columns: the feature across the top, the deadline and the bill under
      it, then what is moving and the wallet, each the full width */
   .fy-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}
@@ -1425,7 +1496,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .hdr-acts{flex:none}
   .hdr-acts .hdr-login{padding:0 var(--s-3)}
   .hero h1{font-size:var(--fs-28)}
-  #scr-home,#scr-life{--home-band:var(--s-10); --home-gap:var(--s-3); --home-pad:var(--s-5)}
+  #scr-home,#scr-life{--home-band:var(--s-12); --home-gap:var(--s-3); --home-pad:var(--s-5)}
   .moment{--art:120px; min-height:208px}
   /* a swipe row has room for every «other situation» */
   .life-more__grid > :nth-child(3){display:flex}
@@ -1439,7 +1510,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   .life-step{padding:var(--s-5)}
   .life-step__body{margin-top:var(--s-3); padding-left:0}
   .life-more{margin-top:var(--s-10)}
-  main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-10)}
+  main:has(> #scr-home:not([hidden])) + footer{margin-top:var(--s-12)}
   .home-sect .sect-h{margin-bottom:var(--s-5)}
   /* one column; the fan leads the feature card, the wallet becomes a swipe row */
   .fy-grid{grid-template-columns:minmax(0, 1fr)}
@@ -1455,12 +1526,7 @@ button.app-kpi[aria-pressed="true"] span{color:var(--blue-ink)}
   }
   .fy-wallet > *{scroll-snap-align:start}
   .fy-app__name,.fy-app__meta{white-space:normal} /* a phone row has room to wrap, not to truncate */
-  .home-sect .sect-h h2{font-size:var(--fs-24)}
-  .news-card,.app-card{min-height:0}
-  .news-card__title,.app-card__title{font-size:var(--fs-20)}
-  /* in a phone-width card the illustration joins the reading order */
-  .news-card__art{position:static; align-self:flex-end; width:72%; margin:var(--s-4) 0}
-  .news-card__cta{order:1; margin-top:0}
+  .app-card__title{font-size:var(--fs-20)}
   .app-card{min-height:400px}
   .app-card__qr{display:none} /* a phone cannot scan its own screen */
   .app-card__phone{top:170px; right:calc(-1 * var(--s-6)); width:200px}

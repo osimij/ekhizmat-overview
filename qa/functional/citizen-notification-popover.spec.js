@@ -73,16 +73,16 @@ test('«for you» is a bento of borderless cards on the paper band the life situ
       cards: cards.map((card) => {
         const c = getComputedStyle(card);
         return { width: Math.round(box(card).width), top: Math.round(box(card).top), bottom: Math.round(box(card).bottom),
-                 border: c.borderTopWidth, radius: c.borderTopLeftRadius, pad: c.paddingLeft };
+                 border: c.borderTopWidth, radius: ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(c.borderTopLeftRadius) /* the designed radius (§5 Corners) */, pad: c.paddingLeft };
       }),
       column: (grid.width - 3 * parseFloat(getComputedStyle(section.querySelector('.fy-grid')).columnGap)) / 4,
     };
   });
   expect(layout.background).toBe('rgb(255, 255, 255)');
   expect(layout.nextIsPaper).toBe(true);
-  expect([layout.top, layout.bottom]).toEqual([48, 48]);
-  // every card: no border, the home's 24px corners and inset
-  for (const card of layout.cards) expect([card.border, card.radius, card.pad]).toEqual(['0px', '24px', '24px']);
+  expect([layout.top, layout.bottom]).toEqual([64, 64]);
+  // every card: no border, the home's 18px corners and 24px inset
+  for (const card of layout.cards) expect([card.border, card.radius, card.pad]).toEqual(['0px', '18px', '24px']);
   // row one: the feature across two columns, the deadline and the bill one each; row two halves
   const [feature, pass, pay, apps, wallet] = layout.cards;
   expect(feature.width).toBe(Math.round(2 * layout.column + 16));
@@ -210,26 +210,26 @@ test('notification rows keep their glyph on the first line and compact actions',
   await expect(action).toHaveCSS('min-height', '36px');
 });
 
-test('the home is one rhythm: every band 48 in and out, one card corner, one gap, 96 to the footer', async ({ page }) => {
+test('the home is one rhythm: every band 64 in and out, one card corner, one gap, 128 to the footer', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   const rhythm = await page.evaluate(() => {
     const px = (el, prop) => getComputedStyle(el)[prop];
     const sections = [...document.querySelectorAll('#scr-home .home-sect')].filter((el) => el.offsetParent !== null);
-    /* the questions + support band closes the page */
-    const last = sections.at(-1).querySelector('.faq-sup').getBoundingClientRect().bottom;
+    /* support + app close the page */
+    const last = sections.at(-1).querySelector('.sup-app').getBoundingClientRect().bottom;
     return {
       bands: sections.map((el) => [px(el, 'paddingTop'), px(el, 'paddingBottom')]),
-      corners: [...new Set(['.fy-card', '.moment', '.news-card', '.app-card', '.sup'].map((sel) => px(document.querySelector(sel), 'borderTopLeftRadius')))],
-      gaps: [...new Set(['.fy-grid', '.moments', '.news-grid'].map((sel) => px(document.querySelector(sel), 'columnGap')))],
-      insets: [...new Set(['.fy-card', '.moment', '.news-card', '.sup'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
+      corners: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => ((v) => `${Math.round(Number.parseFloat(v) / (Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--corner-k')) || 1) * 100) / 100}px`)(getComputedStyle(document.querySelector(sel)).borderTopLeftRadius) /* the designed radius (§5 Corners) */))],
+      gaps: [...new Set(['.fy-grid', '.moments', '.sup-app'].map((sel) => px(document.querySelector(sel), 'columnGap')))],
+      insets: [...new Set(['.fy-card', '.moment', '.app-card'].map((sel) => px(document.querySelector(sel), 'paddingLeft')))],
       footer: Math.round(document.querySelector('footer').getBoundingClientRect().top - last),
     };
   });
-  expect(rhythm.bands).toEqual([['48px', '48px'], ['48px', '48px'], ['48px', '48px'], ['48px', '48px']]);
-  expect(rhythm.corners).toEqual(['24px']);
+  expect(rhythm.bands).toEqual([['64px', '64px'], ['64px', '64px'], ['64px', '64px'], ['64px', '64px'], ['64px', '64px']]);
+  expect(rhythm.corners).toEqual(['18px']);
   expect(rhythm.gaps).toEqual(['16px']);
   expect(rhythm.insets).toEqual(['24px']);
-  expect(rhythm.footer).toBe(96);
+  expect(rhythm.footer).toBe(128);
 });
 
 test('the account menu uses the quiet popover shadow', async ({ page }) => {

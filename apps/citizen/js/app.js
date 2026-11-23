@@ -3,6 +3,7 @@ import { I18N } from './i18n.js';
 import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
 import { initHomeSupport } from './home-support.js';
+import { initHomeNews } from './home-news.js';
 import { initLifePage, LIFE_IDS } from './life-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
 import { renderQr } from '/design-system/js/qr.js';
@@ -24,6 +25,7 @@ let acct = "person";
 let expansion = null;
 let servicePage = null;
 let homeSupport = null;
+let homeNews = null;
 let lifePage = null;
 function t(k){
   const d = I18N[lang] || I18N.tg;
@@ -57,6 +59,7 @@ function applyLang(){
   if (!$("#scr-service").hidden) servicePage?.renderService(currentRoute);
   if (!$("#scr-help").hidden){ servicePage?.renderHelp(); servicePage?.syncToc(); }
   homeSupport?.render();
+  homeNews?.render();
   lifePage?.renderHome();
   if (!$("#scr-life").hidden) lifePage?.renderLife(currentRoute);
   expansion?.render();
@@ -1349,6 +1352,11 @@ homeSupport = initHomeSupport({
   t,
   esc,
   reduceMotion
+});
+homeNews = initHomeNews({
+  getLang:() => lang,
+  t,
+  esc
 });
 applyAuth();
 applyLang();

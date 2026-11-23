@@ -239,70 +239,62 @@
       <div class="moments" id="moments"></div>
     </section>
 
-    <!-- news + app download (Figma «Web» 130:4170) -->
-    <section class="sect home-sect" aria-labelledby="newsH">
+
+    <!-- news: a paged preview — one story's words and pager on the left, its photo on the right (home-news.js) -->
+    <section class="sect home-sect home-sect--paper" id="newsSect" aria-labelledby="newsH">
       <div class="sect-h">
         <h2 id="newsH" data-i18n="news.t">Хабарҳо ва рӯйдодҳо</h2>
+        <button class="sect-more" type="button" data-toast="toast.demo" data-i18n="news.all">Ҳамаи хабарҳо</button>
       </div>
-      <div class="news-grid">
-        <article class="news-card" aria-labelledby="newsItemH">
-          <h3 class="news-card__title" id="newsItemH" data-i18n="news.n1.t">Аз 15 сентябр талони муоинаи техникӣ танҳо тавассути Портали ягонаи хизматҳои давлатӣ - eKhizmat.tj расмӣ карда мешавад</h3>
-          <time class="news-card__date" datetime="2026-09-11" data-i18n="news.n1.d">11 сентябри 2026</time>
-          <button class="btn btn-pri news-card__cta" type="button" data-toast="toast.demo" data-i18n="news.more">Бештар хонед</button>
-          <img class="news-card__art" src="/apps/citizen/assets/news-inspection.webp" alt="" width="972" height="843" loading="lazy" decoding="async">
-        </article>
-        <aside class="app-card" aria-labelledby="appH">
-          <h3 class="app-card__title" id="appH" data-i18n="app.t">Барномаи мобилиро насб кунед</h3>
-          <img class="app-card__stores" src="/apps/citizen/assets/app-stores.svg" width="104" height="66" data-i18n-alt="app.stores" alt="App Store ва Google Play">
-          <img class="app-card__qr" src="/apps/citizen/assets/app-qr.svg" width="73" height="72" data-i18n-alt="app.qr" alt="Рамзи QR барои насби барнома">
-          <img class="app-card__phone" src="/apps/citizen/assets/app-phone.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
-        </aside>
+      <div class="news-grid" id="newsGrid"></div>
+    </section>
+
+
+    <!-- questions: the answers first — the band's scene and title on the left, the questions on the right -->
+    <section class="sect home-sect home-sect--paper" id="supportSect" aria-labelledby="faqH">
+      <div class="faq">
+        <div class="faq-head">
+          <svg class="ekh-ill faq-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-state-nothing-found"/></svg>
+          <h2 class="faq-title" id="faqH" data-i18n="faq.t">Саволҳои зуд‑зуд додашаванда</h2>
+        </div>
+        <div class="faq-main">
+          <div class="faq-list" id="faqList"></div>
+          <p class="faq-foot"><span data-i18n="faq.foot">Саволҳо боқӣ монданд? Ҳамаи ҷавобҳо дар бахши</span> <a class="faq-foot__link" href="#/help" data-route data-i18n="faq.all">«Кумак»</a></p>
+        </div>
       </div>
     </section>
 
-    <!-- questions + support: the answers first, a message for anything they miss -->
-    <section class="sect home-sect" id="supportSect" aria-labelledby="faqH">
-      <div class="sect-h">
-        <h2 id="faqH" data-i18n="faq.t">Саволҳои маъмул</h2>
-        <a class="sect-more" href="#/help" data-route data-i18n="faq.all">Ҳамаи ҷавобҳо</a>
-      </div>
-      <div class="faq-sup">
-        <div class="faq-list" id="faqList"></div>
+    <!-- support + app: for whatever the questions miss, write to us, or take the portal along — the page's last band -->
+    <section class="sect home-sect home-sect--paper" id="contactSect" aria-labelledby="supH">
+      <div class="sup-app">
         <aside class="sup" id="supCard" aria-labelledby="supH">
           <div class="sup-body" id="supBody">
             <div class="sup-head">
-              <h3 class="sup-title" id="supH" data-i18n="sup.t">Ҷавоб наёфтед?</h3>
-              <p class="sup-lead" data-i18n="sup.p">Ба мо нависед — дар давоми як рӯзи корӣ ҷавоб медиҳем.</p>
               <svg class="ekh-ill sup-ill" aria-hidden="true" focusable="false"><use href="/design-system/assets/illustrations.svg#ill-account-help-support"/></svg>
+              <h2 class="sup-title" id="supH" data-i18n="sup.t">Ҷавоб наёфтед?</h2>
+              <p class="sup-lead" data-i18n="sup.p">Ба мо нависед. Дар давоми як рӯзи корӣ ҷавоб медиҳем.</p>
             </div>
             <form class="sup-form" id="supForm" novalidate>
-              <fieldset class="seg sup-topics">
-                <legend class="sr-only" data-i18n="sup.topic">Мавзӯи паём</legend>
-                <label><input type="radio" name="supTopic" value="q" checked><span data-i18n="sup.topic.q">Савол</span></label>
-                <label><input type="radio" name="supTopic" value="p"><span data-i18n="sup.topic.p">Мушкил</span></label>
-                <label><input type="radio" name="supTopic" value="f"><span data-i18n="sup.topic.f">Пешниҳод</span></label>
-              </fieldset>
               <div class="sup-pair">
                 <div class="field">
                   <label for="supName" data-i18n="sup.name">Ном</label>
-                  <input class="input" id="supName" name="name" type="text" autocomplete="name" aria-describedby="supNameErr">
+                  <input class="input" id="supName" name="name" type="text" data-i18n-ph="sup.name.ph" placeholder="Масалан: Алишер Каримов" autocomplete="name" aria-describedby="supNameErr">
                   <p class="err-msg" id="supNameErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
                 </div>
                 <div class="field">
                   <label for="supContact" data-i18n="sup.contact">Телефон ё почта</label>
-                  <input class="input" id="supContact" name="contact" type="text" autocomplete="email" spellcheck="false" aria-describedby="supContactErr">
+                  <input class="input" id="supContact" name="contact" type="text" data-i18n-ph="sup.contact.ph" placeholder="+992 90 123 45 67 ё name@mail.tj" autocomplete="email" spellcheck="false" aria-describedby="supContactErr">
                   <p class="err-msg" id="supContactErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
                 </div>
               </div>
               <div class="field sup-msg">
                 <label for="supMsg" data-i18n="sup.msg">Паём</label>
-                <textarea class="input" id="supMsg" name="message" rows="4" maxlength="2000" aria-describedby="supMsgErr supMatch"></textarea>
+                <textarea class="input" id="supMsg" name="message" rows="4" data-i18n-ph="sup.ph" placeholder="Масалан: барои шиносномаи хориҷӣ кадом ҳуҷҷатҳо лозиманд?" maxlength="2000" aria-describedby="supMsgErr supMatch"></textarea>
                 <p class="err-msg" id="supMsgErr" hidden><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-info"/></svg><span></span></p>
                 <p class="sup-match" id="supMatch" aria-live="polite" hidden><span data-i18n="sup.match">Шояд ҷавоб аллакай ҳаст:</span> <button class="sup-match__link" id="supMatchBtn" type="button"></button></p>
               </div>
               <div class="sup-send">
                 <button class="btn btn-pri" id="supSend" type="submit" data-i18n="sup.send">Фиристодан</button>
-                <p class="sup-note" data-i18n="sup.note">Маълумоти шумо танҳо барои ҷавоб истифода мешавад.</p>
               </div>
             </form>
           </div>
@@ -317,6 +309,12 @@
             <a class="btn btn-sec sup-call__tel" href="tel:+992446607177"><svg aria-hidden="true"><use href="/design-system/assets/icons.svg#i-call"/></svg>+992 44 660-71-77</a>
           </div>
         </aside>
+        <div class="app-card">
+          <h2 class="app-card__title" id="appH" data-i18n="app.t">Барномаи мобилиро насб кунед</h2>
+          <img class="app-card__stores" src="/apps/citizen/assets/app-stores.svg" width="104" height="66" data-i18n-alt="app.stores" alt="App Store ва Google Play">
+          <img class="app-card__qr" src="/apps/citizen/assets/app-qr.svg" width="73" height="72" data-i18n-alt="app.qr" alt="Рамзи QR барои насби барнома">
+          <img class="app-card__phone" src="/apps/citizen/assets/app-phone.svg" width="264" height="566" alt="" loading="lazy" decoding="async">
+        </div>
       </div>
     </section>
 
