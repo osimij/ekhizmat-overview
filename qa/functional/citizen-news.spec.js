@@ -114,50 +114,56 @@ test('the list: a front page of the six newest, one big and five small, the rest
   await expect(page).toHaveURL(/#\/news\/life-moments$/);
 });
 
-test('a story: title on the content edge, date and topic beside the photo, what to do beside the text', async ({ page }) => {
+test('a story is an article: one reading column, the photo wider, then what to do and three more', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/citizen/?lang=ru&theme=light#/news/inspection');
 
-  await expect(page.locator('.news-head .ekh-crumbs a')).toHaveText(['Главная', 'Новости и события']);
+  await expect(page.locator('.news-story__head .ekh-crumbs a')).toHaveText(['Главная', 'Новости и события']);
+  await expect(page.locator('.news-story__topic')).toHaveText('Транспорт');
   const h1 = page.locator('#newsTitle');
   await expect(h1).toContainText('талон техосмотра');
-  await expect(h1).toHaveCSS('font-size', '28px');
-  await expect(page.locator('.news-art__when time')).toHaveText('11 сентября 2026');
-  await expect(page.locator('.news-art__when span')).toHaveText('Транспорт');
+  await expect(h1).toHaveCSS('font-size', '36px');
+  // the summary is the standfirst; the bar holds the date, the reading time and «copy link»
+  await expect(page.locator('.news-story__lead')).toHaveCSS('font-size', '20px');
+  await expect(page.locator('.news-story__when time')).toHaveText('11 сентября 2026');
+  await expect(page.locator('.news-story__when span')).toHaveText(/^\d+ мин чтения$/);
+  await expect(page.locator('.news-story__bar .news-share')).toHaveCount(1);
 
-  // the text: the summary as its lead, then the body on a measure no wider than the photo
-  await expect(page.locator('.news-body__lead')).toHaveCSS('font-size', '18px');
-  await expect(page.locator('.news-body > p').nth(1)).toHaveCSS('font-size', '16px');
-  await expect(page.locator('.news-body h2')).toHaveCSS('font-size', '20px');
+  // the text: 17px, subheads at 24, the note kept
+  await expect(page.locator('.news-body > p').first()).toHaveCSS('font-size', '17px');
+  await expect(page.locator('.news-body h2')).toHaveCSS('font-size', '24px');
   await expect(page.locator('.news-body .news-note')).toHaveCount(1);
   const geo = await page.evaluate(() => {
     const box = (sel) => document.querySelector(sel).getBoundingClientRect();
-    const [h, meta, media, body, rel, ft] = ['#newsTitle', '.news-art__meta', '.news-art .news-media', '.news-body', '.news-art__rel', '.ft-cols'].map(box);
+    const [head, media, body, rel, next] = ['.news-story__head', '.news-story__media', '.news-body', '.news-story__rel', '.news-next'].map(box);
+    const mid = (r) => Math.round(r.left + r.width / 2);
     return {
-      edge: [Math.round(h.left), Math.round(meta.left), Math.round(rel.left)],
-      line: [Math.round(media.left), Math.round(body.left), Math.round(ft.left)],
-      rule: Math.round(meta.top - media.top), ratio: media.width / media.height, measure: body.width <= media.width,
-      relPos: getComputedStyle(document.querySelector('.news-art__rel')).position,
+      column: [head.width, body.width, rel.width].map(Math.round), lefts: new Set([head.left, body.left, rel.left].map(Math.round)).size,
+      media: Math.round(media.width), centred: new Set([mid(head), mid(media), mid(body)]).size,
+      ratio: media.width / media.height, order: head.bottom < media.top && media.bottom < body.top && body.bottom < rel.top && rel.bottom < next.top,
+      nextWide: next.width > media.width,
     };
   });
-  expect(new Set(geo.edge).size).toBe(1);
-  expect(new Set(geo.line).size).toBe(1);
-  expect(geo.rule).toBe(0); // the column's hairline and the photo's top are one line
+  expect(geo.column).toEqual([720, 720, 720]);
+  expect(geo.lefts).toBe(1);
+  expect(geo.media).toBe(1000);
+  expect(geo.centred).toBe(1);
   expect(Math.abs(geo.ratio - 16 / 9)).toBeLessThan(0.01);
-  expect(geo.measure).toBe(true);
-  expect(geo.relPos).toBe('sticky');
+  expect(geo.order).toBe(true);
+  expect(geo.nextWide).toBe(true);
 
   // what the citizen can do about it: the service's own overview, then the life situation
-  const rel = page.locator('.news-art__rel .life-svc');
+  const rel = page.locator('.news-story__rel .life-svc');
   await expect(rel).toHaveCount(2);
   await expect(rel.first().locator('b')).toHaveText('Талон технического осмотра');
   await expect(rel.first()).toHaveAttribute('href', /^#\/service\/transport\//);
   await expect(rel.first().locator('.tag')).toHaveCount(1);
   await expect(rel.nth(1)).toHaveAttribute('href', '#/life/car');
 
-  // three more stories, never the one being read
+  // three more stories as cards, never the one being read
   await expect(page.locator('#newsNextH')).toHaveCSS('font-size', '24px');
-  const next = await page.locator('.news-next .news-row a').evaluateAll((items) => items.map((a) => a.getAttribute('href')));
+  await expect(page.locator('.news-next .news-card--next .news-media')).toHaveCount(3);
+  const next = await page.locator('.news-next .news-card--next h3 a').evaluateAll((items) => items.map((a) => a.getAttribute('href')));
   expect(next).toEqual(['#/news/president-day', '#/news/amonatbank', '#/news/civil-registry']);
   await page.locator('.news-next .sect-more').click();
   await expect(page).toHaveURL(/#\/news$/);
@@ -172,7 +178,7 @@ test('a story: title on the content edge, date and topic beside the photo, what 
 test('a story with nothing to do on the portal has no «on this topic»; an unknown story lands on the list', async ({ page }) => {
   await page.goto('/citizen/?lang=ru&theme=light#/news/president-day');
   await expect(page.locator('#newsTitle')).toHaveText(/День Президента/);
-  await expect(page.locator('.news-art__rel')).toHaveCount(0);
+  await expect(page.locator('.news-story__rel')).toHaveCount(0);
 
   await page.goto('/citizen/?lang=ru&theme=light#/news/no-such-story');
   await expect(page).toHaveURL(/#\/news$/);
@@ -193,10 +199,11 @@ test('«copy link» copies the story\'s address and says so in place', async ({ 
 test('the news follows the language and holds in dark', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/citizen/?lang=tg&theme=dark#/news/civil-registry');
-  await expect(page.locator('.news-head .ekh-crumbs a')).toHaveText(['Асосӣ', 'Хабарҳо ва рӯйдодҳо']);
-  await expect(page.locator('.news-art__when time')).toHaveText('5 ноябри 2026');
+  await expect(page.locator('.news-story__head .ekh-crumbs a')).toHaveText(['Асосӣ', 'Хабарҳо ва рӯйдодҳо']);
+  await expect(page.locator('.news-story__when time')).toHaveText('5 ноябри 2026');
+  await expect(page.locator('.news-story__when span')).toHaveText(/дақ\. хониш$/);
   await expect(page.locator('#newsRelH')).toHaveText('Дар ин мавзӯъ');
-  await expect(page.locator('.news-art__rel .life-svc')).toHaveCount(3);
+  await expect(page.locator('.news-story__rel .life-svc')).toHaveCount(3);
   // the paper is the theme's own panel, not a light island
   const paper = await page.evaluate(() => {
     const probe = document.createElement('i');
@@ -227,12 +234,13 @@ test('on a phone the list and the story are one column with no sideways scroll',
   await expect(page.locator('#newsTitle')).toHaveCSS('font-size', '24px');
   const story = await page.evaluate(() => {
     const box = (sel) => document.querySelector(sel).getBoundingClientRect();
-    const [meta, media, body, rel] = ['.news-art__meta', '.news-art .news-media', '.news-body', '.news-art__rel'].map(box);
+    const [bar, media, body, rel, next] = ['.news-story__bar', '.news-story__media', '.news-body', '.news-story__rel', '.news-card--next .news-media'].map(box);
     return {
-      order: meta.bottom <= media.top && media.bottom <= body.top && body.bottom <= rel.top,
-      relPos: getComputedStyle(document.querySelector('.news-art__rel')).position,
+      order: bar.bottom <= media.top && media.bottom <= body.top && body.bottom <= rel.top,
+      // the three more stories are small rows: a thumbnail beside the words
+      thumb: Math.round(next.width),
     };
   });
   expect(story.order).toBe(true);
-  expect(story.relPos).toBe('static');
+  expect(story.thumb).toBe(104);
 });

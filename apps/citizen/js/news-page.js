@@ -1,19 +1,15 @@
 /* ============================================================
    News: the «all news» list and one page per story (design-guide §3
-   «Citizen news»). Both continue the home band — white paper, hairlines
-   instead of cards, a near-square photo, and the home's 5fr : 8fr line:
-   what a story is filed under sits in the narrow column, the story itself
-   in the wide one, so the list's titles, a story's photo and text, and the
-   footer's columns share one left edge.
+   «Citizen news»), on white paper with hairlines instead of boxes.
 
-   #/news        a front page of the six newest (the newest in the wide
-                 middle column; two on its left, the first with its photo;
-                 three as words on its right), then every older story as a
-                 row: date and topic · title and summary · the photo, small.
-   #/news/<id>   title on the content edge; under one hairline the date and
-                 topic, «copy link» and what the citizen can do about the
-                 story on the portal (beside the text, sticky); the photo
-                 and the text in the wide column; three more stories last.
+   #/news        a front page of the six newest (the newest big on the
+                 left, the next five small on the right), then every older
+                 story as a compact row: photo · topic and date · title.
+   #/news/<id>   an article: one reading column for the topic, the title,
+                 the summary as its standfirst, a bar with the date, the
+                 reading time and «copy link»; the photo wider than the
+                 column; the text; what the citizen can do about it on the
+                 portal; three more stories as cards.
    ============================================================ */
 import { NEWS, newsDay } from './news-data.js';
 import { LIFE } from './life-data.js';
@@ -23,11 +19,11 @@ const icon = (name, cls) => `<svg${cls ? ` class="${cls}"` : ""} aria-hidden="tr
 
 const COPY = {
   tg:{ crumbs:"Роҳи саҳифа", home:"Асосӣ", list:"Ҳамаи хабарҳо", rel:"Дар ин мавзӯъ", next:"Дигар хабарҳо",
-       share:"Нусхаи пайванд", shared:"Пайванд нусхабардорӣ шуд", life:"Лаҳзаи зиндагӣ" },
+       share:"Нусхаи пайванд", shared:"Пайванд нусхабардорӣ шуд", life:"Лаҳзаи зиндагӣ", read:"{n} дақ. хониш" },
   ru:{ crumbs:"Навигационная цепочка", home:"Главная", list:"Все новости", rel:"По теме", next:"Другие новости",
-       share:"Скопировать ссылку", shared:"Ссылка скопирована", life:"Жизненная ситуация" },
+       share:"Скопировать ссылку", shared:"Ссылка скопирована", life:"Жизненная ситуация", read:"{n} мин чтения" },
   en:{ crumbs:"Breadcrumb", home:"Home", list:"All news", rel:"On this topic", next:"More news",
-       share:"Copy link", shared:"Link copied", life:"Life moment" }
+       share:"Copy link", shared:"Link copied", life:"Life moment", read:"{n} min read" }
 };
 
 /* a one- or two-letter word («в», «и», «ба») never ends a line: it travels with the next word */
@@ -65,10 +61,11 @@ export function initNewsPage(ctx){
   /* ---------- a story on the front page: the big one is its photo, title and summary;
      a small one adds its topic and date beside the thumbnail ---------- */
   function cardHtml(n, kind){
+    const h = kind === "next" ? "h3" : "h2"; /* under a story, the cards sit under «more news» */
     return `<article class="news-card news-card--${kind}">` +
       (kind === "lead" ? "" : `<p class="news-card__meta"><span>${say(n.cat)}</span>${when(n)}</p>`) +
-      `<span class="news-media">${photo(n, true)}</span>` +
-      `<h2><a href="${href(n)}" data-route>${say(n.t)}</a></h2>` +
+      `<span class="news-media">${photo(n, kind !== "next")}</span>` +
+      `<${h}><a href="${href(n)}" data-route>${say(n.t)}</a></${h}>` +
       (kind === "lead" ? `<p class="news-card__sum">${say(n.s)}</p>` : "") +
     `</article>`;
   }
@@ -119,29 +116,37 @@ export function initNewsPage(ctx){
     `</a></li>`;
   }
 
+  /* about 180 words a minute, never less than one */
+  function readMinutes(n){
+    const text = [pick(n.s), ...(n.body || []).map(b => b.ul ? (b.ul[lang()] || b.ul.ru).join(" ") : pick(b.p || b.h || b.note))].join(" ");
+    return Math.max(1, Math.round(text.split(/\s+/).filter(Boolean).length / 180));
+  }
+
+  /* ---------- a story: one reading column, the photo wider than it, then what to do and what else ---------- */
   function renderStory(n){
     const c = C();
     const rel = (n.rel || []).map(relHtml).join("");
     /* the three newest of the rest */
     const next = NEWS.filter(x => x !== n).slice(0, 3);
     $("#newsRoot").innerHTML =
-      `<article aria-labelledby="newsTitle">` +
-        `<header class="news-head">${crumbs([["#/", c.home], ["#/news", ctx.t("news.t")]])}<h1 id="newsTitle">${say(n.t)}</h1></header>` +
-        `<div class="news-art">` +
-          `<div class="news-art__meta">` +
-            `<p class="news-art__when">${when(n)}<span>${say(n.cat)}</span></p>` +
+      `<article class="news-story" aria-labelledby="newsTitle">` +
+        `<header class="news-story__head">` +
+          crumbs([["#/", c.home], ["#/news", ctx.t("news.t")]]) +
+          `<p class="news-story__topic">${say(n.cat)}</p>` +
+          `<h1 id="newsTitle">${say(n.t)}</h1>` +
+          `<p class="news-story__lead">${say(n.s)}</p>` +
+          `<div class="news-story__bar">` +
+            `<p class="news-story__when">${when(n)}<span>${esc(c.read.replace("{n}", readMinutes(n)))}</span></p>` +
             `<button class="btn btn-sec btn--s news-share" type="button" data-news-share>${icon("i-copy")}<span aria-live="polite">${esc(c.share)}</span></button>` +
           `</div>` +
-          `<div class="news-art__main">` +
-            `<span class="news-media">${photo(n, true)}</span>` +
-            `<div class="news-body"><p class="news-body__lead">${say(n.s)}</p>${(n.body || []).map(blockHtml).join("")}</div>` +
-          `</div>` +
-          (rel ? `<aside class="news-art__rel" aria-labelledby="newsRelH"><h2 id="newsRelH">${esc(c.rel)}</h2><ul class="life-svcs">${rel}</ul></aside>` : "") +
-        `</div>` +
+        `</header>` +
+        `<figure class="news-story__media news-media">${photo(n, true)}</figure>` +
+        `<div class="news-story__body news-body">${(n.body || []).map(blockHtml).join("")}</div>` +
+        (rel ? `<aside class="news-story__rel" aria-labelledby="newsRelH"><h2 id="newsRelH">${esc(c.rel)}</h2><ul class="life-svcs">${rel}</ul></aside>` : "") +
       `</article>` +
       `<section class="news-next" aria-labelledby="newsNextH">` +
         `<div class="sect-h"><h2 id="newsNextH">${esc(c.next)}</h2><a class="sect-more" href="#/news" data-route>${esc(ctx.t("news.all"))}</a></div>` +
-        `<ul class="news-list">${next.map(x => rowHtml(x, "h3")).join("")}</ul>` +
+        `<div class="news-next__grid">${next.map(x => cardHtml(x, "next")).join("")}</div>` +
       `</section>`;
   }
 
