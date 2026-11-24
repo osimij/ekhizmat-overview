@@ -335,7 +335,7 @@
     <section class="sect home-sect home-sect--paper" id="newsSect" aria-labelledby="newsH">
       <div class="sect-h">
         <h2 id="newsH" data-i18n="news.t">Хабарҳо ва рӯйдодҳо</h2>
-        <button class="sect-more" type="button" data-toast="toast.demo" data-i18n="news.all">Ҳамаи хабарҳо</button>
+        <a class="sect-more" href="#/news" data-route data-i18n="news.all">Ҳамаи хабарҳо</a>
       </div>
       <div class="news-grid" id="newsGrid"></div>
     </section>
@@ -421,6 +421,11 @@
 <!-- ============ LIFE SITUATIONS: the full list and one page per situation (life-page.js) ============ -->
 <section class="screen" id="scr-life" hidden>
   <div id="lifeRoot"></div>
+</section>
+
+<!-- ============ NEWS: every story as a list, and one page per story (news-page.js) ============ -->
+<section class="screen" id="scr-news" hidden>
+  <div class="news-page" id="newsRoot"></div>
 </section>
 
 <!-- ============ HELP: short guidance with a contents menu ============ -->

@@ -4,6 +4,8 @@ import { GUEST_CATALOG, initCitizenExpansion } from './citizen-expansion.js';
 import { initServicePage, svcKey, rankByWords, HELP_IDS } from './service-page.js';
 import { initHomeSupport } from './home-support.js';
 import { initHomeNews } from './home-news.js';
+import { initNewsPage } from './news-page.js';
+import { NEWS_IDS } from './news-data.js';
 import { initHomeStart } from './home-start.js';
 import { initLifePage, LIFE_IDS } from './life-page.js';
 import { presentAtLoginScale } from '/design-system/js/login-scale.js';
@@ -27,6 +29,7 @@ let expansion = null;
 let servicePage = null;
 let homeSupport = null;
 let homeNews = null;
+let newsPage = null;
 let lifePage = null;
 function t(k){
   const d = I18N[lang] || I18N.tg;
@@ -63,6 +66,7 @@ function applyLang(){
   homeNews?.render();
   lifePage?.renderHome();
   if (!$("#scr-life").hidden) lifePage?.renderLife(currentRoute);
+  if (!$("#scr-news").hidden) newsPage?.renderNews(currentRoute);
   expansion?.render();
   syncForYou();
   if (loginOverlay.classList.contains('open') || loginOverlay.classList.contains('is-open')) paintLoginStep();
@@ -135,6 +139,8 @@ $$("[data-acct]").forEach(b => b.addEventListener("click", () => {
   }
   /* a life situation lists the services this audience's catalogue carries */
   if (currentRoute.screen === "life") lifePage?.renderLife(currentRoute);
+  /* so does a story's «on this topic» */
+  if (currentRoute.screen === "news") newsPage?.renderNews(currentRoute);
   /* the same service may not exist for the new audience: fall back to its section, then home */
   if (currentRoute.screen === "service" && !servicePage?.renderService(currentRoute)){
     navigate(findGroup(currentRoute.cat) ? "#/category/" + encodeURIComponent(currentRoute.cat) : "#/", { replace:true });
@@ -562,7 +568,7 @@ document.addEventListener("keydown", e => {
    go()/navigate() only ever write a URL; applyRoute() paints what it says. */
 const SCREENS = { home:"scr-home", category:"scr-category", journey:"scr-journey",
                   emergency:"scr-emergency", profile:"scr-profile", notifs:"scr-notifs", guestService:"scr-guest-service",
-                  service:"scr-service", help:"scr-help", life:"scr-life" };
+                  service:"scr-service", help:"scr-help", life:"scr-life", news:"scr-news" };
 /* screens that only exist for a signed-in citizen */
 const PERSONAL = ["profile", "notifs", "journey"];
 /* route slug <-> pane id: the URL speaks the user's language, the DOM keeps its ids */
@@ -594,6 +600,8 @@ function parseRoute(hash){
     const id = LIFE_IDS.includes(parts[1]) ? parts[1] : null;
     return { screen:"life", id, section:id && /^(s\d|faq)$/.test(parts[2] || "") ? parts[2] : null };
   }
+  /* «all news» is #/news; a story is #/news/<id> */
+  if (parts[0] === "news") return { screen:"news", id:NEWS_IDS.includes(parts[1]) ? parts[1] : null };
   if (parts[0] === "emergency"){
     const step = ["documents", "done"].includes(parts[1]) ? parts[1] : "pitch";
     return { screen:"emergency", step };
@@ -610,6 +618,7 @@ function hashFor(route){
   if (route.screen === "service") return "#/service/" + encodeURIComponent(route.cat || "") + "/" + encodeURIComponent(route.key || "");
   if (route.screen === "help") return "#/help" + (route.section ? "/" + route.section : "");
   if (route.screen === "life") return "#/life" + (route.id ? "/" + route.id + (route.section ? "/" + route.section : "") : "");
+  if (route.screen === "news") return "#/news" + (route.id ? "/" + route.id : "");
   if (route.screen === "profile"){
     const slug = PANE_ROUTE[route.pane] || "data";
     return "#/profile/" + slug + (route.appId ? "/" + encodeURIComponent(route.appId) : "");
@@ -710,6 +719,15 @@ function applyRoute(route, opts){
     if (!reading) showScreen(SCREENS.life, opts);
     if (route.section) lifePage.focusSection(route.section, { instant:!reading });
     else lifePage.syncToc();
+    closeSearch();
+    return;
+  }
+  if (route.screen === "news"){
+    /* an unknown story lands on the list */
+    if (String(location.hash).split("?")[0] !== hashFor(route)){ navigate(hashFor(route), { replace:true }); return; }
+    newsPage.renderNews(route);
+    currentRoute = route;
+    showScreen(SCREENS.news, opts);
     closeSearch();
     return;
   }
@@ -1360,6 +1378,12 @@ homeNews = initHomeNews({
   getLang:() => lang,
   t,
   esc
+});
+newsPage = initNewsPage({
+  getLang:() => lang,
+  t,
+  esc,
+  lookup:(cat, re) => servicePage.lookup(cat, re)
 });
 applyAuth();
 applyLang();
