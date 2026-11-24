@@ -29,7 +29,7 @@ test('the home band leads into the news: «read more» to the story on show, «a
   await expect(page.locator('#newsTitle')).toHaveText('Новости и события');
 });
 
-test('the list: a front page of the six newest, the rest as rows on the 5 : 8 line', async ({ page }) => {
+test('the list: a front page of the six newest, one big and five small, the rest as compact rows', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/citizen/?lang=ru&theme=light#/news');
 
@@ -38,45 +38,42 @@ test('the list: a front page of the six newest, the rest as rows on the 5 : 8 li
   await expect(h1).toHaveCSS('font-size', '28px');
   await expect(h1).toHaveCSS('font-weight', '600');
 
-  // the first view: the newest in the wide middle column, two stories on its left, three on its right
+  // the first view: the newest big on the left, the next five small on the right
   const front = page.locator('.news-front');
   await expect(front.locator('.news-card')).toHaveCount(6);
   const lead = front.locator('.news-card--lead');
-  await expect(lead.locator('h2')).toHaveCSS('font-size', '28px');
+  await expect(lead.locator('h2')).toHaveCSS('font-size', '32px');
   await expect(lead.locator('h2 a')).toHaveAttribute('href', '#/news/president-day');
-  await expect(lead.locator('.news-card__meta')).toHaveText('События16 ноября 2026');
-  const colA = front.locator('.news-front__col--a .news-card');
-  const colB = front.locator('.news-front__col--b .news-card');
-  await expect(colA).toHaveCount(2);
-  await expect(colB).toHaveCount(3);
-  await expect(colA.first().locator('h2 a')).toHaveAttribute('href', '#/news/amonatbank');
-  await expect(colA.first().locator('h2')).toHaveCSS('font-size', '17px');
-  // photos on the newest two only; every other story is words under a hairline
-  await expect(front.locator('.news-media')).toHaveCount(2);
-  await expect(colA.first().locator('.news-media')).toHaveCount(1);
+  await expect(lead.locator('.news-card__meta')).toHaveCount(0); // the big story is its photo, title and summary
+  const side = front.locator('.news-front__side .news-card--side');
+  await expect(side).toHaveCount(5);
+  await expect(side.first().locator('h2 a')).toHaveAttribute('href', '#/news/amonatbank');
+  await expect(side.first().locator('h2')).toHaveCSS('font-size', '16px');
+  // every story shows its photo; only the big one carries a summary
+  await expect(front.locator('.news-media')).toHaveCount(6);
+  await expect(front.locator('.news-card__sum')).toHaveCount(1);
   const cols = await page.evaluate(() => {
     const box = (sel) => document.querySelector(sel).getBoundingClientRect();
-    const [f, a, mid, b, media] = ['.news-front', '.news-front__col--a', '.news-card--lead', '.news-front__col--b', '.news-card--lead .news-media'].map(box);
+    const [f, l, s, media, thumb] = ['.news-front', '.news-card--lead', '.news-front__side', '.news-card--lead .news-media', '.news-card--side .news-media'].map(box);
     const foot = (sel) => document.querySelector(sel).lastElementChild.getBoundingClientRect().bottom;
     return {
-      order: a.right < mid.left && mid.right < b.left,
-      tops: new Set([a.top, mid.top, b.top].map(Math.round)).size,
-      edges: [Math.round(a.left - f.left), Math.round(f.right - b.right)],
-      ratio: mid.width / a.width, even: Math.abs(a.width - b.width) < 1,
-      // the newest's words end on the front page's foot, and neither side column ends far above it
+      order: l.right < s.left, tops: Math.round(Math.abs(l.top - s.top)),
+      edges: [Math.round(l.left - f.left), Math.round(f.right - s.right)],
+      ratio: l.width / s.width,
+      // the big story's words end on the front page's foot, and the stack not far above it
       foot: Math.round(f.bottom - foot('.news-card--lead')),
-      ragged: Math.max(f.bottom - foot('.news-front__col--a'), f.bottom - foot('.news-front__col--b')),
-      photo: media.width / media.height,
+      ragged: f.bottom - foot('.news-front__side'),
+      photo: media.width / media.height, thumb: thumb.width / thumb.height,
     };
   });
   expect(cols.order).toBe(true);
-  expect(cols.tops).toBe(1);
+  expect(cols.tops).toBe(0);
   expect(cols.edges).toEqual([0, 0]);
-  expect(cols.even).toBe(true);
   expect(cols.ratio).toBeGreaterThan(1.9);
   expect(cols.foot).toBe(0);
   expect(cols.ragged).toBeLessThan(48);
-  // the newest's photo takes up the slack, between 16 : 9 and 4 : 3
+  expect(cols.thumb).toBeCloseTo(4 / 3, 1);
+  // the big story's photo takes up the slack, between 16 : 9 and 4 : 3
   expect(cols.photo).toBeLessThanOrEqual(16 / 9 + 0.01);
   expect(cols.photo).toBeGreaterThanOrEqual(4 / 3 - 0.01);
 
@@ -91,11 +88,12 @@ test('the list: a front page of the six newest, the rest as rows on the 5 : 8 li
   await expect(rows.first().locator('h2')).toHaveCSS('font-size', '17px');
   await expect(rows.first().locator('h2')).toHaveCSS('font-weight', '600');
 
-  // the rows: date and topic on the content edge, titles on the footer's line
+  // the rows: the small photo on the content edge, date · topic over the title beside it, no gap column
   const edge = await left(page, '#newsTitle');
   expect(await left(page, '.news-front')).toBe(edge);
-  expect(await left(page, '.news-row__meta')).toBe(edge);
-  expect(await left(page, '.news-row__copy')).toBe(await left(page, '.ft-cols'));
+  expect(await left(page, '.news-row__media')).toBe(edge);
+  expect(await left(page, '.news-row__meta')).toBe(await left(page, '.news-row__copy'));
+  expect(await left(page, '.news-row__copy') - edge).toBe(176 + 24);
 
   // the paper runs edge to edge and the footer meets it: no strip of page ground between them
   const seam = await page.evaluate(() => {
@@ -215,12 +213,11 @@ test('on a phone the list and the story are one column with no sideways scroll',
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/citizen/?lang=ru&theme=light#/news');
   expect(await noOverflow(page)).toBe(true);
-  // the front page is one column, newest first; a row is its date and topic, then the title beside a small photo
+  // the front page is one column, the big story first, then the five small; a row's topic and date sit over its title
   const order = await page.evaluate(() => {
     const box = (sel) => document.querySelector(sel).getBoundingClientRect();
-    const [lead, side, stack, meta, copy] = ['.news-card--lead', '.news-front__col--a', '.news-front__col--b', '.news-row__meta', '.news-row__copy'].map(box);
-    return lead.bottom <= side.top && side.bottom <= stack.top && meta.top < copy.top
-      && new Set([lead.width, side.width, stack.width].map(Math.round)).size === 1;
+    const [lead, side, meta, copy] = ['.news-card--lead', '.news-front__side', '.news-row__meta', '.news-row__copy'].map(box);
+    return lead.bottom <= side.top && meta.top < copy.top && Math.round(lead.width) === Math.round(side.width);
   });
   expect(order).toBe(true);
   await expect(page.locator('.news-row__copy p').first()).toBeHidden();

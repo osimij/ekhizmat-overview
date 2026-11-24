@@ -62,32 +62,30 @@ export function initNewsPage(ctx){
     `</li>`;
   }
 
-  /* ---------- a story on the front page: topic and date, the photo if it shows one, title, summary ---------- */
-  function cardHtml(n, kind, withPhoto){
-    return `<article class="news-card${kind ? " news-card--" + kind : ""}">` +
-      `<p class="news-card__meta"><span>${say(n.cat)}</span>${when(n)}</p>` +
-      (withPhoto ? `<span class="news-media">${photo(n, true)}</span>` : "") +
+  /* ---------- a story on the front page: the big one is its photo, title and summary;
+     a small one adds its topic and date beside the thumbnail ---------- */
+  function cardHtml(n, kind){
+    return `<article class="news-card news-card--${kind}">` +
+      (kind === "lead" ? "" : `<p class="news-card__meta"><span>${say(n.cat)}</span>${when(n)}</p>`) +
+      `<span class="news-media">${photo(n, true)}</span>` +
       `<h2><a href="${href(n)}" data-route>${say(n.t)}</a></h2>` +
-      `<p class="news-card__sum">${say(n.s)}</p>` +
+      (kind === "lead" ? `<p class="news-card__sum">${say(n.s)}</p>` : "") +
     `</article>`;
   }
 
   /* ---------- «all news» ----------
-     The first view is a front page of the six newest: the newest in the wide
-     middle column under its photo; on its left the second with a photo of
-     its own, then the third; on the right the fourth to sixth as words.
-     Two stories against three keeps the side columns about as tall as each
-     other, and the newest's photo takes up what is left. Every older story
-     is a row below. */
+     The first view is a front page of the six newest: the newest big on the
+     left, its photo taking up what the column leaves; the next five small on
+     the right, a thumbnail beside each title. Every older story is a row
+     below. */
   function renderIndex(){
     const [lead, ...others] = NEWS;
-    const colA = others.slice(0, 2), colB = others.slice(2, 5), rest = others.slice(5);
+    const side = others.slice(0, 5), rest = others.slice(5);
     $("#newsRoot").innerHTML =
       `<header class="news-head">${crumbs([["#/", C().home]])}<h1 id="newsTitle">${esc(ctx.t("news.t"))}</h1></header>` +
       `<div class="news-front">` +
-        cardHtml(lead, "lead", true) +
-        (colA.length ? `<div class="news-front__col news-front__col--a">${colA.map((n, i) => cardHtml(n, "", i === 0)).join("")}</div>` : "") +
-        (colB.length ? `<div class="news-front__col news-front__col--b">${colB.map(n => cardHtml(n, "", false)).join("")}</div>` : "") +
+        cardHtml(lead, "lead") +
+        (side.length ? `<div class="news-front__side">${side.map(n => cardHtml(n, "side")).join("")}</div>` : "") +
       `</div>` +
       (rest.length ? `<ul class="news-list" aria-label="${esc(C().list)}">${rest.map(n => rowHtml(n, "h2")).join("")}</ul>` : "");
   }

@@ -727,40 +727,40 @@ main:has(> #scr-news:not([hidden])) + footer{margin-top:0}
 /* a story opens once with its screen: the home's turn fade is for the pager */
 .news-page .news-media img{animation:none}
 
-/* the list's first view is a front page of the six newest, under one rule,
-   in three columns 1 : 2 : 1. The newest stands in the wide middle column
-   under its photo, the page's one large title; on its left the second with
-   a photo of its own, then the third; on its right the fourth to sixth as
-   words. Two stories against three keeps the side columns about as tall as
-   each other, and the newest's photo takes up what is left, to 4 : 3 at
-   most, so the three columns end together. Space and the hairlines between
-   stacked stories do the grouping: no card has a fill or an outline. A side
-   title is cut at four lines (the newsroom's run to seven in a column this
-   narrow); its page has it whole. The newest is first in the document and
-   on a phone; the grid places it in the middle. */
+/* the list's first view is a front page of the six newest, under one rule
+   (2026-11-24): the newest big on the left, two thirds of the width; the
+   next five small on the right, stacked under hairlines. The big story's
+   photo takes up what its column leaves (16 : 9 to 4 : 3), so the two sides
+   end together; a small story is a 4 : 3 thumbnail beside its topic, date
+   and a title cut at three lines, the way the rows below read. */
 .news-front{
-  display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); column-gap:var(--s-8);
+  display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); column-gap:var(--s-12);
   padding-top:var(--s-5); border-top:1px solid var(--line-in);
 }
 .news-card{position:relative; min-width:0}
-.news-front__col{grid-row:1; min-width:0}
-.news-front__col--a{grid-column:1}
-.news-front__col--b{grid-column:3}
-.news-front__col > * + *{margin-top:var(--s-6); padding-top:var(--s-6); border-top:1px solid var(--line-in)}
 .news-card__meta{
   display:flex; flex-wrap:wrap; gap:0 var(--s-3); margin:0 0 var(--s-4);
   color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; font-variant-numeric:tabular-nums;
 }
 .news-card__meta time{color:var(--ink-3)}
-.news-card .news-media{margin-bottom:var(--s-4)}
 .news-card h2,.news-card__sum{text-wrap:pretty; overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical}
 .news-card h2{font-size:var(--fs-17); font-weight:var(--weight-semibold); line-height:1.35; -webkit-line-clamp:4}
-.news-card__sum{margin:var(--s-2) 0 0; color:var(--ink-2); font-size:var(--fs-15); line-height:1.55; -webkit-line-clamp:3}
+.news-card__sum{margin:var(--s-3) 0 0; color:var(--ink-2); font-size:var(--fs-16); line-height:1.55; -webkit-line-clamp:3}
 /* the newest story */
-.news-card--lead{grid-column:2; grid-row:1; display:flex; flex-direction:column; container-type:inline-size}
+.news-card--lead{display:flex; flex-direction:column; container-type:inline-size}
 .news-card--lead .news-media{flex:1 1 auto; max-height:75cqi; margin-bottom:var(--s-5)}
-.news-card--lead h2{font-size:var(--fs-28); line-height:1.2; text-wrap:balance}
-.news-card--lead .news-card__sum{margin-top:var(--s-3); font-size:var(--fs-16)}
+.news-card--lead h2{font-size:var(--fs-32); line-height:1.2; text-wrap:balance}
+/* the next five */
+.news-front__side{display:flex; flex-direction:column; min-width:0}
+.news-front__side > * + *{margin-top:var(--s-6); padding-top:var(--s-6); border-top:1px solid var(--line-in)}
+.news-card--side{
+  display:grid; grid-template-columns:120px minmax(0, 1fr); grid-template-rows:auto 1fr;
+  grid-template-areas:"media meta" "media title"; column-gap:var(--s-4); align-items:start;
+}
+.news-card--side .news-card__meta{grid-area:meta; margin-bottom:var(--s-1)}
+.news-card--side .news-media{grid-area:media; margin:0}
+.news-card--side .news-media::before{padding-top:75%}
+.news-card--side h2{grid-area:title; font-size:var(--fs-16); -webkit-line-clamp:3}
 /* a story in a list is one link, its title; the target is the whole story */
 .news-card h2 a,.news-row__copy a{color:inherit; text-decoration:none; text-underline-offset:3px}
 .news-card h2 a::after,.news-row__copy a::after{content:""; position:absolute; inset:0}
@@ -770,10 +770,16 @@ main:has(> #scr-news:not([hidden])) + footer{margin-top:0}
   .news-card:hover h2 a,.news-row:hover .news-row__copy a{text-decoration:underline}
 }
 
-/* every older story: date and topic · title and summary · the photo, small */
+/* every older story, one compact row on the content edge (2026-11-24: the
+   date and topic alone in the 5fr column left a hole beside every title):
+   the small photo first, then date · topic on one quiet line over the title
+   and summary, the way the front page's cards read. The markup keeps the
+   title first; the grid places the photo. */
 .news-list{margin:var(--s-16) 0 0; padding:0; list-style:none}
 .news-row{
-  position:relative; display:grid; grid-template-columns:var(--news-cols); column-gap:var(--news-gap); align-items:start;
+  --row-photo:176px;
+  position:relative; display:grid; grid-template-columns:var(--row-photo) minmax(0, 1fr); grid-template-rows:auto 1fr;
+  column-gap:var(--s-6); row-gap:var(--s-1); align-items:start;
   padding-block:var(--s-6); border-top:1px solid var(--line-in);
 }
 .news-list > :last-child{padding-bottom:0}
@@ -781,17 +787,20 @@ main:has(> #scr-news:not([hidden])) + footer{margin-top:0}
   display:grid; gap:2px; margin:0;
   color:var(--ink-2); font-size:var(--fs-14); line-height:1.5; font-variant-numeric:tabular-nums;
 }
-.news-row__meta{padding-top:2px} /* optical: its first line on the title's baseline */
 .news-row__meta span,.news-art__when span{color:var(--ink-3)}
-.news-row__main{display:flex; align-items:flex-start; gap:var(--s-8); min-width:0}
-.news-row__copy{flex:1; min-width:0}
+/* the topic heads the story; the date stands at the row's right edge, on the topic's line */
+.news-row__meta{grid-column:2; grid-row:1; display:flex; flex-wrap:wrap; align-items:baseline; gap:0 var(--s-4); min-width:0} /* a long topic beside a narrow row wraps the date under it, still on the right */
+.news-row__meta span{order:-1}
+.news-row__meta time{margin-left:auto; white-space:nowrap}
+.news-row__main{display:contents}
+.news-row__copy{grid-column:2; grid-row:2; min-width:0; max-width:46rem}
 .news-row__copy :is(h2, h3){font-size:var(--fs-17); font-weight:var(--weight-semibold); line-height:1.35; text-wrap:pretty}
 .news-row__copy p{
   max-width:60ch; margin:var(--s-2) 0 0; color:var(--ink-2); font-size:var(--fs-15); line-height:1.55; text-wrap:pretty;
   overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2;
 }
 .news-row__media{
-  flex:none; display:block; width:176px; aspect-ratio:16 / 9; overflow:hidden;
+  grid-column:1; grid-row:1 / span 2; display:block; width:100%; aspect-ratio:16 / 9; overflow:hidden;
   background:var(--field); border-radius:calc(4px * var(--corner-k));
 }
 .news-row__media img{display:block; width:100%; height:100%; object-fit:cover}
@@ -835,26 +844,21 @@ main:has(> #scr-news:not([hidden])) + footer{margin-top:0}
 .news-next .news-list{margin-top:var(--s-6)}
 @media (max-width:1080px){
   .news-page{--news-gap:var(--s-8)}
-  /* the wide column is narrower here: the title keeps its width, the photo gives */
-  .news-row__main{gap:var(--s-5)}
-  .news-row__media{width:144px}
-  /* the front page: the newest across the top, the two side columns under a rule */
-  .news-front{grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); row-gap:var(--s-8)}
-  .news-card--lead{grid-column:1 / -1; grid-row:auto}
+  /* the title keeps its width, the photo gives */
+  .news-row{--row-photo:144px}
+  /* the front page: the newest across the top, the five small ones under a rule */
+  .news-front{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-8)}
   .news-card--lead .news-media{flex:none}
-  .news-front__col{grid-column:auto; grid-row:auto; padding-top:var(--s-6); border-top:1px solid var(--line-in)}
+  .news-front__side{padding-top:var(--s-6); border-top:1px solid var(--line-in)}
 }
 @media (max-width:760px){
   /* one column: the front page's stories one after another; a row's date and topic share a line above its title */
   .news-front{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-6)}
   .news-card--lead h2{font-size:var(--fs-20)}
   .news-card h2{-webkit-line-clamp:6} /* a phone has room to wrap, not to truncate */
+  .news-card--side h2{-webkit-line-clamp:4} /* beside a thumbnail, four lines; its page has it whole */
   .news-list{margin-top:var(--s-6)}
-  .news-row{grid-template-columns:minmax(0, 1fr); row-gap:var(--s-2); padding-block:var(--s-5)}
-  .news-row__meta{display:flex; flex-wrap:wrap; gap:0 var(--s-2); padding-top:0}
-  .news-row__meta span::before{content:"\00b7" / ""; margin-right:var(--s-2)}
-  .news-row__main{gap:var(--s-4)}
-  .news-row__media{width:104px}
+  .news-row{--row-photo:104px; column-gap:var(--s-4); padding-block:var(--s-5)}
   /* beside the small photo a long title is cut at four lines; its page has it whole */
   .news-row__copy :is(h2, h3){overflow:hidden; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4}
   /* a story: date and topic with «copy link» on one row, the photo, the text, then what to do */
